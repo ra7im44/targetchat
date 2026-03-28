@@ -1,0 +1,201 @@
+const express = require('express');
+const router = express.Router();
+const auth = require('../middleware/auth');
+const { Chat, Message } = require('../models');
+const { forwardToN8N } = require('../utils/n8nClient');
+
+const { validate, schemas } = require('../middleware/validation');
+
+// Create a new chat for the authenticated user
+router.post('/create', auth, async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const { title, persona, workflowId } = req.body;
+    const chat = await Chat.create({
+      title: title || 'New Chat',
+      userId,
+      persona: persona || 'default',
+      workflowId: workflowId || null
+    });
+    return res.json(chat);
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({ message: 'Server error' });
+  }
+});
+
+// List chats for authenticated user
+router.get('/list', auth, async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const { Workflow } = require('../models');
+    const chats = await Chat.findAll({
+      where: { userId },
+      include: [{
+        model: Workflow,
+        as: 'workflow',
+        attributes: ['id', 'name', 'icon']
+      }],
+      order: [['updatedAt', 'DESC']]
+    });
+    return res.json(chats);
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({ message: 'Server error' });
+  }
+});
+if (fname.startsWith('/uploads/')) fname = fname.split('/').pop();
+else if (fname.startsWith('/secure-file/')) fname = fname.split('/').pop().split('?')[0];
+else if (fname.includes('/')) fname = fname.split('/').pop(); // Safety fallback
+
+// Generate fresh signed URL
+m.text = generateSignedUrl(fname);
+      }
+return m;
+    });
+
+return res.json({ chat, messages: processedMessages });
+  } catch (err) {
+  console.error(err);
+  return res.status(500).json({ message: 'Server error' });
+}
+});
+
+// Delete a chat (and cascade messages)
+router.delete('/:id', auth, async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const id = req.params.id;
+    const chat = await Chat.findOne({ where: { id, userId } });
+    if (!chat) return res.status(404).json({ message: 'Chat not found' });
+    await chat.destroy();
+    return res.json({ message: 'Deleted' });
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({ message: 'Server error' });
+  }
+});
+
+// Update chat (title)
+router.patch('/:id', auth, async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const id = req.params.id;
+    const { title } = req.body;
+    const chat = await Chat.findOne({ where: { id, userId } });
+    if (!chat) return res.status(404).json({ message: 'Chat not found' });
+    if (typeof title === 'string' && title.trim().length) {
+      await chat.update({ title: title.trim() });
+    }
+    return res.json(chat);
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({ message: 'Server error' });
+  }
+});
+
+// Send message to a chat (creates messages and forwards to n8n)
+router.post('/send', auth, validate(schemas.sendMessage), async (req, res) => {
+  try {
+    const { chat_id, message } = req.body;
+    const userId = req.user.id;
+    const chat = await Chat.findByPk(chat_id);
+    if (!chat) return res.status(404).json({ error: 'Chat not found' });
+
+    const { generateSignedUrl } = require('../utils/generateSignedUrl');
+
+    const getFilename = (url) => {
+      if (!url) return null;
+      try {
+        const match = url.match(/\/secure-file\/([^?]+)/);
+        if (match) return match[1];
+        const matchLegacy = url.match(/\/uploads\/([^?]+)/);
+        if (matchLegacy) return matchLegacy[1];
+        return null;
+      } catch (e) { return null; }
+    };
+
+    let filename = null;
+    if (message.type !== 'text') {
+      if (message.type === 'file') filename = getFilename(message.file?.url);
+      else filename = getFilename(message[message.type]);
+    }
+
+    // Map unified payload to DB columns
+    let dbText = '';
+    let dbMetadata = null;
+
+    if (message.type === 'text') {
+      dbText = message.text || '';
+    } else {
+      // For media, store the filename (or fallback to empty if extraction failed)
+      dbText = filename || '';
+      if (message.type === 'file') {
+        dbMetadata = { name: message.file?.name };
+      }
+    }
+
+    const newMsg = await Message.create({
+      chatId: chat_id,
+      userId,
+      sender: 'user',
+      text: dbText,
+      type: message.type,
+      metadata: dbMetadata
+    });
+
+    // Re-sign the URL to ensure it has a fresh expiry for the recipient
+    const signedUrl = filename ? generateSignedUrl(filename) : null;
+
+    const unifiedMessage = {
+      type: message.type,
+      text: message.type === 'text' ? dbText : null,
+      url: signedUrl,
+      filename: filename,
+      contentType: message.type !== 'text' ? 'application/octet-stream' : 'text/plain',
+      image: message.type === 'image' ? signedUrl : null,
+      audio: message.type === 'audio' ? signedUrl : null,
+      video: message.type === 'video' ? signedUrl : null,
+      file: message.type === 'file' ? { url: signedUrl, name: dbMetadata?.name } : null
+    };
+
+    // Broadcast to Socket.io
+    const io = req.io;
+    io.to(`chat_${chat_id}`).emit('message', {
+      chatId: chat_id,
+      message: {
+        id: newMsg.id,
+        sender: 'user',
+        ...unifiedMessage,
+        createdAt: newMsg.createdAt
+      }
+    });
+
+    // Forward to n8n (if workflow is configured)
+    try {
+      const { Workflow } = require('../models');
+      const chatWithWorkflow = await Chat.findByPk(chat_id, {
+        include: [{ model: Workflow, as: 'workflow' }]
+      });
+
+      if (chatWithWorkflow && chatWithWorkflow.workflow && chatWithWorkflow.workflow.webhookUrl) {
+        await forwardToN8N({
+          user_id: userId,
+          chat_id,
+          message: unifiedMessage,
+          webhookUrl: chatWithWorkflow.workflow.webhookUrl
+        });
+      }
+    } catch (e) {
+      console.error('n8n forward error', e);
+    }
+
+    res.json({ success: true, message: { id: newMsg.id, ...unifiedMessage } });
+
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Server error' });
+  }
+});
+
+module.exports = router;

@@ -1,0 +1,54 @@
+version: '3.8'
+
+services:
+  database:
+    image: mariadb:10.6
+    restart: always
+    environment:
+      MARIADB_ROOT_PASSWORD: root_password
+      MARIADB_DATABASE: targetchat
+      MARIADB_USER: targetuser
+      MARIADB_PASSWORD: targetpassword
+    volumes:
+      - tc_db_data:/var/lib/mysql
+    networks:
+      - targetchat_network
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    restart: always
+    environment:
+      - NODE_ENV=production
+      - DB_HOST=database
+      - DB_USER=targetuser
+      - DB_PASS=targetpassword
+      - DB_NAME=targetchat
+    depends_on:
+      - database
+    ports:
+      - "3001:3001"
+    networks:
+      - targetchat_network
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    restart: always
+    environment:
+      - NEXT_PUBLIC_API_URL=http://your-vps-ip:3001
+    depends_on:
+      - backend
+    ports:
+      - "3000:3000"
+    networks:
+      - targetchat_network
+
+networks:
+  targetchat_network:
+    driver: bridge
+
+volumes:
+  tc_db_data:

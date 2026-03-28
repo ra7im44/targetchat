@@ -1,0 +1,260 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Outfit:wght@400;500;600;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+html,
+body,
+#__next {
+    height: 100%;
+}
+
+body {
+    font-family: 'Inter', ui-sans-serif, system-ui, -apple-system, sans-serif;
+    -webkit-font-smoothing: antialiased;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+    font-family: 'Outfit', sans-serif;
+}
+
+/* Custom UI polish */
+.scrollbar-thin {
+    scrollbar-width: thin;
+}
+
+.scrollbar-thumb-gray-300::-webkit-scrollbar {
+    height: 6px;
+    width: 6px;
+}
+
+.scrollbar-thumb-gray-300::-webkit-scrollbar-thumb {
+    background: rgba(156, 163, 175, 0.5);
+    border-radius: 99px;
+}
+
+.scrollbar-thumb-gray-300::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+/* Modal animations */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes scaleIn {
+    from {
+        transform: scale(0.95);
+        opacity: 0;
+    }
+
+    to {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+.animate-fadeIn {
+    animation: fadeIn 0.2s ease-out;
+}
+
+.animate-scaleIn {
+    animation: scaleIn 0.2s ease-out;
+}
+
+/* Premium Design System */
+:root {
+    /* Light Mode */
+    --glass-border: rgba(255, 255, 255, 0.5);
+    --glass-bg: rgba(255, 255, 255, 0.7);
+    --glass-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.07);
+
+    --tc-bg: #f8fafc;
+    --tc-text: #0f172a;
+    --tc-text-secondary: #64748b;
+
+    --tc-mesh-1: #e0e7ff;
+    /* Indigo-100 */
+    --tc-mesh-2: #fae8ff;
+    /* Fuchsia-100 */
+    --tc-mesh-3: #dbeafe;
+    /* Blue-100 */
+}
+
+html.dark {
+    /* Dark Mode */
+    --glass-border: rgba(255, 255, 255, 0.08);
+    --glass-bg: rgba(15, 23, 42, 0.6);
+    --glass-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+
+    --tc-bg: #0f172a;
+    --tc-text: #f8fafc;
+    --tc-text-secondary: #94a3b8;
+
+    --tc-mesh-1: #1e1b4b;
+    /* Indigo-950 */
+    --tc-mesh-2: #312e81;
+    /* Indigo-900 */
+    --tc-mesh-3: #172554;
+    /* Blue-950 */
+}
+
+body {
+    background-color: var(--tc-bg);
+    color: var(--tc-text);
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* Glassmorphism Utilities */
+.glass-panel {
+    background: var(--glass-bg);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid var(--glass-border);
+    box-shadow: var(--glass-shadow);
+}
+
+.glass-header {
+    background: rgba(255, 255, 255, 0.8);
+    backdrop-filter: blur(16px);
+    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+html.dark .glass-header {
+    background: rgba(15, 23, 42, 0.8);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+/* Animated Mesh Gradient Background */
+.mesh-bg {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    z-index: -1;
+    background-color: var(--tc-bg);
+    background-image:
+        radial-gradient(at 0% 0%, var(--tc-mesh-1) 0px, transparent 50%),
+        radial-gradient(at 100% 0%, var(--tc-mesh-2) 0px, transparent 50%),
+        radial-gradient(at 100% 100%, var(--tc-mesh-3) 0px, transparent 50%);
+    filter: blur(60px);
+    opacity: 0.6;
+}
+
+/* Chat Specifics (Preserved) */
+.chat-container {
+    max-width: 900px;
+    margin: 0 auto;
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.animate-fade-in-up {
+    animation: fadeInUp 0.3s ease-out forwards;
+}
+
+.bubble {
+    font-size: 0.95rem;
+    line-height: 1.6;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+    transition: all 0.2s ease;
+}
+
+.bubble:hover {
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+.bubble.user {
+    background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+    color: #ffffff;
+    border-bottom-right-radius: 4px;
+}
+
+.bubble.ai {
+    background: var(--glass-bg);
+    /* Use glass for AI too */
+    backdrop-filter: blur(8px);
+    color: var(--tc-text);
+    border: 1px solid var(--glass-border);
+    border-bottom-left-radius: 4px;
+}
+
+/* Sidebar Chat Items */
+.chat-item {
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    border-radius: 8px;
+    margin-bottom: 4px;
+    border: 1px solid transparent;
+}
+
+.chat-item:hover {
+    background: rgba(0, 0, 0, 0.03);
+    transform: translateX(2px);
+}
+
+html.dark .chat-item:hover {
+    background: rgba(255, 255, 255, 0.03);
+}
+
+.chat-item.active {
+    background: rgba(59, 130, 246, 0.1);
+    border-color: rgba(59, 130, 246, 0.2);
+    color: #3b82f6;
+    font-weight: 500;
+}
+
+/* Animations */
+@keyframes blob {
+
+    0%,
+    100% {
+        transform: translate(0, 0) scale(1);
+    }
+
+    25% {
+        transform: translate(20px, -50px) scale(1.1);
+    }
+
+    50% {
+        transform: translate(-20px, 20px) scale(0.9);
+    }
+
+    75% {
+        transform: translate(50px, 50px) scale(1.05);
+    }
+}
+
+.animate-blob {
+    animation: blob 7s infinite;
+}
+
+.animation-delay-2000 {
+    animation-delay: 2s;
+}
+
+.animation-delay-4000 {
+    animation-delay: 4s;
+}

@@ -1,0 +1,94 @@
+{
+    "name": "TargetChat AI Response Workflow",
+    "nodes": [
+        {
+            "name": "Webhook Trigger",
+            "type": "n8n-nodes-base.webhook",
+            "position": [
+                250,
+                300
+            ],
+            "parameters": {
+                "path": "targetchat2122025",
+                "responseMode": "responseNode",
+                "options": {}
+            }
+        },
+        {
+            "name": "Process Message",
+            "type": "n8n-nodes-base.code",
+            "position": [
+                450,
+                300
+            ],
+            "parameters": {
+                "jsCode": "// Extract user message from webhook\nconst userMessage = $input.item.json.message;\nconst chatId = $input.item.json.chat_id;\nconst userId = $input.item.json.user_id;\n\n// TODO: Call your AI service (OpenAI, Claude, etc.)\n// For now, return a simple echo response\nconst aiResponse = {\n  type: 'text',\n  text: `AI received: ${userMessage.text || 'media message'}`,\n  url: null,\n  filename: null,\n  contentType: 'text/plain'\n};\n\nreturn {\n  json: {\n    chat_id: chatId,\n    user_id: userId,\n    reply: aiResponse,\n    webhook_secret: process.env.WEBHOOK_SECRET || 'change_this_webhook_secret_in_production'\n  }\n};"
+            }
+        },
+        {
+            "name": "Send to TargetChat",
+            "type": "n8n-nodes-base.httpRequest",
+            "position": [
+                650,
+                300
+            ],
+            "parameters": {
+                "method": "POST",
+                "url": "http://localhost:3001/api/webhook/n8n",
+                "authentication": "none",
+                "options": {
+                    "timeout": 10000
+                },
+                "bodyParametersJson": "={{ $json }}",
+                "headerParametersJson": "={\n  \"Content-Type\": \"application/json\"\n}"
+            }
+        },
+        {
+            "name": "Respond to Webhook",
+            "type": "n8n-nodes-base.respondToWebhook",
+            "position": [
+                850,
+                300
+            ],
+            "parameters": {
+                "respondWith": "json",
+                "responseBody": "={{ { success: true, message: 'AI response sent' } }}"
+            }
+        }
+    ],
+    "connections": {
+        "Webhook Trigger": {
+            "main": [
+                [
+                    {
+                        "node": "Process Message",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Process Message": {
+            "main": [
+                [
+                    {
+                        "node": "Send to TargetChat",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Send to TargetChat": {
+            "main": [
+                [
+                    {
+                        "node": "Respond to Webhook",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        }
+    }
+}

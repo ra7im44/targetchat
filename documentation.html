@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TargetChat Complete Technical Specification</title>
+    <style>
+        /* Developer / GitHub-flavored Markdown Style */
+        :root {
+            --color-canvas-default: #ffffff;
+            --color-fg-default: #24292f;
+            --color-fg-muted: #57606a;
+            --color-border-default: #d0d7de;
+            --color-border-muted: hsla(210,18%,87%,1);
+            --color-neutral-muted: rgba(175,184,193,0.2);
+            --color-accent-fg: #0969da;
+            --font-stack: -apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif,"Apple Color Emoji","Segoe UI Emoji";
+            --font-mono: ui-monospace,SFMono-Regular,SF Mono,Menlo,Consolas,Liberation Mono,monospace;
+        }
+        
+        * { box-sizing: border-box; }
+
+        body {
+            font-family: var(--font-stack);
+            font-size: 16px;
+            line-height: 1.6;
+            color: var(--color-fg-default);
+            background-color: var(--color-canvas-default);
+            margin: 0;
+            padding: 0;
+            -webkit-text-size-adjust: 100%;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 40px 20px;
+            word-wrap: break-word;
+        }
+
+        h1, h2, h3, h4, h5 {
+            margin-top: 24px;
+            margin-bottom: 16px;
+            font-weight: 600;
+            line-height: 1.25;
+        }
+
+        h1 { font-size: 2.2em; padding-bottom: 0.3em; border-bottom: 1px solid var(--color-border-muted); }
+        h2 { font-size: 1.6em; padding-bottom: 0.3em; border-bottom: 1px solid var(--color-border-muted); margin-top: 40px; color: #111827; }
+        h3 { font-size: 1.25em; color: #1f2937; }
+
+        a {
+            color: var(--color-accent-fg);
+            text-decoration: none;
+        }
+        a:hover { text-decoration: underline; }
+
+        p, blockquote, ul, ol, dl, table, pre, details {
+            margin-top: 0;
+            margin-bottom: 16px;
+        }
+
+        code {
+            font-family: var(--font-mono);
+            font-size: 85%;
+            background-color: var(--color-neutral-muted);
+            margin: 0;
+            padding: 0.2em 0.4em;
+            border-radius: 6px;
+        }
+
+        pre {
+            font-family: var(--font-mono);
+            font-size: 85%;
+            background-color: #f6f8fa;
+            border-radius: 6px;
+            padding: 16px;
+            overflow: auto;
+            line-height: 1.45;
+        }
+
+        pre code {
+            background-color: transparent;
+            padding: 0;
+            margin: 0;
+            font-size: 100%;
+            border-radius: 0;
+            word-break: normal;
+            white-space: pre;
+        }
+
+        ul, ol { padding-left: 2em; }
+        li + li { margin-top: 0.25em; }
+
+        blockquote {
+            padding: 0 1em;
+            color: var(--color-fg-muted);
+            border-left: 0.25em solid var(--color-border-default);
+        }
+
+        table {
+            border-spacing: 0;
+            border-collapse: collapse;
+            width: 100%;
+        }
+
+        table th, table td {
+            padding: 6px 13px;
+            border: 1px solid var(--color-border-default);
+        }
+
+        table tr:nth-child(2n) {
+            background-color: #f6f8fa;
+        }
+
+        hr {
+            height: 0.25em;
+            padding: 0;
+            margin: 24px 0;
+            background-color: var(--color-border-default);
+            border: 0;
+        }
+
+        .highlight {
+            color: #1a7f37;
+            font-weight: bold;
+        }
+        .warning-box {
+            background-color: #fff8c5;
+            border-left: 4px solid #e3b341;
+            padding: 10px 15px;
+            margin-bottom: 20px;
+            font-size: 0.9em;
+            border-radius: 0 4px 4px 0;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>TargetChat Technical Specification & Architecture</h1>
+    <p>This document serves as the absolute technical reference for TargetChat. It details the underlying systems, deep architectural patterns, database schemas, and networking implementations that run the platform.</p>
+
+    <h2>1. System Architecture Overview</h2>
+    <p>TargetChat operates on a decoupled multi-tier architecture. It separates the presentation layer (Next.js) from the business logic layer (Express.js), communicating exclusively over REST APIs for persistent actions and secure WebSockets (Socket.io) for real-time streaming.</p>
+    
+    <h3>Folder Structure Layout</h3>
+<pre><code>/targetchat-root
+├── /backend
+│   ├── /src
+│   │   ├── /config       # Database, Redis, and Gateway configs (Stripe, SMTP)
+│   │   ├── /controllers  # Encapsulated request handlers (Auth, Billing, Chat, Workspaces)
+│   │   ├── /middlewares  # JWT guards, rate limiters, RBAC interceptors
+│   │   ├── /models       # Sequelize ORM definitions
+│   │   ├── /routes       # Express router definitions
+│   │   ├── /services     # Core business logic (LLM integrations, Mail Queue, Billing Webhooks)
+│   │   └── /utils        # Helpers (Logger, Email Templates engine)
+│   ├── server.js         # Entry node
+├── /frontend
+│   ├── /components       # React UI components (Admin, Billing, Dashboard)
+│   ├── /context          # React Contexts (GlobalConfig, AuthProvider, WorkspaceContext)
+│   ├── /pages            # Next.js Pages router setup
+│   ├── /hooks            # Custom React hooks (useAuth, useSocket)
+│   └── /styles           # Tailwind globals
+</code></pre>
+
+    <h2>2. Frontend State Management & Architecture</h2>
+    <p>The Next.js frontend avoids heavy flux architectures (like Redux) in favor of lightweight, decoupled context providers wrapped around the application in <code>_app.js</code>.</p>
+    <ul>
+        <li><strong>AuthContext:</strong> Fetches <code>/api/auth/me</code> via Axios on initial load. Holds global state for <code>user</code> payload and <code>isAuthenticated</code> status. Handles JWT injection via Axios interceptors for outbound requests.</li>
+        <li><strong>WorkspaceContext:</strong> Retrieves the lists of workspaces a user belongs to. Maintains the <code>activeWorkspaceId</code> bridging the dashboard UI and API params seamlessly so users don't have to pick a workspace for every request.</li>
+        <li><strong>GlobalConfig:</strong> Fetches <code>/api/system/settings</code> globally to inject dynamic logo, maintenance mode screen, or primary brand color mapped directly onto Tailwind classes holding <code>style={{ '--color-primary': brandColor }}</code>.</li>
+        <li><strong>SWR Data Fetching:</strong> Uses Vercel's <code>SWR</code> (Stale-While-Revalidate) algorithm instead of raw <code>useEffect</code> for fetching datasets (e.g., DataTables for Users or EmailLogs). This prevents flickering, caches API responses tightly, and automatically re-fetches on window focus.</li>
+    </ul>
+
+    <h2>3. Security & Vulnerability Mitigation</h2>
+    <p>The backend actively guards against OWASP top 10 vulnerabilities:</p>
+    <ul>
+        <li><strong>CORS Strategy:</strong> <code>cors({ origin: process.env.FRONTEND_URL, credentials: true })</code> strictly drops unverified origin pre-flights, except for specifically the <code>/api/widget</code> boundary.</li>
+        <li><strong>Brute Force & Rate Limiting:</strong> <code>express-rate-limit</code> is placed on auth endpoints to prevent credential stuffing (e.g., max 5 attempts per IP per 15 mins on <code>/api/auth/login</code>).</li>
+        <li><strong>Data Sanitization (XSS & Injection):</strong> Chat messages pass through a text sanitizer before mapping to the LLM or DB. Sequelize natively guards against SQL injection via parameterized queries.</li>
+        <li><strong>JWT Storage:</strong> Tokens are configured to securely pass in local storage / session storage with expiry buffers verified rigorously in the Backend's <code>requireAuth</code>.</li>
+    </ul>
+
+    <h2>4. Deep Technical Implementations</h2>
+
+    <h3>4.1 Identity & Access Management (RBAC)</h3>
+    <p>Authentication relies on stateless JWTs. When a user logs in, the backend signs a payload containing <code>{ id, role }</code> using <code>HS256</code>.</p>
+    <ul>
+        <li><strong>Auth Middleware (<code>requireAuth</code>):</strong> Intercepts <code>Authorization: Bearer &lt;token&gt;</code>. Extracts token, verifies via <code>jsonwebtoken.verify</code>. On failure, throws <code>401 Unauthorized</code>. Attaches the decoded user to <code>req.user</code>.</li>
+        <li><strong>Role Middleware (<code>requireRole('admin')</code>):</strong> Verifies <code>req.user.role === 'admin'</code>. Rejects with <code>403 Forbidden</code> if insufficient.</li>
+        <li><strong>Workspace Context (<code>requireWorkspaceAccess</code>):</strong> Queries <code>WorkspaceMember</code> to confirm <code>req.user.id</code> has an active relationship with <code>req.params.id</code>. It sets <code>req.workspaceRole</code> for downstream controllers to allow/block destructive actions.</li>
+    </ul>
+
+    <h3>4.2 Real-time Chat Engine & Central AI Pipeline</h3>
+    <p>This is the core nervous system of TargetChat, engineered for lowest-latency token streaming.</p>
+    <ul>
+        <li><strong>Handshake & Rooms:</strong> The client connects via <code>io(url, { auth: { token: jwt } })</code>. Unauthenticated sockets drop immediately. Clients emit <code>join_workspace</code> to isolate WebSockets to specific <code>workspace_&lt;id&gt;</code> rooms.</li>
+        <li><strong>Context Window Management:</strong> When a user emits <code>send_message</code>, the Node server queries the last 15 messages from the <code>Messages</code> table (filtering out system logs). It transforms these into the standardized <code>[{ role: 'system', content: '...' }, { role: 'user', content: '...' }]</code> schema format.</li>
+        <li><strong>Dynamic Payload Execution:</strong> The payload determines whether to fire towards <strong>OpenAI</strong> or a localized <strong>Ollama</strong> instance based on the <em>Workspace settings</em> or the underlying <em>Persona</em> settings.</li>
+        <li><strong>Stream Emitting:</strong> 
+            <ol>
+                <li>The AI Service opens a Node data stream.</li>
+                <li>The server intercepts <code>data</code> chunks and emits <code>ai_chunk</code> events towards the socket client directly.</li>
+                <li>The React frontend calculates the diff and concatenates the chunks locally for the visual "typing" feel.</li>
+                <li>Upon stream end, the backend compiles the full string and inserts the finalized Assistant message into the Database alongside a calculated Token Usage integer.</li>
+            </ol>
+        </li>
+    </ul>
+
+    <h3>4.3 Background Jobs & Email Queueing</h3>
+    <p>To prevent blocking the Node.js event pool, TargetChat delegates heavy IO overhead using <strong>Bull Queue + Redis</strong>.</p>
+    <pre><code>// Queue Instantiation
+const emailQueue = new Bull('email-queue', { 
+    redis: { port: process.env.REDIS_PORT, host: process.env.REDIS_HOST } 
+});
+
+// Job processing (Worker)
+emailQueue.process(async (job, done) => {
+    const { to, subject, htmlBody, logId } = job.data;
+    try {
+        await transporter.sendMail({ from, to, subject, html: htmlBody });
+        await updateEmailLog(logId, 'delivered');
+        done();
+    } catch (err) {
+        await updateEmailLog(logId, 'failed', err.message);
+        done(new Error('SMTP failure'));
+    }
+});</code></pre>
+
+    <h3>4.4 Billing Synchronization & Webhooks</h3>
+    <p>Billing state acts defensively; it only updates by parsing incoming webhooks from Payment Providers. This ensures 100% data integrity against manual database modifications.</p>
+    <ul>
+        <li><strong>Validation:</strong> Endpoint <code>POST /api/webhooks/stripe</code> triggers <code>stripe.webhooks.constructEvent()</code> passing the Express raw body and the validation signature <code>STRIPE_WEBHOOK_SECRET</code>.</li>
+        <li><strong>Events Handled:</strong>
+            <ul>
+                <li><code>checkout.session.completed</code>: Creates or reinstates a <code>Subscriptions</code> DB row. Binds <code>stripe_customer_id</code> to the <code>Users</code> table.</li>
+                <li><code>invoice.payment_succeeded</code>: Parses the unix timestamp of the invoice end date and overrides <code>current_period_end</code> in the local DB.</li>
+                <li><code>customer.subscription.deleted</code>: Hard flags the Subscription table as <code>canceled</code>, propagating restrictions throughout the UI via the feature flags sync logic.</li>
+            </ul>
+        </li>
+    </ul>
+
+    <h2>5. Feature Capabilities & Entitlement Engine</h2>
+    <p>To restrict users to their plan limits (e.g. Free vs Pro tier limits on AI Models or Members), the core logic evaluates the <code>Subscription_Plans.features</code> JSON column.</p>
+    <ul>
+        <li>When navigating to the Dashboard, the frontend matches the User's active subscription ID to the cached Plan object.</li>
+        <li>It evaluates constraints like <code>features.enable_custom_personas</code> or <code>features.max_workspaces</code>. When creating a workspace, the Backend queries this JSON and throws a <code>402 Payment Required</code> if the constraint limit is breached.</li>
+    </ul>
+
+    <h2>6. Database Schema Specifications</h2>
+    <p>Relationships are handled heavily via Sequelize ORM hooks.</p>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Table Name</th>
+                <th>Columns & Constraints</th>
+                <th>Associations</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td><strong>Users</strong></td>
+                <td>id (UUID, PK), email (STRING, UNIQUE), password_hash (STRING), role (ENUM: admin, user), is_active (BOOL)</td>
+                <td>1:M with Workspaces, Subscriptions</td>
+            </tr>
+            <tr>
+                <td><strong>Workspaces</strong></td>
+                <td>id (UUID, PK), name (STRING), owner_id (FK), api_key (STRING, UNIQUE), status (ENUM)</td>
+                <td>BelongsTo User (Owner). M:M with Users via WorkspaceMembers</td>
+            </tr>
+            <tr>
+                <td><strong>WorkspaceMembers</strong></td>
+                <td>workspace_id (UUID), user_id (UUID), role (ENUM: admin, manager, agent)</td>
+                <td>Join Table representing roles per tenant</td>
+            </tr>
+            <tr>
+                <td><strong>Chats</strong></td>
+                <td>id (UUID, PK), workspace_id (FK), distinct_id (STRING), title (STRING)</td>
+                <td>1:M with Messages.</td>
+            </tr>
+            <tr>
+                <td><strong>Messages</strong></td>
+                <td>id (UUID, PK), chat_id (FK), sender_type (ENUM: user, ai, system), content (TEXT), tokens (INT)</td>
+                <td>Messages cascade-delete if parent Chat is deleted.</td>
+            </tr>
+            <tr>
+                <td><strong>Subscriptions</strong></td>
+                <td>id (UUID, PK), user_id (FK), provider (ENUM: stripe, paypal), plan_id (STRING), status (ENUM), payload_dump (JSON)</td>
+                <td>BelongsTo User.</td>
+            </tr>
+            <tr>
+                <td><strong>EmailTemplates</strong></td>
+                <td>id (UUID, PK), trigger_name (STRING, UNIQUE), subject (STRING), html_body (TEXT), vars_expected (JSON)</td>
+                <td>Used by the Bull Queue strictly for variable interpolation.</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <div class="warning-box">
+        <strong>Important DB Note:</strong> Foreign key cascades are configured automatically by Sequelize (e.g. <code>onDelete: 'CASCADE'</code>) preventing orphan records when a Workspace is purged.
+    </div>
+
+    <h2>7. Widget Embed Architecture</h2>
+    <p>TargetChat can be embedded directly onto foreign DOMs. The backend serves a vanilla payload (<code>/api/widget/script.js?wk=&lt;workspace_api_key&gt;</code>).</p>
+    <ul>
+        <li><strong>Cross-origin Validation:</strong> The core Node server verifies the <code>Referer</code> or <code>Origin</code> header against the permitted list in the Workspace settings. If mismatched, the server returns 403 Forbidden on the Javascript request itself.</li>
+        <li><strong>Iframe Encapsulation:</strong> The returned script forcefully injects a seamless, styling-isolated <code>&lt;iframe&gt;</code> onto the client DOM to host the React UI. This acts as an absolute barrier against foreign CSS pollution and cross-site scripting from the parent page.</li>
+        <li><strong>PostMessage Bridge:</strong> Events (like clicking the chat bubble or window resize computations) tunnel safely between the parent Window and the iframe via <code>window.postMessage()</code>.</li>
+        <li><strong>Session Tracking:</strong> The widget creates a localized unique <code>targetchat_guest_id</code> cookie/storage entry to bind historical conversations without requiring the end-user to authenticate across tabs.</li>
+    </ul>
+
+    <h2>8. DevOps & Production Deployment Strategy</h2>
+    <p>The system is meant to be resilient across highly concurrent environments like Ubuntu 24.x LTS VPS instances.</p>
+    
+    <h3>Ecosystem.config.js (PM2 Workflow)</h3>
+    <p>In production without Docker, PM2 is the absolute standard. The ecosystem file defines memory constraints and clustering for Express, allowing zero-downtime reloads.</p>
+    <pre><code>module.exports = {
+  apps: [
+    {
+      name: 'targetchat-backend',
+      script: 'server.js',
+      instances: 'max', // Leverages Node's Cluster module across server cores
+      exec_mode: 'cluster',
+      env_production: { NODE_ENV: 'production' }
+    },
+    {
+      name: 'targetchat-frontend',
+      script: 'npm',
+      args: 'start',
+      env_production: { NODE_ENV: 'production' }
+    }
+  ]
+}</code></pre>
+
+    <h3>Reverse Proxy & SSL Matrix (Nginx)</h3>
+    <p>Node.js shouldn't handle bare socket HTTP connections natively. Nginx must sit in front acting as an edge reverse proxy mitigating Slowloris and DDoS vectoring before traffic touches Express.</p>
+    <ul>
+        <li><strong>WebSocket Forwarding:</strong> Nginx blocks the <code>Upgrade</code> header by default. The config strictly implements <code>proxy_set_header Upgrade $http_upgrade;</code> and <code>proxy_set_header Connection "upgrade";</code> explicitly on the socket namespace to ensure WebSockets bridge optimally over TLS (WSS).</li>
+        <li><strong>Internal Security Segregation:</strong> Services like Redis (6379) and MySQL (3306) bind aggressively to <code>127.0.0.1</code> instead of <code>0.0.0.0</code>, allowing them to remain firewalled inherently from exterior network polling.</li>
+    </ul>
+
+</div>
+
+</body>
+</html>

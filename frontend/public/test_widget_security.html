@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Widget Security Test</title>
+    <style>
+        body {
+            font-family: -apple-system, system-ui, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 40px;
+            background: #f0fdf4;
+            color: #166534;
+        }
+
+        .box {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            margin-top: 0;
+        }
+
+        code {
+            background: #dcfce7;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: monospace;
+        }
+
+        .step {
+            margin-bottom: 20px;
+            border-left: 4px solid #22c55e;
+            padding-left: 15px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="box">
+        <h1>🔒 Widget Security Tester</h1>
+        <p>Use this page to verify that your <strong>Domain Lock</strong> is working.</p>
+
+        <div class="step">
+            <h3>Step 1: Get your Embed Code</h3>
+            <p>Go to your Dashboard > Settings > Install and copy your widget script.</p>
+        </div>
+
+        <div class="step">
+            <h3>Step 2: Edit this file</h3>
+            <p>Click "Edit" on this file and paste your script below this line.</p>
+        </div>
+
+        <!-- PASTE WIDGET SCRIPT HERE -->
+
+        <div class="step">
+            <h3>Step 3: Test the Lock</h3>
+            <p>1. Go to your Dashboard and set Allowed Domains to: <code>google.com</code></p>
+            <p>2. Refresh this page.</p>
+            <p><strong>Result:</strong> Use F12 (Console). You should see a <code>403 Forbidden</code> error, and the
+                widget will NOT load.</p>
+            <p>3. Go back and set Allowed Domains to: <code>*</code> (or empty).</p>
+            <p>4. Refresh this page.</p>
+            <p><strong>Result:</strong> The widget should appear successfully.</p>
+        </div>
+    </div>
+</body>
+
+</html>

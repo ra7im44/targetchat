@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TargetChat Beta Test Client</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f3f4f6;
+            color: #1f2937;
+            text-align: center;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
+
+        h1 {
+            margin-bottom: 0.5rem;
+            color: #111827;
+        }
+
+        p {
+            color: #6b7280;
+        }
+
+        .code {
+            background: #e5e7eb;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: monospace;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>TargetChat Beta Verification</h1>
+        <p>This page simulates a client website embedding the TargetChat widget.</p>
+        <p>Look for the chat widget in the bottom right corner.</p>
+        <div style="margin-top: 2rem; padding: 1rem; border: 1px dashed #d1d5db; border-radius: 8px;">
+            <p><strong>Test Scenario:</strong></p>
+            <ol style="text-align: left; display: inline-block;">
+                <li>Open the widget.</li>
+                <li>Fill out the pre-chat form.</li>
+                <li>Send a message "Hello Beta World".</li>
+                <li>Check your Dashboard Inbox for the message.</li>
+            </ol>
+        </div>
+    </div>
+
+    <!-- TargetChat Embed Code -->
+    <script>
+        (function () {
+            var script = document.createElement('script');
+            script.src = 'http://localhost:3000/embed.js';
+            script.async = true;
+            script.onload = function () {
+                // Initialize widget with valid config
+                if (window.TargetChat) {
+                    window.TargetChat.init({
+                        widgetId: 'default-widget-id', // We rely on the backend finding the first widget or generic config for now
+                        api_url: 'http://localhost:3001'
+                    });
+                }
+            };
+            document.body.appendChild(script);
+        })();
+    </script>
+</body>
+
+</html>

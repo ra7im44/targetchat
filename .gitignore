@@ -1,0 +1,78 @@
+# ================================
+# TargetChat Global .gitignore
+# ================================
+
+# Dependencies
+node_modules/
+backend/node_modules/
+frontend/node_modules/
+.pnp
+.pnp.js
+
+# Build Outputs (Next.js & Node)
+.next/
+out/
+build/
+dist/
+frontend/.next/
+frontend/out/
+
+# Environment Variables & Secrets
+.env
+.env.*
+!.env.example
+backend/.env
+frontend/.env
+*.pem
+
+# Database & Backups
+*.sqlite
+*.sqlite3
+*.db
+backend/database.sqlite
+database.zip
+targetchatv*.sql
+targetchat3ev*.sql
+*.sql.gz
+*.sql.zip
+dump.sql
+
+# Uploads & User Data
+backend/uploads/
+public/uploads/
+storage/
+temp/
+tmp/
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+migration.log
+migration_*.log
+chats_output.txt
+
+# Editor / OS / IDE
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+Desktop.ini
+.vscode/
+.idea/
+.history/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# Testing & Coverage
+coverage/
+.nyc_output/

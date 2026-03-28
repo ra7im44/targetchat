@@ -1,0 +1,338 @@
+🟦 SYSTEM TITLE:
+
+Build a complete Workflow Editor + Marketplace Execution System integrated with n8n
+
+🟧 ROLE:
+
+You're a senior full-stack architect & developer.
+Your job is to generate the full implementation (backend, database, APIs, frontend, integrations, security, OAuth flow, n8n connection) exactly as requested below.
+
+🟩 TASK OVERVIEW:
+
+I need you to design & generate the entire system for:
+
+➡️ TargetChat Workflow Editor + Marketplace + n8n Execution Bridge
+
+Where:
+
+Workflows exist in a marketplace (≈500+ workflows)
+
+Users buy, install, and configure workflows
+
+Users edit workflows through Workflow Editor UI
+
+Config is stored in TargetChat DB
+
+Execution happens in n8n, not inside TargetChat
+
+TargetChat sends config + inputs → to n8n webhook
+
+n8n sends callback results back → TargetChat
+
+Some workflows need OAuth (Google Sheets, Gmail…)
+
+OAuth is done inside n8n, not TargetChat
+
+TargetChat only stores connection “status” and n8n credential references
+
+🟥 A → Z Requirements (Build EVERYTHING Below)
+1) Database Schema
+
+Generate SQL (MySQL) for these tables:
+
+workflows
+
+workflow_user_configs
+
+workflow_runs
+
+user_integrations
+
+Include:
+
+JSON schema for inputs
+
+n8n webhook URL
+
+integration requirements
+
+user/team ownership
+
+run input/output/error logs
+
+credential references
+
+timestamps
+
+2) Backend API (Node.js / Express / Nest — choose best architecture)
+
+Generate full backend controllers & logic for:
+
+Workflow Metadata (CRUD)
+
+GET /api/workflows
+
+GET /api/workflows/:id
+
+POST /api/workflows
+
+PUT /api/workflows/:id
+
+DELETE
+
+User Configs
+
+POST /api/user-configs
+
+PUT /api/user-configs/:id
+
+DELETE
+
+Schema validation using JSON Schema Draft-07
+
+Run Workflow
+
+POST /api/user-configs/:id/run
+
+Backend must:
+
+Validate config
+
+Create run record
+
+Build execution payload
+
+HMAC-sign the payload
+
+POST to n8n webhook
+
+Save n8n execution ID
+
+Return run ID
+
+Webhook Callback Endpoint
+
+POST /api/workflow-callbacks
+
+Backend must:
+
+Verify HMAC signature
+
+Update run status
+
+Save output/error payload
+
+Attach logs
+
+Compute execution cost
+
+Notify user (if needed)
+
+3) Integration / OAuth Flow (Google Sheets example)
+
+Implement full flow:
+
+Inside TargetChat
+
+“Connect Google Sheets” button
+
+Calls → n8n OAuth start URL
+
+Inside n8n
+
+n8n runs OAuth
+
+Stores OAuth token in n8n credentials
+
+Returns n8n_credential_id to TargetChat
+
+TargetChat stores
+integration_status: connected
+external_reference: "n8n_cred_4455"
+
+When running workflow, TargetChat sends:
+"authentication": {
+  "integration_name": "google_sheets",
+  "credential_reference": "n8n_cred_4455"
+}
+
+
+n8n reads that and uses appropriate credential.
+
+4) Workflow → n8n Payload Contracts
+Request FROM TargetChat → n8n
+
+Generate JSON example + TypeScript interface:
+
+Contains:
+
+run_id
+
+workflow_id
+
+user info
+
+config values
+
+trigger info (manual/schedule/webhook/platform)
+
+authentication (if integrations used)
+
+metadata
+
+Response FROM n8n → TargetChat
+
+Contains:
+
+run_id
+
+status
+
+logs
+
+output
+
+n8n execution ID
+
+error payload
+
+cost
+
+5) Workflow Editor UI (React)
+
+Generate full UI spec + component tree:
+
+Screens to generate:
+
+Workflow Marketplace Item Page
+
+Workflow Editor
+
+Config Tab (dynamic JSON schema → form builder)
+
+Triggers Tab
+
+Integrations Tab (Connect via n8n)
+
+Run/Test Tab
+
+History Tab
+
+Permissions Tab
+
+Advanced Tab (raw JSON edit)
+
+Must include:
+
+Validation errors
+
+Required fields
+
+Tooltips
+
+Grouped sections
+
+Test execution modal
+
+Log viewer
+
+OAuth connection status
+
+6) Security Requirements
+
+Implement:
+
+HMAC signing for all requests → n8n
+
+HMAC verification on callbacks
+
+Never store OAuth tokens in TargetChat
+
+Rate limiting on run endpoint
+
+RBAC permissions for workflows
+
+Validation before execution
+
+Idempotency using run_id
+
+7) n8n Workflow Template
+
+Generate example n8n JSON (export format):
+
+Webhook trigger
+
+Read config
+
+Use credential reference
+
+Execute nodes
+
+Return callback payload
+
+Post result to TargetChat callback endpoint
+
+8) Testing (Unit + Integration)
+
+Generate:
+
+Unit test examples
+
+Mock n8n webhook
+
+Mock callback
+
+Schema validation tests
+
+HMAC signature tests
+
+9) Deployment Flow
+
+Include:
+
+Env variables
+
+Docker setup
+
+Secret manager usage
+
+Service-to-service secure communication
+
+Domain/subdomain setup for OAuth
+
+SSL/TLS
+
+Rate limits
+
+HA and fault tolerance
+
+10) Final Deliverables
+
+You must output ALL of the following:
+
+✔ Full MySQL schema
+✔ Full backend code (controllers, services, validators, HMAC utils, routes)
+✔ Full React UI component structure + code
+✔ n8n template workflow
+✔ OAuth integration bridge logic
+✔ API payload contracts
+✔ Example workflows
+✔ Example marketplace entry
+✔ Security layer code
+✔ Test suite
+✔ DevOps deployment instructions
+✔ Full architecture diagram (ASCII)
+
+✔ IMPORTANT
+
+All code must be:
+
+Real, production-level
+
+Organized
+
+With clear file structure
+
+With comments
+
+Without placeholders like “TODO”

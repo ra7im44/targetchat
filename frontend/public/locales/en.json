@@ -1,0 +1,11 @@
+{
+  "login": "Login",
+  "register": "Register",
+  "email": "Email",
+  "password": "Password",
+  "name": "Name",
+  "loading": "Loading...",
+  "send": "Send",
+  "sending": "Sending...",
+  "type_message": "Type a message..."
+}

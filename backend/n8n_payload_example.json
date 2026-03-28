@@ -1,0 +1,15 @@
+{
+  "user_id": 1,
+  "chat_id": 123,
+  "message": {
+    "type": "audio",
+    "text": null,
+    "url": "/secure-file/voice_123456.webm?expires=1700000000&signature=abc123def456...",
+    "filename": "voice_123456.webm",
+    "contentType": "audio/webm",
+    "image": null,
+    "audio": "/secure-file/voice_123456.webm?expires=1700000000&signature=abc123def456...",
+    "video": null,
+    "file": null
+  }
+}
