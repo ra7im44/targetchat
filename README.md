@@ -111,17 +111,3 @@ server {
   }
 }
 ```
-
----
-
-## Next steps I can take for you
-
-- Add input validation, rate-limiting and CORS policies
-- Add WebSocket/Socket.io for real-time push updates
-- Add a production-ready Docker Compose with MySQL + backend + frontend + n8n
-
-If you'd like, I can now:
-- Finish polish (validation + small tests), or
-- Add Docker files and a `docker-compose.yml` for local full-stack run.
-
-Which would you prefer next?
