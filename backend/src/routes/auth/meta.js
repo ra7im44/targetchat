@@ -14,7 +14,7 @@ const FRONTEND_ORIGIN = (() => {
 
 function postMessagePage(payload) {
     // JSON.stringify neutralises quote-breaking / reflected-XSS payloads.
-    return `<script>window.opener.postMessage(${JSON.stringify(payload)}, ${JSON.stringify(FRONTEND_ORIGIN)});window.close();</script>`;
+    return `<script>if (window.opener) { window.opener.postMessage(${JSON.stringify(payload)}, ${JSON.stringify(FRONTEND_ORIGIN)}); } window.close();</script>`;
 }
 
 /**

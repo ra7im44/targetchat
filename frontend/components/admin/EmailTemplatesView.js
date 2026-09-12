@@ -1,5 +1,6 @@
-﻿import { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
+import AdminLayout from './AdminLayout';
 
 const API = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
 

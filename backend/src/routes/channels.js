@@ -52,6 +52,7 @@ router.post('/', async (req, res) => {
 
         // Never return the stored access token to the client.
         const safe = channel.toJSON();
+        safe.hasToken = !!channel.accessToken;
         delete safe.accessToken;
         res.status(201).json(safe);
     } catch (err) {
@@ -91,6 +92,7 @@ router.patch('/:id', async (req, res) => {
         await channel.update(updates);
         // Never return the stored access token to the client.
         const safe = channel.toJSON();
+        safe.hasToken = !!channel.accessToken;
         delete safe.accessToken;
         res.json(safe);
     } catch (err) {

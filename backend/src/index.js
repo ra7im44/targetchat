@@ -34,10 +34,11 @@ const allowedOrigins = getAllowedOrigins();
 function corsOrigin(origin, callback) {
   // Allow same-origin / server-to-server requests with no Origin header.
   if (!origin) return callback(null, true);
-  if (allowedOrigins.includes('*') || allowedOrigins.includes(origin)) {
+  const normalized = origin.replace(/\/$/, '');
+  if (allowedOrigins.includes('*') || allowedOrigins.includes(origin) || allowedOrigins.includes(normalized)) {
     return callback(null, true);
   }
-  return callback(new Error('Not allowed by CORS'));
+  return callback(null, false);
 }
 
 const io = new Server(server, {
@@ -86,12 +87,17 @@ io.use((socket, next) => {
   }
 });
 
-// Authorisation helper: a chat may be acted upon by its widget owner, its
-// assignee, or the user who created it.
+// Authorisation helper: a chat may be acted upon by its widget owner, channel owner,
+// assignee, or creator.
 async function canAccessChat(userId, chat) {
   if (!chat) return false;
   if (chat.assignedTo === userId) return true;
   if (chat.userId === userId) return true;
+  if (chat.channel && chat.channel.userId === userId) return true;
+  if (chat.channelId) {
+    const channel = await require('./models').Channel.findByPk(chat.channelId, { attributes: ['userId'] });
+    if (channel && channel.userId === userId) return true;
+  }
   if (chat.widgetId) {
     const widget = await require('./models').Widget.findByPk(chat.widgetId, { attributes: ['userId'] });
     if (widget && widget.userId === userId) return true;

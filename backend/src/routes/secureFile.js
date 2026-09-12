@@ -5,6 +5,7 @@ const fs = require('fs');
 const { verifySignedUrl, generateSignedUrl } = require('../utils/generateSignedUrl');
 const { requireAuth } = require('../middleware/auth');
 const { Message, Chat, Widget, Channel } = require('../models');
+const { Op } = require('sequelize');
 
 const UPLOADS_DIR = path.resolve(__dirname, '../../uploads');
 
@@ -28,15 +29,11 @@ router.get('/:filename', (req, res) => {
     const { filename } = req.params;
     const { expires, signature } = req.query;
 
-    console.log('🔐 Secure file request:', {
-        filename,
-        expires,
-        signature: signature?.substring(0, 10) + '...',
-        fullUrl: req.originalUrl
-    });
+    if (!expires || !signature) {
+        return res.status(403).send('Forbidden: Missing signature or expiry');
+    }
 
     if (!verifySignedUrl(filename, expires, signature)) {
-        console.error('❌ Signature verification failed');
         return res.status(403).send('Forbidden: Invalid or expired signature');
     }
 
@@ -47,11 +44,9 @@ router.get('/:filename', (req, res) => {
     }
 
     if (!fs.existsSync(filePath)) {
-        console.error('❌ File not found:', filePath);
         return res.status(404).send('File not found');
     }
 
-    console.log('✅ Serving file:', filename);
     res.sendFile(filePath);
 });
 
@@ -68,23 +63,35 @@ router.post('/refresh-url', requireAuth, async (req, res) => {
     }
 
     const userId = req.user.id;
-
-    const referencingMessage = await Message.findOne({
-        where: { text: filename },
-        include: [{ model: Chat, as: 'chat' }]
-    });
+    const userRole = req.user.role;
 
     let allowed = false;
-    if (referencingMessage && referencingMessage.chat) {
-        const chat = referencingMessage.chat;
-        if (chat.userId === userId || chat.assignedTo === userId) {
-            allowed = true;
-        } else if (chat.widgetId) {
-            const widget = await Widget.findByPk(chat.widgetId, { attributes: ['userId'] });
-            if (widget && widget.userId === userId) allowed = true;
-        } else if (chat.channelId) {
-            const channel = await Channel.findByPk(chat.channelId, { attributes: ['userId'] });
-            if (channel && channel.userId === userId) allowed = true;
+
+    // Admins have access to refresh files across the system
+    if (userRole === 'admin' || userRole === 'superadmin') {
+        allowed = true;
+    } else {
+        const referencingMessage = await Message.findOne({
+            where: {
+                [Op.or]: [
+                    { text: filename },
+                    { text: { [Op.like]: `%${filename}%` } }
+                ]
+            },
+            include: [{ model: Chat, as: 'chat' }]
+        });
+
+        if (referencingMessage && referencingMessage.chat) {
+            const chat = referencingMessage.chat;
+            if (chat.userId === userId || chat.assignedTo === userId) {
+                allowed = true;
+            } else if (chat.widgetId) {
+                const widget = await Widget.findByPk(chat.widgetId, { attributes: ['userId'] });
+                if (widget && widget.userId === userId) allowed = true;
+            } else if (chat.channelId) {
+                const channel = await Channel.findByPk(chat.channelId, { attributes: ['userId'] });
+                if (channel && channel.userId === userId) allowed = true;
+            }
         }
     }
 

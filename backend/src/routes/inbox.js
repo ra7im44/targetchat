@@ -11,11 +11,13 @@ const { parsePagination } = require('../utils/pagination');
  * the caller's widgets/channels, or is assigned to the caller.
  * Returns null when the chat does not exist or access is denied.
  */
-async function verifyInboxChatAccess(chatId, userId) {
+async function verifyInboxChatAccess(chatId, userId, userRole) {
     const chat = await Chat.findByPk(chatId, {
         include: [{ model: Widget, as: 'widget', attributes: ['id', 'userId'] }]
     });
     if (!chat) return null;
+
+    if (userRole === 'admin' || userRole === 'superadmin') return chat;
 
     if (chat.assignedTo === userId) return chat;
 
@@ -249,8 +251,8 @@ router.patch('/chats/:id/assign', requireAuth, async (req, res) => {
         const { id: chatId } = req.params;
         const { user_id } = req.body;
 
-        // SECURITY: only the current handler (assignee / widget or channel owner) may reassign
-        const chat = await verifyInboxChatAccess(chatId, req.user.id);
+        // SECURITY: only the current handler (assignee / widget or channel owner / admin) may reassign
+        const chat = await verifyInboxChatAccess(chatId, req.user.id, req.user.role);
         if (!chat) {
             return res.status(404).json({ message: 'Chat not found' });
         }
@@ -280,7 +282,7 @@ router.patch('/chats/:id/ai-status', requireAuth, async (req, res) => {
         const { paused } = req.body; // true = Take Over, false = Resume AI
 
         // SECURITY: only the current handler may pause/resume AI
-        const chat = await verifyInboxChatAccess(chatId, req.user.id);
+        const chat = await verifyInboxChatAccess(chatId, req.user.id, req.user.role);
         if (!chat) {
             return res.status(404).json({ message: 'Chat not found' });
         }
@@ -367,7 +369,7 @@ router.get('/chats/:id/notes', requireAuth, async (req, res) => {
         const { ChatNote, User } = require('../models');
 
         // SECURITY: notes are private to the chat's handler
-        const chat = await verifyInboxChatAccess(id, req.user.id);
+        const chat = await verifyInboxChatAccess(id, req.user.id, req.user.role);
         if (!chat) {
             return res.status(404).json({ message: 'Chat not found' });
         }
@@ -404,7 +406,7 @@ router.post('/chats/:id/notes', requireAuth, async (req, res) => {
         }
 
         // SECURITY: notes are writable only by the chat's handler
-        const chat = await verifyInboxChatAccess(id, userId);
+        const chat = await verifyInboxChatAccess(id, userId, req.user.role);
         if (!chat) {
             return res.status(404).json({ message: 'Chat not found' });
         }

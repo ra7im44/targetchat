@@ -14,8 +14,9 @@ var usageLimit = (req, res, next) => require('../middleware/usageLimit')(req, re
  * - the agent it is assigned to (assignedTo).
  * Guest/widget chats (userId null) are served by publicWidgets, not here.
  */
-async function canAccessPersonalChat(userId, chat) {
+async function canAccessPersonalChat(userId, chat, userRole) {
     if (!chat) return false;
+    if (userRole === 'admin' || userRole === 'superadmin') return true;
     if (chat.userId === userId) return true;
     if (chat.assignedTo === userId) return true;
     if (chat.widgetId) {
@@ -88,7 +89,7 @@ router.get('/:id/messages', requireAuth, async (req, res) => {
 
     const chat = await Chat.findOne({ where: { id: chatId } });
     // SECURITY: enforce ownership/assignment — never serve other users' chats.
-    if (!chat || !(await canAccessPersonalChat(userId, chat))) {
+    if (!chat || !(await canAccessPersonalChat(userId, chat, req.user.role))) {
       return res.status(404).json({ message: 'Chat not found' });
     }
 
@@ -208,7 +209,7 @@ router.post('/send', requireAuth, (req, res, next) => { req.usageResourceType = 
     const chat = await Chat.findByPk(chat_id);
     // SECURITY: IDOR guard — a user may only send into chats they own,
     // are assigned to, or whose widget/channel they own.
-    if (!chat || !(await canAccessPersonalChat(userId, chat))) {
+    if (!chat || !(await canAccessPersonalChat(userId, chat, req.user.role))) {
       return res.status(404).json({ error: 'Chat not found' });
     }
 
