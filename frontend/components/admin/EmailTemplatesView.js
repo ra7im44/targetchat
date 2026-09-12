@@ -1,4 +1,9 @@
-﻿export default function EmailTemplatesPage() {
+﻿import { useState, useEffect } from 'react';
+import { useRouter } from 'next/router';
+
+const API = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
+
+export default function EmailTemplatesPage() {
     const router = useRouter();
     const [templates, setTemplates] = useState([]);
     const [loading, setLoading] = useState(true);

@@ -1,3 +1,9 @@
+import { useState, useEffect } from 'react';
+import { toast } from 'react-hot-toast';
+import { API_URL as API } from '../../utils/apiConfig';
+import DashboardLayout from '../../components/layouts/DashboardLayout';
+import PricingModal from '../../components/PricingModal';
+
 const UsageRow = ({ label, icon, current, max, color, shadow }) => {
     const isUnlimited = max === -1;
     const percentage = isUnlimited ? 0 : Math.min(100, (current / max) * 100);
