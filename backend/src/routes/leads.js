@@ -178,7 +178,6 @@ router.get('/:id', requireAuth, async (req, res) => {
     } catch (err) {
         console.error('Error fetching lead:', err);
         res.status(500).json({ message: 'Server error' });
-        res.status(500).json({ message: 'Server error' });
     }
 });
 

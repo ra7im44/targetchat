@@ -52,14 +52,22 @@ router.get('/:filename', (req, res) => {
 
 // POST /api/file/refresh-url
 // Generates a new signed URL for a given filename (requires auth).
-// SECURITY: IDOR guard — the file must be referenced by a message inside a
+// SECURITY: IDOR guard — the file must physically exist and be referenced by a message inside a
 // chat the requester owns, is assigned to, or whose widget/channel they own.
+// Exact canonical comparison is strictly enforced; wildcard LIKE matching is prohibited.
 router.post('/refresh-url', requireAuth, async (req, res) => {
     const { filename } = req.body;
-    if (!filename) return res.status(400).json({ message: 'Filename required' });
+    if (!filename || typeof filename !== 'string') return res.status(400).json({ message: 'Filename required' });
 
-    if (!resolveUploadPath(filename)) {
+    // Validate clean basename (no separators, traversal, or query params)
+    const cleanFilename = path.basename(filename.trim()).split('?')[0];
+    if (!cleanFilename || cleanFilename !== filename.trim()) {
         return res.status(400).json({ message: 'Invalid filename' });
+    }
+
+    const filePath = resolveUploadPath(cleanFilename);
+    if (!filePath || !fs.existsSync(filePath)) {
+        return res.status(404).json({ message: 'File not found' });
     }
 
     const userId = req.user.id;
@@ -67,30 +75,46 @@ router.post('/refresh-url', requireAuth, async (req, res) => {
 
     let allowed = false;
 
-    // Admins have access to refresh files across the system
+    // Admins have access to refresh verified files across the system
     if (userRole === 'admin' || userRole === 'superadmin') {
         allowed = true;
     } else {
-        const referencingMessage = await Message.findOne({
+        // Match exact canonical filename references only (no wildcard LIKE)
+        const exactMatches = [
+            cleanFilename,
+            `/uploads/${cleanFilename}`,
+            `/secure-file/${cleanFilename}`
+        ];
+
+        const referencingMessages = await Message.findAll({
             where: {
-                [Op.or]: [
-                    { text: filename },
-                    { text: { [Op.like]: `%${filename}%` } }
-                ]
+                text: { [Op.in]: exactMatches }
             },
-            include: [{ model: Chat, as: 'chat' }]
+            include: [{
+                model: Chat,
+                as: 'chat',
+                include: [
+                    { model: Widget, as: 'widget', attributes: ['id', 'userId'] },
+                    { model: Channel, as: 'channel', attributes: ['id', 'userId'] }
+                ]
+            }],
+            limit: 20
         });
 
-        if (referencingMessage && referencingMessage.chat) {
-            const chat = referencingMessage.chat;
+        for (const msg of referencingMessages) {
+            const chat = msg.chat;
+            if (!chat) continue;
             if (chat.userId === userId || chat.assignedTo === userId) {
                 allowed = true;
-            } else if (chat.widgetId) {
-                const widget = await Widget.findByPk(chat.widgetId, { attributes: ['userId'] });
-                if (widget && widget.userId === userId) allowed = true;
-            } else if (chat.channelId) {
-                const channel = await Channel.findByPk(chat.channelId, { attributes: ['userId'] });
-                if (channel && channel.userId === userId) allowed = true;
+                break;
+            }
+            if (chat.widget && chat.widget.userId === userId) {
+                allowed = true;
+                break;
+            }
+            if (chat.channel && chat.channel.userId === userId) {
+                allowed = true;
+                break;
             }
         }
     }
@@ -99,7 +123,7 @@ router.post('/refresh-url', requireAuth, async (req, res) => {
         return res.status(404).json({ message: 'File not found' });
     }
 
-    const signedUrl = generateSignedUrl(filename);
+    const signedUrl = generateSignedUrl(cleanFilename);
     res.json({ url: signedUrl });
 });
 

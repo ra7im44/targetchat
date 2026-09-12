@@ -110,12 +110,10 @@ io.on('connection', (socket) => {
 
   if (socket.isGuest) {
     // Join session room for guest users (room name derived from validated handshake)
+    // SECURITY: guest sockets are isolated strictly to their session room.
     const sessionRoom = `session_${socket.sessionId}`;
     socket.join(sessionRoom);
-
-    const widgetRoom = `widget_${socket.widgetSlug}`;
-    socket.join(widgetRoom);
-    console.log(`🔌 Guest Socket ${socket.id} joined rooms: ${sessionRoom}, ${widgetRoom}`);
+    console.log(`🔌 Guest Socket ${socket.id} joined room: ${sessionRoom}`);
   } else {
     // Join user room for logged in users
     socket.join(`user_${socket.userId}`);
@@ -126,9 +124,17 @@ io.on('connection', (socket) => {
   });
 
   // Meta Real-time Indicators (Typing/Seen)
-  socket.on('agent:typing', async ({ chatId, typing }) => {
+  socket.on('agent:typing', async (payload) => {
     try {
-      const chat = await Chat.findByPk(chatId, { include: [Channel, Lead] });
+      if (!payload || typeof payload !== 'object') return;
+      const { chatId, typing } = payload;
+      if (!chatId) return;
+      const chat = await Chat.findByPk(chatId, {
+        include: [
+          { model: Channel, as: 'channel' },
+          { model: Lead, as: 'lead' }
+        ]
+      });
       if (!chat) return;
       if (!(await canAccessChat(socket.userId, chat))) return;
       if (chat.channel && chat.channel.type !== 'whatsapp' && chat.channel.accessToken && chat.lead) {
@@ -140,9 +146,17 @@ io.on('connection', (socket) => {
     }
   });
 
-  socket.on('agent:seen', async ({ chatId }) => {
+  socket.on('agent:seen', async (payload) => {
     try {
-      const chat = await Chat.findByPk(chatId, { include: [Channel, Lead] });
+      if (!payload || typeof payload !== 'object') return;
+      const { chatId } = payload;
+      if (!chatId) return;
+      const chat = await Chat.findByPk(chatId, {
+        include: [
+          { model: Channel, as: 'channel' },
+          { model: Lead, as: 'lead' }
+        ]
+      });
       if (!chat) return;
       if (!(await canAccessChat(socket.userId, chat))) return;
       if (chat.channel && chat.channel.type !== 'whatsapp' && chat.channel.accessToken && chat.lead) {

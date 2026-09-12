@@ -11,10 +11,18 @@ const { parsePagination } = require('../utils/pagination');
  * the caller's widgets/channels, or is assigned to the caller.
  * Returns null when the chat does not exist or access is denied.
  */
-async function verifyInboxChatAccess(chatId, userId, userRole) {
-    const chat = await Chat.findByPk(chatId, {
-        include: [{ model: Widget, as: 'widget', attributes: ['id', 'userId'] }]
-    });
+async function verifyInboxChatAccess(chatId, userId, userRole, options = {}) {
+    const include = [
+        { model: Widget, as: 'widget', attributes: ['id', 'userId', 'slug'] }
+    ];
+    if (options.includeChannel) {
+        include.push({ model: Channel, as: 'channel' });
+    }
+    if (options.includeLead) {
+        include.push({ model: Lead, as: 'lead' });
+    }
+
+    const chat = await Chat.findByPk(chatId, { include });
     if (!chat) return null;
 
     if (userRole === 'admin' || userRole === 'superadmin') return chat;
@@ -28,8 +36,8 @@ async function verifyInboxChatAccess(chatId, userId, userRole) {
     }
 
     if (chat.channelId) {
-        const channel = await Channel.findByPk(chat.channelId, { attributes: ['userId'] });
-        if (channel && channel.userId === userId) return chat;
+        const channelUserId = chat.channel ? chat.channel.userId : (await Channel.findByPk(chat.channelId, { attributes: ['userId'] }))?.userId;
+        if (channelUserId === userId) return chat;
     }
 
     return null;
@@ -128,24 +136,21 @@ router.post('/chats/:id/messages', requireAuth, async (req, res) => {
         }
 
         // Verify chat existence and permissions
-        // User must be either the assignee OR the owner of the widget
-        const chat = await Chat.findOne({
-            where: { id: chatId },
-            include: [{ model: Widget, as: 'widget' }] // Need widget to check ownership
+        // SECURITY: user must be assignee, owner of the widget, or owner of the channel.
+        const chat = await verifyInboxChatAccess(chatId, userId, req.user.role, {
+            includeChannel: true,
+            includeLead: true
         });
 
-        console.log(`[Inbox] Chat found: ${chat ? chat.id : 'null'}`, { title: chat?.title, widget: chat?.widget?.slug });
-
         if (!chat) {
+            const exists = await Chat.findByPk(chatId, { attributes: ['id'] });
+            if (exists) {
+                return res.status(403).json({ message: 'Not authorized to reply to this chat' });
+            }
             return res.status(404).json({ message: 'Chat not found' });
         }
 
-        const isAssignee = chat.assignedTo === userId;
-        const isOwner = chat.widget && chat.widget.userId === userId;
-
-        if (!isAssignee && !isOwner) {
-            return res.status(403).json({ message: 'Not authorized to reply to this chat' });
-        }
+        console.log(`[Inbox] Chat verified: ${chat.id}`, { title: chat.title, widget: chat.widget?.slug });
 
         // Optional: Auto-assign if unassigned? 
         // For now, let's just allow the reply. 
@@ -201,8 +206,8 @@ router.post('/chats/:id/messages', requireAuth, async (req, res) => {
             }
 
             // 3. Notify Guest Widget (External)
-            // Try to emit to specific session room first (Better Privacy)
-            let sentToSession = false;
+            // SECURITY: Emit strictly to the authenticated visitor's private session room.
+            // Insecure fallback to the shared widget room is removed to prevent cross-visitor leaks.
             const sessionMatch = chat.title && chat.title.match(/Guest Session (.+)/);
             if (sessionMatch && sessionMatch[1]) {
                 const sessionId = sessionMatch[1].trim(); // Trim to avoid whitespace issues
@@ -211,23 +216,6 @@ router.post('/chats/:id/messages', requireAuth, async (req, res) => {
                     text: message.text,
                     sender: 'agent',
                     timestamp: message.created_at
-                });
-                sentToSession = true;
-            }
-
-            // Fallback: Notify via Widget Room
-            if (!sentToSession && chat.widget && chat.widget.slug) {
-                console.log(`Emitting message to widget_${chat.widget.slug} (Fallback)`);
-                io.to(`widget_${chat.widget.slug}`).emit('message', {
-                    text: message.text,
-                    sender: 'agent', // Will be displayed as AI/Agent on client
-                    timestamp: message.created_at
-                });
-            } else if (!sentToSession) {
-                console.log('Skipping widget emission: Widget/Slug missing AND Session ID not found', {
-                    hasWidget: !!chat.widget,
-                    slug: chat.widget?.slug,
-                    title: chat.title
                 });
             }
         }

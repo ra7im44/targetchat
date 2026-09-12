@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import DashboardLayout from '../components/layouts/DashboardLayout';
 import { toast } from 'react-hot-toast';
 import {
@@ -33,22 +33,34 @@ export default function UserChannels() {
     const [availablePages, setAvailablePages] = useState([]);
     const [isConnecting, setIsConnecting] = useState(false);
     const [isSaving, setIsSaving] = useState(false);
+    const popupRef = useRef(null);
 
     useEffect(() => {
         fetchChannels();
 
         // Listen for OAuth messages from popup.
-        // SECURITY: only accept messages posted by our own backend origin —
-        // any embedded iframe could otherwise inject a forged token.
+        // SECURITY: only accept messages posted by our own backend origin and
+        // specifically from the popup window opened by this session.
         const handleOAuthMessage = (event) => {
             if (event.origin !== API_ORIGIN) return;
+            if (popupRef.current && event.source !== popupRef.current) return;
+            if (!event.data || typeof event.data !== 'object') return;
+
             if (event.data.type === 'META_AUTH_SUCCESS') {
                 const token = event.data.accessToken;
+                if (!token || typeof token !== 'string') return;
+                setIsConnecting(false);
                 toast.success('Meta accounts synced!');
                 discoverPages(token);
+                if (popupRef.current && !popupRef.current.closed) {
+                    try { popupRef.current.close(); } catch (e) {}
+                }
             } else if (event.data.type === 'META_AUTH_ERROR') {
                 setIsConnecting(false);
-                toast.error(`Auth failed: ${event.data.error}`);
+                toast.error('Meta authorization failed. Please try again.');
+                if (popupRef.current && !popupRef.current.closed) {
+                    try { popupRef.current.close(); } catch (e) {}
+                }
             }
         };
 
@@ -109,22 +121,54 @@ export default function UserChannels() {
         }
     };
 
-    const handleMetaLogin = () => {
-        const width = 600, height = 700;
-        const left = (window.innerWidth / 2) - (width / 2);
-        const top = (window.innerHeight / 2) - (height / 2);
+    const handleMetaLogin = async () => {
+        try {
+            const token = localStorage.getItem('tc_token');
+            if (!token) {
+                toast.error('Session expired. Please log in again.');
+                return;
+            }
 
-        const popup = window.open(
-            `${API}/api/auth/meta/login?token=${localStorage.getItem('tc_token')}`,
-            'MetaLogin',
-            `width=${width},height=${height},left=${left},top=${top}`
-        );
-        if (!popup) {
-            toast.error('Popup blocked — please allow popups for this site and try again.');
-            return;
+            setIsConnecting(true);
+            toast('Preparing secure authorization…', { icon: '⏳' });
+
+            // Obtain a one-time random state ticket so the JWT is never exposed in the popup URL
+            const res = await fetch(`${API}/api/auth/meta/prepare`, {
+                method: 'POST',
+                headers: {
+                    Authorization: `Bearer ${token}`
+                }
+            });
+
+            if (!res.ok) {
+                setIsConnecting(false);
+                toast.error('Failed to initiate Meta authorization.');
+                return;
+            }
+
+            const { state } = await res.json();
+
+            const width = 600, height = 700;
+            const left = (window.innerWidth / 2) - (width / 2);
+            const top = (window.innerHeight / 2) - (height / 2);
+
+            const popup = window.open(
+                `${API}/api/auth/meta/login?state=${encodeURIComponent(state)}`,
+                'MetaLogin',
+                `width=${width},height=${height},left=${left},top=${top}`
+            );
+            if (!popup) {
+                setIsConnecting(false);
+                toast.error('Popup blocked — please allow popups for this site and try again.');
+                return;
+            }
+            popupRef.current = popup;
+            toast('Waiting for Meta authorization…', { icon: '⏳' });
+        } catch (err) {
+            setIsConnecting(false);
+            console.error('Meta login error:', err);
+            toast.error('An error occurred while connecting to Meta.');
         }
-        setIsConnecting(true);
-        toast('Waiting for Meta authorization…', { icon: '⏳' });
     };
 
     const handleSelectMetaAccount = (page) => {
@@ -384,7 +428,13 @@ export default function UserChannels() {
                                                 wizardStep === 2 ? 'Choose Account' : 'Configuration'}
                                     </h2>
                                 </div>
-                                <button onClick={() => setIsModalOpen(false)} className="p-2 text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full transition-colors" aria-label="Close">
+                                <button
+                                    type="button"
+                                    disabled={isSaving}
+                                    onClick={() => { if (!isSaving) setIsModalOpen(false); }}
+                                    className={`p-2 text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full transition-colors ${isSaving ? 'opacity-50 cursor-not-allowed' : ''}`}
+                                    aria-label="Close"
+                                >
                                     <X size={24} />
                                 </button>
                             </div>

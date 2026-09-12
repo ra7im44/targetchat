@@ -106,6 +106,12 @@ router.post('/:slug/event', async (req, res) => {
             return res.status(404).json({ message: 'Widget not found' });
         }
 
+        // Kill Switch Check
+        if (widget.status === 'inactive') {
+            console.warn(`[Security] Blocked event for INACTIVE widget ${slug}`);
+            return res.status(403).json({ message: 'This widget has been disabled by the administrator.' });
+        }
+
         // Security Check
         if (!isDomainAllowed(widget, req)) {
             return res.status(403).json({ message: 'Access denied: Domain not allowed' });
