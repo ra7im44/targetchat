@@ -197,12 +197,11 @@ router.post('/:slug/event', async (req, res) => {
             });
 
             // 3. Emit to Socket (so other tabs/admins see it)
-            // SECURITY: emit only to the private session room and the admin
-            // `message:new` channel. Never broadcast visitor content to the
-            // shared `widget_<slug>` room — any anonymous socket can join it.
+            // SECURITY: emit strictly to the widget-bound private session room and the admin
+            // `message:new` channel. Never broadcast visitor content to shared or unbound rooms.
             const io = req.io;
             if (io) {
-                io.to(`session_${sessionId}`).emit('message', {
+                io.to(`widget_${widget.id}_session_${sessionId}`).emit('message', {
                     text: payload.text,
                     sender: 'user',
                     timestamp: new Date()
@@ -272,9 +271,9 @@ router.post('/:slug/event', async (req, res) => {
                                 });
 
                                 if (io) {
-                                    // Emit to Session Room (Private & Reliable)
-                                    // SECURITY: do not broadcast to the shared widget room.
-                                    io.to(`session_${sessionId}`).emit('message', {
+                                    // Emit to Widget-bound Session Room (Private & Reliable)
+                                    // SECURITY: isolated to widget and session pair.
+                                    io.to(`widget_${widget.id}_session_${sessionId}`).emit('message', {
                                         text: response.output,
                                         sender: 'ai',
                                         timestamp: new Date()

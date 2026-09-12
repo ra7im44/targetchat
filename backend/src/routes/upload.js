@@ -90,8 +90,8 @@ router.post('/', requireAuth, upload.single('file'), (req, res) => {
         return res.status(400).json({ message: 'No file uploaded' });
     }
 
-    // Return the signed URL to the file
-    const signedUrl = generateSignedUrl(req.file.filename);
+    // Return the signed URL to the file, bound to the authenticated uploader
+    const signedUrl = generateSignedUrl(req.file.filename, req.user.id);
 
     return res.json({
         url: signedUrl,

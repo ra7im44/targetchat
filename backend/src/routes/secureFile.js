@@ -123,7 +123,7 @@ router.post('/refresh-url', requireAuth, async (req, res) => {
         return res.status(404).json({ message: 'File not found' });
     }
 
-    const signedUrl = generateSignedUrl(cleanFilename);
+    const signedUrl = generateSignedUrl(cleanFilename, userId);
     res.json({ url: signedUrl });
 });
 

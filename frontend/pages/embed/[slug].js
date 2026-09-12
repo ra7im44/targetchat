@@ -28,10 +28,16 @@ export default function EmbedPage() {
             .then(data => {
                 setConfig(data);
 
-                // Initialize session
+                // Initialize cryptographically secure, unguessable session identifier
                 let storedSession = localStorage.getItem(`tc_session_${slug}`);
                 if (!storedSession) {
-                    storedSession = 'sess_' + Math.random().toString(36).substr(2, 9);
+                    if (typeof window !== 'undefined' && window.crypto && window.crypto.getRandomValues) {
+                        const buf = new Uint8Array(16);
+                        window.crypto.getRandomValues(buf);
+                        storedSession = 'sess_' + Array.from(buf, b => b.toString(16).padStart(2, '0')).join('');
+                    } else {
+                        storedSession = 'sess_' + Date.now().toString(36) + Math.random().toString(36).substr(2, 9);
+                    }
                     localStorage.setItem(`tc_session_${slug}`, storedSession);
                 }
                 setSessionId(storedSession);

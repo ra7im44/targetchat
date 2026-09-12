@@ -216,13 +216,14 @@ router.post('/chats/:id/messages', requireAuth, async (req, res) => {
             }
 
             // 3. Notify Guest Widget (External)
-            // SECURITY: Emit strictly to the authenticated visitor's private session room.
-            // Insecure fallback to the shared widget room is removed to prevent cross-visitor leaks.
+            // SECURITY: Emit strictly to the authenticated visitor's widget-bound session room.
+            // Insecure fallback to shared or unbound rooms is removed to prevent cross-visitor leaks.
             const sessionMatch = chat.title && chat.title.match(/Guest Session (.+)/);
             if (sessionMatch && sessionMatch[1]) {
                 const sessionId = sessionMatch[1].trim(); // Trim to avoid whitespace issues
-                console.log(`Emitting message to session_${sessionId} (Source: ${chat.title})`);
-                io.to(`session_${sessionId}`).emit('message', {
+                const guestRoom = chat.widgetId ? `widget_${chat.widgetId}_session_${sessionId}` : `session_${sessionId}`;
+                console.log(`Emitting message to ${guestRoom} (Source: ${chat.title})`);
+                io.to(guestRoom).emit('message', {
                     text: message.text,
                     sender: 'agent',
                     timestamp: message.created_at

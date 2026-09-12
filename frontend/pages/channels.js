@@ -34,6 +34,7 @@ export default function UserChannels() {
     const [isConnecting, setIsConnecting] = useState(false);
     const [isSaving, setIsSaving] = useState(false);
     const popupRef = useRef(null);
+    const expectedJtiRef = useRef(null);
 
     useEffect(() => {
         fetchChannels();
@@ -45,22 +46,36 @@ export default function UserChannels() {
             if (!popupRef.current || event.source !== popupRef.current) return;
             if (!event.data || typeof event.data !== 'object') return;
 
+            // Only recognize terminal messages
+            if (event.data.type !== 'META_AUTH_SUCCESS' && event.data.type !== 'META_AUTH_ERROR') {
+                return;
+            }
+
             const popup = popupRef.current;
             popupRef.current = null; // Single-use consumption
+            const expectedJti = expectedJtiRef.current;
+            expectedJtiRef.current = null;
 
             if (popup && !popup.closed) {
                 try { popup.close(); } catch (e) {}
             }
+            setIsConnecting(false);
 
             if (event.data.type === 'META_AUTH_SUCCESS') {
                 const token = event.data.accessToken;
-                if (!token || typeof token !== 'string') return;
-                setIsConnecting(false);
+                if (!token || typeof token !== 'string') {
+                    toast.error('Invalid token received from Meta authorization.');
+                    return;
+                }
+                if (expectedJti && event.data.jti && event.data.jti !== expectedJti) {
+                    toast.error('OAuth transaction verification mismatch.');
+                    return;
+                }
                 toast.success('Meta accounts synced!');
                 discoverPages(token);
-            } else if (event.data.type === 'META_AUTH_ERROR') {
-                setIsConnecting(false);
-                toast.error('Meta authorization failed. Please try again.');
+            } else {
+                const errorMsg = event.data.error || 'Meta authorization failed. Please try again.';
+                toast.error(errorMsg);
             }
         };
 
@@ -161,17 +176,20 @@ export default function UserChannels() {
                 setIsConnecting(false);
                 popup.close();
                 popupRef.current = null;
+                expectedJtiRef.current = null;
                 toast.error('Failed to initiate Meta authorization.');
                 return;
             }
 
-            const { state } = await res.json();
-            popup.location.href = `${API}/api/auth/meta/login?state=${encodeURIComponent(state)}`;
+            const data = await res.json();
+            expectedJtiRef.current = data.jti || null;
+            popup.location.href = `${API}/api/auth/meta/login?state=${encodeURIComponent(data.state)}`;
             toast('Waiting for Meta authorization…', { icon: '⏳' });
         } catch (err) {
             setIsConnecting(false);
             try { popup.close(); } catch (e) {}
             popupRef.current = null;
+            expectedJtiRef.current = null;
             console.error('Meta login error:', err);
             toast.error('An error occurred while connecting to Meta.');
         }

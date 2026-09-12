@@ -220,26 +220,33 @@ router.post('/send', requireAuth, (req, res, next) => { req.usageResourceType = 
       try {
         const urlObj = new URL(url, 'http://localhost');
         const match = urlObj.pathname.match(/^\/secure-file\/([^/]+)$/);
-        if (match) {
-          const fname = match[1];
-          const expires = urlObj.searchParams.get('expires');
-          const signature = urlObj.searchParams.get('signature');
-          // SECURITY: verify cryptographic HMAC signature to prevent attaching unauthorized files
-          if (expires && signature && verifySignedUrl(fname, expires, signature)) {
-            return fname;
-          }
-          return null;
+        if (!match) return null; // SECURITY: Reject all unsigned paths, including legacy /uploads/
+
+        const fname = match[1];
+        const expires = urlObj.searchParams.get('expires');
+        const signature = urlObj.searchParams.get('signature');
+        const uid = urlObj.searchParams.get('uid');
+
+        // SECURITY: Verify cryptographic HMAC signature and user ownership
+        if (!expires || !signature) return null;
+
+        const isSenderOrAdmin = !uid || String(uid) === String(userId) || req.user.role === 'admin' || req.user.role === 'superadmin';
+        if (!isSenderOrAdmin) return null;
+
+        if (verifySignedUrl(fname, expires, signature, uid)) {
+          return fname;
         }
-        const matchLegacy = url.match(/^\/uploads\/([^/?]+)$/);
-        if (matchLegacy) return matchLegacy[1];
         return null;
       } catch (e) { return null; }
     };
 
     let filename = null;
     if (message.type !== 'text') {
-      if (message.type === 'file') filename = getFilename(message.file?.url);
-      else filename = getFilename(message[message.type]);
+      const targetUrl = message.type === 'file' ? message.file?.url : message[message.type];
+      filename = getFilename(targetUrl);
+      if (!filename) {
+        return res.status(400).json({ error: 'A valid, authorized signed media attachment is required for media messages' });
+      }
     }
 
     // Map unified payload to DB columns
@@ -249,8 +256,8 @@ router.post('/send', requireAuth, (req, res, next) => { req.usageResourceType = 
     if (message.type === 'text') {
       dbText = message.text || '';
     } else {
-      // For media, store the filename (or fallback to empty if extraction failed)
-      dbText = filename || '';
+      // For media, store the verified filename
+      dbText = filename;
       if (message.type === 'file') {
         dbMetadata = { name: message.file?.name };
       }
@@ -266,7 +273,7 @@ router.post('/send', requireAuth, (req, res, next) => { req.usageResourceType = 
     });
 
     // Re-sign the URL to ensure it has a fresh expiry for the recipient
-    const signedUrl = filename ? generateSignedUrl(filename) : null;
+    const signedUrl = filename ? generateSignedUrl(filename, userId) : null;
 
     const unifiedMessage = {
       type: message.type,

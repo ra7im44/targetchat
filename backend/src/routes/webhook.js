@@ -116,11 +116,12 @@ router.post('/n8n', validate(schemas.n8nWebhook), async (req, res) => {
             }
 
             if (targetSessionId) {
-                io.to(`session_${targetSessionId}`).emit('message', {
+                const guestRoom = chat.widgetId ? `widget_${chat.widgetId}_session_${targetSessionId}` : `session_${targetSessionId}`;
+                io.to(guestRoom).emit('message', {
                     ...messagePayload,
                     sender: 'ai' // Ensure sender is set for widget client
                 });
-                console.log(`✅ AI message broadcast to session_${targetSessionId}`);
+                console.log(`✅ AI message broadcast to ${guestRoom}`);
             }
 
             console.log(`✅ AI message broadcast to chat_${chat_id}`);

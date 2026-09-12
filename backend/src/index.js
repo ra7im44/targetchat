@@ -78,17 +78,24 @@ io.use((socket, next) => {
       if (!widget || widget.status === 'inactive') {
         return next(new Error('Widget is unavailable or disabled'));
       }
-      // Check allowed domains if request origin header is provided
-      const origin = socket.handshake.headers.origin;
-      if (origin && Array.isArray(widget.allowedDomains) && widget.allowedDomains.length > 0 && !widget.allowedDomains.includes('*')) {
+      // Strict allowed domains check: require origin when restrictions are configured
+      const origin = socket.handshake.headers.origin || socket.handshake.headers.referer;
+      if (Array.isArray(widget.allowedDomains) && widget.allowedDomains.length > 0 && !widget.allowedDomains.includes('*')) {
+        if (!origin) {
+          return next(new Error('Origin or Referer header required when allowed domains are configured'));
+        }
         try {
-          const originHost = new URL(origin).host;
-          const allowed = widget.allowedDomains.some(d => d === originHost || d === origin || originHost.endsWith('.' + d));
+          const originHost = new URL(origin).host.toLowerCase();
+          const allowed = widget.allowedDomains.some(entry => {
+            if (typeof entry !== 'string') return false;
+            const clean = entry.trim().replace(/^https?:\/\//i, '').split('/')[0].toLowerCase();
+            return originHost === clean || originHost.endsWith('.' + clean);
+          });
           if (!allowed) {
             return next(new Error('Origin domain not allowed for this widget'));
           }
         } catch (e) {
-          return next(new Error('Invalid origin header'));
+          return next(new Error('Invalid origin or referer header'));
         }
       }
 
@@ -137,9 +144,9 @@ io.on('connection', (socket) => {
   console.log(`User connected: ${socket.id}`);
 
   if (socket.isGuest) {
-    // Join session room for guest users (room name derived from validated handshake)
-    // SECURITY: guest sockets are isolated strictly to their session room.
-    const sessionRoom = `session_${socket.sessionId}`;
+    // Join session room scoped strictly to this widget and session pair
+    // SECURITY: guest sockets are isolated strictly to their widget-bound session room.
+    const sessionRoom = `widget_${socket.widgetId}_session_${socket.sessionId}`;
     socket.join(sessionRoom);
     console.log(`🔌 Guest Socket ${socket.id} joined room: ${sessionRoom}`);
   } else {

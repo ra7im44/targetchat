@@ -17,21 +17,24 @@ function postMessagePage(payload) {
     return `<script>if (window.opener) { window.opener.postMessage(${JSON.stringify(payload)}, ${JSON.stringify(FRONTEND_ORIGIN)}); } window.close();</script>`;
 }
 
+const crypto = require('crypto');
 const jwt = require('jsonwebtoken');
 const { getJwtSecret } = require('../../config/secrets');
+const { Setting } = require('../../models');
 
 /**
  * POST /api/auth/meta/prepare
- * Generates a stateless, tamper-proof state ticket bound to the authenticated user.
+ * Generates a stateless, tamper-proof state ticket bound to the authenticated user and a unique transaction ID (JTI).
  * SECURITY: Prevents transmitting long-lived JWTs in popup query strings and functions across PM2 cluster instances.
  */
 router.post('/prepare', requireAuth, (req, res) => {
+    const jti = crypto.randomBytes(16).toString('hex');
     const state = jwt.sign(
-        { userId: req.user.id, purpose: 'meta_oauth' },
+        { userId: req.user.id, purpose: 'meta_oauth', jti },
         getJwtSecret(),
         { expiresIn: '5m' }
     );
-    res.json({ state });
+    res.json({ state, jti });
 });
 
 /**
@@ -46,7 +49,7 @@ router.get('/login', (req, res) => {
 
     try {
         const decoded = jwt.verify(state, getJwtSecret());
-        if (decoded.purpose !== 'meta_oauth') {
+        if (decoded.purpose !== 'meta_oauth' || !decoded.userId || !decoded.jti) {
             return res.status(401).send('Invalid state ticket.');
         }
     } catch (err) {
@@ -70,7 +73,7 @@ router.get('/login', (req, res) => {
 
 /**
  * GET /api/auth/meta/callback
- * Handle Meta OAuth callback and exchange code for token, verifying signed state.
+ * Handle Meta OAuth callback and exchange code for token, verifying signed state and enforcing single-use.
  */
 router.get('/callback', async (req, res) => {
     // SECURITY: `error` is attacker-controlled query input — never interpolate
@@ -81,13 +84,27 @@ router.get('/callback', async (req, res) => {
         return res.send(postMessagePage({ type: 'META_AUTH_ERROR', error: 'Missing OAuth state' }));
     }
 
+    let decoded;
     try {
-        const decoded = jwt.verify(state, getJwtSecret());
-        if (decoded.purpose !== 'meta_oauth') {
+        decoded = jwt.verify(state, getJwtSecret());
+        if (decoded.purpose !== 'meta_oauth' || !decoded.userId || !decoded.jti) {
             return res.send(postMessagePage({ type: 'META_AUTH_ERROR', error: 'Invalid OAuth state' }));
         }
     } catch (err) {
         return res.send(postMessagePage({ type: 'META_AUTH_ERROR', error: 'Expired or invalid OAuth session' }));
+    }
+
+    // Atomic one-time consumption in shared DB across all PM2 cluster instances
+    try {
+        await Setting.create({
+            section: 'oauth_consumed_jti',
+            key: `oauth_jti_${decoded.jti}`,
+            value: JSON.stringify({ userId: decoded.userId, consumedAt: new Date() }),
+            isPublic: false
+        });
+    } catch (dupErr) {
+        console.warn(`[OAuth Security] State replay detected for jti=${decoded.jti}`);
+        return res.send(postMessagePage({ type: 'META_AUTH_ERROR', error: 'OAuth state has already been consumed' }));
     }
 
     if (error) {
@@ -107,10 +124,12 @@ router.get('/callback', async (req, res) => {
         // 2. Exchange for Long-lived (60 day) User Token
         const longLivedToken = await metaApiService.getLongLivedUserAccessToken(shortLivedToken);
 
-        // 3. Return token to frontend via postMessage
+        // 3. Return token to frontend via postMessage bound to user and transaction
         res.send(postMessagePage({
             type: 'META_AUTH_SUCCESS',
-            accessToken: longLivedToken
+            accessToken: longLivedToken,
+            userId: decoded.userId,
+            jti: decoded.jti
         }));
     } catch (err) {
         console.error('[MetaAuth] Callback failed:', err.message);
