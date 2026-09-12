@@ -3,11 +3,15 @@ import DashboardLayout from '../components/layouts/DashboardLayout';
 import { toast } from 'react-hot-toast';
 import {
     Share2, Plus, Facebook, Instagram, MessageCircle,
-    Settings, Trash2, Power, Zap, User, ExternalLink,
-    AlertCircle, CheckCircle2, Clock
+    Settings, Trash2, Zap, User,
+    AlertCircle, CheckCircle2, Clock, X, Loader2
 } from 'lucide-react';
 
 const API = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
+// Backend origin — OAuth popup messages are only trusted from here.
+const API_ORIGIN = (() => {
+    try { return new URL(API).origin; } catch { return API; }
+})();
 
 export default function UserChannels() {
     const [channels, setChannels] = useState([]);
@@ -28,19 +32,22 @@ export default function UserChannels() {
     const [wizardStep, setWizardStep] = useState(1);
     const [availablePages, setAvailablePages] = useState([]);
     const [isConnecting, setIsConnecting] = useState(false);
-    const [metaUserToken, setMetaUserToken] = useState('');
+    const [isSaving, setIsSaving] = useState(false);
 
     useEffect(() => {
         fetchChannels();
 
-        // Listen for OAuth messages from popup
+        // Listen for OAuth messages from popup.
+        // SECURITY: only accept messages posted by our own backend origin —
+        // any embedded iframe could otherwise inject a forged token.
         const handleOAuthMessage = (event) => {
+            if (event.origin !== API_ORIGIN) return;
             if (event.data.type === 'META_AUTH_SUCCESS') {
                 const token = event.data.accessToken;
-                setMetaUserToken(token);
                 toast.success('Meta accounts synced!');
                 discoverPages(token);
             } else if (event.data.type === 'META_AUTH_ERROR') {
+                setIsConnecting(false);
                 toast.error(`Auth failed: ${event.data.error}`);
             }
         };
@@ -48,6 +55,14 @@ export default function UserChannels() {
         window.addEventListener('message', handleOAuthMessage);
         return () => window.removeEventListener('message', handleOAuthMessage);
     }, []);
+
+    // Close the modal with Escape (overlay click is handled on the backdrop).
+    useEffect(() => {
+        if (!isModalOpen) return;
+        const onKey = (e) => { if (e.key === 'Escape' && !isSaving) setIsModalOpen(false); };
+        window.addEventListener('keydown', onKey);
+        return () => window.removeEventListener('keydown', onKey);
+    }, [isModalOpen, isSaving]);
 
     const fetchChannels = async () => {
         try {
@@ -58,18 +73,27 @@ export default function UserChannels() {
             if (res.ok) {
                 const data = await res.json();
                 setChannels(data);
+            } else if (res.status !== 401) {
+                // 401 is handled globally (DashboardLayout redirects to login).
+                toast.error('Failed to load channels');
             }
         } catch (error) {
             console.error('Failed to fetch channels:', error);
+            toast.error('Failed to load channels');
         } finally {
             setLoading(false);
         }
     };
 
     const discoverPages = async (token) => {
+        setIsConnecting(true);
         try {
-            const res = await fetch(`${API}/api/auth/meta/discover?token=${token}`, {
-                headers: { Authorization: `Bearer ${localStorage.getItem('tc_token')}` }
+            // Meta user token goes in a header so it never lands in URLs/logs.
+            const res = await fetch(`${API}/api/auth/meta/discover`, {
+                headers: {
+                    Authorization: `Bearer ${localStorage.getItem('tc_token')}`,
+                    'X-Meta-Token': token
+                }
             });
             if (res.ok) {
                 const data = await res.json();
@@ -80,6 +104,8 @@ export default function UserChannels() {
             }
         } catch (error) {
             toast.error('Failed to discover pages');
+        } finally {
+            setIsConnecting(false);
         }
     };
 
@@ -88,11 +114,17 @@ export default function UserChannels() {
         const left = (window.innerWidth / 2) - (width / 2);
         const top = (window.innerHeight / 2) - (height / 2);
 
-        window.open(
+        const popup = window.open(
             `${API}/api/auth/meta/login?token=${localStorage.getItem('tc_token')}`,
             'MetaLogin',
             `width=${width},height=${height},left=${left},top=${top}`
         );
+        if (!popup) {
+            toast.error('Popup blocked — please allow popups for this site and try again.');
+            return;
+        }
+        setIsConnecting(true);
+        toast('Waiting for Meta authorization…', { icon: '⏳' });
     };
 
     const handleSelectMetaAccount = (page) => {
@@ -121,7 +153,7 @@ export default function UserChannels() {
         }
     };
 
-    const handleOpenModal = (channel = null) => {
+    const handleOpenModal = (channel = null, presetType = null) => {
         setWizardStep(1);
         if (channel) {
             setIsEditing(true);
@@ -130,7 +162,8 @@ export default function UserChannels() {
                 type: channel.type,
                 name: channel.name,
                 externalId: channel.externalId,
-                accessToken: channel.accessToken,
+                // The API never returns tokens — blank means "keep current".
+                accessToken: '',
                 mode: channel.mode,
                 workflowUrl: channel.workflowUrl || '',
                 isActive: channel.isActive
@@ -140,7 +173,7 @@ export default function UserChannels() {
             setIsEditing(false);
             setSelectedChannel(null);
             setFormData({
-                type: 'facebook',
+                type: presetType || 'facebook',
                 name: '',
                 externalId: '',
                 accessToken: '',
@@ -154,10 +187,17 @@ export default function UserChannels() {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        // A new channel is useless without credentials — stop early with a
+        // clear message instead of a raw server error.
+        if (!isEditing && !formData.accessToken) {
+            toast.error('Access token is required to connect a channel.');
+            return;
+        }
         const token = localStorage.getItem('tc_token');
         const url = isEditing ? `${API}/api/channels/${selectedChannel.id}` : `${API}/api/channels`;
         const method = isEditing ? 'PATCH' : 'POST';
 
+        setIsSaving(true);
         try {
             const res = await fetch(url, {
                 method,
@@ -168,15 +208,18 @@ export default function UserChannels() {
                 body: JSON.stringify(formData)
             });
 
+            const data = await res.json().catch(() => ({}));
             if (res.ok) {
                 toast.success(isEditing ? 'Channel updated' : 'Channel connected');
                 setIsModalOpen(false);
                 fetchChannels();
             } else {
-                toast.error('Failed to save channel');
+                toast.error(data.message || 'Failed to save channel');
             }
         } catch (error) {
             toast.error('Connection failed');
+        } finally {
+            setIsSaving(false);
         }
     };
 
@@ -242,13 +285,13 @@ export default function UserChannels() {
                             Select a platform below to start receiving messages on TargetChat.
                         </p>
                         <div className="flex flex-wrap justify-center gap-4">
-                            <button onClick={() => { setFormData({ ...formData, type: 'facebook' }); handleOpenModal(); }} className="flex items-center gap-2 px-4 py-2.5 bg-[#1877F2] text-white rounded-xl font-semibold hover:opacity-90 transition-all shadow-sm">
+                            <button onClick={() => handleOpenModal(null, 'facebook')} className="flex items-center gap-2 px-4 py-2.5 bg-[#1877F2] text-white rounded-xl font-semibold hover:opacity-90 transition-all shadow-sm">
                                 <Facebook size={18} /> Connect Facebook
                             </button>
-                            <button onClick={() => { setFormData({ ...formData, type: 'instagram' }); handleOpenModal(); }} className="flex items-center gap-2 px-4 py-2.5 bg-gradient-to-tr from-[#F58529] via-[#DD2A7B] to-[#8134AF] text-white rounded-xl font-semibold hover:opacity-90 transition-all shadow-sm">
+                            <button onClick={() => handleOpenModal(null, 'instagram')} className="flex items-center gap-2 px-4 py-2.5 bg-gradient-to-tr from-[#F58529] via-[#DD2A7B] to-[#8134AF] text-white rounded-xl font-semibold hover:opacity-90 transition-all shadow-sm">
                                 <Instagram size={18} /> Connect Instagram
                             </button>
-                            <button onClick={() => { setFormData({ ...formData, type: 'whatsapp' }); handleOpenModal(); }} className="flex items-center gap-2 px-4 py-2.5 bg-[#25D366] text-white rounded-xl font-semibold hover:opacity-90 transition-all shadow-sm">
+                            <button onClick={() => handleOpenModal(null, 'whatsapp')} className="flex items-center gap-2 px-4 py-2.5 bg-[#25D366] text-white rounded-xl font-semibold hover:opacity-90 transition-all shadow-sm">
                                 <MessageCircle size={18} /> Connect WhatsApp
                             </button>
                         </div>
@@ -286,11 +329,18 @@ export default function UserChannels() {
                                         </div>
                                     </div>
                                     <div className="p-3 bg-gray-50 dark:bg-gray-900/50 rounded-2xl border border-gray-100 dark:border-gray-800">
-                                        <p className="text-[10px] uppercase font-bold text-gray-400 mb-1 font-sans">Health</p>
-                                        <div className="flex items-center gap-1.5 font-bold text-sm text-green-600">
-                                            <CheckCircle2 size={14} />
-                                            <span>Connected</span>
-                                        </div>
+                                        <p className="text-[10px] uppercase font-bold text-gray-400 mb-1 font-sans">Token</p>
+                                        {channel.hasToken ? (
+                                            <div className="flex items-center gap-1.5 font-bold text-sm text-green-600">
+                                                <CheckCircle2 size={14} />
+                                                <span>Configured</span>
+                                            </div>
+                                        ) : (
+                                            <div className="flex items-center gap-1.5 font-bold text-sm text-amber-600">
+                                                <AlertCircle size={14} />
+                                                <span>Missing</span>
+                                            </div>
+                                        )}
                                     </div>
                                 </div>
 
@@ -315,8 +365,14 @@ export default function UserChannels() {
 
                 {/* Modal */}
                 {isModalOpen && (
-                    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
-                        <div className="bg-white dark:bg-gray-800 w-full max-w-lg rounded-3xl shadow-2xl overflow-hidden animate-in fade-in zoom-in duration-200">
+                    <div
+                        className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm"
+                        onClick={() => { if (!isSaving) setIsModalOpen(false); }}
+                    >
+                        <div
+                            className="bg-white dark:bg-gray-800 w-full max-w-lg rounded-3xl shadow-2xl overflow-hidden animate-in fade-in zoom-in duration-200"
+                            onClick={(e) => e.stopPropagation()}
+                        >
                             <div className="p-6 border-b border-gray-100 dark:border-gray-700 flex justify-between items-center bg-gray-50/50 dark:bg-gray-900/50">
                                 <div className="flex items-center gap-3">
                                     <div className="w-10 h-10 bg-white dark:bg-gray-800 rounded-xl flex items-center justify-center shadow-sm">
@@ -328,8 +384,8 @@ export default function UserChannels() {
                                                 wizardStep === 2 ? 'Choose Account' : 'Configuration'}
                                     </h2>
                                 </div>
-                                <button onClick={() => setIsModalOpen(false)} className="p-2 text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full transition-colors">
-                                    <Plus className="rotate-45" size={24} />
+                                <button onClick={() => setIsModalOpen(false)} className="p-2 text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full transition-colors" aria-label="Close">
+                                    <X size={24} />
                                 </button>
                             </div>
 
@@ -386,7 +442,7 @@ export default function UserChannels() {
                                                         disabled={!formData.externalId || !formData.accessToken}
                                                         className="w-full py-3 bg-blue-600 text-white font-bold rounded-xl hover:bg-blue-700 disabled:opacity-50"
                                                     >
-                                                        Verify & Continue
+                                                        Continue
                                                     </button>
                                                 </div>
                                             </div>
@@ -395,11 +451,18 @@ export default function UserChannels() {
                                                 <p className="text-sm text-gray-500">Connect your Meta account to select your Page or Instagram account.</p>
                                                 <button
                                                     onClick={handleMetaLogin}
-                                                    className="w-full py-4 bg-[#1877F2] text-white font-bold rounded-2xl hover:opacity-90 flex items-center justify-center gap-3 shadow-lg shadow-blue-500/20"
+                                                    disabled={isConnecting}
+                                                    className="w-full py-4 bg-[#1877F2] text-white font-bold rounded-2xl hover:opacity-90 disabled:opacity-60 flex items-center justify-center gap-3 shadow-lg shadow-blue-500/20"
                                                 >
-                                                    <Facebook size={24} />
-                                                    Connect Meta Account
+                                                    {isConnecting ? (
+                                                        <><Loader2 size={24} className="animate-spin" /> Waiting for Meta…</>
+                                                    ) : (
+                                                        <><Facebook size={24} /> Connect Meta Account</>
+                                                    )}
                                                 </button>
+                                                {isConnecting && (
+                                                    <p className="text-xs text-gray-400">Complete the authorization in the popup — your accounts will appear here automatically.</p>
+                                                )}
                                             </div>
                                         )}
                                     </div>
@@ -440,7 +503,13 @@ export default function UserChannels() {
                                                 </div>
                                             )}
                                         </div>
-                                        <button onClick={() => setWizardStep(1)} className="text-xs font-bold text-blue-600 uppercase hover:underline">← Change Platform</button>
+                                        <div className="flex items-center justify-between gap-3">
+                                            <button onClick={() => setWizardStep(1)} className="text-xs font-bold text-blue-600 uppercase hover:underline">← Change Platform</button>
+                                            <button onClick={handleMetaLogin} disabled={isConnecting} className="text-xs font-bold text-gray-500 uppercase hover:text-blue-600 hover:underline disabled:opacity-50 flex items-center gap-1">
+                                                {isConnecting ? <Loader2 size={12} className="animate-spin" /> : null}
+                                                Resync Accounts
+                                            </button>
+                                        </div>
                                     </div>
                                 )}
 
@@ -505,20 +574,43 @@ export default function UserChannels() {
                                                     />
                                                 </div>
                                             )}
+
+                                            <div>
+                                                <label className="block text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-2">
+                                                    Access Token {isEditing && <span className="normal-case font-medium text-gray-400">(leave blank to keep current)</span>}
+                                                </label>
+                                                <input
+                                                    type="password"
+                                                    value={formData.accessToken}
+                                                    onChange={(e) => setFormData({ ...formData, accessToken: e.target.value })}
+                                                    required={!isEditing}
+                                                    placeholder={isEditing ? '•••••••• (unchanged)' : 'Paste the access token'}
+                                                    autoComplete="off"
+                                                    className="w-full px-4 py-3 bg-gray-50 dark:bg-gray-900 border-none rounded-xl focus:ring-2 focus:ring-blue-500 text-gray-900 dark:text-white font-mono text-sm"
+                                                />
+                                                {isEditing && !formData.accessToken && (
+                                                    <p className="text-xs text-gray-400 mt-1.5">
+                                                        {selectedChannel?.hasToken ? 'A token is already configured for this channel.' : 'No token configured — messaging will fail until you set one.'}
+                                                    </p>
+                                                )}
+                                            </div>
                                         </div>
 
                                         <div className="pt-4 flex gap-3">
                                             <button
                                                 type="button"
                                                 onClick={() => setIsModalOpen(false)}
-                                                className="flex-1 px-6 py-4 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-white font-bold rounded-2xl hover:bg-gray-200 dark:hover:bg-gray-600 transition-all font-sans"
+                                                disabled={isSaving}
+                                                className="flex-1 px-6 py-4 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-white font-bold rounded-2xl hover:bg-gray-200 dark:hover:bg-gray-600 transition-all font-sans disabled:opacity-50"
                                             >
                                                 Cancel
                                             </button>
                                             <button
                                                 type="submit"
-                                                className="flex-2 px-8 py-4 bg-blue-600 text-white font-bold rounded-2xl hover:bg-blue-700 transition-all shadow-lg shadow-blue-500/30"
+                                                disabled={isSaving}
+                                                className="flex-2 px-8 py-4 bg-blue-600 text-white font-bold rounded-2xl hover:bg-blue-700 transition-all shadow-lg shadow-blue-500/30 disabled:opacity-60 flex items-center justify-center gap-2"
                                             >
+                                                {isSaving && <Loader2 size={18} className="animate-spin" />}
                                                 {isEditing ? 'Save Changes' : 'Finish Setup'}
                                             </button>
                                         </div>

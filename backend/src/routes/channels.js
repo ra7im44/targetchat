@@ -31,18 +31,34 @@ router.post('/', async (req, res) => {
     try {
         const { type, name, externalId, accessToken, mode, workflowUrl } = req.body;
 
+        // Validate required fields (Sequelize would otherwise throw a raw 500).
+        const validTypes = ['whatsapp', 'facebook', 'instagram'];
+        if (!validTypes.includes(type)) {
+            return res.status(400).json({ message: 'Invalid channel type' });
+        }
+        if (!name || typeof name !== 'string' || !externalId || typeof externalId !== 'string') {
+            return res.status(400).json({ message: 'Name and external ID are required' });
+        }
+
         const channel = await Channel.create({
             userId: req.user.id,
             type,
-            name,
-            externalId,
+            name: name.trim(),
+            externalId: externalId.trim(),
             accessToken,
             mode: mode || 'workflow',
             workflowUrl
         });
 
-        res.status(201).json(channel);
+        // Never return the stored access token to the client.
+        const safe = channel.toJSON();
+        delete safe.accessToken;
+        res.status(201).json(safe);
     } catch (err) {
+        // Friendly message when the same account is connected twice.
+        if (err && err.name === 'SequelizeUniqueConstraintError') {
+            return res.status(409).json({ message: 'This account is already connected' });
+        }
         console.error('Error creating channel:', err);
         res.status(500).json({ message: 'Server error', error: err.message });
     }

@@ -75,7 +75,9 @@ router.get('/callback', async (req, res) => {
  * List all pages and IG accounts for a given user token
  */
 router.get('/discover', requireAuth, async (req, res) => {
-    const { token } = req.query;
+    // Prefer the X-Meta-Token header so the Meta user token never lands in
+    // URLs (server logs, history). Query param kept for backward compat.
+    const token = req.get('X-Meta-Token') || req.query.token;
     if (!token) return res.status(400).json({ message: 'Token required' });
 
     try {
