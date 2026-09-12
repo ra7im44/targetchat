@@ -174,6 +174,58 @@ class PayPalService {
         });
         return response.data;
     }
+
+    /**
+     * SECURITY: Verify a PayPal webhook event signature via PayPal's
+     * verify-webhook-signature API. Throws when verification fails or when
+     * PayPal credentials / webhook ID are not configured (fail closed).
+     * @param {object} headers - Express request headers (lower-cased keys).
+     * @param {object} event - Parsed webhook event body.
+     */
+    async verifyWebhookSignature(headers, event) {
+        const webhookIdSetting = await Setting.findOne({ where: { key: 'PAYPAL_WEBHOOK_ID' } });
+        const webhookId = webhookIdSetting?.value || process.env.PAYPAL_WEBHOOK_ID;
+        if (!webhookId) {
+            throw new Error('PayPal webhook ID is not configured (PAYPAL_WEBHOOK_ID). Refusing to process unverified event.');
+        }
+
+        const token = await this.getAccessToken();
+        if (!token || token === 'mock_token') {
+            throw new Error('PayPal credentials are not configured. Refusing to process unverified event.');
+        }
+
+        const payload = {
+            auth_algo: headers['paypal-auth-algo'],
+            cert_url: headers['paypal-cert-url'],
+            transmission_id: headers['paypal-transmission-id'],
+            transmission_sig: headers['paypal-transmission-sig'],
+            transmission_time: headers['paypal-transmission-time'],
+            webhook_id: webhookId,
+            webhook_event: event
+        };
+
+        const missing = Object.entries(payload)
+            .filter(([k, v]) => k !== 'webhook_event' && !v)
+            .map(([k]) => k);
+        if (missing.length > 0) {
+            throw new Error(`Missing PayPal webhook signature headers: ${missing.join(', ')}`);
+        }
+
+        const response = await axios({
+            url: `${this.baseUrl}/v1/notifications/verify-webhook-signature`,
+            method: 'post',
+            headers: {
+                Authorization: `Bearer ${token}`,
+                'Content-Type': 'application/json'
+            },
+            data: payload
+        });
+
+        if (response.data?.verification_status !== 'SUCCESS') {
+            throw new Error(`PayPal webhook signature verification failed (status: ${response.data?.verification_status})`);
+        }
+        return true;
+    }
 }
 
 module.exports = new PayPalService();

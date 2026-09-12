@@ -1,6 +1,7 @@
 const jwt = require('jsonwebtoken');
 const { User, ApiToken } = require('../models');
 const crypto = require('crypto');
+const { getJwtSecret } = require('../config/secrets');
 
 const requireAuth = async function (req, res, next) {
   let token = null;
@@ -66,7 +67,7 @@ const requireAuth = async function (req, res, next) {
 
   // JWT Authentication
   try {
-    const payload = jwt.verify(token, process.env.JWT_SECRET || 'changeme_in_production');
+    const payload = jwt.verify(token, getJwtSecret());
     const user = await User.findByPk(payload.id);
     if (!user) return res.status(401).json({ message: 'Unauthorized' });
     req.user = {

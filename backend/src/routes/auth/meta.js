@@ -3,6 +3,20 @@ const router = express.Router();
 const metaApiService = require('../../services/metaApiService');
 const { requireAuth } = require('../../middleware/auth');
 
+// SECURITY: postMessage target — never broadcast OAuth tokens to '*'.
+const FRONTEND_ORIGIN = (() => {
+    try {
+        return new URL(process.env.FRONTEND_URL || 'http://localhost:3000').origin;
+    } catch {
+        return 'http://localhost:3000';
+    }
+})();
+
+function postMessagePage(payload) {
+    // JSON.stringify neutralises quote-breaking / reflected-XSS payloads.
+    return `<script>window.opener.postMessage(${JSON.stringify(payload)}, ${JSON.stringify(FRONTEND_ORIGIN)});window.close();</script>`;
+}
+
 /**
  * GET /api/auth/meta/login
  * Redirect user to Meta OAuth dialog
@@ -28,15 +42,12 @@ router.get('/login', requireAuth, (req, res) => {
  * Handle Meta OAuth callback and exchange code for token
  */
 router.get('/callback', async (req, res) => {
+    // SECURITY: `error` is attacker-controlled query input — never interpolate
+    // it raw into HTML/JS.
     const { code, error } = req.query;
 
     if (error) {
-        return res.send(`
-            <script>
-                window.opener.postMessage({ type: 'META_AUTH_ERROR', error: '${error}' }, '*');
-                window.close();
-            </script>
-        `);
+        return res.send(postMessagePage({ type: 'META_AUTH_ERROR', error: 'Authentication failed' }));
     }
 
     try {
@@ -49,23 +60,13 @@ router.get('/callback', async (req, res) => {
         const longLivedToken = await metaApiService.getLongLivedUserAccessToken(shortLivedToken);
 
         // 3. Return token to frontend via postMessage
-        res.send(`
-            <script>
-                window.opener.postMessage({ 
-                    type: 'META_AUTH_SUCCESS', 
-                    accessToken: '${longLivedToken}' 
-                }, '*');
-                window.close();
-            </script>
-        `);
+        res.send(postMessagePage({
+            type: 'META_AUTH_SUCCESS',
+            accessToken: longLivedToken
+        }));
     } catch (err) {
         console.error('[MetaAuth] Callback failed:', err.message);
-        res.send(`
-            <script>
-                window.opener.postMessage({ type: 'META_AUTH_ERROR', error: 'Authentication failed' }, '*');
-                window.close();
-            </script>
-        `);
+        res.send(postMessagePage({ type: 'META_AUTH_ERROR', error: 'Authentication failed' }));
     }
 });
 

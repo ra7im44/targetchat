@@ -75,7 +75,21 @@ router.post('/avatar', requireAuth, upload.single('avatar'), async (req, res) =>
 router.get('/avatar/:filename', async (req, res) => {
     try {
         const filename = req.params.filename;
-        const filepath = path.join(avatarsDir, filename);
+
+        // SECURITY: reject traversal/absolute paths; avatars are flat files
+        // named `avatar-<userId>-<ts>.webp` so no separators are ever valid.
+        if (typeof filename !== 'string'
+            || path.isAbsolute(filename)
+            || filename.includes('..')
+            || filename.includes('/')
+            || filename.includes('\\')) {
+            return res.status(400).json({ error: 'Invalid filename' });
+        }
+
+        const filepath = path.resolve(avatarsDir, filename);
+        if (filepath !== avatarsDir && !filepath.startsWith(avatarsDir + path.sep)) {
+            return res.status(400).json({ error: 'Invalid filename' });
+        }
 
         // Check if file exists
         try {

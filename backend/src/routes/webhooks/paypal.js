@@ -12,8 +12,14 @@ const { SubscriptionPlan } = require('../../models');
 router.post('/', bodyParser.json(), async (req, res) => {
     const event = req.body;
 
-    // In production, you should verify the webhook signature here.
-    // For now, we proceed with event processing.
+    // SECURITY: verify the PayPal webhook signature before processing.
+    // Unverified events must never mutate subscriptions (fail closed).
+    try {
+        await paypalService.verifyWebhookSignature(req.headers, event);
+    } catch (err) {
+        console.error('❌ PayPal webhook signature verification failed:', err.message);
+        return res.status(401).send('Invalid webhook signature');
+    }
 
     try {
         console.log('--- PayPal Webhook Received ---');

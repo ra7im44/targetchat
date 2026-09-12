@@ -9,6 +9,7 @@ const { triggerEvent } = require('../triggers/emailTriggers');
 
 const crypto = require('crypto');
 const { requireAuth } = require('../middleware/auth');
+const { getJwtSecret } = require('../config/secrets');
 
 router.post('/register', validate(schemas.register), async (req, res) => {
   try {
@@ -69,7 +70,7 @@ router.post('/verify-email', async (req, res) => {
     await user.save();
 
     // Generate Login Token
-    const sessionToken = jwt.sign({ id: user.id }, process.env.JWT_SECRET || 'changeme_in_production', { expiresIn: process.env.JWT_EXPIRES_IN || '7d' });
+    const sessionToken = jwt.sign({ id: user.id }, getJwtSecret(), { expiresIn: process.env.JWT_EXPIRES_IN || '7d' });
 
     return res.json({
       message: 'Email verified successfully',
@@ -85,17 +86,14 @@ router.post('/verify-email', async (req, res) => {
 router.post('/login', validate(schemas.login), async (req, res) => {
   try {
     const { email, password } = req.body;
-    console.log(`[DEBUG] Login attempt for: ${email}`);
     const user = await User.findOne({ where: { email } });
 
     if (!user) {
-      console.log(`[DEBUG] Login failed: User not found (${email})`);
       return res.status(400).json({ message: 'Invalid credentials' });
     }
 
     // Check Verification
     if (!user.isVerified) {
-      console.log(`[DEBUG] Login failed: Email not verified (${email})`);
       return res.status(403).json({
         message: 'Please verify your email first.',
         requiresVerification: true
@@ -104,19 +102,17 @@ router.post('/login', validate(schemas.login), async (req, res) => {
 
     const ok = await bcrypt.compare(password, user.password);
     if (!ok) {
-      console.log(`[DEBUG] Login failed: Password mismatch (${email})`);
       return res.status(400).json({ message: 'Invalid credentials' });
     }
 
     // Update last login and IP
     user.lastLogin = new Date();
     user.lastIp = req.headers['x-forwarded-for'] || req.socket.remoteAddress;
-    console.log(`[DEBUG] Login successful for: ${email} (IP: ${user.lastIp})`);
     await user.save();
 
     await logActivity(user.id, 'LOGIN', {}, req);
 
-    const token = jwt.sign({ id: user.id }, process.env.JWT_SECRET || 'changeme_in_production', { expiresIn: process.env.JWT_EXPIRES_IN || '7d' });
+    const token = jwt.sign({ id: user.id }, getJwtSecret(), { expiresIn: process.env.JWT_EXPIRES_IN || '7d' });
 
     // Return both token and user object (excluding sensitive data)
     const userData = {
@@ -135,7 +131,6 @@ router.post('/login', validate(schemas.login), async (req, res) => {
 });
 
 router.get('/me', requireAuth, async (req, res) => {
-  console.log(`[DEBUG] /api/auth/me called by User: ${req.user?.id} (${req.user?.email})`);
   return res.json({ user: req.user });
 });
 

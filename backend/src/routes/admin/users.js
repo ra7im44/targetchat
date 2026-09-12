@@ -6,6 +6,7 @@ const { requireAuth } = require('../../middleware/auth');
 const { requireAdmin } = require('../../middleware/rbac');
 const { Op } = require('sequelize');
 const bcrypt = require('bcrypt');
+const { parsePagination } = require('../../utils/pagination');
 
 router.use(requireAuth, requireAdmin);
 
@@ -13,13 +14,10 @@ router.use(requireAuth, requireAdmin);
 router.get('/', async (req, res) => {
     try {
         const {
-            page = 1,
-            limit = 10,
             search = '',
             filter = 'all' // all, admin, user, active, inactive
         } = req.query;
-
-        const offset = (page - 1) * limit;
+        const { page, limit, offset } = parsePagination(req.query, { defaultLimit: 10 });
 
         // Build where clause
         const where = {};
@@ -53,16 +51,16 @@ router.get('/', async (req, res) => {
             where,
             attributes: ['id', 'name', 'email', 'role', 'isActive', 'lastLogin', 'lastIp', 'registrationIp', 'created_at'],
             order: [['created_at', 'DESC']],
-            limit: parseInt(limit),
-            offset: parseInt(offset)
+            limit,
+            offset
         });
 
         res.json({
             users: rows,
             pagination: {
                 total: count,
-                page: parseInt(page),
-                limit: parseInt(limit),
+                page,
+                limit,
                 pages: Math.ceil(count / limit)
             }
         });

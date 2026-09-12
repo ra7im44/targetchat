@@ -12,7 +12,14 @@ router.get('/', async (req, res) => {
             where: { userId: req.user.id },
             order: [['created_at', 'DESC']]
         });
-        res.json(channels);
+        // SECURITY: never expose stored provider access tokens; the UI only
+        // needs to know whether one is configured.
+        res.json(channels.map(c => {
+            const safe = c.toJSON();
+            safe.hasToken = !!safe.accessToken;
+            delete safe.accessToken;
+            return safe;
+        }));
     } catch (err) {
         console.error('Error fetching channels:', err);
         res.status(500).json({ message: 'Server error', error: err.message });
@@ -52,8 +59,24 @@ router.patch('/:id', async (req, res) => {
             return res.status(404).json({ message: 'Channel not found' });
         }
 
-        await channel.update(req.body);
-        res.json(channel);
+        // SECURITY: allowlist — never accept userId/id or other internal fields.
+        // An empty accessToken means "keep the existing one" (the list API no
+        // longer returns tokens, so edit forms submit a blank field).
+        const { type, name, externalId, accessToken, mode, workflowUrl, isActive } = req.body;
+        const updates = {};
+        if (type !== undefined) updates.type = type;
+        if (name !== undefined) updates.name = name;
+        if (externalId !== undefined) updates.externalId = externalId;
+        if (typeof accessToken === 'string' && accessToken.length > 0) updates.accessToken = accessToken;
+        if (mode !== undefined) updates.mode = mode;
+        if (workflowUrl !== undefined) updates.workflowUrl = workflowUrl;
+        if (isActive !== undefined) updates.isActive = isActive;
+
+        await channel.update(updates);
+        // Never return the stored access token to the client.
+        const safe = channel.toJSON();
+        delete safe.accessToken;
+        res.json(safe);
     } catch (err) {
         console.error('Error updating channel:', err);
         res.status(500).json({ message: 'Server error', error: err.message });

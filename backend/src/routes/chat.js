@@ -1,11 +1,33 @@
 const express = require('express');
 const router = express.Router();
 const { requireAuth } = require('../middleware/auth');
-const { Chat, Message } = require('../models');
+const { Chat, Message, Widget, Channel } = require('../models');
 const { sendToN8N } = require('../utils/n8nClient');
 
 const { validate, schemas } = require('../middleware/validation');
 var usageLimit = (req, res, next) => require('../middleware/usageLimit')(req, res, next);
+
+/**
+ * SECURITY: IDOR guard. A personal chat is readable/writable only by:
+ * - its owner (chat.userId),
+ * - the owner of its widget/channel,
+ * - the agent it is assigned to (assignedTo).
+ * Guest/widget chats (userId null) are served by publicWidgets, not here.
+ */
+async function canAccessPersonalChat(userId, chat) {
+    if (!chat) return false;
+    if (chat.userId === userId) return true;
+    if (chat.assignedTo === userId) return true;
+    if (chat.widgetId) {
+        const widget = await Widget.findByPk(chat.widgetId, { attributes: ['userId'] });
+        if (widget && widget.userId === userId) return true;
+    }
+    if (chat.channelId) {
+        const channel = await Channel.findByPk(chat.channelId, { attributes: ['userId'] });
+        if (channel && channel.userId === userId) return true;
+    }
+    return false;
+}
 
 // Create a new chat for the authenticated user
 router.post('/create', requireAuth, (req, res, next) => { req.usageResourceType = 'chats'; next(); }, usageLimit, async (req, res) => {
@@ -64,13 +86,11 @@ router.get('/:id/messages', requireAuth, async (req, res) => {
     const userId = req.user.id;
     const chatId = req.params.id;
 
-    const chat = await Chat.findOne({ where: { id: chatId } }); // Allow viewing if assigned or owned? Simplest is check if exists.
-    // Ideally check permissions (userId is owner or assignee). 
-    // For now, assuming auth is enough or strict ownership check:
-    // const chat = await Chat.findOne({ where: { id: chatId, userId } }); 
-    // BUT inbox agents might not be the CREATOR (userId). They are assignedTo.
-    // So simpler check:
-    if (!chat) return res.status(404).json({ message: 'Chat not found' });
+    const chat = await Chat.findOne({ where: { id: chatId } });
+    // SECURITY: enforce ownership/assignment — never serve other users' chats.
+    if (!chat || !(await canAccessPersonalChat(userId, chat))) {
+      return res.status(404).json({ message: 'Chat not found' });
+    }
 
     const messages = await Message.findAll({
       where: { chatId },
@@ -186,7 +206,11 @@ router.post('/send', requireAuth, (req, res, next) => { req.usageResourceType = 
     const { chat_id, message } = req.body;
     const userId = req.user.id;
     const chat = await Chat.findByPk(chat_id);
-    if (!chat) return res.status(404).json({ error: 'Chat not found' });
+    // SECURITY: IDOR guard — a user may only send into chats they own,
+    // are assigned to, or whose widget/channel they own.
+    if (!chat || !(await canAccessPersonalChat(userId, chat))) {
+      return res.status(404).json({ error: 'Chat not found' });
+    }
 
     const { generateSignedUrl } = require('../utils/generateSignedUrl');
 

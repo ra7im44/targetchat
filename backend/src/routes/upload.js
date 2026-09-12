@@ -3,6 +3,7 @@ const router = express.Router();
 const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
+const { requireAuth } = require('../middleware/auth');
 
 // Ensure uploads directory exists
 const uploadDir = 'uploads';
@@ -43,7 +44,8 @@ const upload = multer({
             'image/png',
             'image/gif',
             'image/webp',
-            'image/svg+xml',
+            // NOTE: image/svg+xml intentionally excluded — SVGs can carry
+            // executable scripts (stored XSS) when served inline.
             // Audio
             'audio/mpeg',
             'audio/wav',
@@ -62,7 +64,7 @@ const upload = multer({
             // Documents
             '.pdf', '.doc', '.docx', '.txt', '.rtf', '.odt', '.xls', '.xlsx', '.ppt', '.pptx', '.csv',
             // Images
-            '.jpg', '.jpeg', '.png', '.gif', '.webp', '.svg',
+            '.jpg', '.jpeg', '.png', '.gif', '.webp',
             // Audio
             '.mp3', '.wav', '.ogg', '.m4a',
             // Video
@@ -81,7 +83,9 @@ const upload = multer({
 
 const { generateSignedUrl } = require('../utils/generateSignedUrl');
 
-router.post('/', upload.single('file'), (req, res) => {
+// SECURITY: uploads were previously anonymous — anyone on the internet could
+// store files on the server. Require authentication.
+router.post('/', requireAuth, upload.single('file'), (req, res) => {
     if (!req.file) {
         return res.status(400).json({ message: 'No file uploaded' });
     }

@@ -1,8 +1,10 @@
 const express = require('express');
 const router = express.Router();
+const crypto = require('crypto');
 const { Chat, Message } = require('../models');
 const { validate, schemas } = require('../middleware/validation');
 const { generateSignedUrl } = require('../utils/generateSignedUrl');
+const { assertStrongSecret } = require('../config/secrets');
 
 // POST /api/webhook/n8n
 // Receives AI responses from n8n workflow
@@ -10,9 +12,23 @@ router.post('/n8n', validate(schemas.n8nWebhook), async (req, res) => {
     try {
         const { chat_id, user_id, reply, webhook_secret } = req.body;
 
-        // Validate webhook secret
-        const expectedSecret = process.env.WEBHOOK_SECRET;
-        if (!expectedSecret || webhook_secret !== expectedSecret) {
+        // Validate webhook secret in constant time. Refuse to operate if the
+        // server-side secret is not configured (fail closed).
+        let expectedSecret;
+        try {
+            expectedSecret = assertStrongSecret('WEBHOOK_SECRET', process.env.WEBHOOK_SECRET);
+        } catch (err) {
+            console.error('❌ WEBHOOK_SECRET is not configured; rejecting n8n callback');
+            return res.status(503).json({ error: 'Webhook receiver unavailable' });
+        }
+
+        if (typeof webhook_secret !== 'string') {
+            return res.status(401).json({ error: 'Unauthorized' });
+        }
+
+        const provided = Buffer.from(webhook_secret, 'utf8');
+        const expected = Buffer.from(expectedSecret, 'utf8');
+        if (provided.length !== expected.length || !crypto.timingSafeEqual(provided, expected)) {
             console.error('❌ Invalid webhook secret');
             return res.status(401).json({ error: 'Unauthorized' });
         }

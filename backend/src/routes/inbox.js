@@ -4,12 +4,41 @@ const { Chat, Message, User, Lead, Widget, Channel } = require('../models');
 const metaApiService = require('../services/metaApiService');
 const { requireAuth } = require('../middleware/auth');
 const { Op } = require('sequelize');
+const { parsePagination } = require('../utils/pagination');
+
+/**
+ * SECURITY (IDOR guard): a chat is manageable only when it belongs to one of
+ * the caller's widgets/channels, or is assigned to the caller.
+ * Returns null when the chat does not exist or access is denied.
+ */
+async function verifyInboxChatAccess(chatId, userId) {
+    const chat = await Chat.findByPk(chatId, {
+        include: [{ model: Widget, as: 'widget', attributes: ['id', 'userId'] }]
+    });
+    if (!chat) return null;
+
+    if (chat.assignedTo === userId) return chat;
+
+    if (chat.widgetId) {
+        // `widget` include is present above; fall back to a direct lookup.
+        const widgetUserId = chat.widget ? chat.widget.userId : (await Widget.findByPk(chat.widgetId, { attributes: ['userId'] }))?.userId;
+        if (widgetUserId === userId) return chat;
+    }
+
+    if (chat.channelId) {
+        const channel = await Channel.findByPk(chat.channelId, { attributes: ['userId'] });
+        if (channel && channel.userId === userId) return chat;
+    }
+
+    return null;
+}
 
 // GET /api/inbox/chats - Get human-handled chats assigned to user
 router.get('/chats', requireAuth, async (req, res) => {
     try {
         const userId = req.user.id;
-        const { status = 'active', page = 1, limit = 20 } = req.query;
+        const { status = 'active' } = req.query;
+        const { page, limit, offset } = parsePagination(req.query);
 
 
 
@@ -38,12 +67,10 @@ router.get('/chats', requireAuth, async (req, res) => {
             where.status = 'active';
         }
 
-        const offset = (page - 1) * limit;
-
         const { count, rows: chats } = await Chat.findAndCountAll({
             where,
-            limit: parseInt(limit),
-            offset: parseInt(offset),
+            limit,
+            offset,
             order: [['updated_at', 'DESC']],
             include: [
                 {
@@ -75,8 +102,8 @@ router.get('/chats', requireAuth, async (req, res) => {
             chats,
             pagination: {
                 total: count,
-                page: parseInt(page),
-                limit: parseInt(limit),
+                page,
+                limit,
                 pages: Math.ceil(count / limit)
             }
         });
@@ -222,7 +249,8 @@ router.patch('/chats/:id/assign', requireAuth, async (req, res) => {
         const { id: chatId } = req.params;
         const { user_id } = req.body;
 
-        const chat = await Chat.findByPk(chatId);
+        // SECURITY: only the current handler (assignee / widget or channel owner) may reassign
+        const chat = await verifyInboxChatAccess(chatId, req.user.id);
         if (!chat) {
             return res.status(404).json({ message: 'Chat not found' });
         }
@@ -251,7 +279,8 @@ router.patch('/chats/:id/ai-status', requireAuth, async (req, res) => {
         const { id: chatId } = req.params;
         const { paused } = req.body; // true = Take Over, false = Resume AI
 
-        const chat = await Chat.findByPk(chatId);
+        // SECURITY: only the current handler may pause/resume AI
+        const chat = await verifyInboxChatAccess(chatId, req.user.id);
         if (!chat) {
             return res.status(404).json({ message: 'Chat not found' });
         }
@@ -337,6 +366,12 @@ router.get('/chats/:id/notes', requireAuth, async (req, res) => {
         const { id } = req.params;
         const { ChatNote, User } = require('../models');
 
+        // SECURITY: notes are private to the chat's handler
+        const chat = await verifyInboxChatAccess(id, req.user.id);
+        if (!chat) {
+            return res.status(404).json({ message: 'Chat not found' });
+        }
+
         const notes = await ChatNote.findAll({
             where: { chatId: id },
             include: [
@@ -366,6 +401,12 @@ router.post('/chats/:id/notes', requireAuth, async (req, res) => {
 
         if (!content) {
             return res.status(400).json({ message: 'Note content is required' });
+        }
+
+        // SECURITY: notes are writable only by the chat's handler
+        const chat = await verifyInboxChatAccess(id, userId);
+        if (!chat) {
+            return res.status(404).json({ message: 'Chat not found' });
         }
 
         const note = await ChatNote.create({

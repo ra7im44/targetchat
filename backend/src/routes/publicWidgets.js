@@ -8,6 +8,22 @@ const cors = require('cors');
 router.use(cors());
 
 // --- Security Helper ---
+function extractHostname(value) {
+    if (!value || typeof value !== 'string') return null;
+    try {
+        // `value` may be a full Origin/Referer URL or a bare hostname.
+        const candidate = /^[a-zA-Z][a-zA-Z0-9+.-]*:\/\//.test(value) ? value : `https://${value}`;
+        return new URL(candidate).hostname.toLowerCase();
+    } catch {
+        return null;
+    }
+}
+
+/**
+ * SECURITY: exact hostname matching. The previous implementation used
+ * `requestOrigin.includes(domain)`, which `evil-google.com` or
+ * `google.com.evil.com` would pass for an allowed `google.com`.
+ */
 function isDomainAllowed(widget, req) {
     // 1. If no restrictions (or empty), allow all (Default behavior)
     if (!widget.allowedDomains || widget.allowedDomains.length === 0) return true;
@@ -21,9 +37,16 @@ function isDomainAllowed(widget, req) {
 
     if (!requestOrigin) return false; // Strict: Block requests without origin if restrictions are set
 
-    // 4. Match against Allowed Domains
-    // We check if the request origin INCLUDES the allowed domain (e.g. 'google.com' allows 'https://google.com/foo')
-    return widget.allowedDomains.some(domain => requestOrigin.includes(domain));
+    const requestHost = extractHostname(requestOrigin);
+    if (!requestHost) return false;
+
+    // 4. Match against Allowed Domains: exact host or a true subdomain of it.
+    return widget.allowedDomains.some(entry => {
+        if (typeof entry !== 'string') return false;
+        const allowedHost = extractHostname(entry.trim());
+        if (!allowedHost || allowedHost === '*') return allowedHost === '*';
+        return requestHost === allowedHost || requestHost.endsWith(`.${allowedHost}`);
+    });
 }
 // -----------------------
 
@@ -89,12 +112,32 @@ router.post('/:slug/event', async (req, res) => {
         }
 
         if (type === 'message') {
-            // 1. Find or Create Chat Session
+            if (typeof sessionId !== 'string' || !/^[A-Za-z0-9_-]{6,64}$/.test(sessionId)) {
+                return res.status(400).json({ message: 'Valid sessionId is required' });
+            }
+            if (typeof payload !== 'object' || payload === null || typeof payload.text !== 'string' || payload.text.trim().length === 0) {
+                return res.status(400).json({ message: 'Message text is required' });
+            }
+
+            // SECURITY: scope the guest session to this widget so a sessionId
+            // from another site cannot hijack or inject into this widget's chats.
             let chat = await Chat.findOne({
                 where: {
                     title: `Guest Session ${sessionId}`,
+                    widgetId: widget.id
                 }
             });
+
+            // SECURITY: only accept a leadId that belongs to this widget.
+            let leadId = null;
+            if (payload.leadId) {
+                const { Lead } = require('../models');
+                const lead = await Lead.findOne({
+                    where: { id: payload.leadId, widgetId: widget.id },
+                    attributes: ['id']
+                });
+                if (lead) leadId = lead.id;
+            }
 
             if (!chat) {
                 chat = await Chat.create({
@@ -102,14 +145,14 @@ router.post('/:slug/event', async (req, res) => {
                     persona: 'default',
                     workflowId: widget.workflowId,
                     userId: null, // Guest user
-                    leadId: payload.leadId || null, // Associate lead if provided
+                    leadId, // Associate lead if provided
                     widgetId: widget.id
                 });
             } else {
                 // Update leadId if provided and missing
                 const updates = {};
-                if (payload.leadId && !chat.leadId) {
-                    updates.leadId = payload.leadId;
+                if (leadId && !chat.leadId) {
+                    updates.leadId = leadId;
                 }
                 // Backfill widgetId if missing (for legacy chats)
                 if (!chat.widgetId) {
@@ -131,9 +174,12 @@ router.post('/:slug/event', async (req, res) => {
             });
 
             // 3. Emit to Socket (so other tabs/admins see it)
+            // SECURITY: emit only to the private session room and the admin
+            // `message:new` channel. Never broadcast visitor content to the
+            // shared `widget_<slug>` room — any anonymous socket can join it.
             const io = req.io;
             if (io) {
-                io.to(`widget_${slug}`).emit('message', {
+                io.to(`session_${sessionId}`).emit('message', {
                     text: payload.text,
                     sender: 'user',
                     timestamp: new Date()
@@ -206,13 +252,8 @@ router.post('/:slug/event', async (req, res) => {
 
                                 if (io) {
                                     // Emit to Session Room (Private & Reliable)
+                                    // SECURITY: do not broadcast to the shared widget room.
                                     io.to(`session_${sessionId}`).emit('message', {
-                                        text: response.output,
-                                        sender: 'ai',
-                                        timestamp: new Date()
-                                    });
-
-                                    io.to(`widget_${slug}`).emit('message', {
                                         text: response.output,
                                         sender: 'ai',
                                         timestamp: new Date()

@@ -13,6 +13,7 @@ const metaApiService = require('./services/metaApiService');
 const http = require('http');
 const { Server } = require('socket.io');
 const jwt = require('jsonwebtoken');
+const { getJwtSecret } = require('./config/secrets');
 
 const app = express();
 const server = http.createServer(app);
@@ -21,31 +22,63 @@ const server = http.createServer(app);
 app.use('/webhook/stripe', require('./routes/webhooks/stripe'));
 app.use('/webhook/paypal', require('./routes/webhooks/paypal'));
 
+// Comma-separated list of allowed origins for CORS / Socket.io.
+// Defaults to the local frontend during development.
+function getAllowedOrigins() {
+  const raw = process.env.CORS_ALLOWED_ORIGINS || process.env.FRONTEND_URL || 'http://localhost:3000';
+  return raw.split(',').map(o => o.trim()).filter(Boolean);
+}
+
+const allowedOrigins = getAllowedOrigins();
+
+function corsOrigin(origin, callback) {
+  // Allow same-origin / server-to-server requests with no Origin header.
+  if (!origin) return callback(null, true);
+  if (allowedOrigins.includes('*') || allowedOrigins.includes(origin)) {
+    return callback(null, true);
+  }
+  return callback(new Error('Not allowed by CORS'));
+}
+
 const io = new Server(server, {
   cors: {
-    origin: '*', // In production, set this to your frontend URL
-    methods: ['GET', 'POST']
+    origin: corsOrigin,
+    methods: ['GET', 'POST'],
+    credentials: true
   }
 });
+
+// Make the Socket.io server reachable from routes via req.app.get('io')
+app.set('io', io);
 
 // Socket.io authentication middleware
 io.use((socket, next) => {
   const token = socket.handshake.auth.token;
 
-  // Allow anonymous access for widgets
+  // Allow anonymous access for widgets.
+  // SECURITY: a guest may only join the room for the exact widget slug it was
+  // issued for; the server derives the room name from the handshake, never
+  // from a client-supplied room string.
   if (token === 'anonymous') {
     const sessionId = socket.handshake.auth.sessionId;
-    if (!sessionId) return next(new Error('Session ID required for anonymous access'));
+    const widgetSlug = socket.handshake.auth.widgetSlug;
+    if (!sessionId || typeof sessionId !== 'string' || !/^[A-Za-z0-9_-]{6,64}$/.test(sessionId)) {
+      return next(new Error('Valid Session ID required for anonymous access'));
+    }
+    if (!widgetSlug || typeof widgetSlug !== 'string' || !/^[A-Za-z0-9_-]{2,64}$/.test(widgetSlug)) {
+      return next(new Error('Valid widget slug required for anonymous access'));
+    }
     socket.userId = 'guest_' + sessionId;
     socket.isGuest = true;
     socket.sessionId = sessionId;
+    socket.widgetSlug = widgetSlug;
     return next();
   }
 
   if (!token) return next(new Error('Authentication error'));
 
   try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET || 'changeme_in_production');
+    const decoded = jwt.verify(token, getJwtSecret());
     socket.userId = decoded.id;
     next();
   } catch (err) {
@@ -53,22 +86,30 @@ io.use((socket, next) => {
   }
 });
 
+// Authorisation helper: a chat may be acted upon by its widget owner, its
+// assignee, or the user who created it.
+async function canAccessChat(userId, chat) {
+  if (!chat) return false;
+  if (chat.assignedTo === userId) return true;
+  if (chat.userId === userId) return true;
+  if (chat.widgetId) {
+    const widget = await require('./models').Widget.findByPk(chat.widgetId, { attributes: ['userId'] });
+    if (widget && widget.userId === userId) return true;
+  }
+  return false;
+}
+
 io.on('connection', (socket) => {
-  console.log(`User connected: ${socket.userId}`);
+  console.log(`User connected: ${socket.id}`);
 
   if (socket.isGuest) {
-    // Join session room for guest users
+    // Join session room for guest users (room name derived from validated handshake)
     const sessionRoom = `session_${socket.sessionId}`;
     socket.join(sessionRoom);
-    console.log(`🔌 Guest Socket ${socket.id} joined room: ${sessionRoom}`);
 
-    // Also join widget room if provided (for broadcast updates if needed)
-    const widgetSlug = socket.handshake.auth.widgetSlug;
-    if (widgetSlug) {
-      const widgetRoom = `widget_${widgetSlug}`;
-      socket.join(widgetRoom);
-      console.log(`🔌 Guest Socket ${socket.id} joined room: ${widgetRoom}`);
-    }
+    const widgetRoom = `widget_${socket.widgetSlug}`;
+    socket.join(widgetRoom);
+    console.log(`🔌 Guest Socket ${socket.id} joined rooms: ${sessionRoom}, ${widgetRoom}`);
   } else {
     // Join user room for logged in users
     socket.join(`user_${socket.userId}`);
@@ -82,7 +123,9 @@ io.on('connection', (socket) => {
   socket.on('agent:typing', async ({ chatId, typing }) => {
     try {
       const chat = await Chat.findByPk(chatId, { include: [Channel, Lead] });
-      if (chat && chat.channel && chat.channel.type !== 'whatsapp' && chat.channel.accessToken) {
+      if (!chat) return;
+      if (!(await canAccessChat(socket.userId, chat))) return;
+      if (chat.channel && chat.channel.type !== 'whatsapp' && chat.channel.accessToken && chat.lead) {
         const action = typing ? 'typing_on' : 'typing_off';
         await metaApiService.sendAction(chat.channel.type, chat.channel.accessToken, chat.lead.metaId, action);
       }
@@ -94,7 +137,9 @@ io.on('connection', (socket) => {
   socket.on('agent:seen', async ({ chatId }) => {
     try {
       const chat = await Chat.findByPk(chatId, { include: [Channel, Lead] });
-      if (chat && chat.channel && chat.channel.type !== 'whatsapp' && chat.channel.accessToken) {
+      if (!chat) return;
+      if (!(await canAccessChat(socket.userId, chat))) return;
+      if (chat.channel && chat.channel.type !== 'whatsapp' && chat.channel.accessToken && chat.lead) {
         await metaApiService.sendAction(chat.channel.type, chat.channel.accessToken, chat.lead.metaId, 'mark_seen');
       }
     } catch (err) {
@@ -108,7 +153,13 @@ const maintenanceMiddleware = require('./middleware/maintenance');
 
 // ----------------------------
 // 1. CORS - MUST BE FIRST
-app.use(cors());
+// SECURITY: restrict browser cross-origin access to the configured frontend
+// origin(s) instead of reflecting every origin.
+// NOTE: scoped to /api only — the public widget endpoints (/widget/public)
+// intentionally keep their own permissive router-level CORS because they are
+// designed to be embedded on arbitrary customer sites (gated instead by the
+// per-widget allowedDomains check).
+app.use('/api', cors({ origin: corsOrigin, credentials: true }));
 
 // 2. Security Middlewares
 app.use(ipBlocker);

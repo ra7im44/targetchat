@@ -1,14 +1,26 @@
 const express = require('express');
 const router = express.Router();
+const rateLimit = require('express-rate-limit');
 const { Lead, Widget, User } = require('../models');
 const { requireAuth } = require('../middleware/auth');
 const { Parser } = require('json2csv');
+const { parsePagination } = require('../utils/pagination');
+
+// Stricter limit for the unauthenticated public lead-capture endpoint.
+const publicLeadLimiter = rateLimit({
+    windowMs: 15 * 60 * 1000,
+    max: 60,
+    standardHeaders: true,
+    legacyHeaders: false,
+    message: { message: 'Too many requests, please try again later.' }
+});
 
 // GET /api/leads - List all leads with filters
 router.get('/', requireAuth, async (req, res) => {
     try {
         const userId = req.user.id;
-        const { widget_id, status, search, page = 1, limit = 20 } = req.query;
+        const { widget_id, status, search } = req.query;
+        const { page, limit, offset } = parsePagination(req.query);
 
         const where = { ownerUserId: userId };
 
@@ -33,12 +45,10 @@ router.get('/', requireAuth, async (req, res) => {
             ];
         }
 
-        const offset = (page - 1) * limit;
-
         const { count, rows: leads } = await Lead.findAndCountAll({
             where,
-            limit: parseInt(limit),
-            offset: parseInt(offset),
+            limit,
+            offset,
             order: [['createdAt', 'DESC']],
             include: [
                 {
@@ -53,8 +63,8 @@ router.get('/', requireAuth, async (req, res) => {
             leads,
             pagination: {
                 total: count,
-                page: parseInt(page),
-                limit: parseInt(limit),
+                page,
+                limit,
                 pages: Math.ceil(count / limit)
             }
         });
@@ -65,7 +75,7 @@ router.get('/', requireAuth, async (req, res) => {
 });
 
 // POST /api/leads - Create new lead (Public/Protected)
-router.post('/', async (req, res) => {
+router.post('/', publicLeadLimiter, async (req, res) => {
     try {
         const { widget_id, name, email, phone, company, custom_field, custom_data } = req.body;
 
@@ -73,9 +83,24 @@ router.post('/', async (req, res) => {
             return res.status(400).json({ message: 'Widget ID is required' });
         }
 
+        // Cap free-form input lengths to stop oversized-payload abuse.
+        for (const [field, value] of Object.entries({ name, email, phone, company })) {
+            if (value !== undefined && (typeof value !== 'string' || value.length > 255)) {
+                return res.status(400).json({ message: `Invalid ${field}` });
+            }
+        }
+        if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+            return res.status(400).json({ message: 'Invalid email' });
+        }
+
         const widget = await Widget.findByPk(widget_id);
         if (!widget) {
             return res.status(404).json({ message: 'Widget not found' });
+        }
+
+        // Refuse capture for disabled widgets (parity with public widget API).
+        if (widget.status === 'inactive') {
+            return res.status(403).json({ message: 'This widget has been disabled.' });
         }
 
         // Check if lead already exists (by email)
