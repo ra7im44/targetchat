@@ -290,8 +290,8 @@ export default function UsersPage() {
 
                 {/* Bulk Actions Floating Bar */}
                 {selectedUsers.length > 0 && (
-                    <div className="fixed bottom-6 left-1/2 transform -translate-x-1/2 z-50 animate-scaleIn">
-                        <div className="bg-white dark:bg-gray-800 px-6 py-3 rounded-2xl shadow-xl flex items-center gap-6 border border-blue-500 ring-4 ring-blue-500/10">
+                    <div className="fixed bottom-6 left-1/2 transform -translate-x-1/2 z-50 animate-scaleIn w-max max-w-[calc(100vw-2rem)]">
+                        <div className="bg-white dark:bg-gray-800 px-6 py-3 rounded-2xl shadow-xl flex flex-wrap items-center justify-center gap-x-6 gap-y-3 border border-blue-500 ring-4 ring-blue-500/10">
                             <span className="font-bold text-gray-900 dark:text-white flex items-center gap-2">
                                 <span className="bg-blue-600 text-white w-6 h-6 rounded-full flex items-center justify-center text-xs">
                                     {selectedUsers.length}
@@ -336,6 +336,7 @@ export default function UsersPage() {
                         <input
                             type="text"
                             placeholder="Search by name or email..."
+                            aria-label="Search users by name or email"
                             value={search}
                             onChange={(e) => setSearch(e.target.value)}
                             className="w-full pl-11 pr-4 py-3 rounded-xl bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 focus:ring-2 focus:ring-blue-500/50 outline-none transition-all placeholder:text-gray-400"
@@ -343,6 +344,7 @@ export default function UsersPage() {
                     </div>
                     <select
                         value={filter}
+                        aria-label="Filter users"
                         onChange={(e) => setFilter(e.target.value)}
                         className="w-full md:w-auto px-6 py-3 rounded-xl bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 focus:ring-2 focus:ring-blue-500/50 outline-none cursor-pointer"
                     >
@@ -365,6 +367,7 @@ export default function UsersPage() {
                                             type="checkbox"
                                             onChange={handleSelectAll}
                                             checked={users.length > 0 && selectedUsers.length === users.length}
+                                            aria-label="Select all users"
                                             className="w-4 h-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
                                         />
                                     </th>
@@ -389,11 +392,24 @@ export default function UsersPage() {
                                                 type="checkbox"
                                                 checked={selectedUsers.includes(user.id)}
                                                 onChange={() => handleSelectUser(user.id)}
+                                                aria-label={`Select user ${user.name}`}
                                                 className="w-4 h-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
                                             />
                                         </td>
                                         <td className="px-6 py-4">
-                                            <div className="flex items-center gap-4 cursor-pointer" onClick={() => router.push(`/admin/users/${user.id}`)}>
+                                            <div
+                                                className="flex items-center gap-4 cursor-pointer"
+                                                role="link"
+                                                tabIndex={0}
+                                                aria-label={`Open details for ${user.name}`}
+                                                onClick={() => router.push(`/admin/users/${user.id}`)}
+                                                onKeyDown={(e) => {
+                                                    if (e.key === 'Enter' || e.key === ' ') {
+                                                        e.preventDefault();
+                                                        router.push(`/admin/users/${user.id}`);
+                                                    }
+                                                }}
+                                            >
                                                 <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white font-bold shadow-md">
                                                     {user.name.charAt(0).toUpperCase()}
                                                 </div>
@@ -425,11 +441,12 @@ export default function UsersPage() {
                                             {getRelativeTime(user.lastLogin)}
                                         </td>
                                         <td className="px-6 py-4 text-right">
-                                            <div className="flex gap-2 justify-end opacity-0 group-hover:opacity-100 transition-opacity">
+                                            <div className="flex gap-2 justify-end opacity-100 lg:opacity-0 lg:group-hover:opacity-100 lg:focus-within:opacity-100 transition-opacity">
                                                 <button
                                                     onClick={() => setEditingUser(user)}
                                                     className="p-2 rounded-lg text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-all"
                                                     title="Edit User"
+                                                    aria-label={`Edit ${user.name}`}
                                                 >
                                                     <Edit size={16} />
                                                 </button>
@@ -440,6 +457,7 @@ export default function UsersPage() {
                                                         : 'text-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-900/20'
                                                         }`}
                                                     title={user.isActive !== false ? 'Deactivate' : 'Activate'}
+                                                    aria-label={`${user.isActive !== false ? 'Deactivate' : 'Activate'} ${user.name}`}
                                                 >
                                                     {user.isActive !== false ? <Ban size={16} /> : <CheckCircle size={16} />}
                                                 </button>
@@ -447,6 +465,7 @@ export default function UsersPage() {
                                                     onClick={() => setDeletingUser(user)}
                                                     className="p-2 rounded-lg text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-900/20 transition-all"
                                                     title="Delete User"
+                                                    aria-label={`Delete ${user.name}`}
                                                 >
                                                     <Trash2 size={16} />
                                                 </button>

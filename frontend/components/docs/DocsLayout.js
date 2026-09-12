@@ -4,22 +4,16 @@ import Link from 'next/link';
 import { useRouter } from 'next/router';
 import DocsSidebar from './DocsSidebar';
 import DocsTableOfContents from './DocsTableOfContents';
+import { useTheme } from '../../contexts/ThemeContext';
 
 export default function DocsLayout({ children, title, description }) {
     const router = useRouter();
     const [sidebarOpen, setSidebarOpen] = useState(false);
-    const [darkMode, setDarkMode] = useState(false);
-
-    // Toggle dark mode
-    const toggleDarkMode = () => {
-        setDarkMode(!darkMode);
-        if (typeof window !== 'undefined') {
-            document.documentElement.classList.toggle('dark');
-        }
-    };
+    const { theme, toggleTheme } = useTheme();
+    const darkMode = theme !== 'light';
 
     return (
-        <div className={`min-h-screen ${darkMode ? 'dark' : ''}`}>
+        <div className="min-h-screen">
             <Head>
                 <title>{title ? `${title} - TargetChat Docs` : 'TargetChat Documentation'}</title>
                 <meta name="description" content={description || 'Complete guide to using TargetChat'} />
@@ -33,6 +27,8 @@ export default function DocsLayout({ children, title, description }) {
                         <div className="flex items-center gap-4">
                             <button
                                 onClick={() => setSidebarOpen(!sidebarOpen)}
+                                aria-label={sidebarOpen ? 'Close docs navigation' : 'Open docs navigation'}
+                                aria-expanded={sidebarOpen}
                                 className="lg:hidden p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800"
                             >
                                 <svg className="w-6 h-6 text-gray-600 dark:text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -52,7 +48,9 @@ export default function DocsLayout({ children, title, description }) {
                         {/* Right: Dark Mode + Login */}
                         <div className="flex items-center gap-3">
                             <button
-                                onClick={toggleDarkMode}
+                                onClick={toggleTheme}
+                                aria-label={`Switch to ${darkMode ? 'light' : 'dark'} mode`}
+                                aria-pressed={darkMode}
                                 className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
                                 title="Toggle dark mode"
                             >

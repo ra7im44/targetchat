@@ -41,6 +41,8 @@ export default function AdminSidebar({ collapsed, onToggleCollapse }) {
             {/* Collapse Button */}
             <button
                 onClick={onToggleCollapse}
+                aria-label={collapsed ? 'Expand admin sidebar' : 'Collapse admin sidebar'}
+                aria-expanded={!collapsed}
                 className="absolute -right-3 top-6 z-10 w-6 h-6 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-full flex items-center justify-center text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 hover:border-blue-500 transition-all shadow-md"
             >
                 {collapsed ? <ChevronRight size={14} /> : <ChevronLeft size={14} />}
@@ -97,6 +99,8 @@ export default function AdminSidebar({ collapsed, onToggleCollapse }) {
                 {/* Theme Toggle */}
                 <button
                     onClick={toggleTheme}
+                    aria-label={`Switch to ${theme === 'light' ? 'dark' : 'light'} mode`}
+                    aria-pressed={theme !== 'light'}
                     className={`flex items-center gap-3 w-full px-3 py-2.5 rounded-lg text-gray-600 dark:text-gray-400 hover:bg-white dark:hover:bg-gray-800 transition-all ${collapsed ? 'justify-center' : ''}`}
                     title="Toggle Theme"
                 >

@@ -1,14 +1,12 @@
 import React, { useState } from 'react';
 import Head from 'next/head';
 import AdminSidebar from './AdminSidebar';
-import { ThemeProvider, useTheme } from '../../contexts/ThemeContext';
 
 function AdminLayoutContent({ children, title = 'Admin Dashboard' }) {
     const [collapsed, setCollapsed] = useState(false);
-    const { theme } = useTheme();
 
     return (
-        <div className={`flex h-screen bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 overflow-hidden font-sans ${theme === 'dark' ? 'dark' : ''}`}>
+        <div className="flex h-screen bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 overflow-hidden font-sans">
             <Head>
                 <title>{title} | TargetChat Admin</title>
             </Head>
@@ -33,8 +31,6 @@ function AdminLayoutContent({ children, title = 'Admin Dashboard' }) {
 
 export default function AdminLayout({ children, title }) {
     return (
-        <ThemeProvider>
-            <AdminLayoutContent title={title}>{children}</AdminLayoutContent>
-        </ThemeProvider>
+        <AdminLayoutContent title={title}>{children}</AdminLayoutContent>
     );
 }

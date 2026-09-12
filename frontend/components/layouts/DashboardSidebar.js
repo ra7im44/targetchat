@@ -61,6 +61,8 @@ export default function DashboardSidebar({
             {/* Collapse Button */}
             <button
                 onClick={onToggleCollapse}
+                aria-label={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
+                aria-expanded={!collapsed}
                 className="absolute -right-3 top-6 z-10 w-6 h-6 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-full flex items-center justify-center text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 hover:border-blue-500 transition-all shadow-md"
             >
                 <Icon name={collapsed ? 'expand' : 'collapse'} className="w-3 h-3" />

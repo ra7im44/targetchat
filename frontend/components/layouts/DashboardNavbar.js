@@ -52,6 +52,8 @@ export default function DashboardNavbar({ user }) {
                 {/* Theme Toggle */}
                 <button
                     onClick={toggleTheme}
+                    aria-label={`Switch to ${theme === 'light' ? 'dark' : 'light'} mode`}
+                    aria-pressed={theme !== 'light'}
                     className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
                     title={`Switch to ${theme === 'light' ? 'dark' : 'light'} mode`}
                 >

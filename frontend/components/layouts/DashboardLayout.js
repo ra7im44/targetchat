@@ -4,15 +4,12 @@ import Head from 'next/head';
 import DashboardSidebar from './DashboardSidebar';
 import DashboardNavbar from './DashboardNavbar';
 import { toast } from 'react-hot-toast';
-import { ThemeProvider, useTheme } from '../../contexts/ThemeContext';
 
 const API = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
 
 function DashboardContent({ children, title, user, workspaces, currentWorkspace, setCurrentWorkspace, collapsed, setCollapsed }) {
-    const { theme } = useTheme();
-
     return (
-        <div className={`flex h-screen bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 overflow-hidden font-sans ${theme === 'dark' ? 'dark' : ''}`}>
+        <div className="flex h-screen bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 overflow-hidden font-sans">
             <Head>
                 <title>{title} | TargetChat</title>
             </Head>
@@ -118,18 +115,16 @@ export default function DashboardLayout({ children, title = 'Dashboard' }) {
     }
 
     return (
-        <ThemeProvider>
-            <DashboardContent
-                title={title}
-                user={user}
-                workspaces={workspaces}
-                currentWorkspace={currentWorkspace}
-                setCurrentWorkspace={setCurrentWorkspace}
-                collapsed={collapsed}
-                setCollapsed={setCollapsed}
-            >
-                {children}
-            </DashboardContent>
-        </ThemeProvider>
+        <DashboardContent
+            title={title}
+            user={user}
+            workspaces={workspaces}
+            currentWorkspace={currentWorkspace}
+            setCurrentWorkspace={setCurrentWorkspace}
+            collapsed={collapsed}
+            setCollapsed={setCollapsed}
+        >
+            {children}
+        </DashboardContent>
     );
 }

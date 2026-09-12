@@ -12,6 +12,7 @@ import WorkflowDropdown from '../components/WorkflowDropdown';
 import CreateWorkspaceModal from '../components/CreateWorkspaceModal';
 import MembersModal from '../components/MembersModal';
 import { LocaleContext } from './_app';
+import { useTheme } from '../contexts/ThemeContext';
 
 // Dynamic import for emoji picker (client-side only)
 const EmojiPicker = dynamic(() => import('emoji-picker-react'), { ssr: false });
@@ -57,11 +58,12 @@ function groupMessagesByDate(messages) {
 
 export default function ChatPage() {
   const { t, locale, setLocale } = useContext(LocaleContext);
+  const { theme, setTheme } = useTheme();
+  const themeDark = theme !== 'light';
   const [chats, setChats] = useState([]);
   const [activeChatId, setActiveChatId] = useState(null);
   const [text, setText] = useState('');
   const [loading, setLoading] = useState(false);
-  const [themeDark, setThemeDark] = useState(false);
   const [showSidebar, setShowSidebar] = useState(false);
   const [showProfile, setShowProfile] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
@@ -130,18 +132,6 @@ export default function ChatPage() {
       router.replace('/login');
       return; // Early return, no cleanup needed
     }
-
-    // theme
-    try {
-      const saved = localStorage.getItem('tc_theme');
-      if (saved === 'dark') {
-        setThemeDark(true);
-        document.documentElement.classList.add('dark');
-      } else if (saved === 'light') {
-        setThemeDark(false);
-        document.documentElement.classList.remove('dark');
-      }
-    } catch (e) { }
 
     // compact mode (denser UI)
     try {
@@ -559,27 +549,8 @@ export default function ChatPage() {
   const [editingTitle, setEditingTitle] = useState(false);
   const [titleValue, setTitleValue] = useState('');
 
-  function toggleTheme() {
-    const next = !themeDark;
-    setThemeDark(next);
-    try {
-      const preset = next ? 'dark' : 'light';
-      localStorage.setItem('tc_theme', preset);
-      document.documentElement.classList.remove('professional');
-      if (preset === 'dark') document.documentElement.classList.add('dark');
-      else document.documentElement.classList.remove('dark');
-    } catch (e) { }
-  }
-
   function setThemePreset(preset) {
-    try {
-      localStorage.setItem('tc_theme', preset);
-      // clear other classes
-      document.documentElement.classList.remove('dark', 'professional');
-      if (preset === 'dark') document.documentElement.classList.add('dark');
-      if (preset === 'professional') document.documentElement.classList.add('professional');
-      setThemeDark(preset === 'dark' || preset === 'professional');
-    } catch (e) { }
+    setTheme(preset);
   }
 
   function handleWorkflowChange(workflowId) {
@@ -728,7 +699,7 @@ export default function ChatPage() {
   }
 
   return (
-    <div dir={dir} className={`${themeDark ? 'dark' : ''} h-screen w-full overflow-hidden relative flex font-sans`}>
+    <div dir={dir} className="h-screen w-full overflow-hidden relative flex font-sans">
       {/* Animated Gradient Background */}
       <div className="mesh-bg"></div>
 
@@ -823,6 +794,8 @@ export default function ChatPage() {
             <div className="hidden sm:flex items-center gap-1 bg-gray-100 dark:bg-gray-800 rounded-full p-1 shadow-inner">
               <button
                 onClick={() => setThemePreset('light')}
+                aria-label="Light mode"
+                aria-pressed={!themeDark}
                 className={`p-2 rounded-full transition-all duration-200 ${!themeDark ? 'bg-white shadow-md text-yellow-500 scale-110' : 'text-gray-400 hover:text-gray-600 dark:hover:text-gray-300'}`}
                 title="Light Mode"
               >
@@ -830,6 +803,8 @@ export default function ChatPage() {
               </button>
               <button
                 onClick={() => setThemePreset('dark')}
+                aria-label="Dark mode"
+                aria-pressed={themeDark}
                 className={`p-2 rounded-full transition-all duration-200 ${themeDark ? 'bg-gray-700 shadow-md text-blue-400 scale-110' : 'text-gray-400 hover:text-gray-600 dark:hover:text-gray-300'}`}
                 title="Dark Mode"
               >

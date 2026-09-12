@@ -1,36 +1,52 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 
 const ThemeContext = createContext();
+const THEMES = ['light', 'dark', 'professional'];
+
+function readSavedTheme() {
+    try {
+        const savedTheme = localStorage.getItem('tc_theme');
+        return THEMES.includes(savedTheme) ? savedTheme : 'light';
+    } catch (e) {
+        return 'light';
+    }
+}
+
+function applyTheme(nextTheme) {
+    const root = document.documentElement;
+    root.classList.toggle('dark', nextTheme !== 'light');
+    root.classList.toggle('professional', nextTheme === 'professional');
+    root.style.colorScheme = nextTheme === 'light' ? 'light' : 'dark';
+
+    try {
+        localStorage.setItem('tc_theme', nextTheme);
+    } catch (e) {
+        // Storage may be unavailable; theme still applies for this session.
+    }
+}
 
 export function ThemeProvider({ children }) {
-    const [theme, setTheme] = useState('light');
-    const [mounted, setMounted] = useState(false);
+    const [theme, setThemeState] = useState('light');
 
-    // Load theme from localStorage on mount
+    // Load the persisted theme after mount, then keep <html> in sync.
     useEffect(() => {
-        const savedTheme = localStorage.getItem('tc_theme') || 'light';
-        setTheme(savedTheme);
-        setMounted(true);
+        const savedTheme = readSavedTheme();
+        setThemeState(savedTheme);
+        applyTheme(savedTheme);
     }, []);
 
-    // Save theme to localStorage when it changes
-    useEffect(() => {
-        if (mounted) {
-            localStorage.setItem('tc_theme', theme);
-        }
-    }, [theme, mounted]);
-
-    const toggleTheme = () => {
-        setTheme(prev => prev === 'light' ? 'dark' : 'light');
+    const setTheme = (nextTheme) => {
+        if (!THEMES.includes(nextTheme)) return;
+        setThemeState(nextTheme);
+        applyTheme(nextTheme);
     };
 
-    // Prevent flash of unstyled content
-    if (!mounted) {
-        return null;
-    }
+    const toggleTheme = () => {
+        setTheme(theme === 'light' ? 'dark' : 'light');
+    };
 
     return (
-        <ThemeContext.Provider value={{ theme, toggleTheme }}>
+        <ThemeContext.Provider value={{ theme, isDark: theme !== 'light', setTheme, toggleTheme }}>
             {children}
         </ThemeContext.Provider>
     );
