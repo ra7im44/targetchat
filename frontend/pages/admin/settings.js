@@ -119,6 +119,13 @@ export default function AdminSettings() {
         setShowPasswords(prev => ({ ...prev, [key]: !prev[key] }));
     };
 
+    const formatSettingLabel = (key) => {
+        return String(key || '')
+            .replace(/[_-]+/g, ' ')
+            .trim()
+            .replace(/\b\w/g, (char) => char.toUpperCase());
+    };
+
     const getSectionIcon = (section) => {
         switch (section) {
             case 'general': return Globe;
@@ -283,8 +290,8 @@ export default function AdminSettings() {
                                             className="p-4 rounded-2xl bg-gray-50/50 dark:bg-gray-900/40 border border-gray-100 dark:border-gray-800/80 transition-all hover:border-gray-200 dark:hover:border-gray-700"
                                         >
                                             <div className="flex items-center justify-between mb-2">
-                                                <label className="block text-sm font-semibold text-gray-800 dark:text-gray-200 font-mono">
-                                                    {setting.key}
+                                                <label className="block text-sm font-semibold text-gray-800 dark:text-gray-200">
+                                                    {formatSettingLabel(setting.key)}
                                                 </label>
                                                 <span className={`text-[11px] px-2 py-0.5 rounded-md font-medium ${setting.isPublic
                                                     ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400'
