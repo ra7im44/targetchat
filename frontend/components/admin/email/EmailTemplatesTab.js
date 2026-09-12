@@ -112,14 +112,10 @@ export default function EmailTemplatesTab() {
         const token = localStorage.getItem('tc_token');
         setSaving(true);
         try {
-            const res = await fetch(`${API}/api/admin/announcements/email`, {
+            const res = await fetch(`${API}/api/admin/email-templates/${templateId}/test`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
-                body: JSON.stringify({
-                    subject: selectedTemplate.subject,
-                    message: "This is a test of the TargetChat Email Engine.",
-                    testEmail: email
-                })
+                body: JSON.stringify({ testEmail: email })
             });
 
             if (res.ok) {

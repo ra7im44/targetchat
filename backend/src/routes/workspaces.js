@@ -317,7 +317,7 @@ router.post('/:id/invite', requireAuth, async (req, res) => {
                 },
                 {
                     userId: req.user.id,
-                    priority: 'high'
+                    priority: 'urgent'
                 }
             );
             console.log(`📧 Invitation email queued for ${email}`);

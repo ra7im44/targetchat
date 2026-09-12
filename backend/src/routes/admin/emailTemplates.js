@@ -5,6 +5,7 @@ const { requireAdmin } = require('../../middleware/rbac');
 const { EmailTemplate } = require('../../models');
 const templateEngine = require('../../services/templateEngine');
 const emailService = require('../../services/emailService');
+const { seedEmailTemplates } = require('../../services/emailTemplateSeeder');
 
 // Apply auth middleware first, then admin check
 router.use(requireAuth);
@@ -28,6 +29,15 @@ router.get('/', async (req, res) => {
             where,
             order: [['category', 'ASC'], ['name', 'ASC']]
         });
+
+        // Auto-seed senior defaults on empty tables (mirrors admin settings behavior)
+        if (templates.length === 0 && Object.keys(where).length === 0) {
+            await seedEmailTemplates();
+            const seeded = await EmailTemplate.findAll({
+                order: [['category', 'ASC'], ['name', 'ASC']]
+            });
+            return res.json(seeded);
+        }
 
         res.json(templates);
     } catch (error) {

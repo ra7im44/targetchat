@@ -1,7 +1,8 @@
 const express = require('express');
 const router = express.Router();
-const { Subscription, Invoice, BillingEvent, SubscriptionPlan } = require('../../models');
+const { Subscription, Invoice, BillingEvent, SubscriptionPlan, User } = require('../../models');
 const stripeService = require('../../services/stripeService');
+const { triggerEvent } = require('../../triggers/emailTriggers');
 
 // Stripe webhook endpoint
 router.post('/stripe', express.raw({ type: 'application/json' }), async (req, res) => {
@@ -147,7 +148,8 @@ async function handleInvoicePaid(stripeInvoice) {
 
     // Find subscription
     const subscription = await Subscription.findOne({
-        where: { stripeSubscriptionId: stripeInvoice.subscription }
+        where: { stripeSubscriptionId: stripeInvoice.subscription },
+        include: [{ model: SubscriptionPlan, as: 'plan' }]
     });
 
     if (!subscription) {
@@ -168,15 +170,16 @@ async function handleInvoicePaid(stripeInvoice) {
         paidAt: new Date(stripeInvoice.status_transitions.paid_at * 1000)
     });
 
-    // Trigger payment success email
+    // Trigger payment success email (normalized invoice shape for the billing trigger)
     const user = await User.findByPk(subscription.userId);
     if (user) {
-        await triggerEvent('payment.success', user, {
-            amount: `$${(stripeInvoice.amount_paid / 100).toFixed(2)}`,
-            plan: subscription.plan ? subscription.plan.name : 'Subscription',
-            date: new Date().toLocaleDateString(),
-            invoiceUrl: stripeInvoice.invoice_pdf,
-            nextBillingDate: new Date(subscription.currentPeriodEnd).toLocaleDateString()
+        const invoice = await Invoice.findOne({ where: { stripeInvoiceId: stripeInvoice.id } });
+        await triggerEvent('billing.payment_success', user, {
+            amount: invoice ? invoice.amount : stripeInvoice.amount_paid / 100,
+            plan: { name: subscription.plan ? subscription.plan.name : 'Subscription' },
+            createdAt: invoice ? (invoice.paidAt || invoice.createdAt) : new Date(),
+            invoicePdf: invoice ? invoice.invoicePdf : stripeInvoice.invoice_pdf,
+            nextBillingDate: subscription.currentPeriodEnd ? new Date(subscription.currentPeriodEnd) : null
         }).catch(err => console.error('Failed to trigger payment success email:', err));
     }
 
@@ -211,13 +214,14 @@ async function handleInvoicePaymentFailed(stripeInvoice) {
         hostedInvoiceUrl: stripeInvoice.hosted_invoice_url
     });
 
-    // Trigger payment failed email
+    // Trigger payment failed email (normalized invoice shape for the billing trigger)
     if (subscription.user) {
-        await triggerEvent('payment.failed', subscription.user, {
-            amount: `$${(stripeInvoice.amount_due / 100).toFixed(2)}`,
-            plan: subscription.plan ? subscription.plan.name : 'Subscription',
-            reason: 'Payment declined',
-            retryUrl: stripeInvoice.hosted_invoice_url
+        const invoice = await Invoice.findOne({ where: { stripeInvoiceId: stripeInvoice.id } });
+        await triggerEvent('billing.payment_failed', subscription.user, {
+            id: invoice ? invoice.id : null,
+            amount: invoice ? invoice.amount : stripeInvoice.amount_due / 100,
+            plan: { name: subscription.plan ? subscription.plan.name : 'Subscription' },
+            errorMessage: 'Payment declined'
         }).catch(err => console.error('Failed to trigger payment failed email:', err));
     }
     console.log('Failed payment recorded');

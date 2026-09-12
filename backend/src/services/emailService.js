@@ -2,6 +2,7 @@ const { emailQueue } = require('../queues/emailQueue');
 const { EmailLog, EmailPreference, EmailTemplate } = require('../models');
 const emailProvider = require('./emailProvider');
 const templateEngine = require('./templateEngine');
+const { ensureEmailTemplate } = require('./emailTemplateSeeder');
 
 /**
  * EmailService - Central email sending service
@@ -23,10 +24,14 @@ class EmailService {
     async sendSystemEmail(templateSlug, recipientEmail, variables = {}, options = {}) {
         let log;
         try {
-            // 1. Load template to get category
-            const template = await EmailTemplate.findOne({
+            // 1. Load template to get category (self-heal: seed defaults on fresh DBs)
+            let template = await EmailTemplate.findOne({
                 where: { slug: templateSlug, isActive: true }
             });
+
+            if (!template) {
+                template = await ensureEmailTemplate(templateSlug);
+            }
 
             if (!template) {
                 throw new Error(`Template not found or inactive: ${templateSlug}`);

@@ -24,7 +24,7 @@ router.post('/email', async (req, res) => {
                 name: 'Admin Announcement',
                 slug: 'admin-announcement',
                 subject: '{{subject}}',
-                htmlContent: `
+                htmlBody: `
 <!DOCTYPE html>
 <html>
 <head>
