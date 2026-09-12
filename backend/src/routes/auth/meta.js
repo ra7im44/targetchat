@@ -109,9 +109,11 @@ router.get('/callback', async (req, res) => {
         Setting.destroy({
             where: {
                 section: 'oauth_consumed_jti',
-                createdAt: { [Op.lt]: tenMinutesAgo }
+                created_at: { [Op.lt]: tenMinutesAgo }
             }
-        }).catch(() => {});
+        }).catch((cleanupErr) => {
+            console.error('[OAuth Security] Failed to cleanup expired JTIs:', cleanupErr.message);
+        });
     } catch (dbErr) {
         if (dbErr.name === 'SequelizeUniqueConstraintError') {
             console.warn(`[OAuth Security] State replay detected for jti=${decoded.jti}`);

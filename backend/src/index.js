@@ -70,24 +70,29 @@ io.use((socket, next) => {
       return next(new Error('Valid widget slug required for anonymous access'));
     }
 
-    // Verify server-issued capability token if provided
-    let verifiedWidgetId = null;
+    // SECURITY: Require mandatory server-issued capability token bound to widget and session
     const sessionToken = socket.handshake.auth.sessionToken;
-    if (sessionToken) {
-      try {
-        const decoded = jwt.verify(sessionToken, getJwtSecret());
-        if (decoded.type !== 'widget_guest' || decoded.widgetSlug !== widgetSlug) {
-          return next(new Error('Invalid guest session capability token'));
-        }
-        verifiedWidgetId = decoded.widgetId;
-      } catch (err) {
-        return next(new Error('Expired or invalid guest session capability token'));
+    if (!sessionToken || typeof sessionToken !== 'string') {
+      return next(new Error('Server-issued guest session capability token is required'));
+    }
+
+    let verifiedWidgetId = null;
+    try {
+      const decoded = jwt.verify(sessionToken, getJwtSecret());
+      if (decoded.type !== 'widget_guest' || decoded.widgetSlug !== widgetSlug) {
+        return next(new Error('Invalid guest session capability token'));
       }
+      if (!decoded.sessionId || decoded.sessionId !== sessionId) {
+        return next(new Error('Session capability token does not match session ID'));
+      }
+      verifiedWidgetId = decoded.widgetId;
+    } catch (err) {
+      return next(new Error('Expired or invalid guest session capability token'));
     }
 
     // Verify widget exists and is active
     require('./models').Widget.findOne({
-      where: verifiedWidgetId ? { id: verifiedWidgetId } : { slug: widgetSlug },
+      where: { id: verifiedWidgetId },
       attributes: ['id', 'status', 'allowedDomains']
     }).then(widget => {
       if (!widget || widget.status === 'inactive') {
@@ -163,8 +168,6 @@ io.on('connection', (socket) => {
     // SECURITY: guest sockets are isolated strictly to their widget-bound session room.
     const sessionRoom = `widget_${socket.widgetId}_session_${socket.sessionId}`;
     socket.join(sessionRoom);
-    // Backward compatibility for legacy widgetless chats
-    socket.join(`session_${socket.sessionId}`);
     console.log(`🔌 Guest Socket ${socket.id} joined room: ${sessionRoom}`);
   } else {
     // Join user room for logged in users

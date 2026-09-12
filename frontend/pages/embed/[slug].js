@@ -22,29 +22,29 @@ export default function EmbedPage() {
     useEffect(() => {
         if (!slug) return;
 
-        // Load config
-        fetch(`${API_URL}/widget/public/${slug}/config`)
+        // Initialize cryptographically secure, unguessable session identifier FIRST
+        let storedSession = localStorage.getItem(`tc_session_${slug}`);
+        if (!storedSession) {
+            const cryptoObj = typeof window !== 'undefined' ? (window.crypto || window.msCrypto) : null;
+            if (!cryptoObj || !cryptoObj.getRandomValues) {
+                console.error('[Security] Web Crypto API is unavailable. Failing closed.');
+                return;
+            }
+            const buf = new Uint8Array(16);
+            cryptoObj.getRandomValues(buf);
+            storedSession = 'sess_' + Array.from(buf, b => b.toString(16).padStart(2, '0')).join('');
+            localStorage.setItem(`tc_session_${slug}`, storedSession);
+        }
+        setSessionId(storedSession);
+
+        // Load config with bound sessionId query parameter
+        fetch(`${API_URL}/widget/public/${slug}/config?sessionId=${encodeURIComponent(storedSession)}`)
             .then(res => res.json())
             .then(data => {
                 setConfig(data);
                 if (data.sessionToken) {
                     localStorage.setItem(`tc_session_token_${slug}`, data.sessionToken);
                 }
-
-                // Initialize cryptographically secure, unguessable session identifier
-                let storedSession = localStorage.getItem(`tc_session_${slug}`);
-                if (!storedSession) {
-                    const cryptoObj = typeof window !== 'undefined' ? (window.crypto || window.msCrypto) : null;
-                    if (cryptoObj && cryptoObj.getRandomValues) {
-                        const buf = new Uint8Array(16);
-                        cryptoObj.getRandomValues(buf);
-                        storedSession = 'sess_' + Array.from(buf, b => b.toString(16).padStart(2, '0')).join('');
-                    } else {
-                        storedSession = 'sess_' + (Date.now().toString(16) + Math.abs(Date.now() * 31).toString(16)).padStart(32, '0');
-                    }
-                    localStorage.setItem(`tc_session_${slug}`, storedSession);
-                }
-                setSessionId(storedSession);
 
                 // Check for existing lead
                 const storedLead = localStorage.getItem(`tc_lead_${slug}`);
@@ -65,7 +65,9 @@ export default function EmbedPage() {
     };
 
     useEffect(() => {
-        const sessionCapability = localStorage.getItem(`tc_session_token_${slug}`) || config?.sessionToken;
+        if (!slug || !sessionId) return;
+        const sessionCapability = config?.sessionToken || localStorage.getItem(`tc_session_token_${slug}`);
+        if (!sessionCapability) return;
 
         // Connect to Socket.io with server-issued capability token
         const newSocket = io(API_URL, {
@@ -91,7 +93,7 @@ export default function EmbedPage() {
         setSocket(newSocket);
 
         return () => newSocket.disconnect();
-    }, [slug, sessionId]);
+    }, [slug, sessionId, config?.sessionToken]);
 
     useEffect(() => {
         messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });

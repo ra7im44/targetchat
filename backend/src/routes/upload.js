@@ -85,9 +85,31 @@ const { generateSignedUrl } = require('../utils/generateSignedUrl');
 
 // SECURITY: uploads were previously anonymous — anyone on the internet could
 // store files on the server. Require authentication.
-router.post('/', requireAuth, upload.single('file'), (req, res) => {
+router.post('/', requireAuth, upload.single('file'), async (req, res) => {
     if (!req.file) {
         return res.status(400).json({ message: 'No file uploaded' });
+    }
+
+    // Persist immutable upload ownership record
+    try {
+        const { Setting } = require('../models');
+        await Setting.create({
+            section: 'upload_ownership',
+            key: `upload_${req.file.filename}`,
+            value: JSON.stringify({
+                userId: req.user.id,
+                filename: req.file.filename,
+                mimetype: req.file.mimetype,
+                size: req.file.size,
+                uploadedAt: new Date().toISOString()
+            }),
+            isPublic: false
+        });
+    } catch (dbErr) {
+        console.error('[Upload Security] Failed to persist upload ownership record:', dbErr.message);
+        // Clean up file if ownership record could not be persisted
+        try { fs.unlinkSync(req.file.path); } catch (e) {}
+        return res.status(500).json({ message: 'Failed to record upload ownership' });
     }
 
     // Return the signed URL to the file, bound to the authenticated uploader

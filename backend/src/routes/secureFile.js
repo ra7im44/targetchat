@@ -4,7 +4,7 @@ const path = require('path');
 const fs = require('fs');
 const { verifySignedUrl, generateSignedUrl } = require('../utils/generateSignedUrl');
 const { requireAuth } = require('../middleware/auth');
-const { Message, Chat, Widget, Channel } = require('../models');
+const { Message, Chat, Widget, Channel, Setting } = require('../models');
 const { Op } = require('sequelize');
 
 const UPLOADS_DIR = path.resolve(__dirname, '../../uploads');
@@ -79,12 +79,30 @@ router.post('/refresh-url', requireAuth, async (req, res) => {
     if (userRole === 'admin' || userRole === 'superadmin') {
         allowed = true;
     } else {
-        // Match exact canonical filename references only for authentic media attachments (never plain text)
-        const exactMatches = [
-            cleanFilename,
-            `/uploads/${cleanFilename}`,
-            `/secure-file/${cleanFilename}`
-        ];
+        // Check immutable server-side upload ownership record
+        const uploadRecord = await Setting.findOne({
+            where: {
+                section: 'upload_ownership',
+                key: `upload_${cleanFilename}`
+            }
+        });
+        if (uploadRecord) {
+            try {
+                const parsed = JSON.parse(uploadRecord.value);
+                if (String(parsed.userId) === String(userId)) {
+                    allowed = true;
+                }
+            } catch (e) {}
+        }
+
+        // If not the original uploader, check if file is referenced in a chat the user has access to
+        if (!allowed) {
+            // Match exact canonical filename references only for authentic media attachments (never plain text)
+            const exactMatches = [
+                cleanFilename,
+                `/uploads/${cleanFilename}`,
+                `/secure-file/${cleanFilename}`
+            ];
 
         const referencingMessages = await Message.findAll({
             where: {
@@ -118,6 +136,7 @@ router.post('/refresh-url', requireAuth, async (req, res) => {
             }
         }
     }
+}
 
     if (!allowed) {
         return res.status(404).json({ message: 'File not found' });

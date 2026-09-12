@@ -35,6 +35,7 @@ export default function UserChannels() {
     const [isSaving, setIsSaving] = useState(false);
     const popupRef = useRef(null);
     const expectedJtiRef = useRef(null);
+    const initiatingUserIdRef = useRef(null);
 
     useEffect(() => {
         fetchChannels();
@@ -55,6 +56,8 @@ export default function UserChannels() {
             popupRef.current = null; // Single-use consumption
             const expectedJti = expectedJtiRef.current;
             expectedJtiRef.current = null;
+            const initiatingUserId = initiatingUserIdRef.current;
+            initiatingUserIdRef.current = null;
 
             if (popup && !popup.closed) {
                 try { popup.close(); } catch (e) {}
@@ -72,16 +75,10 @@ export default function UserChannels() {
                     toast.error('OAuth transaction verification mismatch.');
                     return;
                 }
-                // Strictly enforce initiating user correlation if available
-                const storedUser = localStorage.getItem('tc_user');
-                if (storedUser) {
-                    try {
-                        const parsedUser = JSON.parse(storedUser);
-                        if (parsedUser?.id && event.data.userId && String(event.data.userId) !== String(parsedUser.id)) {
-                            toast.error('OAuth user mismatch: transaction initiated by another account.');
-                            return;
-                        }
-                    } catch (e) {}
+                // Strictly enforce non-empty initiating user correlation
+                if (!initiatingUserId || !event.data.userId || String(event.data.userId) !== String(initiatingUserId)) {
+                    toast.error('OAuth user mismatch: transaction initiated by another account.');
+                    return;
                 }
                 toast.success('Meta accounts synced!');
                 discoverPages(token);
@@ -150,8 +147,17 @@ export default function UserChannels() {
 
     const handleMetaLogin = async () => {
         const token = localStorage.getItem('tc_token');
-        if (!token) {
-            toast.error('Session expired. Please log in again.');
+        const storedUser = localStorage.getItem('tc_user');
+        let parsedUserId = null;
+        if (storedUser) {
+            try {
+                const parsed = JSON.parse(storedUser);
+                if (parsed?.id) parsedUserId = String(parsed.id);
+            } catch (e) {}
+        }
+
+        if (!token || !parsedUserId) {
+            toast.error('Authentication session is missing. Please log in again.');
             return;
         }
 
@@ -172,6 +178,7 @@ export default function UserChannels() {
         }
 
         popupRef.current = popup;
+        initiatingUserIdRef.current = parsedUserId;
         setIsConnecting(true);
         toast('Preparing secure authorization…', { icon: '⏳' });
 
@@ -189,6 +196,7 @@ export default function UserChannels() {
                 popup.close();
                 popupRef.current = null;
                 expectedJtiRef.current = null;
+                initiatingUserIdRef.current = null;
                 toast.error('Failed to initiate Meta authorization.');
                 return;
             }
@@ -202,6 +210,7 @@ export default function UserChannels() {
             try { popup.close(); } catch (e) {}
             popupRef.current = null;
             expectedJtiRef.current = null;
+            initiatingUserIdRef.current = null;
             console.error('Meta login error:', err);
             toast.error('An error occurred while connecting to Meta.');
         }

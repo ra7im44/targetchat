@@ -94,12 +94,24 @@ router.get('/:slug/config', async (req, res) => {
             return res.status(403).json({ message: 'Access denied: Domain not allowed' });
         }
 
-        // Issue server-signed guest session capability bound strictly to this widget
-        const sessionToken = jwt.sign(
-            { widgetId: widget.id, widgetSlug: widget.slug, type: 'widget_guest' },
-            getJwtSecret(),
-            { expiresIn: '7d' }
-        );
+        const clientSessionId = (typeof req.query.sessionId === 'string' && /^[A-Za-z0-9_-]{6,64}$/.test(req.query.sessionId))
+            ? req.query.sessionId
+            : null;
+
+        // Issue server-signed guest session capability bound strictly to this widget and session
+        let sessionToken = null;
+        if (clientSessionId) {
+            sessionToken = jwt.sign(
+                {
+                    widgetId: widget.id,
+                    widgetSlug: widget.slug,
+                    sessionId: clientSessionId,
+                    type: 'widget_guest'
+                },
+                getJwtSecret(),
+                { expiresIn: '7d' }
+            );
+        }
 
         // Return only safe public data with server-issued session capability
         res.json({

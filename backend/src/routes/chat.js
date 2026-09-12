@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const { requireAuth } = require('../middleware/auth');
-const { Chat, Message, Widget, Channel } = require('../models');
+const { Chat, Message, Widget, Channel, Setting } = require('../models');
 const { sendToN8N } = require('../utils/n8nClient');
 
 const { validate, schemas } = require('../middleware/validation');
@@ -246,6 +246,26 @@ router.post('/send', requireAuth, (req, res, next) => { req.usageResourceType = 
       filename = getFilename(targetUrl);
       if (!filename) {
         return res.status(400).json({ error: 'A valid, authorized signed media attachment is required for media messages' });
+      }
+
+      // SECURITY: Authorize against server-persisted immutable upload ownership record if present
+      if (req.user.role !== 'admin' && req.user.role !== 'superadmin') {
+        const uploadRecord = await Setting.findOne({
+          where: {
+            section: 'upload_ownership',
+            key: `upload_${filename}`
+          }
+        });
+        if (uploadRecord) {
+          try {
+            const parsed = JSON.parse(uploadRecord.value);
+            if (String(parsed.userId) !== String(userId)) {
+              return res.status(403).json({ error: 'Unauthorized media attachment: upload belongs to another user' });
+            }
+          } catch (e) {
+            return res.status(403).json({ error: 'Failed to verify upload ownership' });
+          }
+        }
       }
     }
 
