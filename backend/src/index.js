@@ -178,12 +178,36 @@ io.on('connection', (socket) => {
     console.log('User disconnected');
   });
 
-  // Meta Real-time Indicators (Typing/Seen)
+  // Client (Visitor) Typing Indicator
+  socket.on('client:typing', async (payload) => {
+    try {
+      if (!payload || typeof payload !== 'object') return;
+      const { chatId, isTyping } = payload;
+      if (!chatId) return;
+      const chat = await Chat.findByPk(chatId, {
+        include: [{ model: require('./models').Widget, as: 'widget' }]
+      });
+      if (!chat) return;
+
+      const targetRooms = new Set();
+      if (chat.widget && chat.widget.userId) targetRooms.add(`user_${chat.widget.userId}`);
+      if (chat.assignedTo) targetRooms.add(`user_${chat.assignedTo}`);
+      for (const room of targetRooms) {
+        io.to(room).emit('chat:typing', { chatId, isTyping, sender: 'client' });
+      }
+    } catch (err) {
+      console.error('[Socket] Client typing error:', err.message);
+    }
+  });
+
+  // Meta & Web Agent Typing Indicator
   socket.on('agent:typing', async (payload) => {
     try {
       if (!payload || typeof payload !== 'object') return;
-      const { chatId, typing } = payload;
+      const { chatId, typing, isTyping } = payload;
       if (!chatId) return;
+      const activeTyping = typeof isTyping !== 'undefined' ? isTyping : !!typing;
+
       const chat = await Chat.findByPk(chatId, {
         include: [
           { model: Channel, as: 'channel' },
@@ -192,12 +216,29 @@ io.on('connection', (socket) => {
       });
       if (!chat) return;
       if (!(await canAccessChat(socket.userId, chat))) return;
+
+      // 1. Broadcast to visitor widget session room
+      const sessionMatch = chat.title && chat.title.match(/Guest Session (.+)/);
+      if (sessionMatch && sessionMatch[1]) {
+        const guestSessionId = sessionMatch[1].trim();
+        const guestRoom = chat.widgetId ? `widget_${chat.widgetId}_session_${guestSessionId}` : `session_${guestSessionId}`;
+        io.to(guestRoom).emit('chat:typing', { chatId, isTyping: activeTyping, sender: 'agent' });
+      }
+      io.to(`chat_${chatId}`).emit('chat:typing', { chatId, isTyping: activeTyping, sender: 'agent' });
+
+      // 2. Meta/WhatsApp action
       if (chat.channel && chat.channel.type !== 'whatsapp' && chat.channel.accessToken && chat.lead) {
-        const action = typing ? 'typing_on' : 'typing_off';
+        const action = activeTyping ? 'typing_on' : 'typing_off';
         await metaApiService.sendAction(chat.channel.type, chat.channel.accessToken, chat.lead.metaId, action);
       }
     } catch (err) {
       console.error('[Socket] Typing indicator error:', err.message);
+    }
+  });
+
+  socket.on('chat:join', (chatId) => {
+    if (chatId) {
+      socket.join(`chat_${chatId}`);
     }
   });
 
@@ -230,10 +271,6 @@ const maintenanceMiddleware = require('./middleware/maintenance');
 // 1. CORS - MUST BE FIRST
 // SECURITY: restrict browser cross-origin access to the configured frontend
 // origin(s) instead of reflecting every origin.
-// NOTE: scoped to /api only — the public widget endpoints (/widget/public)
-// intentionally keep their own permissive router-level CORS because they are
-// designed to be embedded on arbitrary customer sites (gated instead by the
-// per-widget allowedDomains check).
 app.use('/api', cors({ origin: corsOrigin, credentials: true }));
 
 // 2. Security Middlewares
@@ -252,28 +289,67 @@ app.use(bodyParser.json());
 app.use('/webhook/meta', require('./routes/webhooks/meta'));
 app.use('/webhook/whatsapp', require('./routes/webhooks/whatsapp'));
 
-// --- Security Middleware ---
-// Helmet moved up
-
-// 2. Global Rate Limiting
+// --- Rate Limiters ---
 const globalLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 500, // Limit each IP to 500 requests per windowMs
+  max: 500,
   standardHeaders: true,
   legacyHeaders: false,
   message: { message: 'Too many requests, please try again later.' }
 });
 app.use('/api', globalLimiter);
 
-// 3. Stricter Auth Rate Limiting
 const authLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 30, // Limit each IP to 30 login/register attempts per windowMs
+  max: 30,
   standardHeaders: true,
   legacyHeaders: false,
   message: { message: 'Too many login attempts, please try again later.' }
 });
 app.use('/api/auth', authLimiter);
+
+const uploadLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 30, // Limit uploads to 30 per 15 minutes
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { message: 'Upload rate limit exceeded. Please wait a few minutes.' }
+});
+app.use('/api/upload', uploadLimiter);
+
+const chatLimiter = rateLimit({
+  windowMs: 1 * 60 * 1000, // 1 minute
+  max: 60, // 60 messages per minute
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { message: 'Sending messages too quickly. Please slow down.' }
+});
+app.use('/api/chat/send', chatLimiter);
+app.use('/widget/public', chatLimiter);
+
+// Health Check Endpoints
+app.get(['/health', '/api/health'], async (req, res) => {
+  try {
+    await sequelize.authenticate();
+    res.json({
+      status: 'ok',
+      timestamp: new Date().toISOString(),
+      uptime: Math.round(process.uptime()),
+      database: 'connected',
+      memory: {
+        rss: Math.round(process.memoryUsage().rss / (1024 * 1024)) + ' MB',
+        heapUsed: Math.round(process.memoryUsage().heapUsed / (1024 * 1024)) + ' MB'
+      },
+      mode: process.env.NODE_ENV || 'development'
+    });
+  } catch (err) {
+    res.status(503).json({
+      status: 'degraded',
+      database: 'disconnected',
+      error: err.message
+    });
+  }
+});
 // ----------------------------
 
 // Attach io to req
@@ -292,6 +368,7 @@ app.use('/api/workflows', require('./routes/workflows')); // Workflow management
 app.use('/api/leads', require('./routes/leads')); // Leads management
 app.use('/api/inbox', require('./routes/inbox')); // Human inbox
 app.use('/api/channels', require('./routes/channels')); // User channel management
+app.use('/api/canned-responses', require('./routes/cannedResponses')); // Canned responses / Quick replies
 app.use('/api/upload', require('./routes/upload'));
 app.use('/secure-file', require('./routes/secureFile'));
 app.use('/api/file', require('./routes/secureFile')); // For refresh-url

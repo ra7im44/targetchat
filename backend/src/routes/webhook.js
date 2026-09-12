@@ -101,6 +101,9 @@ router.post('/n8n', validate(schemas.n8nWebhook), async (req, res) => {
         // Broadcast to Socket.io
         const io = req.io;
         if (io) {
+            // Clear thinking indicator
+            io.to(`chat_${chat_id}`).emit('ai:thinking', { chatId: chat_id, isThinking: false });
+
             // Emit to chat room (for logged in users)
             io.to(`chat_${chat_id}`).emit('message', {
                 chatId: chat_id,
@@ -117,6 +120,7 @@ router.post('/n8n', validate(schemas.n8nWebhook), async (req, res) => {
 
             if (targetSessionId) {
                 const guestRoom = chat.widgetId ? `widget_${chat.widgetId}_session_${targetSessionId}` : `session_${targetSessionId}`;
+                io.to(guestRoom).emit('ai:thinking', { chatId: chat_id, isThinking: false });
                 io.to(guestRoom).emit('message', {
                     ...messagePayload,
                     sender: 'ai' // Ensure sender is set for widget client

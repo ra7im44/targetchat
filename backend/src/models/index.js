@@ -12,6 +12,7 @@ const WorkflowUser = require('./WorkflowUser')(sequelize, DataTypes);
 
 const ActivityLog = require('./ActivityLog')(sequelize, DataTypes);
 const Channel = require('./Channel')(sequelize, DataTypes);
+const CannedResponse = require('./CannedResponse')(sequelize, DataTypes);
 
 // Email system models
 const EmailTemplate = require('./EmailTemplate')(sequelize, DataTypes);
@@ -180,6 +181,9 @@ Workflow.hasMany(Widget, { foreignKey: 'workflowId', as: 'widgets' });
 Workspace.hasMany(Workflow, { foreignKey: 'workspace_id', as: 'workflows' });
 Workflow.belongsTo(Workspace, { foreignKey: 'workspace_id', as: 'workspace' });
 
+User.hasMany(CannedResponse, { foreignKey: 'userId', as: 'cannedResponses' });
+CannedResponse.belongsTo(User, { foreignKey: 'userId', as: 'user' });
+
 module.exports = {
     sequelize,
     User,
@@ -209,5 +213,6 @@ module.exports = {
     ChatEvent,
     ChatNote,
     BillingLog,
-    Channel
+    Channel,
+    CannedResponse
 };

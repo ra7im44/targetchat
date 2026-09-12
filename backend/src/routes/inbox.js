@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { Chat, Message, User, Lead, Widget, Channel } = require('../models');
+const { Chat, Message, User, Lead, Widget, Channel, sequelize } = require('../models');
 const metaApiService = require('../services/metaApiService');
 const { requireAuth } = require('../middleware/auth');
 const { Op } = require('sequelize');
@@ -47,10 +47,8 @@ async function verifyInboxChatAccess(chatId, userId, userRole, options = {}) {
 router.get('/chats', requireAuth, async (req, res) => {
     try {
         const userId = req.user.id;
-        const { status = 'active' } = req.query;
+        const { status = 'active', tag } = req.query;
         const { page, limit, offset } = parsePagination(req.query);
-
-
 
         // Find all widgets owned by this user
         const userWidgets = await Widget.findAll({
@@ -75,6 +73,12 @@ router.get('/chats', requireAuth, async (req, res) => {
 
         if (status === 'active') {
             where.status = 'active';
+        }
+
+        if (tag) {
+            where[Op.and] = [
+                sequelize.where(sequelize.col('Chat.tags'), { [Op.like]: `%${tag}%` })
+            ];
         }
 
         const { count, rows: chats } = await Chat.findAndCountAll({
@@ -120,6 +124,126 @@ router.get('/chats', requireAuth, async (req, res) => {
     } catch (err) {
         console.error('Error fetching inbox chats:', err);
         res.status(500).json({ message: 'Server error' });
+    }
+});
+
+// GET /api/inbox/search - Full text search across messages and chats
+router.get('/search', requireAuth, async (req, res) => {
+    try {
+        const userId = req.user.id;
+        const { q, limit = 20 } = req.query;
+
+        if (!q || q.trim().length === 0) {
+            return res.json({ results: [] });
+        }
+
+        const userWidgets = await Widget.findAll({ where: { userId }, attributes: ['id'] });
+        const widgetIds = userWidgets.map(w => w.id);
+
+        const userChannels = await Channel.findAll({ where: { userId }, attributes: ['id'] });
+        const channelIds = userChannels.map(c => c.id);
+
+        const messages = await Message.findAll({
+            where: {
+                text: { [Op.like]: `%${q.trim()}%` }
+            },
+            include: [{
+                model: Chat,
+                as: 'chat',
+                where: {
+                    [Op.or]: [
+                        { widgetId: { [Op.in]: widgetIds } },
+                        { channelId: { [Op.in]: channelIds } },
+                        { assignedTo: userId },
+                        { userId }
+                    ]
+                },
+                include: [
+                    { model: Lead, as: 'lead', attributes: ['name', 'email'] },
+                    { model: Widget, as: 'widget', attributes: ['name'] }
+                ]
+            }],
+            order: [['created_at', 'DESC']],
+            limit: parseInt(limit, 10)
+        });
+
+        res.json({ results: messages });
+    } catch (err) {
+        console.error('Search error:', err);
+        res.status(500).json({ message: 'Search failed' });
+    }
+});
+
+// PUT /api/inbox/chats/:id/tags - Update tags on a chat
+router.put('/chats/:id/tags', requireAuth, async (req, res) => {
+    try {
+        const { id: chatId } = req.params;
+        const { tags } = req.body;
+
+        if (!Array.isArray(tags)) {
+            return res.status(400).json({ message: 'Tags must be an array of strings' });
+        }
+
+        const chat = await verifyInboxChatAccess(chatId, req.user.id, req.user.role);
+        if (!chat) return res.status(404).json({ message: 'Chat not found' });
+
+        const cleanTags = tags.map(t => String(t).trim().toLowerCase()).filter(Boolean);
+        await chat.update({ tags: cleanTags });
+
+        res.json({ success: true, tags: cleanTags });
+    } catch (err) {
+        console.error('Tags update error:', err);
+        res.status(500).json({ message: 'Failed to update tags' });
+    }
+});
+
+// GET /api/inbox/chats/:id/export - Export chat history (JSON or CSV)
+router.get('/chats/:id/export', requireAuth, async (req, res) => {
+    try {
+        const { id: chatId } = req.params;
+        const { format = 'json' } = req.query;
+
+        const chat = await verifyInboxChatAccess(chatId, req.user.id, req.user.role, {
+            includeLead: true,
+            includeChannel: true
+        });
+        if (!chat) return res.status(404).json({ message: 'Chat not found' });
+
+        const messages = await Message.findAll({
+            where: { chatId },
+            order: [['created_at', 'ASC']]
+        });
+
+        if (format === 'csv') {
+            const { Parser } = require('json2csv');
+            const fields = ['id', 'sender', 'text', 'type', 'createdAt'];
+            const data = messages.map(m => ({
+                id: m.id,
+                sender: m.sender,
+                text: m.text,
+                type: m.type,
+                createdAt: m.created_at
+            }));
+            const parser = new Parser({ fields });
+            const csv = parser.parse(data);
+            res.header('Content-Type', 'text/csv');
+            res.attachment(`chat-${chatId}-export.csv`);
+            return res.send(csv);
+        }
+
+        res.json({
+            chat: {
+                id: chat.id,
+                title: chat.title,
+                status: chat.status,
+                tags: chat.tags,
+                createdAt: chat.created_at
+            },
+            messages
+        });
+    } catch (err) {
+        console.error('Export error:', err);
+        res.status(500).json({ message: 'Export failed' });
     }
 });
 

@@ -60,6 +60,15 @@ module.exports = (sequelize, DataTypes) => {
     status: {
       type: DataTypes.ENUM('active', 'closed'),
       defaultValue: 'active'
+    },
+    routingType: {
+      type: DataTypes.STRING,
+      defaultValue: 'ai',
+      field: 'routing_type'
+    },
+    tags: {
+      type: DataTypes.JSON,
+      defaultValue: []
     }
   }, {
     tableName: 'chats',

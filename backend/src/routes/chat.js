@@ -361,15 +361,71 @@ router.post('/send', requireAuth, (req, res, next) => { req.usageResourceType = 
 
         } else {
           // 2. Route to AI (Workflow ON)
-          // Only forward if workflow exists and has webhook
-          if (chatWithDetails.workflow && chatWithDetails.workflow.webhookUrl) {
-            await sendToN8N({
-              user_id: userId,
-              chat_id,
-              message: unifiedMessage,
-              webhookUrl: chatWithDetails.workflow.webhookUrl
-            });
+          const webhookUrl = chatWithDetails.workflow?.webhookUrl;
+          if (io) {
+            io.to(`chat_${chat_id}`).emit('ai:thinking', { chatId: chat_id, isThinking: true });
           }
+
+          // Dispatch to n8n asynchronously so HTTP response is snappy
+          (async () => {
+            try {
+              await sendToN8N({
+                user_id: userId,
+                chat_id,
+                message: unifiedMessage,
+                webhookUrl
+              });
+            } catch (aiErr) {
+              console.error('[Chat Routing] n8n dispatch failed:', aiErr.message);
+              if (io) {
+                io.to(`chat_${chat_id}`).emit('ai:thinking', { chatId: chat_id, isThinking: false });
+                io.to(`chat_${chat_id}`).emit('ai:error', {
+                  chatId: chat_id,
+                  message: 'AI assistant is temporarily unavailable. We have connected you with human support.'
+                });
+              }
+
+              // Auto-escalate to human handoff so the visitor is never ignored
+              try {
+                await chatWithDetails.update({
+                  isHumanHandled: true,
+                  routingType: 'human',
+                  assignedTo: chatWithDetails.assignedTo || (await getPrimaryAgent(widget?.id))
+                });
+
+                const alertMsg = await Message.create({
+                  chatId: chat_id,
+                  userId: null,
+                  sender: 'system',
+                  text: '⚠️ AI assistant is temporarily unavailable. The conversation has been escalated to human support.',
+                  type: 'text'
+                });
+
+                if (io) {
+                  io.to(`chat_${chat_id}`).emit('message', {
+                    chatId: chat_id,
+                    message: {
+                      id: alertMsg.id,
+                      sender: 'system',
+                      text: alertMsg.text,
+                      createdAt: alertMsg.created_at
+                    }
+                  });
+
+                  // Notify human inbox
+                  const targetRooms = new Set();
+                  if (widget && widget.userId) targetRooms.add(`user_${widget.userId}`);
+                  if (chatWithDetails.assignedTo) targetRooms.add(`user_${chatWithDetails.assignedTo}`);
+                  for (const room of targetRooms) {
+                    io.to(room).emit('chat:updated', chatWithDetails);
+                    io.to(room).emit('message:new', { chatId: chat_id, message: alertMsg });
+                  }
+                }
+              } catch (escErr) {
+                console.error('[Chat Routing] Failed to auto-escalate after AI error:', escErr.message);
+              }
+            }
+          })();
         }
       }
     } catch (e) {

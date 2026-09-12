@@ -95,8 +95,26 @@ router.get('/subscription', requireAuth, async (req, res) => {
             where: { user_id: req.user.id } // This counts workspaces where user is a member/owner
         });
 
-        // 3. Storage (Mock for now)
-        const storageUsage = 0; // MB
+        // 4. Storage (Real calculation from user uploads)
+        let storageUsage = 0; // MB
+        try {
+            const { Setting } = require('../models');
+            const uploadRecords = await Setting.findAll({
+                where: { section: 'upload_ownership' }
+            });
+            let totalBytes = 0;
+            for (const record of uploadRecords) {
+                try {
+                    const data = typeof record.value === 'string' ? JSON.parse(record.value) : record.value;
+                    if (data && data.userId === req.user.id && data.size) {
+                        totalBytes += Number(data.size);
+                    }
+                } catch (e) {}
+            }
+            storageUsage = Math.round((totalBytes / (1024 * 1024)) * 100) / 100;
+        } catch (storageErr) {
+            console.warn('[Billing] Error computing storage usage:', storageErr.message);
+        }
 
         if (!subscription) {
             return res.json({
@@ -104,6 +122,7 @@ router.get('/subscription', requireAuth, async (req, res) => {
                 usage: {
                     widgets: widgetsCount,
                     messages: messagesCount,
+                    members: membersCount,
                     storage: storageUsage
                 }
             });
@@ -124,10 +143,43 @@ router.get('/subscription', requireAuth, async (req, res) => {
     }
 });
 
-// POST /api/billing/checkout - Create checkout session (Stripe or PayPal)
+// POST /api/billing/mock-activate - Simulate direct plan upgrade in dev/demo
+router.post('/mock-activate', requireAuth, async (req, res) => {
+    try {
+        const { planId, workspaceId } = req.body;
+        if (!planId) return res.status(400).json({ message: 'Plan ID required' });
+
+        const plan = await SubscriptionPlan.findByPk(planId);
+        if (!plan) return res.status(404).json({ message: 'Plan not found' });
+
+        const billingService = require('../services/billingService');
+        const mockSubId = `mock_sub_${Date.now()}`;
+        const sub = await billingService.syncSubscription({
+            gateway: 'mock',
+            externalId: mockSubId,
+            status: 'active',
+            planId: plan.id,
+            userId: req.user.id,
+            workspaceId,
+            currentPeriodEnd: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
+            payload: { mockActivation: true, activatedBy: req.user.id }
+        });
+
+        res.json({
+            success: true,
+            message: `Successfully activated ${plan.name} plan (Mock Mode)`,
+            subscription: sub
+        });
+    } catch (err) {
+        console.error('Mock activation error:', err);
+        res.status(500).json({ message: 'Failed to activate mock subscription' });
+    }
+});
+
+// POST /api/billing/checkout - Create checkout session (Stripe, PayPal, or Mock)
 router.post('/checkout', requireAuth, async (req, res) => {
     try {
-        const { planId, billingCycle = 'monthly', workspaceId, gateway = 'stripe' } = req.body;
+        const { planId, billingCycle = 'monthly', workspaceId, gateway = 'mock' } = req.body;
         const billingService = require('../services/billingService');
 
         if (!planId) {
@@ -140,7 +192,7 @@ router.post('/checkout', requireAuth, async (req, res) => {
             planId,
             billingCycle,
             gateway,
-            successUrl: `${process.env.FRONTEND_URL || 'http://localhost:3000'}/billing/status`,
+            successUrl: `${process.env.FRONTEND_URL || 'http://localhost:3000'}/billing`,
             cancelUrl: `${process.env.FRONTEND_URL || 'http://localhost:3000'}/pricing`,
             ipAddress: req.ip
         });
