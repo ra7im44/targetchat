@@ -116,23 +116,30 @@ export default function DeveloperTools() {
                                 </div>
                             ) : (
                                 <div className="p-4 space-y-3 overflow-y-auto max-h-[600px]">
-                                    {logs.map((log) => (
+                                    {logs.map((log) => {
+                                        const platformLabel = String(log.platform || log.provider || 'system');
+                                        const lower = platformLabel.toLowerCase();
+                                        const isWA = lower.includes('whatsapp') || lower.includes('wa');
+                                        const isMeta = lower.includes('meta') || lower.includes('facebook') || lower.includes('instagram');
+                                        const timeValid = log.timestamp && !isNaN(new Date(log.timestamp).getTime());
+                                        return (
                                         <div key={log.id} className="bg-gray-800/50 rounded-xl border border-gray-700/50 p-4 transition-all hover:border-gray-600">
                                             <div className="flex justify-between items-start mb-2">
-                                                <span className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase ${log.platform.includes('whatsapp') ? 'bg-green-900/30 text-green-400' :
-                                                        log.platform.includes('meta') ? 'bg-blue-900/30 text-blue-400' : 'bg-gray-700 text-gray-300'
+                                                <span className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase ${isWA ? 'bg-green-900/30 text-green-400' :
+                                                        isMeta ? 'bg-blue-900/30 text-blue-400' : 'bg-gray-700 text-gray-300'
                                                     }`}>
-                                                    {log.platform}
+                                                    {platformLabel}
                                                 </span>
                                                 <span className="text-[10px] text-gray-500 tabular-nums">
-                                                    {new Date(log.timestamp).toLocaleTimeString()}
+                                                    {timeValid ? new Date(log.timestamp).toLocaleTimeString() : '—'}
                                                 </span>
                                             </div>
                                             <pre className="text-[11px] text-indigo-300 overflow-x-auto p-2 bg-gray-900/50 rounded-lg">
                                                 {JSON.stringify(log.body, null, 2)}
                                             </pre>
                                         </div>
-                                    ))}
+                                        );
+                                    })}
                                 </div>
                             )}
                         </div>

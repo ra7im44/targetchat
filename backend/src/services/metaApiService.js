@@ -4,6 +4,9 @@ const path = require('path');
 const { promisify } = require('util');
 const pipeline = promisify(require('stream').pipeline);
 const settingsService = require('./settingsService');
+const webhookTracker = require('../utils/webhookTracker');
+
+const META_GRAPH_VERSION = 'v19.0';
 
 /**
  * Meta API Service - Handles outbound messaging for FB, IG, and WA
@@ -13,16 +16,19 @@ class MetaApiService {
      * Send message to Facebook Messenger
      */
     async sendFacebookMessage(pageAccessToken, recipientId, text) {
+        const startedAt = Date.now();
         try {
             console.log(`[MetaService] Sending FB Message to ${recipientId}`);
-            const url = `https://graph.facebook.com/v19.0/me/messages?access_token=${pageAccessToken}`;
+            const url = `https://graph.facebook.com/${META_GRAPH_VERSION}/me/messages?access_token=${pageAccessToken}`;
             const response = await axios.post(url, {
                 recipient: { id: recipientId },
                 message: { text: text },
                 messaging_type: 'RESPONSE'
             });
+            webhookTracker.logOutbound('meta', { eventType: 'message.sent', ok: true, latencyMs: Date.now() - startedAt, messageId: response.data?.message_id || null });
             return response.data;
         } catch (error) {
+            webhookTracker.logOutbound('meta', { eventType: 'message.sent', ok: false, latencyMs: Date.now() - startedAt, error: error.response?.data?.error?.message || error.message });
             this.handleError('Facebook', error);
         }
     }
@@ -31,15 +37,18 @@ class MetaApiService {
      * Send message to Instagram DM
      */
     async sendInstagramMessage(pageAccessToken, recipientId, text) {
+        const startedAt = Date.now();
         try {
             console.log(`[MetaService] Sending IG Message to ${recipientId}`);
-            const url = `https://graph.facebook.com/v19.0/me/messages?access_token=${pageAccessToken}`;
+            const url = `https://graph.facebook.com/${META_GRAPH_VERSION}/me/messages?access_token=${pageAccessToken}`;
             const response = await axios.post(url, {
                 recipient: { id: recipientId },
                 message: { text: text }
             });
+            webhookTracker.logOutbound('meta', { eventType: 'message.sent', ok: true, latencyMs: Date.now() - startedAt, messageId: response.data?.message_id || null });
             return response.data;
         } catch (error) {
+            webhookTracker.logOutbound('meta', { eventType: 'message.sent', ok: false, latencyMs: Date.now() - startedAt, error: error.response?.data?.error?.message || error.message });
             this.handleError('Instagram', error);
         }
     }
@@ -48,9 +57,10 @@ class MetaApiService {
      * Send message to WhatsApp Cloud API
      */
     async sendWhatsAppMessage(phoneNumberId, systemUserToken, to, text) {
+        const startedAt = Date.now();
         try {
             console.log(`[MetaService] Sending WhatsApp Message to ${to}`);
-            const url = `https://graph.facebook.com/v19.0/${phoneNumberId}/messages`;
+            const url = `https://graph.facebook.com/${META_GRAPH_VERSION}/${phoneNumberId}/messages`;
             const response = await axios.post(url, {
                 messaging_product: 'whatsapp',
                 recipient_type: 'individual',
@@ -60,8 +70,10 @@ class MetaApiService {
             }, {
                 headers: { Authorization: `Bearer ${systemUserToken}` }
             });
+            webhookTracker.logOutbound('whatsapp', { eventType: 'message.sent', ok: true, latencyMs: Date.now() - startedAt, messageId: response.data?.messages?.[0]?.id || null });
             return response.data;
         } catch (error) {
+            webhookTracker.logOutbound('whatsapp', { eventType: 'message.sent', ok: false, latencyMs: Date.now() - startedAt, error: error.response?.data?.error?.message || error.message });
             this.handleError('WhatsApp', error);
         }
     }
@@ -217,6 +229,11 @@ class MetaApiService {
         console.error(`❌ ${platform} API Error:`, errorMsg);
         throw new Error(`${platform} delivery failed: ${errorMsg}`);
     }
+
+    getGraphApiVersion() {
+        return META_GRAPH_VERSION;
+    }
 }
 
 module.exports = new MetaApiService();
+module.exports.META_GRAPH_VERSION = META_GRAPH_VERSION;

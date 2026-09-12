@@ -6,6 +6,12 @@ const { validate, schemas } = require('../middleware/validation');
 const { generateSignedUrl } = require('../utils/generateSignedUrl');
 const { assertStrongSecret } = require('../config/secrets');
 
+// GET /api/webhook/n8n
+// Health check for n8n webhook receiver endpoint
+router.get('/n8n', (req, res) => {
+    res.status(200).json({ status: 'ok', endpoint: '/api/webhook/n8n', service: 'n8n-webhook-receiver' });
+});
+
 // POST /api/webhook/n8n
 // Receives AI responses from n8n workflow
 router.post('/n8n', validate(schemas.n8nWebhook), async (req, res) => {
