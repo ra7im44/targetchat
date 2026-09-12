@@ -79,7 +79,7 @@ router.post('/refresh-url', requireAuth, async (req, res) => {
     if (userRole === 'admin' || userRole === 'superadmin') {
         allowed = true;
     } else {
-        // Match exact canonical filename references only (no wildcard LIKE)
+        // Match exact canonical filename references only for authentic media attachments (never plain text)
         const exactMatches = [
             cleanFilename,
             `/uploads/${cleanFilename}`,
@@ -88,6 +88,7 @@ router.post('/refresh-url', requireAuth, async (req, res) => {
 
         const referencingMessages = await Message.findAll({
             where: {
+                type: { [Op.in]: ['image', 'audio', 'video', 'file'] },
                 text: { [Op.in]: exactMatches }
             },
             include: [{
@@ -97,8 +98,7 @@ router.post('/refresh-url', requireAuth, async (req, res) => {
                     { model: Widget, as: 'widget', attributes: ['id', 'userId'] },
                     { model: Channel, as: 'channel', attributes: ['id', 'userId'] }
                 ]
-            }],
-            limit: 20
+            }]
         });
 
         for (const msg of referencingMessages) {

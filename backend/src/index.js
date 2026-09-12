@@ -69,11 +69,39 @@ io.use((socket, next) => {
     if (!widgetSlug || typeof widgetSlug !== 'string' || !/^[A-Za-z0-9_-]{2,64}$/.test(widgetSlug)) {
       return next(new Error('Valid widget slug required for anonymous access'));
     }
-    socket.userId = 'guest_' + sessionId;
-    socket.isGuest = true;
-    socket.sessionId = sessionId;
-    socket.widgetSlug = widgetSlug;
-    return next();
+
+    // Verify widget exists and is active
+    require('./models').Widget.findOne({
+      where: { slug: widgetSlug },
+      attributes: ['id', 'status', 'allowedDomains']
+    }).then(widget => {
+      if (!widget || widget.status === 'inactive') {
+        return next(new Error('Widget is unavailable or disabled'));
+      }
+      // Check allowed domains if request origin header is provided
+      const origin = socket.handshake.headers.origin;
+      if (origin && Array.isArray(widget.allowedDomains) && widget.allowedDomains.length > 0 && !widget.allowedDomains.includes('*')) {
+        try {
+          const originHost = new URL(origin).host;
+          const allowed = widget.allowedDomains.some(d => d === originHost || d === origin || originHost.endsWith('.' + d));
+          if (!allowed) {
+            return next(new Error('Origin domain not allowed for this widget'));
+          }
+        } catch (e) {
+          return next(new Error('Invalid origin header'));
+        }
+      }
+
+      socket.userId = 'guest_' + sessionId;
+      socket.isGuest = true;
+      socket.sessionId = sessionId;
+      socket.widgetSlug = widgetSlug;
+      socket.widgetId = widget.id;
+      next();
+    }).catch(() => {
+      next(new Error('Authentication error'));
+    });
+    return;
   }
 
   if (!token) return next(new Error('Authentication error'));

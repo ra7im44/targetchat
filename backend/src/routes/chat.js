@@ -213,14 +213,24 @@ router.post('/send', requireAuth, (req, res, next) => { req.usageResourceType = 
       return res.status(404).json({ error: 'Chat not found' });
     }
 
-    const { generateSignedUrl } = require('../utils/generateSignedUrl');
+    const { generateSignedUrl, verifySignedUrl } = require('../utils/generateSignedUrl');
 
     const getFilename = (url) => {
-      if (!url) return null;
+      if (!url || typeof url !== 'string') return null;
       try {
-        const match = url.match(/\/secure-file\/([^?]+)/);
-        if (match) return match[1];
-        const matchLegacy = url.match(/\/uploads\/([^?]+)/);
+        const urlObj = new URL(url, 'http://localhost');
+        const match = urlObj.pathname.match(/^\/secure-file\/([^/]+)$/);
+        if (match) {
+          const fname = match[1];
+          const expires = urlObj.searchParams.get('expires');
+          const signature = urlObj.searchParams.get('signature');
+          // SECURITY: verify cryptographic HMAC signature to prevent attaching unauthorized files
+          if (expires && signature && verifySignedUrl(fname, expires, signature)) {
+            return fname;
+          }
+          return null;
+        }
+        const matchLegacy = url.match(/^\/uploads\/([^/?]+)$/);
         if (matchLegacy) return matchLegacy[1];
         return null;
       } catch (e) { return null; }
@@ -310,8 +320,14 @@ router.post('/send', requireAuth, (req, res, next) => { req.usageResourceType = 
             });
           }
 
-          // Emit event to human inbox
-          io.emit('chat:updated', chatWithDetails); // Notify dashboard
+          // Emit event to human inbox (scoped strictly to authorized user rooms)
+          const targetRooms = new Set();
+          if (widget && widget.userId) targetRooms.add(`user_${widget.userId}`);
+          if (chatWithDetails.assignedTo) targetRooms.add(`user_${chatWithDetails.assignedTo}`);
+          if (chatWithDetails.userId) targetRooms.add(`user_${chatWithDetails.userId}`);
+          for (const room of targetRooms) {
+            io.to(room).emit('chat:updated', chatWithDetails);
+          }
 
           // Send auto-response if configured and it's the first human message
           // (Logic for auto-response can be added here)

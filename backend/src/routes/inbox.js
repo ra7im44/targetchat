@@ -173,9 +173,15 @@ router.post('/chats/:id/messages', requireAuth, async (req, res) => {
         const io = req.io || req.app.get('io');
         if (io) {
             // Frontend expects specific format, map it here
-            // Use global emit (temporary fix) to ensure Admins/Inbox UI sees it
-            // because they are authenticated as 'user_ID' not joined to 'chat_ID'
-            io.emit('message:new', {
+            // SECURITY: Deliver message:new strictly to the authorized dashboard users for this chat
+            const authorizedRooms = new Set();
+            if (chat.widget && chat.widget.userId) authorizedRooms.add(`user_${chat.widget.userId}`);
+            if (chat.channel && chat.channel.userId) authorizedRooms.add(`user_${chat.channel.userId}`);
+            if (chat.assignedTo) authorizedRooms.add(`user_${chat.assignedTo}`);
+            if (chat.userId) authorizedRooms.add(`user_${chat.userId}`);
+            if (userId) authorizedRooms.add(`user_${userId}`);
+
+            const payload = {
                 chatId,
                 message: {
                     ...message.toJSON(),
@@ -183,7 +189,11 @@ router.post('/chats/:id/messages', requireAuth, async (req, res) => {
                     role: 'assistant',     // Frontend alias
                     createdAt: message.created_at
                 }
-            });
+            };
+
+            for (const room of authorizedRooms) {
+                io.to(room).emit('message:new', payload);
+            }
 
             // 2. Notify External Channels (FB/IG/WA)
             if (chat.channel) {

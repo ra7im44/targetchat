@@ -153,10 +153,10 @@ router.patch('/:id/workflow-status', requireAuth, async (req, res) => {
             workflowToggleCount: widget.workflowToggleCount + 1
         });
 
-        // Emit Socket.io event
+        // Emit Socket.io event (scoped strictly to owner user room)
         const io = req.app.get('io');
         if (io) {
-            io.emit('workflow:toggled', {
+            io.to(`user_${req.user.id}`).emit('workflow:toggled', {
                 widgetId: id,
                 status,
                 timestamp: new Date()

@@ -17,44 +17,40 @@ function postMessagePage(payload) {
     return `<script>if (window.opener) { window.opener.postMessage(${JSON.stringify(payload)}, ${JSON.stringify(FRONTEND_ORIGIN)}); } window.close();</script>`;
 }
 
-const crypto = require('crypto');
-
-// In-memory store for short-lived, one-time OAuth states.
-// Maps state (string) -> { userId: string, createdAt: number }
-const pendingOAuthStates = new Map();
-
-// Periodic cleanup of expired states (> 10 minutes)
-setInterval(() => {
-    const now = Date.now();
-    for (const [state, data] of pendingOAuthStates.entries()) {
-        if (now - data.createdAt > 10 * 60 * 1000) {
-            pendingOAuthStates.delete(state);
-        }
-    }
-}, 5 * 60 * 1000).unref();
+const jwt = require('jsonwebtoken');
+const { getJwtSecret } = require('../../config/secrets');
 
 /**
  * POST /api/auth/meta/prepare
- * Generates a short-lived one-time OAuth state ticket bound to the authenticated user.
- * SECURITY: Prevents transmitting long-lived JWTs in popup URL query parameters.
+ * Generates a stateless, tamper-proof state ticket bound to the authenticated user.
+ * SECURITY: Prevents transmitting long-lived JWTs in popup query strings and functions across PM2 cluster instances.
  */
 router.post('/prepare', requireAuth, (req, res) => {
-    const state = crypto.randomBytes(24).toString('hex');
-    pendingOAuthStates.set(state, {
-        userId: req.user.id,
-        createdAt: Date.now()
-    });
+    const state = jwt.sign(
+        { userId: req.user.id, purpose: 'meta_oauth' },
+        getJwtSecret(),
+        { expiresIn: '5m' }
+    );
     res.json({ state });
 });
 
 /**
  * GET /api/auth/meta/login
- * Redirect user to Meta OAuth dialog using the one-time state ticket.
+ * Redirect user to Meta OAuth dialog using the verified state ticket.
  */
 router.get('/login', (req, res) => {
     const { state } = req.query;
-    if (!state || typeof state !== 'string' || !pendingOAuthStates.has(state)) {
-        return res.status(401).send('Invalid or expired OAuth state. Please restart authorization.');
+    if (!state || typeof state !== 'string') {
+        return res.status(401).send('Invalid or missing OAuth state. Please restart authorization.');
+    }
+
+    try {
+        const decoded = jwt.verify(state, getJwtSecret());
+        if (decoded.purpose !== 'meta_oauth') {
+            return res.status(401).send('Invalid state ticket.');
+        }
+    } catch (err) {
+        return res.status(401).send('Expired or invalid OAuth state. Please restart authorization.');
     }
 
     const appId = process.env.FACEBOOK_APP_ID;
@@ -74,19 +70,25 @@ router.get('/login', (req, res) => {
 
 /**
  * GET /api/auth/meta/callback
- * Handle Meta OAuth callback and exchange code for token, verifying one-time state.
+ * Handle Meta OAuth callback and exchange code for token, verifying signed state.
  */
 router.get('/callback', async (req, res) => {
     // SECURITY: `error` is attacker-controlled query input — never interpolate
     // it raw into HTML/JS.
     const { code, error, state } = req.query;
 
-    if (!state || typeof state !== 'string' || !pendingOAuthStates.has(state)) {
-        return res.send(postMessagePage({ type: 'META_AUTH_ERROR', error: 'Invalid or expired OAuth session' }));
+    if (!state || typeof state !== 'string') {
+        return res.send(postMessagePage({ type: 'META_AUTH_ERROR', error: 'Missing OAuth state' }));
     }
 
-    // Single-use: consume state immediately to prevent replay
-    pendingOAuthStates.delete(state);
+    try {
+        const decoded = jwt.verify(state, getJwtSecret());
+        if (decoded.purpose !== 'meta_oauth') {
+            return res.send(postMessagePage({ type: 'META_AUTH_ERROR', error: 'Invalid OAuth state' }));
+        }
+    } catch (err) {
+        return res.send(postMessagePage({ type: 'META_AUTH_ERROR', error: 'Expired or invalid OAuth session' }));
+    }
 
     if (error) {
         return res.send(postMessagePage({ type: 'META_AUTH_ERROR', error: 'Authentication failed' }));

@@ -7,6 +7,23 @@ const cors = require('cors');
 // Enable CORS for all public widget routes
 router.use(cors());
 
+/**
+ * SECURITY: Emits Socket events only to authorized user rooms (owner, assignee, creator)
+ * preventing leakage of private chats or message data to unauthenticated guest sockets.
+ */
+function emitToAuthorizedUsers(io, chat, widget, event, data) {
+    if (!io) return;
+    const rooms = new Set();
+    if (widget && widget.userId) rooms.add(`user_${widget.userId}`);
+    if (chat) {
+        if (chat.assignedTo) rooms.add(`user_${chat.assignedTo}`);
+        if (chat.userId) rooms.add(`user_${chat.userId}`);
+    }
+    for (const room of rooms) {
+        io.to(room).emit(event, data);
+    }
+}
+
 // --- Security Helper ---
 function extractHostname(value) {
     if (!value || typeof value !== 'string') return null;
@@ -212,21 +229,19 @@ router.post('/:slug/event', async (req, res) => {
                     const chatDetails = await Chat.findByPk(chat.id, {
                         include: [{ model: Widget, as: 'widget' }]
                     });
-                    io.emit('chat:updated', chatDetails);
-                    io.emit('message:new', { chatId: chat.id, message: userMsg });
+                    emitToAuthorizedUsers(io, chat, widget, 'chat:updated', chatDetails);
+                    emitToAuthorizedUsers(io, chat, widget, 'message:new', { chatId: chat.id, message: userMsg });
                 }
 
             } else {
                 // AI Mode (n8n)
-                // Notify Human Inbox about User message (so they see it coming in)
+                // Notify Human Inbox about User message (scoped to authorized users)
                 if (io) {
-                    io.emit('message:new', { chatId: chat.id, message: userMsg });
-                    // We don't need to fetch chatDetails here if we assume the chat exists, 
-                    // but to be safe and ensure "Active" status updates:
+                    emitToAuthorizedUsers(io, chat, widget, 'message:new', { chatId: chat.id, message: userMsg });
                     const chatDetails = await Chat.findByPk(chat.id, {
                         include: [{ model: Widget, as: 'widget' }]
                     });
-                    io.emit('chat:updated', chatDetails);
+                    emitToAuthorizedUsers(io, chat, widget, 'chat:updated', chatDetails);
                 }
 
                 if (widget.workflow && widget.workflow.webhookUrl) {
@@ -265,12 +280,12 @@ router.post('/:slug/event', async (req, res) => {
                                         timestamp: new Date()
                                     });
 
-                                    // Notify Human Inbox about AI response
-                                    io.emit('message:new', { chatId: chat.id, message: aiMsg });
+                                    // Notify Human Inbox about AI response (scoped strictly)
+                                    emitToAuthorizedUsers(io, chat, widget, 'message:new', { chatId: chat.id, message: aiMsg });
                                     const chatDetails = await Chat.findByPk(chat.id, {
                                         include: [{ model: Widget, as: 'widget' }]
                                     });
-                                    io.emit('chat:updated', chatDetails);
+                                    emitToAuthorizedUsers(io, chat, widget, 'chat:updated', chatDetails);
                                 }
                             }
                         } catch (err) {
