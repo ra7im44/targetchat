@@ -114,7 +114,7 @@ router.get('/:id/messages', requireAuth, async (req, res) => {
         else if (fname.startsWith('/secure-file/')) fname = fname.split('/').pop().split('?')[0];
         else if (fname.includes('/')) fname = fname.split('/').pop();
 
-        m.text = generateSignedUrl(fname);
+        m.text = generateSignedUrl(fname, userId);
         m.content = m.text; // Update content as well
       }
       return m;
@@ -149,7 +149,7 @@ router.get('/history', requireAuth, async (req, res) => {
         else if (fname.includes('/')) fname = fname.split('/').pop(); // Safety fallback
 
         // Generate fresh signed URL
-        m.text = generateSignedUrl(fname);
+        m.text = generateSignedUrl(fname, userId);
       }
       return m;
     });
@@ -228,9 +228,9 @@ router.post('/send', requireAuth, (req, res, next) => { req.usageResourceType = 
         const uid = urlObj.searchParams.get('uid');
 
         // SECURITY: Verify cryptographic HMAC signature and user ownership
-        if (!expires || !signature) return null;
+        if (!expires || !signature || !uid) return null;
 
-        const isSenderOrAdmin = !uid || String(uid) === String(userId) || req.user.role === 'admin' || req.user.role === 'superadmin';
+        const isSenderOrAdmin = String(uid) === String(userId) || req.user.role === 'admin' || req.user.role === 'superadmin';
         if (!isSenderOrAdmin) return null;
 
         if (verifySignedUrl(fname, expires, signature, uid)) {

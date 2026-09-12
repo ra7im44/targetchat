@@ -50,8 +50,9 @@ function verifySignedUrl(filename, expires, signature, userId = null) {
     const candidates = [];
     if (uidStr) {
         candidates.push(`${filename}:${expires}:${uidStr}`);
+    } else {
+        candidates.push(`${filename}:${expires}`);
     }
-    candidates.push(`${filename}:${expires}`);
 
     return candidates.some(dataToSign => {
         const expectedSignature = crypto.createHmac('sha256', secret)

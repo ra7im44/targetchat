@@ -3,6 +3,8 @@ const router = express.Router();
 const { Widget, Chat, Message, Workflow } = require('../models');
 const { sendToN8N } = require('../utils/n8nClient');
 const cors = require('cors');
+const jwt = require('jsonwebtoken');
+const { getJwtSecret } = require('../config/secrets');
 
 // Enable CORS for all public widget routes
 router.use(cors());
@@ -92,7 +94,14 @@ router.get('/:slug/config', async (req, res) => {
             return res.status(403).json({ message: 'Access denied: Domain not allowed' });
         }
 
-        // Return only safe public data
+        // Issue server-signed guest session capability bound strictly to this widget
+        const sessionToken = jwt.sign(
+            { widgetId: widget.id, widgetSlug: widget.slug, type: 'widget_guest' },
+            getJwtSecret(),
+            { expiresIn: '7d' }
+        );
+
+        // Return only safe public data with server-issued session capability
         res.json({
             id: widget.id,
             slug: widget.slug,
@@ -100,7 +109,8 @@ router.get('/:slug/config', async (req, res) => {
             theme: widget.theme,
             triggers: widget.triggers,
             settings: widget.settings,
-            workflowId: widget.workflowId
+            workflowId: widget.workflowId,
+            sessionToken
         });
     } catch (error) {
         console.error('Get public config error:', error);

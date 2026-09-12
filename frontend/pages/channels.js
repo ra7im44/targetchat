@@ -67,9 +67,21 @@ export default function UserChannels() {
                     toast.error('Invalid token received from Meta authorization.');
                     return;
                 }
-                if (expectedJti && event.data.jti && event.data.jti !== expectedJti) {
+                // Strictly enforce non-empty exact JTI correlation
+                if (!event.data.jti || !expectedJti || event.data.jti !== expectedJti) {
                     toast.error('OAuth transaction verification mismatch.');
                     return;
+                }
+                // Strictly enforce initiating user correlation if available
+                const storedUser = localStorage.getItem('tc_user');
+                if (storedUser) {
+                    try {
+                        const parsedUser = JSON.parse(storedUser);
+                        if (parsedUser?.id && event.data.userId && String(event.data.userId) !== String(parsedUser.id)) {
+                            toast.error('OAuth user mismatch: transaction initiated by another account.');
+                            return;
+                        }
+                    } catch (e) {}
                 }
                 toast.success('Meta accounts synced!');
                 discoverPages(token);

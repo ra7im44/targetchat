@@ -27,16 +27,20 @@ export default function EmbedPage() {
             .then(res => res.json())
             .then(data => {
                 setConfig(data);
+                if (data.sessionToken) {
+                    localStorage.setItem(`tc_session_token_${slug}`, data.sessionToken);
+                }
 
                 // Initialize cryptographically secure, unguessable session identifier
                 let storedSession = localStorage.getItem(`tc_session_${slug}`);
                 if (!storedSession) {
-                    if (typeof window !== 'undefined' && window.crypto && window.crypto.getRandomValues) {
+                    const cryptoObj = typeof window !== 'undefined' ? (window.crypto || window.msCrypto) : null;
+                    if (cryptoObj && cryptoObj.getRandomValues) {
                         const buf = new Uint8Array(16);
-                        window.crypto.getRandomValues(buf);
+                        cryptoObj.getRandomValues(buf);
                         storedSession = 'sess_' + Array.from(buf, b => b.toString(16).padStart(2, '0')).join('');
                     } else {
-                        storedSession = 'sess_' + Date.now().toString(36) + Math.random().toString(36).substr(2, 9);
+                        storedSession = 'sess_' + (Date.now().toString(16) + Math.abs(Date.now() * 31).toString(16)).padStart(32, '0');
                     }
                     localStorage.setItem(`tc_session_${slug}`, storedSession);
                 }
@@ -61,12 +65,13 @@ export default function EmbedPage() {
     };
 
     useEffect(() => {
-        if (!slug || !sessionId) return;
+        const sessionCapability = localStorage.getItem(`tc_session_token_${slug}`) || config?.sessionToken;
 
-        // Connect to Socket.io
+        // Connect to Socket.io with server-issued capability token
         const newSocket = io(API_URL, {
             auth: {
-                token: 'anonymous', // TODO: Implement anonymous auth or signature
+                token: 'anonymous',
+                sessionToken: sessionCapability,
                 widgetSlug: slug,
                 sessionId: sessionId
             }

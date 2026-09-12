@@ -21,6 +21,7 @@ const crypto = require('crypto');
 const jwt = require('jsonwebtoken');
 const { getJwtSecret } = require('../../config/secrets');
 const { Setting } = require('../../models');
+const { Op } = require('sequelize');
 
 /**
  * POST /api/auth/meta/prepare
@@ -102,9 +103,22 @@ router.get('/callback', async (req, res) => {
             value: JSON.stringify({ userId: decoded.userId, consumedAt: new Date() }),
             isPublic: false
         });
-    } catch (dupErr) {
-        console.warn(`[OAuth Security] State replay detected for jti=${decoded.jti}`);
-        return res.send(postMessagePage({ type: 'META_AUTH_ERROR', error: 'OAuth state has already been consumed' }));
+
+        // Opportunistic asynchronous cleanup of consumed JTIs older than 10 minutes
+        const tenMinutesAgo = new Date(Date.now() - 10 * 60 * 1000);
+        Setting.destroy({
+            where: {
+                section: 'oauth_consumed_jti',
+                createdAt: { [Op.lt]: tenMinutesAgo }
+            }
+        }).catch(() => {});
+    } catch (dbErr) {
+        if (dbErr.name === 'SequelizeUniqueConstraintError') {
+            console.warn(`[OAuth Security] State replay detected for jti=${decoded.jti}`);
+            return res.send(postMessagePage({ type: 'META_AUTH_ERROR', error: 'OAuth state has already been consumed' }));
+        }
+        console.error('[OAuth Security] Database error during state consumption:', dbErr.message);
+        return res.send(postMessagePage({ type: 'META_AUTH_ERROR', error: 'Authentication processing failed' }));
     }
 
     if (error) {

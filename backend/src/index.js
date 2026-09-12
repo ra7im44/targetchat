@@ -70,19 +70,34 @@ io.use((socket, next) => {
       return next(new Error('Valid widget slug required for anonymous access'));
     }
 
+    // Verify server-issued capability token if provided
+    let verifiedWidgetId = null;
+    const sessionToken = socket.handshake.auth.sessionToken;
+    if (sessionToken) {
+      try {
+        const decoded = jwt.verify(sessionToken, getJwtSecret());
+        if (decoded.type !== 'widget_guest' || decoded.widgetSlug !== widgetSlug) {
+          return next(new Error('Invalid guest session capability token'));
+        }
+        verifiedWidgetId = decoded.widgetId;
+      } catch (err) {
+        return next(new Error('Expired or invalid guest session capability token'));
+      }
+    }
+
     // Verify widget exists and is active
     require('./models').Widget.findOne({
-      where: { slug: widgetSlug },
+      where: verifiedWidgetId ? { id: verifiedWidgetId } : { slug: widgetSlug },
       attributes: ['id', 'status', 'allowedDomains']
     }).then(widget => {
       if (!widget || widget.status === 'inactive') {
         return next(new Error('Widget is unavailable or disabled'));
       }
-      // Strict allowed domains check: require origin when restrictions are configured
-      const origin = socket.handshake.headers.origin || socket.handshake.headers.referer;
+      // Strict allowed domains check: require origin header when restrictions are configured
+      const origin = socket.handshake.headers.origin;
       if (Array.isArray(widget.allowedDomains) && widget.allowedDomains.length > 0 && !widget.allowedDomains.includes('*')) {
         if (!origin) {
-          return next(new Error('Origin or Referer header required when allowed domains are configured'));
+          return next(new Error('Origin header required when allowed domains are configured'));
         }
         try {
           const originHost = new URL(origin).host.toLowerCase();
@@ -95,7 +110,7 @@ io.use((socket, next) => {
             return next(new Error('Origin domain not allowed for this widget'));
           }
         } catch (e) {
-          return next(new Error('Invalid origin or referer header'));
+          return next(new Error('Invalid origin header'));
         }
       }
 
@@ -148,6 +163,8 @@ io.on('connection', (socket) => {
     // SECURITY: guest sockets are isolated strictly to their widget-bound session room.
     const sessionRoom = `widget_${socket.widgetId}_session_${socket.sessionId}`;
     socket.join(sessionRoom);
+    // Backward compatibility for legacy widgetless chats
+    socket.join(`session_${socket.sessionId}`);
     console.log(`🔌 Guest Socket ${socket.id} joined room: ${sessionRoom}`);
   } else {
     // Join user room for logged in users

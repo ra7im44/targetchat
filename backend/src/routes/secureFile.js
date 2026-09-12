@@ -27,13 +27,13 @@ function resolveUploadPath(filename) {
 // Serves file if signature is valid
 router.get('/:filename', (req, res) => {
     const { filename } = req.params;
-    const { expires, signature } = req.query;
+    const { expires, signature, uid } = req.query;
 
     if (!expires || !signature) {
         return res.status(403).send('Forbidden: Missing signature or expiry');
     }
 
-    if (!verifySignedUrl(filename, expires, signature)) {
+    if (!verifySignedUrl(filename, expires, signature, uid)) {
         return res.status(403).send('Forbidden: Invalid or expired signature');
     }
 
