@@ -228,10 +228,83 @@ curl -s -I http://localhost:3000/
 
 ---
 
-## 8. ⚠️ Rules for Incoming AI Agents (DO NOT VIOLATE)
+## 8. 🛡️ Security Hardening & Isolation Architecture
+
+TargetChat has undergone an exhaustive multi-phase security hardening review. The following architectural constraints are strictly enforced:
+
+### 1. Centralized Secret Verification (`src/config/secrets.js`):
+- `getJwtSecret()`, `getFileSignSecret()`, `getWebhookSecret()` validate secrets centrally.
+- In production, missing secrets or placeholders trigger an immediate crash-on-start.
+- In local development, safe fallback values allow offline SQLite execution without breaking developer workflows.
+
+### 2. IDOR Prevention & Resource Authorization:
+- **Personal Chats (`src/routes/chat.js`):** Enforces `canAccessPersonalChat()` ensuring only the chat creator, assigned agent, channel owner, or administrative roles (`admin`, `superadmin`) can read (`/:id/messages`) or write (`/send`).
+- **Unified Inbox (`src/routes/inbox.js`):** Enforces `verifyInboxChatAccess()` across message sending, assignment, AI toggles, and internal notes.
+- **Admin Role Immunity:** System administrators maintain supervisory visibility without being blocked by direct ownership checks.
+
+### 3. Signed File Security & Ownership Records:
+- **HMAC Verification:** Private file downloads (`/secure-file/:filename`) and message attachments verify an HMAC signature with an embedded user ID (`uid`).
+- **Immutable Upload Ownership:** Uploaded files (`src/routes/upload.js`) generate an immutable ownership record in the `Setting` table (`key: upload_ownership_${filename}`). Attachments are strictly rejected if the sending user does not match the upload creator.
+- **Path Traversal Protection:** File serving enforces strict base directory boundaries with `path.resolve` and rejects directory traversal sequences (`..`).
+
+### 4. Visitor Guest Isolation & Cryptographic Session Tokens:
+- **Server-Issued Session Tokens:** Guest visitors obtain a signed `sessionToken` containing `{ sessionId, widgetSlug }` via `src/routes/publicWidgets.js`.
+- **Socket.io Handshake Verification:** The Socket.io server rejects guest connections missing a valid `sessionToken` or where `decoded.sessionId !== handshake.sessionId`.
+- **Widget-Scoped Private Rooms:** Guest sockets join exclusively `widget_${widget.id}_session_${sessionId}`. Global socket broadcasts (`io.emit`) are strictly prohibited and replaced with targeted user/session room emissions.
+- **Allowed Domains Enforcement:** Public widget APIs and Socket connections enforce strict hostname matching against `allowedDomains`.
+
+### 5. Cluster-Safe OAuth & Anti-Replay Protection (`src/routes/auth/meta.js`):
+- **Stateless JWT State Token:** Replaces in-memory state maps with signed JWT tokens expiring after 5 minutes, compatible with PM2 cluster deployments.
+- **JTI Replay Prevention:** Each OAuth handshake generates a unique `jti` persisted to the shared `Setting` table with automatic expiration cleanup. Reused JTIs are rejected immediately.
+
+### 6. Production Rate Limiting:
+- `uploadLimiter`: Restricts file uploads to 30 requests per 15 minutes per IP on `/api/upload`.
+- `chatLimiter`: Restricts message dispatch to 60 requests per minute per IP on `/api/chat/send` and public widget endpoints.
+
+---
+
+## 9. 🚀 Feature Inventory & Operational Endpoints
+
+### Payment & Billing System:
+- **PayPal Service (`src/services/paypalService.js`):** Supports both Sandbox and Live PayPal REST APIs, automatic Product and Plan generation (`P-MOCK` or real), subscription creation, details querying, and webhook signature verification (`PAYPAL_WEBHOOK_ID`).
+- **Mock Billing Gateway:** Instant testing upgrade route `POST /api/billing/mock-activate` allowing switching to Free, Pro, or Enterprise tiers without payment friction.
+- **Dynamic Storage Quota:** Accurately computed from active file ownership records rather than static placeholders.
+
+### AI Engine & n8n Reliability:
+- **Automatic Retry with Exponential Backoff:** `n8nClient.js` automatically retries failed requests up to 2 times upon network disconnection or 5xx server errors.
+- **Context Memory History:** Automatically attaches the last 8 conversation messages to every outgoing n8n payload to preserve AI conversation context.
+- **AI Thinking Indicators:** Socket event `ai:thinking` broadcasts `{ isThinking: true }` when forwarding to n8n and `{ isThinking: false }` upon completion or error.
+- **Automatic Human Handoff:** System notifications and status alerts automatically transition conversations to human agents on AI processing failure.
+
+### Core Messaging & Inbox Features:
+- **Canned Responses (`src/models/CannedResponse.js`):** CRUD endpoints on `/api/canned-responses` with quick shortcut expansion (e.g., `/welcome`).
+- **Full-Text Inbox Search:** `GET /api/inbox/search?q=query` across conversations and message transcripts.
+- **Conversation Tagging:** `PUT /api/inbox/chats/:id/tags` and filtering `GET /api/inbox/chats?tag=name`.
+- **Conversation Export:** `GET /api/inbox/chats/:id/export?format=json|csv`.
+- **Live Typing Indicators:** `client:typing` and `agent:typing` bidirectional events scoped to widget sessions.
+
+### Widget Management & Embeds:
+- **Widget Deletion:** `DELETE /api/widgets/:id` with frontend deletion triggers in both card grids and editor headers.
+- **Standalone Embed Loader:** `GET /widget/public/:slug/loader.js` enables one-line script embedding on external websites.
+- **Creation Date Normalization:** Formats creation timestamps correctly via `createdAt || created_at`.
+
+### Administrative Control & System Settings:
+- **Direct Admin Navigation:** Conditional "Admin Panel" navigation link with shield icon in both `DashboardSidebar` and `DashboardNavbar` for users with `role: 'admin'`.
+- **System Settings Management (`/admin/settings`):**
+  - Auto-seeding: Automatically initializes 35 standard settings across 8 categories (`general`, `ai`, `features`, `payment`, `email`, `integrations`, `security`, `system`) if the table is empty.
+  - Reset API: `POST /api/admin/settings/seed-defaults` for instant re-seeding.
+  - UI Controls: Category tabs with count badges, reliable boolean checkbox toggles (`true`/`false`), password reveal toggles, and saving spinners.
+- **Health Check Routes:**
+  - `GET /health`: Uptime, memory usage, database connectivity.
+  - `GET /api/health`: JSON system status diagnostics.
+
+---
+
+## 10. ⚠️ Rules for Incoming AI Agents (DO NOT VIOLATE)
 
 1. **Do NOT assume the project is complete:** This platform is an active work-in-progress (WIP). Never claim it has been fully audited or completed without executing proper tests.
 2. **Never break SQLite fallback:** The backend must smoothly run locally on SQLite without enforcing MySQL dependencies unless MySQL connection parameters are explicitly given.
 3. **Never expose secrets:** Never print API keys, `.env` files, or JWT secrets in responses or commits.
 4. **Preserve Socket.io Handshake:** Do not alter the guest authentication logic in `backend/src/index.js` as it is required for website widget connectivity.
 5. **Always test both ends:** Any change to backend routes under `src/routes/chat.js` must be checked against frontend consumers in `frontend/pages/inbox` and `frontend/pages/chat`.
+

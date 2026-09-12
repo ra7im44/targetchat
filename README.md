@@ -1,113 +1,98 @@
-# TargetChat — Full Stack Chat Application
+# TargetChat — AI-Powered Multi-Workflow Communication Platform
 
-This repository contains a minimal, modular TargetChat implementation:
-- Backend: Node.js + Express + Sequelize (MySQL/SQLite compatible)
-- Frontend: Next.js + Tailwind CSS
-- n8n workflow: `n8n/targetchat-workflow.json` (importable)
-- DB schema: `db/schema.mysql.sql`
-
-Goal: every user message is saved, forwarded to an n8n webhook, processed, and the reply returned to the frontend in real-time.
+**TargetChat** is an enterprise-ready, real-time AI customer engagement and chat platform. It combines customizable AI workflows, unified omni-channel inboxes (Facebook, Instagram, WhatsApp), embeddable web chat widgets, PayPal subscription management, and automation pipelines orchestrated through **n8n**.
 
 ---
 
-## Quick start (local)
+## 🏛️ System Architecture
 
-Prereqs: Node.js 18+, npm, (optional) MySQL or use SQLite fallback.
+- **Frontend:** Next.js 13 (Pages Router), React 18, Tailwind CSS, Lucide Icons, Socket.io-client.
+- **Backend:** Node.js, Express.js, Socket.io, Sequelize ORM.
+- **Database:** SQLite (local development default via `sqlite3`) / MySQL or MariaDB (production).
+- **AI Engine:** Self-hosted **n8n** automation instance running LangChain agent workflows (`https://n8n.u-axis.com/webhook/targetchatv1123123234fe`).
+- **Real-Time:** Socket.io with scoped session rooms, live typing indicators, and AI thinking states.
 
-1) Backend
+---
 
-Open a PowerShell terminal in `TargetChat/backend`:
+## 🚀 Quick Start (Local Development)
 
-```powershell
-cd c:\laragon\www\TargetChat\backend
-npm install
-copy .env.example .env
-# edit .env to set DB_DIALECT=mysql and your credentials, or leave sqlite defaults
+### Prerequisites:
+- Node.js 18+ or 20+
+- npm 9+
+
+### 1. Backend Setup (Port 3001)
+```bash
+cd backend
+cp .env.example .env
+# Default .env uses DB_DIALECT=sqlite and DB_STORAGE=./data/targetchat.sqlite
+node src/index.js
+```
+The backend API starts on `http://localhost:3001`.
+
+### 2. Frontend Setup (Port 3000)
+```bash
+cd frontend
 npm run dev
 ```
+The web application starts on `http://localhost:3000`.
 
-By default the backend listens on `http://localhost:3001`.
-
-2) Frontend
-
-Open a new PowerShell terminal in `TargetChat/frontend`:
-
-```powershell
-cd c:\laragon\www\TargetChat\frontend
-npm install
-npm run dev
-```
-
-Visit `http://localhost:3000` — you'll be redirected to the login page.
-
-3) n8n
-
-Import `n8n/targetchat-workflow.json` into your n8n instance. Set the webhook path to `targetchat` or configure `N8N_WEBHOOK_URL` in the backend `.env` to point at your n8n webhook URL (e.g. `https://my-n8n.example.com/webhook/targetchat`).
+### 3. Default Credentials
+- **Admin Email:** `admin@targetchat.com`
+- **Admin Password:** `admin123456`
 
 ---
 
-## Endpoints
+## 🛡️ Key Security Hardening & Architecture
 
-- POST `/api/auth/register` — body: `{ name, email, password }` — returns `{ token }`
-- POST `/api/auth/login` — body: `{ email, password }` — returns `{ token }`
-- GET `/api/auth/me` — header `Authorization: Bearer <token>` — returns `{ user }`
-- POST `/api/chat/send` — header `Authorization: Bearer <token>` — body: `{ user_id, session_id, message }` — returns `{ reply }`
-
-Notes: Backend uses JWT tokens. See `.env.example` for JWT secret and DB config.
-
----
-
-## DB Schema
-
-See `db/schema.mysql.sql` for MySQL schema. Backend uses Sequelize and will create tables automatically on first run if configured.
+- **Centralized Secrets (`src/config/secrets.js`):** Validates required secrets on startup. In production, missing secrets trigger immediate fail-closed shutdown.
+- **IDOR Protection:** All personal chats (`/api/chat/*`) and unified inboxes (`/api/inbox/*`) strictly verify ownership between users, assignees, channels, and admin roles.
+- **HMAC Signed URLs & Upload Ownership:** Media attachments require cryptographically signed URLs with user ID binding. Uploaded media creates immutable ownership records in the `Setting` table.
+- **Guest Session Security:** Website visitors obtain server-signed `sessionToken` credentials. Guest sockets are strictly confined to `widget_${widget.id}_session_${sessionId}` rooms with domain origin matching.
+- **Cluster-Safe OAuth & Anti-Replay:** Meta OAuth flow utilizes stateless 5-minute JWT tokens with unique `jti` transaction nonces recorded in the database to prevent replay attacks.
+- **Rate Limiting:** Protects `/api/upload` (30 uploads / 15 min) and `/api/chat/send` (60 messages / min).
 
 ---
 
-## n8n Integration
+## 📋 API Route Summary
 
-The backend forwards a POST to `N8N_WEBHOOK_URL` with JSON `{ user_id, message, session_id }`. n8n should reply with JSON `{ reply: '...' }` which the backend stores and returns to the frontend. Example workflow provided in `n8n/targetchat-workflow.json`.
+### Authentication & Profiles
+- `POST /api/auth/register` — Register a new account.
+- `POST /api/auth/login` — Authenticate and receive JWT token.
+- `GET /api/auth/me` — Get current authenticated user profile.
+- `POST /api/auth/meta/prepare` — Prepare cluster-safe Meta OAuth state.
+
+### Chats, Inbox & AI
+- `GET /api/chat` — List user's conversations.
+- `POST /api/chat/send` — Send message and dispatch to n8n AI webhook with context history.
+- `GET /api/chat/:id/messages` — Fetch message history with signed URLs.
+- `GET /api/inbox/search?q=` — Full-text search across conversations and messages.
+- `PUT /api/inbox/chats/:id/tags` — Update conversation tags.
+- `GET /api/inbox/chats/:id/export` — Export conversation transcript (JSON / CSV).
+- `GET /api/canned-responses` — Retrieve team quick response templates and shortcuts.
+
+### Widgets & Channels
+- `GET /api/widgets` — List user-owned widgets.
+- `POST /api/widgets` — Create new embeddable widget.
+- `DELETE /api/widgets/:id` — Delete widget and related configurations.
+- `GET /widget/public/:slug/loader.js` — Standalone one-line embed loader script.
+- `GET /api/channels` — List connected social media channels (Facebook, Instagram, WhatsApp).
+
+### Billing & Payments
+- `GET /api/billing/plans` — List subscription plans and quotas.
+- `POST /api/billing/mock-activate` — Instant tier upgrade for testing (Free, Pro, Enterprise).
+- `POST /api/billing/paypal/*` — PayPal subscription management.
+- `POST /api/webhooks/paypal` — Secure PayPal webhook signature validation.
+
+### System Administration & Health
+- `GET /health` & `GET /api/health` — System status, uptime, memory, database health.
+- `GET /api/admin/settings` — Grouped system settings (auto-seeds 35 default settings if empty).
+- `PATCH /api/admin/settings` — Bulk update system configuration with cache invalidation.
+- `POST /api/admin/settings/seed-defaults` — Re-seed or reset standard platform settings.
 
 ---
 
-## Multilingual
+## 📄 Documentation Links
 
-Frontend includes simple locale files at `frontend/public/locales/en.json` and `ar.json`. Language toggle available on the login page.
-
----
-
-## Security best practices (recommended)
-
-- Change the `JWT_SECRET` to a strong secret and do not commit it.
-- Use HTTPS for both frontend and backend in production.
-- Run n8n on a secure host and restrict its webhook access (use secret tokens or IP allowlist).
-- Use rate-limiting and request validation (consider `express-rate-limit` and `celebrate`/`Joi`).
-- Hash passwords with bcrypt (already implemented) and never log them.
-- Use environment variables for credentials; avoid committing `.env`.
-- Keep dependencies updated and monitor for vulnerabilities.
-
----
-
-## Deployment notes
-
-Shared hosting / VPS:
-- Backend: run Node process using PM2 or systemd, ensure environment variables are set. Use a reverse proxy (nginx) for TLS termination.
-- Frontend: build Next.js (`npm run build`) and run `next start`, or export static build using `next export` if no server-side rendering needed.
-- Database: MySQL on the VPS or managed MySQL service. Configure `DB_HOST/DB_USER/DB_PASS` in `.env`.
-- n8n: run as a separate service (docker-compose or process) and configure webhook URL.
-
-Example nginx snippet for reverse proxy (simplified):
-
-```nginx
-server {
-  listen 80;
-  server_name targetchat.example.com;
-  location /api/ {
-    proxy_pass http://127.0.0.1:3001/;
-    proxy_set_header Host $host;
-    proxy_set_header X-Real-IP $remote_addr;
-  }
-  location / {
-    proxy_pass http://127.0.0.1:3000/;
-  }
-}
-```
+- Detailed Architecture & Agent Guide: [`AGENTS.md`](./AGENTS.md)
+- Production Deployment Guide: [`.u-axis-docs/DEPLOYMENT.md`](../.u-axis-docs/DEPLOYMENT.md)
+- Daily Implementation Log: [`../daily_changes.md`](../daily_changes.md)
