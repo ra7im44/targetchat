@@ -48,6 +48,8 @@ const DEFAULT_SETTINGS = [
     // Integrations
     { section: 'integrations', key: 'meta_app_id', value: process.env.META_APP_ID || '', type: 'string', description: 'Meta / Facebook App ID', isPublic: true },
     { section: 'integrations', key: 'meta_app_secret', value: process.env.META_APP_SECRET || '', type: 'password', description: 'Meta / Facebook App Secret', isPublic: false },
+    { section: 'integrations', key: 'meta_verify_token', value: process.env.META_VERIFY_TOKEN || '', type: 'password', description: 'Meta webhook verify token (must match Meta App Dashboard)', isPublic: false },
+    { section: 'integrations', key: 'meta_system_user_token', value: process.env.META_SYSTEM_USER_TOKEN || '', type: 'password', description: 'Global WhatsApp Cloud system user token fallback', isPublic: false },
     { section: 'integrations', key: 'whatsapp_phone_number_id', value: process.env.WHATSAPP_PHONE_NUMBER_ID || '', type: 'string', description: 'WhatsApp Business Phone Number ID', isPublic: false },
 
     // Security
@@ -71,18 +73,11 @@ async function ensureDefaultSettings() {
 // GET /api/admin/settings - Get all settings grouped by section
 router.get('/', async (req, res) => {
     try {
-        let settings = await Setting.findAll({
+        // Ensure all default setting keys exist (findOrCreate preserves existing values)
+        await ensureDefaultSettings();
+        const settings = await Setting.findAll({
             order: [['section', 'ASC'], ['id', 'ASC']]
         });
-
-        // If settings table is empty, auto-seed default system settings
-        if (settings.length === 0) {
-            console.log('[DEBUG] No settings found in database. Auto-seeding defaults...');
-            await ensureDefaultSettings();
-            settings = await Setting.findAll({
-                order: [['section', 'ASC'], ['id', 'ASC']]
-            });
-        }
 
         // Group by section
         const grouped = settings.reduce((acc, setting) => {

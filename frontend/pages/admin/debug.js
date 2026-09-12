@@ -31,7 +31,7 @@ export default function DeveloperTools() {
             });
             if (res.ok) {
                 const data = await res.json();
-                setLogs(data);
+                setLogs(Array.isArray(data) ? data : []);
             }
         } catch (error) {
             console.error('Failed to fetch debug logs', error);
@@ -119,7 +119,7 @@ export default function DeveloperTools() {
                                     {logs.map((log) => {
                                         const platformLabel = String(log.platform || log.provider || 'system');
                                         const lower = platformLabel.toLowerCase();
-                                        const isWA = lower.includes('whatsapp') || lower.includes('wa');
+                                        const isWA = lower.includes('whatsapp');
                                         const isMeta = lower.includes('meta') || lower.includes('facebook') || lower.includes('instagram');
                                         const timeValid = log.timestamp && !isNaN(new Date(log.timestamp).getTime());
                                         return (

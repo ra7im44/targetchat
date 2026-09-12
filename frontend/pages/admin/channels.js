@@ -304,6 +304,7 @@ export default function AdminChannelSettings() {
                 toast.error(data.message || 'Token validation failed');
             }
             fetchLogs();
+            fetchHealth();
         } catch (e) {
             toast.error('Token validation failed');
         } finally {
@@ -660,8 +661,8 @@ export default function AdminChannelSettings() {
                                                     <dd className="text-gray-700 dark:text-gray-300">{ch.lastActiveAt ? formatDateTime(ch.lastActiveAt) : 'No data yet'}</dd>
                                                 </div>
                                                 <div>
-                                                    <dt className="uppercase font-bold text-gray-400 text-[10px] mb-1">Token expiry</dt>
-                                                    <dd className="text-gray-700 dark:text-gray-300">Unknown</dd>
+                                                    <dt className="uppercase font-bold text-gray-400 text-[10px] mb-1">Last Validated</dt>
+                                                    <dd className="text-gray-700 dark:text-gray-300">{ch.lastHealthCheckAt ? formatDateTime(ch.lastHealthCheckAt) : 'Never verified'}</dd>
                                                 </div>
                                             </dl>
                                             <div className="flex flex-wrap gap-2">
@@ -728,12 +729,18 @@ export default function AdminChannelSettings() {
                                                 Online
                                             </span>
                                         </div>
-                                        <div className="grid grid-cols-2 md:grid-cols-4 gap-2 text-[11px] text-gray-500 dark:text-gray-400 mb-3">
+                                        <div className="grid grid-cols-2 md:grid-cols-4 gap-2 text-[11px] text-gray-500 dark:text-gray-400 mb-2">
                                             <span>Last request: <strong className="text-gray-700 dark:text-gray-200">{hook.lastRequestAt ? formatDateTime(hook.lastRequestAt) : 'No data yet'}</strong></span>
                                             <span>Last success: <strong className="text-gray-700 dark:text-gray-200">{hook.lastSuccessAt ? formatDateTime(hook.lastSuccessAt) : 'No data yet'}</strong></span>
                                             <span>Last error: <strong className="text-gray-700 dark:text-gray-200">{hook.lastError ? `${formatDateTime(hook.lastErrorAt)} — ${hook.lastError}` : 'None'}</strong></span>
-                                            <span>Latency: <strong className="text-gray-700 dark:text-gray-200">{formatLatency(hook.lastLatencyMs)}</strong></span>
+                                            <span>Traffic Latency: <strong className="text-gray-700 dark:text-gray-200">{formatLatency(hook.lastLatencyMs)}</strong></span>
                                         </div>
+                                        {hook.lastCheckAt && (
+                                            <div className="text-[11px] text-gray-500 dark:text-gray-400 mb-3 px-3 py-1.5 bg-gray-100/70 dark:bg-gray-800/50 rounded-xl flex flex-wrap items-center justify-between gap-1 border border-gray-200/50 dark:border-gray-700/50">
+                                                <span>Self-Check Ping: <strong className={hook.lastCheckOk ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}>{hook.lastCheckOk ? 'Operational' : 'Failing'}</strong> ({formatLatency(hook.lastCheckLatencyMs)}{hook.lastCheckHttpStatus ? `, HTTP ${hook.lastCheckHttpStatus}` : ''})</span>
+                                                <span className="text-[10px] text-gray-400">{formatDateTime(hook.lastCheckAt)}</span>
+                                            </div>
+                                        )}
                                         <div className="flex flex-wrap gap-2">
                                             <button
                                                 onClick={() => handleCopy(hook.url)}

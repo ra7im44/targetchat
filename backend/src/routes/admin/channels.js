@@ -82,15 +82,27 @@ function toSafeProvider(channel, systemToken = null) {
     const json = channel.toJSON();
     const hasOwnToken = !!json.accessToken;
     const hasToken = hasOwnToken || (json.type === 'whatsapp' && hasValue(systemToken));
+    const settings = json.settings || {};
+    const lastValidatedAt = settings.lastValidatedAt || null;
+    const lastValidateOk = settings.lastValidateOk;
+    const validatedWith = settings.validatedWith || (hasOwnToken ? 'channel' : (hasToken ? 'global' : null));
+
     // Normalized status derived from real DB state only.
-    // No fake "degraded"/"expiring" states: without expiry/error signals we
-    // report only what we can prove.
     let status = 'connected';
     if (!json.isActive) status = 'disconnected';
     else if (!hasToken) status = 'configuration_required';
-    // Token state: expiry is not tracked in the DB, so a present token is
-    // honestly reported as "unknown" rather than "healthy"/"100%".
-    const tokenState = !hasToken ? 'not_configured' : 'unknown';
+
+    // Token state: 30-day recency window for verified health.
+    const THIRTY_DAYS_MS = 30 * 24 * 60 * 60 * 1000;
+    const isRecentValidation = lastValidatedAt && (Date.now() - new Date(lastValidatedAt).getTime() <= THIRTY_DAYS_MS);
+
+    let tokenState = 'unknown';
+    if (!hasToken) {
+        tokenState = 'not_configured';
+    } else if (isRecentValidation) {
+        tokenState = lastValidateOk === true ? 'healthy' : 'invalid';
+    }
+
     return {
         id: json.id,
         provider: json.type,
@@ -98,6 +110,8 @@ function toSafeProvider(channel, systemToken = null) {
         externalId: json.externalId,
         isActive: !!json.isActive,
         hasToken,
+        hasOwnToken,
+        validatedWith,
         status,
         tokenState,
         tokenExpiresAt: null,
@@ -106,7 +120,7 @@ function toSafeProvider(channel, systemToken = null) {
         lastActiveAt: json.lastActiveAt || null,
         lastInboundAt: null,
         lastOutboundAt: null,
-        lastHealthCheckAt: null,
+        lastHealthCheckAt: lastValidatedAt,
         createdAt: json.createdAt || json.created_at || null,
         updatedAt: json.updatedAt || json.updated_at || null,
         owner: json.user ? { id: json.user.id, name: json.user.name, email: json.user.email } : null
@@ -163,17 +177,29 @@ async function buildHealth() {
             lastError: stat.lastError || null,
             lastLatencyMs: typeof stat.lastLatencyMs === 'number' ? stat.lastLatencyMs : null,
             lastHttpStatus: typeof stat.lastHttpStatus === 'number' ? stat.lastHttpStatus : null,
+            lastCheckAt: stat.lastCheckAt || null,
+            lastCheckOk: typeof stat.lastCheckOk === 'boolean' ? stat.lastCheckOk : null,
+            lastCheckLatencyMs: typeof stat.lastCheckLatencyMs === 'number' ? stat.lastCheckLatencyMs : null,
+            lastCheckHttpStatus: typeof stat.lastCheckHttpStatus === 'number' ? stat.lastCheckHttpStatus : null,
+            lastCheckError: stat.lastCheckError || null,
             total: stat.total || 0,
             failures: stat.failures || 0
         };
     });
 
-    // Token health is honest: without expiry metadata we report unknown,
-    // never a fabricated 100%.
+    // Token health is derived honestly from verified channel token states.
     let tokenHealthState = 'not_configured';
-    if (providers.length === 0) tokenHealthState = 'not_configured';
-    else if (providers.some((p) => !p.hasToken)) tokenHealthState = 'configuration_required';
-    else tokenHealthState = 'unknown';
+    if (providers.length === 0) {
+        tokenHealthState = 'not_configured';
+    } else if (providers.some((p) => !p.hasToken)) {
+        tokenHealthState = 'configuration_required';
+    } else if (providers.some((p) => p.tokenState === 'invalid')) {
+        tokenHealthState = 'invalid';
+    } else if (providers.every((p) => p.tokenState === 'healthy')) {
+        tokenHealthState = 'healthy';
+    } else {
+        tokenHealthState = 'unknown';
+    }
 
     const configuration = {
         metaAppId: { configured: hasValue(metaAppId), value: hasValue(metaAppId) ? String(metaAppId) : null },
@@ -388,8 +414,8 @@ router.post('/webhooks/:provider/test', async (req, res) => {
             lastError = netErr.message;
         }
 
-        webhookTracker.trackEndpoint(def.id, {
-            success: isOnline,
+        webhookTracker.trackSelfCheck(def.id, {
+            ok: isOnline,
             latencyMs,
             httpStatus,
             error: isOnline ? null : lastError
@@ -405,10 +431,6 @@ router.post('/webhooks/:provider/test', async (req, res) => {
             online: isOnline,
             latencyMs,
             httpStatus,
-            lastRequestAt: new Date().toISOString(),
-            lastSuccessAt: isOnline ? new Date().toISOString() : null,
-            lastErrorAt: isOnline ? null : new Date().toISOString(),
-            lastError: isOnline ? null : lastError,
             checkedAt: new Date().toISOString()
         });
     } catch (err) {
@@ -460,6 +482,16 @@ router.post('/:id/validate', async (req, res) => {
                 id: data.id || channel.externalId,
                 name: data.name || data.verified_name || data.username || channel.name
             };
+            const validatedAt = new Date().toISOString();
+            const tokenOrigin = channel.accessToken ? 'channel' : 'global';
+            const updatedSettings = {
+                ...(channel.settings || {}),
+                lastValidatedAt: validatedAt,
+                lastValidateOk: true,
+                validatedWith: tokenOrigin
+            };
+            await channel.update({ settings: updatedSettings });
+
             webhookTracker.record({
                 provider: channel.type,
                 direction: 'system',
@@ -469,10 +501,25 @@ router.post('/:id/validate', async (req, res) => {
                 latencyMs: Date.now() - startedAt,
                 messageId: null
             });
-            await logAdminActivity(req, 'channel.token_validate', channel.id, { provider: channel.type, ok: true });
-            return res.json({ ok: true, provider: channel.type, latencyMs: Date.now() - startedAt, details, checkedAt: new Date().toISOString() });
+            await logAdminActivity(req, 'channel.token_validate', channel.id, { provider: channel.type, ok: true, validatedWith: tokenOrigin });
+            return res.json({ ok: true, provider: channel.type, latencyMs: Date.now() - startedAt, details, checkedAt: validatedAt, tokenState: 'healthy' });
         } catch (apiErr) {
             const sanitized = apiErr.response?.data?.error?.message || apiErr.message || 'Provider validation failed';
+            const isDefinitiveRejection = apiErr.response && apiErr.response.status >= 400 && apiErr.response.status < 500;
+
+            // Only persist failure when provider definitively rejects the token (HTTP 4xx).
+            // Transient network timeouts/5xx preserve the prior state.
+            if (isDefinitiveRejection) {
+                const tokenOrigin = channel.accessToken ? 'channel' : 'global';
+                const updatedSettings = {
+                    ...(channel.settings || {}),
+                    lastValidatedAt: new Date().toISOString(),
+                    lastValidateOk: false,
+                    validatedWith: tokenOrigin
+                };
+                await channel.update({ settings: updatedSettings });
+            }
+
             webhookTracker.record({
                 provider: channel.type,
                 direction: 'system',
@@ -482,8 +529,8 @@ router.post('/:id/validate', async (req, res) => {
                 latencyMs: Date.now() - startedAt,
                 error: String(sanitized).slice(0, 300)
             });
-            await logAdminActivity(req, 'channel.token_validate', channel.id, { provider: channel.type, ok: false });
-            return res.status(502).json({ ok: false, message: String(sanitized).slice(0, 300), latencyMs: Date.now() - startedAt });
+            await logAdminActivity(req, 'channel.token_validate', channel.id, { provider: channel.type, ok: false, httpStatus: apiErr.response?.status || null });
+            return res.status(502).json({ ok: false, message: String(sanitized).slice(0, 300), latencyMs: Date.now() - startedAt, tokenState: isDefinitiveRejection ? 'invalid' : undefined });
         }
     } catch (err) {
         console.error('Error validating channel token:', err);

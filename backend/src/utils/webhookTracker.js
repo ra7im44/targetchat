@@ -102,7 +102,12 @@ class WebhookTracker {
             lastErrorAt: null,
             lastError: null,
             lastLatencyMs: null,
-            lastHttpStatus: null
+            lastHttpStatus: null,
+            lastCheckAt: null,
+            lastCheckOk: null,
+            lastCheckLatencyMs: null,
+            lastCheckHttpStatus: null,
+            lastCheckError: null
         };
     }
 
@@ -226,6 +231,21 @@ class WebhookTracker {
 
     trackEndpoint(provider, info) {
         this._recordEndpoint(provider, info);
+    }
+
+    /**
+     * Record a manual or loopback self-check ping without altering genuine
+     * inbound traffic statistics (total, failures, lastRequestAt, lastSuccessAt, lastErrorAt).
+     */
+    trackSelfCheck(provider, { ok = true, latencyMs = null, httpStatus = null, error = null } = {}) {
+        const key = this._normalizeProvider(provider);
+        if (!this.endpointStats[key]) this.endpointStats[key] = this._freshEndpointStat();
+        const stat = this.endpointStats[key];
+        stat.lastCheckAt = new Date().toISOString();
+        stat.lastCheckOk = Boolean(ok);
+        stat.lastCheckLatencyMs = typeof latencyMs === 'number' ? Math.round(latencyMs) : null;
+        stat.lastCheckHttpStatus = typeof httpStatus === 'number' ? httpStatus : null;
+        stat.lastCheckError = error ? String(error).slice(0, 300) : null;
     }
 
     getEndpointStats() {
