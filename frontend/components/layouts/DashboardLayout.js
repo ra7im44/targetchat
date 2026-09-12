@@ -19,6 +19,7 @@ function DashboardContent({ children, title, user, workspaces, currentWorkspace,
 
             {/* Sidebar */}
             <DashboardSidebar
+                user={user}
                 collapsed={collapsed}
                 onToggleCollapse={() => setCollapsed(!collapsed)}
                 currentWorkspace={currentWorkspace}

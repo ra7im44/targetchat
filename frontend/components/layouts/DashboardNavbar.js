@@ -93,6 +93,12 @@ export default function DashboardNavbar({ user }) {
                                 💬 Back to Chat
                             </Link>
 
+                            {user?.role === 'admin' && (
+                                <Link href="/admin" className="block px-4 py-2 text-sm text-purple-600 dark:text-purple-400 hover:bg-purple-50 dark:hover:bg-purple-900/20 font-medium transition-colors">
+                                    🛡️ Admin Panel
+                                </Link>
+                            )}
+
                             <Link href="/settings" className="block px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
                                 ⚙️ Settings
                             </Link>

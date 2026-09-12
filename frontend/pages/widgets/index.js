@@ -58,6 +58,36 @@ export default function WidgetsPage() {
         }
     }
 
+    async function handleDelete(e, widgetId, widgetName) {
+        e.preventDefault();
+        e.stopPropagation();
+
+        if (!confirm(`Are you sure you want to delete "${widgetName || 'this widget'}"? This action cannot be undone.`)) {
+            return;
+        }
+
+        try {
+            const token = localStorage.getItem('tc_token');
+            const res = await fetch(`${API}/api/widgets/${widgetId}`, {
+                method: 'DELETE',
+                headers: {
+                    Authorization: `Bearer ${token}`
+                }
+            });
+
+            if (res.ok) {
+                toast.success('Widget deleted successfully');
+                setWidgets(prev => prev.filter(w => w.id !== widgetId));
+            } else {
+                const data = await res.json().catch(() => ({}));
+                toast.error(data.message || 'Failed to delete widget');
+            }
+        } catch (err) {
+            console.error('Delete error:', err);
+            toast.error('Failed to delete widget');
+        }
+    }
+
     // Function generates color based on string char code
     const getGradient = (str) => {
         const gradients = [
@@ -122,11 +152,23 @@ export default function WidgetsPage() {
                                 <div className={`w-14 h-14 rounded-2xl bg-gradient-to-br ${getGradient(widget.name || 'W')} flex items-center justify-center text-white text-xl font-bold shadow-lg`}>
                                     {(widget.name || 'W').substring(0, 2).toUpperCase()}
                                 </div>
-                                <span className={`px-3 py-1 text-xs font-bold uppercase tracking-wider rounded-full border ${widget.status === 'active'
-                                    ? 'bg-emerald-50 text-emerald-600 border-emerald-100 dark:bg-emerald-900/30 dark:text-emerald-400'
-                                    : 'bg-gray-50 text-gray-600 border-gray-100 dark:bg-gray-700 dark:text-gray-400'}`}>
-                                    {widget.status || 'Active'}
-                                </span>
+                                <div className="flex items-center gap-2">
+                                    <span className={`px-3 py-1 text-xs font-bold uppercase tracking-wider rounded-full border ${widget.status === 'active'
+                                        ? 'bg-emerald-50 text-emerald-600 border-emerald-100 dark:bg-emerald-900/30 dark:text-emerald-400'
+                                        : 'bg-gray-50 text-gray-600 border-gray-100 dark:bg-gray-700 dark:text-gray-400'}`}>
+                                        {widget.status || 'Active'}
+                                    </span>
+                                    <button
+                                        type="button"
+                                        onClick={(e) => handleDelete(e, widget.id, widget.name)}
+                                        className="p-1.5 text-gray-400 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/30 rounded-lg transition-colors"
+                                        title="Delete Widget"
+                                    >
+                                        <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                        </svg>
+                                    </button>
+                                </div>
                             </div>
 
                             {/* Info */}
@@ -143,7 +185,7 @@ export default function WidgetsPage() {
                             {/* Footer / Actions */}
                             <div className="flex items-center justify-between pt-6 border-t border-gray-100 dark:border-gray-700">
                                 <span className="text-xs font-medium text-gray-400">
-                                    Created {new Date(widget.created_at).toLocaleDateString()}
+                                    Created {new Date(widget.createdAt || widget.created_at || Date.now()).toLocaleDateString()}
                                 </span>
                                 <span className="text-sm font-bold text-blue-600 group-hover:underline">
                                     Manage →

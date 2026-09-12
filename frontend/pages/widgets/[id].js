@@ -58,21 +58,58 @@ export default function WidgetEditor() {
     async function fetchWidget() {
         try {
             const token = localStorage.getItem('tc_token');
+            if (!token) {
+                toast.error('Please log in first');
+                router.push('/login');
+                return;
+            }
+
             const res = await fetch(`${API}/api/widgets/${id}`, {
                 headers: { Authorization: `Bearer ${token}` }
             });
+
             if (res.ok) {
                 const data = await res.json();
                 setWidget(data.widget);
+            } else if (res.status === 401) {
+                toast.error('Session expired. Please log in again.');
+                localStorage.removeItem('tc_token');
+                router.push('/login');
             } else {
-                toast.error('Failed to load widget');
+                const errData = await res.json().catch(() => ({}));
+                toast.error(errData.message || 'Failed to load widget');
                 router.push('/widgets');
             }
         } catch (err) {
             console.error('Fetch error:', err);
-            toast.error('Failed to load widget');
+            toast.error('Network error loading widget');
         } finally {
             setLoading(false);
+        }
+    }
+
+    async function handleDeleteWidget() {
+        if (!confirm(`Are you sure you want to delete "${widget?.name || 'this widget'}"? This action cannot be undone.`)) {
+            return;
+        }
+
+        try {
+            const token = localStorage.getItem('tc_token');
+            const res = await fetch(`${API}/api/widgets/${id}`, {
+                method: 'DELETE',
+                headers: { Authorization: `Bearer ${token}` }
+            });
+
+            if (res.ok) {
+                toast.success('Widget deleted successfully');
+                router.push('/widgets');
+            } else {
+                const data = await res.json().catch(() => ({}));
+                toast.error(data.message || 'Failed to delete widget');
+            }
+        } catch (err) {
+            console.error('Delete error:', err);
+            toast.error('Error deleting widget');
         }
     }
 
@@ -240,7 +277,18 @@ export default function WidgetEditor() {
                         <h1 className="text-2xl font-bold text-gray-900 dark:text-white">Widget Editor</h1>
                         <p className="text-gray-500 dark:text-gray-400 mt-1">Customize your chat widget appearance and behavior.</p>
                     </div>
-                    <div className="flex gap-3">
+                    <div className="flex items-center gap-3">
+                        <button
+                            type="button"
+                            onClick={handleDeleteWidget}
+                            className="px-4 py-2 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 text-red-600 dark:text-red-400 rounded-xl font-medium hover:bg-red-100 dark:hover:bg-red-900/40 transition-colors flex items-center gap-1.5"
+                            title="Delete Widget"
+                        >
+                            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                            </svg>
+                            Delete
+                        </button>
                         <a
                             href={`/embed/${widget.slug}`}
                             target="_blank"
