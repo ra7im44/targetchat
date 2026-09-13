@@ -3,6 +3,7 @@ const router = express.Router();
 const webhookTracker = require('../../utils/webhookTracker');
 const messagingService = require('../../services/messagingService');
 const settingsService = require('../../services/settingsService');
+const { verifyMetaSignature } = require('../../utils/metaSignature');
 
 // GET /webhook/whatsapp - Verification for WhatsApp Cloud API
 router.get('/', async (req, res) => {
@@ -43,6 +44,26 @@ router.get('/', async (req, res) => {
 router.post('/', async (req, res) => {
     const startedAt = Date.now();
     try {
+        // SECURITY: verify the X-Hub-Signature-256 HMAC over the raw request body
+        // before processing or logging anything. WhatsApp Cloud API signs with the
+        // same Meta App Secret scheme as Facebook/Instagram.
+        const appSecret = (await settingsService.get('FACEBOOK_APP_SECRET'))
+            || (await settingsService.get('META_APP_SECRET'))
+            || (await settingsService.get('meta_app_secret'))
+            || process.env.FACEBOOK_APP_SECRET
+            || process.env.META_APP_SECRET;
+
+        if (!verifyMetaSignature(req.rawBody, req.headers['x-hub-signature-256'], appSecret)) {
+            console.warn('[Security] WhatsApp webhook rejected: missing or invalid X-Hub-Signature-256');
+            webhookTracker.trackEndpoint('whatsapp', {
+                success: false,
+                latencyMs: Date.now() - startedAt,
+                httpStatus: 401,
+                error: 'Invalid webhook signature'
+            });
+            return res.status(401).send('Invalid signature');
+        }
+
         const body = req.body;
         webhookTracker.log('whatsapp', body);
 

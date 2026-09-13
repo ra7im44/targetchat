@@ -193,8 +193,17 @@ class PayPalService {
      * @param {object} event - Parsed webhook event body.
      */
     async verifyWebhookSignature(headers, event) {
-        // Allow mock bypass if in dev/mock mode or explicitly testing
-        if (process.env.PAYPAL_MODE === 'mock' || headers['x-mock-paypal'] === 'true') {
+        /**
+         * SECURITY: verification is mandatory in production. The mock bypass is
+         * only available when explicitly configured (PAYPAL_MODE=mock) AND the
+         * process is not running in production. The previous attacker-controlled
+         * 'x-mock-paypal' header bypass is removed entirely — a client-supplied
+         * header must never disable webhook authentication.
+         */
+        if (process.env.PAYPAL_MODE === 'mock') {
+            if (process.env.NODE_ENV === 'production') {
+                throw new Error('PAYPAL_MODE=mock is not allowed in production. Refusing to process unverified webhook event.');
+            }
             return true;
         }
 

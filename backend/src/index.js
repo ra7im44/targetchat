@@ -236,9 +236,38 @@ io.on('connection', (socket) => {
     }
   });
 
-  socket.on('chat:join', (chatId) => {
-    if (chatId) {
+  // Join a chat room for live updates.
+  // SECURITY: room joining is authorized — an authenticated user may only join
+  // chats they own, are assigned to, or whose widget/channel they own. Guest
+  // sockets may only join the session room of the exact widget+session pair
+  // their capability token was issued for.
+  socket.on('chat:join', async (chatId) => {
+    try {
+      if (typeof chatId === 'number') {
+        chatId = String(chatId);
+      }
+      if (typeof chatId !== 'string' || !/^\d+$/.test(chatId)) return;
+
+      const chat = await Chat.findByPk(chatId, {
+        include: [
+          { model: Channel, as: 'channel' },
+          { model: require('./models').Widget, as: 'widget' }
+        ]
+      });
+      if (!chat) return;
+
+      if (socket.isGuest) {
+        // Guest sockets may only observe their own widget-bound session chat.
+        const sessionMatch = chat.title && chat.title.match(/Guest Session (.+)/);
+        const sameSession = !!(sessionMatch && sessionMatch[1] && sessionMatch[1].trim() === socket.sessionId);
+        if (String(chat.widgetId) !== String(socket.widgetId) || !sameSession) return;
+      } else if (!(await canAccessChat(socket.userId, chat))) {
+        return;
+      }
+
       socket.join(`chat_${chatId}`);
+    } catch (err) {
+      console.error('[Socket] chat:join error:', err.message);
     }
   });
 
@@ -283,7 +312,14 @@ app.use(helmet({
 }));
 app.use(maintenanceMiddleware);
 
-app.use(bodyParser.json());
+// SECURITY: capture the raw request body so webhook routes can verify HMAC
+// signatures (X-Hub-Signature-256) against the exact bytes the provider sent.
+// The JSON parser still exposes req.body exactly as before.
+app.use(bodyParser.json({
+  verify: (req, res, buf) => {
+    req.rawBody = buf;
+  }
+}));
 
 // Meta & WhatsApp webhooks (Expect JSON)
 app.use('/webhook/meta', require('./routes/webhooks/meta'));
