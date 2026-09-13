@@ -3,6 +3,7 @@ const router = express.Router();
 const { Workflow, Chat, Message } = require('../../models');
 const { requireAuth } = require('../../middleware/auth');
 const { requireAdmin } = require('../../middleware/rbac');
+const { assertSafeWebhookUrl } = require('../../utils/ssrfGuard');
 
 // All routes require admin
 router.use(requireAuth, requireAdmin);
@@ -37,6 +38,14 @@ router.post('/', async (req, res) => {
             return res.status(400).json({ message: 'Name and webhook URL are required' });
         }
 
+        // SECURITY: even admin-entered URLs are validated (defence in depth —
+        // admins can be phished or accounts hijacked).
+        try {
+            await assertSafeWebhookUrl(webhookUrl);
+        } catch (e) {
+            return res.status(400).json({ message: e.message });
+        }
+
         const workflow = await Workflow.create({
             name,
             description,
@@ -62,6 +71,15 @@ router.patch('/:id', async (req, res) => {
         const workflow = await Workflow.findByPk(id);
         if (!workflow) {
             return res.status(404).json({ message: 'Workflow not found' });
+        }
+
+        // SECURITY: validate the webhook target when it is being changed.
+        if (webhookUrl !== undefined && webhookUrl !== workflow.webhookUrl) {
+            try {
+                await assertSafeWebhookUrl(webhookUrl);
+            } catch (e) {
+                return res.status(400).json({ message: e.message });
+            }
         }
 
         await workflow.update({

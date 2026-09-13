@@ -1,5 +1,6 @@
 const axios = require('axios');
 const { Setting, Message, ActivityLog } = require('../models');
+const { assertSafeWebhookUrl } = require('./ssrfGuard');
 
 /**
  * Send payload to n8n with retry mechanism, context history enrichment,
@@ -31,6 +32,15 @@ async function sendToN8N(payload, maxRetries = 2) {
 
   if (!url) {
     throw new Error('N8N Webhook URL is not configured (check Workflows, Settings DB, or .env)');
+  }
+
+  // SECURITY: final SSRF gate before any outbound dispatch. Covers workflow
+  // URLs stored before write-path validation existed and any future writer.
+  try {
+    await assertSafeWebhookUrl(url);
+  } catch (ssrfErr) {
+    console.error(`🛡️ [n8nClient] Blocked unsafe webhook target [${url}]: ${ssrfErr.message}`);
+    throw ssrfErr;
   }
 
   // Enrich with recent conversation history context if available

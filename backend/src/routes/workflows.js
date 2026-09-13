@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const { Workflow, User } = require('../models');
 const { requireAuth } = require('../middleware/auth');
+const { assertSafeWebhookUrl } = require('../utils/ssrfGuard');
 
 // GET /api/workflows - List workflows accessible to user
 router.get('/', requireAuth, async (req, res) => {
@@ -60,6 +61,14 @@ router.post('/', requireAuth, async (req, res) => {
 
         if (!name || !webhookUrl) {
             return res.status(400).json({ message: 'Name and Webhook URL are required' });
+        }
+
+        // SECURITY: block SSRF via user-supplied webhook targets (private/
+        // loopback/metadata addresses).
+        try {
+            await assertSafeWebhookUrl(webhookUrl);
+        } catch (e) {
+            return res.status(400).json({ message: e.message });
         }
 
         // If workspaceId provided, check permissions
@@ -135,6 +144,15 @@ router.put('/:id', requireAuth, async (req, res) => {
         // Check ownership
         if (workflow.userId !== userId) {
             return res.status(403).json({ message: 'You can only edit your own workflows' });
+        }
+
+        // SECURITY: block SSRF when the user changes the webhook target.
+        if (webhookUrl && webhookUrl !== workflow.webhookUrl) {
+            try {
+                await assertSafeWebhookUrl(webhookUrl);
+            } catch (e) {
+                return res.status(400).json({ message: e.message });
+            }
         }
 
         // Update workflow

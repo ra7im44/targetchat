@@ -158,10 +158,11 @@ router.get('/callback', async (req, res) => {
  * List all pages and IG accounts for a given user token
  */
 router.get('/discover', requireAuth, async (req, res) => {
-    // Prefer the X-Meta-Token header so the Meta user token never lands in
-    // URLs (server logs, history). Query param kept for backward compat.
-    const token = req.get('X-Meta-Token') || req.query.token;
-    if (!token) return res.status(400).json({ message: 'Token required' });
+    // SECURITY: header-only. The Meta user token must never appear in a URL
+    // (server logs, browser history, Referer). The previous req.query.token
+    // fallback has been removed; the frontend already sends the header.
+    const token = req.get('X-Meta-Token');
+    if (!token) return res.status(400).json({ message: 'X-Meta-Token header required' });
 
     try {
         const pages = await metaApiService.getUserPages(token);

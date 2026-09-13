@@ -18,6 +18,16 @@ const { getJwtSecret } = require('./config/secrets');
 const app = express();
 const server = http.createServer(app);
 
+// SECURITY: Trust the reverse proxy ONLY when the operator explicitly declares
+// how many proxy hops are in front of this app (TRUST_PROXY_HOPS). Without a
+// proxy, X-Forwarded-For is attacker-controlled and trusting it lets clients
+// spoof their IP (IP blocking, rate limiting, and audit logs all key on it).
+// All client-IP reads must go through utils/requestContext.getClientIp().
+const proxyHops = parseInt(process.env.TRUST_PROXY_HOPS || '0', 10);
+if (Number.isFinite(proxyHops) && proxyHops > 0) {
+  app.set('trust proxy', proxyHops);
+}
+
 // Stripe/PayPal webhooks (must be BEFORE express.json() for raw body if needed)
 app.use('/webhook/stripe', require('./routes/webhooks/stripe'));
 app.use('/webhook/paypal', require('./routes/webhooks/paypal'));
@@ -78,7 +88,10 @@ io.use((socket, next) => {
 
     let verifiedWidgetId = null;
     try {
-      const decoded = jwt.verify(sessionToken, getJwtSecret());
+      const decoded = jwt.verify(sessionToken, getJwtSecret(), {
+        issuer: 'targetchat',
+        audience: 'targetchat:widget'
+      });
       if (decoded.type !== 'widget_guest' || decoded.widgetSlug !== widgetSlug) {
         return next(new Error('Invalid guest session capability token'));
       }
@@ -134,7 +147,10 @@ io.use((socket, next) => {
   if (!token) return next(new Error('Authentication error'));
 
   try {
-    const decoded = jwt.verify(token, getJwtSecret());
+    const decoded = jwt.verify(token, getJwtSecret(), {
+      issuer: 'targetchat',
+      audience: 'targetchat:api'
+    });
     socket.userId = decoded.id;
     next();
   } catch (err) {

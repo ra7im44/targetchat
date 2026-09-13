@@ -1,4 +1,5 @@
 const { BlockedIP } = require('../models');
+const { getClientIp } = require('../utils/requestContext');
 
 // Simple in-memory cache to avoid DB hits on every request
 // In a clustered environment, use Redis instead.
@@ -22,8 +23,9 @@ const ipBlocker = async (req, res, next) => {
         await refreshCache();
     }
 
-    // Get Client IP
-    const clientIP = req.headers['x-forwarded-for']?.split(',')[0] || req.socket.remoteAddress;
+    // SECURITY: use the central, trust-proxy-aware derivation. Reading raw
+    // X-Forwarded-For here would let any client spoof a non-blocked address.
+    const clientIP = getClientIp(req);
 
     if (blockedIPsCache.has(clientIP)) {
         return res.status(403).json({

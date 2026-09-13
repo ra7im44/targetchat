@@ -198,6 +198,9 @@ class MessagingService {
 
     async forwardToWorkflow(webhookUrl, event, chat, channel) {
         try {
+            // SECURITY: SSRF gate — never dial private/loopback/metadata targets.
+            await require('../utils/ssrfGuard').assertSafeWebhookUrl(webhookUrl);
+
             const payload = {
                 chatId: chat.id,
                 leadId: chat.leadId,

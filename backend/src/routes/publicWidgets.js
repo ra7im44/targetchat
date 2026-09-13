@@ -109,7 +109,7 @@ router.get('/:slug/config', async (req, res) => {
                     type: 'widget_guest'
                 },
                 getJwtSecret(),
-                { expiresIn: '7d' }
+                { expiresIn: '24h', issuer: 'targetchat', audience: 'targetchat:widget' }
             );
         }
 

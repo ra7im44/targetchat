@@ -8,10 +8,12 @@ function requireAdmin(req, res, next) {
         return res.status(401).json({ message: 'Unauthorized' });
     }
 
-    // Default to 'user' if role not set (for backward compatibility)
+    // Default to 'user' if role not set (for backward compatibility).
+    // superadmin is intentionally included — matches middleware/auth.requireAdmin;
+    // the previous admin-only check locked superadmins out of admin routes.
     const userRole = req.user.role || 'user';
 
-    if (userRole !== 'admin') {
+    if (userRole !== 'admin' && userRole !== 'superadmin') {
         return res.status(403).json({ message: 'Forbidden: Admin access required' });
     }
 

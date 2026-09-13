@@ -10,6 +10,7 @@ const { triggerEvent } = require('../triggers/emailTriggers');
 const crypto = require('crypto');
 const { requireAuth } = require('../middleware/auth');
 const { getJwtSecret } = require('../config/secrets');
+const { getClientIp } = require('../utils/requestContext');
 
 router.post('/register', validate(schemas.register), async (req, res) => {
   try {
@@ -27,7 +28,7 @@ router.post('/register', validate(schemas.register), async (req, res) => {
       password: hash,
       isVerified: false,
       verificationToken,
-      registrationIp: req.headers['x-forwarded-for'] || req.socket.remoteAddress
+      registrationIp: getClientIp(req)
     });
 
     // 2. Assign Free Plan
@@ -70,7 +71,11 @@ router.post('/verify-email', async (req, res) => {
     await user.save();
 
     // Generate Login Token
-    const sessionToken = jwt.sign({ id: user.id }, getJwtSecret(), { expiresIn: process.env.JWT_EXPIRES_IN || '7d' });
+    const sessionToken = jwt.sign(
+      { id: user.id, iss: 'targetchat', aud: 'targetchat:api' },
+      getJwtSecret(),
+      { expiresIn: process.env.JWT_EXPIRES_IN || '12h' }
+    );
 
     return res.json({
       message: 'Email verified successfully',
@@ -107,12 +112,16 @@ router.post('/login', validate(schemas.login), async (req, res) => {
 
     // Update last login and IP
     user.lastLogin = new Date();
-    user.lastIp = req.headers['x-forwarded-for'] || req.socket.remoteAddress;
+    user.lastIp = getClientIp(req);
     await user.save();
 
     await logActivity(user.id, 'LOGIN', {}, req);
 
-    const token = jwt.sign({ id: user.id }, getJwtSecret(), { expiresIn: process.env.JWT_EXPIRES_IN || '7d' });
+    const token = jwt.sign(
+      { id: user.id, iss: 'targetchat', aud: 'targetchat:api' },
+      getJwtSecret(),
+      { expiresIn: process.env.JWT_EXPIRES_IN || '12h' }
+    );
 
     // Return both token and user object (excluding sensitive data)
     const userData = {

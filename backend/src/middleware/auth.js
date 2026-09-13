@@ -9,9 +9,11 @@ const requireAuth = async function (req, res, next) {
 
   if (auth && auth.startsWith('Bearer ')) {
     token = auth.split(' ')[1];
-  } else if (req.query && req.query.token) {
-    token = req.query.token;
   }
+  // SECURITY: no query-string token fallback. Tokens in URLs leak into server
+  // access logs, browser history, and Referer headers. Clients must use the
+  // Authorization header (JWT / API token) or the dedicated X-Meta-Token header
+  // for Meta user tokens.
 
   if (!token) return res.status(401).json({ message: 'Unauthorized' });
 
@@ -67,7 +69,10 @@ const requireAuth = async function (req, res, next) {
 
   // JWT Authentication
   try {
-    const payload = jwt.verify(token, getJwtSecret());
+    const payload = jwt.verify(token, getJwtSecret(), {
+      issuer: 'targetchat',
+      audience: 'targetchat:api'
+    });
     const user = await User.findByPk(payload.id);
     if (!user) return res.status(401).json({ message: 'Unauthorized' });
     req.user = {
