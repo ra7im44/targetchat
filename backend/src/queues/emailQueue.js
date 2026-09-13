@@ -6,7 +6,10 @@ const { EmailLog } = require('../models');
 // Create email queue with Redis connection
 const emailQueue = new Queue('emails', {
     redis: {
-        host: '127.0.0.1', // Force IPv4 instead of localhost
+        // Honour REDIS_HOST so all Redis consumers (queue + socket adapter)
+        // follow the same configuration. Default 127.0.0.1 (IPv4) instead of
+        // 'localhost' to avoid IPv6 ::1 resolution surprises.
+        host: process.env.REDIS_HOST || '127.0.0.1',
         port: parseInt(process.env.REDIS_PORT) || 6379,
         password: process.env.REDIS_PASSWORD || undefined,
         maxRetriesPerRequest: null, // Disable retry limit

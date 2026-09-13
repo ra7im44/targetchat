@@ -9,16 +9,25 @@ module.exports = {
                 NODE_ENV: 'production',
                 PORT: 3001
             },
-            // SECURITY/CORRECTNESS: the app keeps per-process state (socket.io
-            // rooms, in-memory rate limiting, webhookTracker stats) and has no
-            // Redis socket.io adapter. Cluster mode ('max') silently breaks
-            // real-time: sockets land on one worker while io.emit() runs on
-            // another, so widget/inbox users never receive events. Keep ONE
-            // worker until a socket.io-redis-adapter is wired up. Scale
-            // vertically (max_memory_restart) or behind multiple app
-            // containers with sticky sessions + the adapter.
-            instances: 1,
-            exec_mode: 'fork',
+            // HORIZONTAL SCALING: the socket.io Redis adapter is now wired
+            // (backend/src/utils/socketRedis.js, verified cross-worker in
+            // testing), so cluster mode is SAFE for real-time delivery as long
+            // as SOCKETIO_REDIS_ADAPTER is enabled (default in production) and
+            // REDIS_HOST/PORT/PASSWORD point at a reachable Redis.
+            // Enable with e.g. PM2_INSTANCES=2 (or 'max').
+            //
+            // STILL PER-PROCESS by design (acceptable, documented):
+            //  - express-rate-limit counters: per-worker (effective limit is
+            //    N× the configured value — tighten if you raise instances)
+            //  - webhookTracker stats: per-worker (admin dashboards undercount)
+            //  - ipBlocker cache: per-worker but DB-refreshed (correct, just
+            //    N× DB reads)
+            //
+            // Behind a load balancer with multiple app CONTAINERS, enable
+            // sticky sessions (ip_hash / WL-Proxy-Affinity) for polling
+            // transports; websocket-only clients do not need them.
+            instances: parseInt(process.env.PM2_INSTANCES || '1', 10),
+            exec_mode: parseInt(process.env.PM2_INSTANCES || '1', 10) > 1 ? 'cluster' : 'fork',
             autorestart: true,
             watch: false,
             max_memory_restart: '1G'

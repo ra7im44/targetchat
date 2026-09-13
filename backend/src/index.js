@@ -14,6 +14,7 @@ const http = require('http');
 const { Server } = require('socket.io');
 const jwt = require('jsonwebtoken');
 const { getJwtSecret } = require('./config/secrets');
+const { attachRedisAdapter, closeAdapterConnections } = require('./utils/socketRedis');
 
 const app = express();
 const server = http.createServer(app);
@@ -520,6 +521,11 @@ async function start() {
 
     console.log('✅ Email queue processor started');
 
+    // Attach the Redis socket.io adapter so rooms/emits work across workers
+    // (required before re-enabling PM2 cluster mode). Fail-open: the server
+    // still starts if Redis is down, but must then stay single-worker.
+    const adapterHandle = await attachRedisAdapter(io);
+    app.set('socketAdapter', adapterHandle);
 
     server.listen(PORT, () => console.log(`TargetChat backend running on port ${PORT}`));
   } catch (err) {
@@ -540,3 +546,19 @@ process.on('uncaughtException', (err) => {
   console.error('❌ Uncaught Exception:', err);
   // Ideally restart the server, but for now just log
 });
+
+// Graceful shutdown: release the adapter's dedicated Redis pub/sub connections
+// so a PM2 stop/reload leaves no dangling subscriptions.
+function gracefulShutdown(signal) {
+  console.log(`[shutdown] ${signal} received — releasing socket adapter connections...`);
+  const forceExit = setTimeout(() => process.exit(0), 3000);
+  const handle = app.get('socketAdapter');
+  if (handle) {
+    closeAdapterConnections(handle).finally(() => { clearTimeout(forceExit); process.exit(0); });
+  } else {
+    clearTimeout(forceExit);
+    process.exit(0);
+  }
+}
+process.on('SIGTERM', () => gracefulShutdown('SIGTERM'));
+process.on('SIGINT', () => gracefulShutdown('SIGINT'));
