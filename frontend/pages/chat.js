@@ -70,7 +70,12 @@ export default function ChatPage() {
   const [showPricing, setShowPricing] = useState(false);
   const [showProfileMenu, setShowProfileMenu] = useState(false);
   const [selectedPersona, setSelectedPersona] = useState('default');
-  const [selectedWorkflow, setSelectedWorkflow] = useState(null);
+  const [selectedWorkflow, setSelectedWorkflow] = useState(() => {
+    if (typeof window !== 'undefined') {
+      return localStorage.getItem('tc_selected_workflow') || null;
+    }
+    return null;
+  });
   const [workflows, setWorkflows] = useState([]);
   const [workflowsLoading, setWorkflowsLoading] = useState(true);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(() => {
@@ -109,15 +114,18 @@ export default function ChatPage() {
 
       if (resp.ok) {
         const data = await resp.json();
-        console.log('✅ Loaded workflows:', data.length, 'workflows', data);
-        setWorkflows(data);
-        // Set first workflow as default if none selected
-        if (data.length > 0 && !selectedWorkflow) {
-          setSelectedWorkflow(data[0].id);
-          console.log('✅ Selected default workflow:', data[0].name);
+        const list = Array.isArray(data) ? data : [];
+        setWorkflows(list);
+        if (list.length > 0) {
+          const savedWf = localStorage.getItem('tc_selected_workflow');
+          const matched = list.find(w => w.id === savedWf);
+          setSelectedWorkflow(prev => {
+            if (prev && list.some(w => w.id === prev)) return prev;
+            return matched ? matched.id : list[0].id;
+          });
         }
       } else {
-        console.error('❌ Failed to load workflows. Status:', resp.status);
+        console.error('Failed to load workflows. Status:', resp.status);
       }
     } catch (err) {
       console.error('loadWorkflows error', err);
@@ -144,24 +152,35 @@ export default function ChatPage() {
     } catch (e) { }
 
     // load chats from server for this user
-    // load chats from server for this user
     async function loadChats(workspaceId) {
       try {
         const url = workspaceId
           ? `${API}/api/chat/list?workspace_id=${workspaceId}`
-          : `${API}/api/chat/list`; // Will return personal chats (null workspace_id)
+          : `${API}/api/chat/list`;
 
         const resp = await fetch(url, { headers: { Authorization: `Bearer ${token}` } });
         if (resp.status === 401 || resp.status === 403) return handleAuthError();
         const data = await resp.json();
-        // initialize chats with empty messages; messages will be fetched when selecting
-        const initialized = (data || []).map((c) => ({ ...c, messages: [] }));
-        setChats(initialized);
+        const chatList = Array.isArray(data) ? data : [];
 
-        // Only restore active chat if it belongs to the loaded list
+        // Retain loaded messages for chats already in state
+        setChats((prevChats) => {
+          return chatList.map((c) => {
+            const existing = prevChats.find((p) => p.id === c.id);
+            return {
+              ...c,
+              messages: existing?.messages?.length ? existing.messages : []
+            };
+          });
+        });
+
+        // Determine active chat
         const savedActive = localStorage.getItem('tc_active_chat');
-        if (savedActive && initialized.find((c) => c.id === parseInt(savedActive))) {
-          setActiveChatId(parseInt(savedActive));
+        const parsedSaved = savedActive ? parseInt(savedActive, 10) : null;
+        if (parsedSaved && chatList.some((c) => c.id === parsedSaved)) {
+          selectChat(parsedSaved);
+        } else if (chatList.length > 0) {
+          selectChat(chatList[0].id);
         } else {
           setActiveChatId(null);
         }
@@ -174,14 +193,16 @@ export default function ChatPage() {
     // Load initial chats based on saved workspace or default
     const savedWorkspaceId = localStorage.getItem('current_workspace_id');
     loadChats(savedWorkspaceId);
-
-    loadWorkflows(); // Load personal workflows first, workspace workflows will load when workspace changes
+    loadWorkflows(savedWorkspaceId);
 
     // No cleanup needed for this effect
   }, [router]);
 
   // Reload chats when workspace changes
   useEffect(() => {
+    // Only run if currentWorkspace has been explicitly set/changed
+    if (currentWorkspace === undefined || currentWorkspace === null) return;
+
     async function reloadChats() {
       const token = localStorage.getItem('tc_token');
       if (!token) return;
@@ -195,12 +216,23 @@ export default function ChatPage() {
         const resp = await fetch(url, { headers: { Authorization: `Bearer ${token}` } });
         if (resp.ok) {
           const data = await resp.json();
-          const initialized = (data || []).map((c) => ({ ...c, messages: [] }));
-          setChats(initialized);
+          const chatList = Array.isArray(data) ? data : [];
+          setChats((prevChats) => {
+            return chatList.map((c) => {
+              const existing = prevChats.find((p) => p.id === c.id);
+              return {
+                ...c,
+                messages: existing?.messages?.length ? existing.messages : []
+              };
+            });
+          });
 
-          // Clear active chat if it's not in the new list
-          if (activeChatId && !initialized.find(c => c.id === activeChatId)) {
-            setActiveChatId(null);
+          if (activeChatId && !chatList.some((c) => c.id === activeChatId)) {
+            if (chatList.length > 0) {
+              selectChat(chatList[0].id);
+            } else {
+              setActiveChatId(null);
+            }
           }
         }
       } catch (err) {
@@ -208,15 +240,12 @@ export default function ChatPage() {
       }
     }
 
-    if (currentWorkspace !== undefined) { // Only run after initial load
-      reloadChats();
-    }
+    reloadChats();
   }, [currentWorkspace]);
 
   // Reload workflows when workspace changes
   useEffect(() => {
-    // Don't run on initial mount - workflows are already loaded in main useEffect
-    if (currentWorkspace === undefined) return;
+    if (currentWorkspace === undefined || currentWorkspace === null) return;
 
     async function reloadWorkflows() {
       const token = localStorage.getItem('tc_token');
@@ -232,30 +261,14 @@ export default function ChatPage() {
         const resp = await fetch(url, { headers: { Authorization: `Bearer ${token}` } });
         if (resp.ok) {
           const data = await resp.json();
-          console.log('🔄 Reloaded workflows for workspace:', workspaceId, '- Count:', data.length);
+          const list = Array.isArray(data) ? data : [];
+          setWorkflows(list);
 
-          // If workspace has no workflows, fallback to personal workflows
-          if (data.length === 0 && workspaceId) {
-            console.log('⚠️ No workflows in workspace, loading personal workflows...');
-            const personalResp = await fetch(`${API}/api/workflows`, {
-              headers: { Authorization: `Bearer ${token}` }
+          if (list.length > 0) {
+            setSelectedWorkflow((prev) => {
+              if (prev && list.some((w) => w.id === prev)) return prev;
+              return list[0].id;
             });
-            if (personalResp.ok) {
-              const personalData = await personalResp.json();
-              setWorkflows(personalData);
-              if (personalData.length > 0) {
-                setSelectedWorkflow(personalData[0].id);
-              }
-              setWorkflowsLoading(false);
-              return;
-            }
-          }
-
-          setWorkflows(data);
-
-          // Reset selected workflow if it's not in the new list
-          if (selectedWorkflow && !data.find(w => w.id === selectedWorkflow)) {
-            setSelectedWorkflow(data.length > 0 ? data[0].id : null);
           }
         }
       } catch (err) {
@@ -268,51 +281,70 @@ export default function ChatPage() {
     reloadWorkflows();
   }, [currentWorkspace]);
 
-  // Socket.io connection
+  // Socket.io connection & event handling
   useEffect(() => {
     const token = localStorage.getItem('tc_token');
     if (!token) return;
 
-    // Initialize socket
-    const socket = io(API.replace('/api', ''), { // Remove /api if present to get base URL
+    const socket = io(API.replace('/api', ''), {
       auth: { token },
       transports: ['websocket', 'polling']
     });
     socketRef.current = socket;
 
     socket.on('connect', () => {
-      console.log('Socket connected');
+      if (activeChatId) {
+        socket.emit('chat:join', activeChatId);
+      }
     });
 
     socket.on('message', (data) => {
       const { chatId, message } = data;
+      const targetId = parseInt(chatId, 10);
+      setIsTyping(false);
+      setLoading(false);
+
       setChats((prevChats) => {
         return prevChats.map((c) => {
-          if (c.id === parseInt(chatId)) {
+          if (c.id === targetId) {
             const msgs = c.messages || [];
-            const lastMsg = msgs[msgs.length - 1];
+            if (msgs.some((m) => m.id === message.id)) return c;
 
-            // If it's a user message and the last message was an optimistic user message with same text
-            // We assume optimistic messages have 'u-' prefix in ID
-            if (message.sender === 'user' && lastMsg && lastMsg.sender === 'user' && lastMsg.text === message.text && String(lastMsg.id).startsWith('u-')) {
-              // Replace optimistic with real
-              return { ...c, messages: [...msgs.slice(0, -1), { ...message, time: new Date(message.createdAt).toLocaleTimeString() }] };
+            if (message.sender === 'user') {
+              const optIndex = msgs.findIndex((m) => String(m.id).startsWith('u-') && m.text === message.text);
+              if (optIndex !== -1) {
+                const updated = [...msgs];
+                updated[optIndex] = { ...message, time: new Date(message.createdAt || Date.now()).toLocaleTimeString() };
+                return { ...c, messages: updated };
+              }
             }
 
-            // Deduplicate by ID
-            if (msgs.find(m => m.id === message.id)) return c;
-
-            return { ...c, messages: [...msgs, { ...message, time: new Date(message.createdAt).toLocaleTimeString() }] };
+            return {
+              ...c,
+              messages: [...msgs, { ...message, time: new Date(message.createdAt || Date.now()).toLocaleTimeString() }]
+            };
           }
           return c;
         });
       });
     });
 
+    socket.on('ai:thinking', (data) => {
+      if (data && (parseInt(data.chatId, 10) === activeChatId || !data.chatId)) {
+        setIsTyping(!!data.isThinking);
+      }
+    });
+
+    socket.on('ai:error', (data) => {
+      setIsTyping(false);
+      setLoading(false);
+      if (data?.message) toast.error(data.message);
+    });
+
     return () => {
       socket.disconnect();
     };
-  }, []);
+  }, [activeChatId]);
 
   useEffect(() => {
     if (listRef.current) listRef.current.scrollTop = listRef.current.scrollHeight;
@@ -325,15 +357,30 @@ export default function ChatPage() {
     } catch (e) { }
   }
 
-  async function createNewChat() {
+  function handleStartNewChat() {
+    setActiveChatId(null);
+    try {
+      localStorage.removeItem('tc_active_chat');
+    } catch (e) { }
+    setShowSidebar(false);
+  }
+
+  async function createNewChat(firstMessageText = null) {
     const token = localStorage.getItem('tc_token');
     if (!token) return router.replace('/login');
     try {
+      let initialTitle = 'New Chat';
+      if (firstMessageText) {
+        const cleaned = firstMessageText.replace(/\s+/g, ' ').trim();
+        const words = cleaned.split(/\s+/).slice(0, 6).join(' ');
+        initialTitle = words.charAt(0).toUpperCase() + words.slice(1);
+      }
+
       const resp = await fetch(`${API}/api/chat/create`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
         body: JSON.stringify({
-          title: `Chat ${chats.length + 1}`,
+          title: initialTitle,
           persona: selectedPersona,
           workflowId: selectedWorkflow,
           workspaceId: currentWorkspace?.id
@@ -342,11 +389,16 @@ export default function ChatPage() {
       if (resp.status === 401 || resp.status === 403) return handleAuthError();
       const chat = await resp.json();
       const newChat = { ...chat, messages: [] };
-      const next = [newChat, ...chats];
+      const next = [newChat, ...chats.filter(c => c.id !== newChat.id)];
       setChats(next);
       setActiveChatId(newChat.id);
       saveChats(next, newChat.id);
       setShowSidebar(false);
+
+      if (socketRef.current) {
+        socketRef.current.emit('chat:join', newChat.id);
+      }
+
       return newChat.id;
     } catch (err) {
       console.error('createNewChat error', err);
@@ -355,11 +407,24 @@ export default function ChatPage() {
   }
 
   function selectChat(id) {
+    if (!id) return;
     setActiveChatId(id);
     try {
       localStorage.setItem('tc_active_chat', id);
     } catch (e) { }
     setShowSidebar(false);
+
+    // Sync selected workflow and persona from active chat
+    const currentChat = chats.find((c) => c.id === id);
+    if (currentChat) {
+      if (currentChat.workflowId) setSelectedWorkflow(currentChat.workflowId);
+      if (currentChat.persona) setSelectedPersona(currentChat.persona);
+    }
+
+    if (socketRef.current) {
+      socketRef.current.emit('chat:join', id);
+    }
+
     // fetch messages for this chat
     (async () => {
       const token = localStorage.getItem('tc_token');
@@ -380,8 +445,7 @@ export default function ChatPage() {
           file: m.type === 'file' ? { url: m.text, name: m.metadata?.name || 'File' } : null,
           time: m.createdAt ? new Date(m.createdAt).toLocaleTimeString() : ''
         }));
-        const next = chats.map((c) => (c.id === id ? { ...c, messages: msgs } : c));
-        setChats(next);
+        setChats((prev) => prev.map((c) => (c.id === id ? { ...c, messages: msgs } : c)));
       } catch (err) {
         console.error('selectChat load messages error', err);
       }
@@ -402,6 +466,7 @@ export default function ChatPage() {
           const nextActive = next.length ? next[0].id : null;
           setActiveChatId(nextActive);
           saveChats(next, nextActive);
+          if (nextActive) selectChat(nextActive);
         } else {
           saveChats(next, activeChatId);
         }
@@ -420,9 +485,11 @@ export default function ChatPage() {
     if (!token) return router.replace('/login');
 
     let chatId = activeChatId;
+    let isNewChat = false;
     if (!chatId) {
-      chatId = await createNewChat();
-      if (!chatId) return; // failed to create
+      chatId = await createNewChat(trimmed);
+      if (!chatId) return;
+      isNewChat = true;
     }
 
     const unifiedMsg = {
@@ -469,55 +536,34 @@ export default function ChatPage() {
       }
 
       if (resp.status === 401 || resp.status === 403) return handleAuthError();
-      const data = await resp.json();
-      const replyText = (data && data.reply) || (data && data.message && data.message.text) || 'No reply';
 
-      // Auto-generate chat title if still default-like
-      try {
-        setChats((currentChats) => {
-          const chatObj = currentChats.find((c) => c.id === chatId);
-          const titleLooksDefault = !chatObj?.title || /^\s*(New Chat|Chat\s*\d+|Untitled)/i.test(chatObj.title);
-
-          if (titleLooksDefault) {
-            const sourceText = trimmed || replyText || '';
-            const generateTitle = (txt) => {
-              if (!txt) return 'Chat';
-              const cleaned = txt.replace(/\s+/g, ' ').trim();
-              const words = cleaned.split(/\s+/).slice(0, 6);
-              const t = words.join(' ');
-              return t.charAt(0).toUpperCase() + t.slice(1).replace(/[\.!?]$/, '');
-            };
-            const newTitle = generateTitle(sourceText).slice(0, 60);
-
-            // update on server
-            fetch(`${API}/api/chat/${chatId}`, { method: 'PATCH', headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` }, body: JSON.stringify({ title: newTitle }) }).catch((e) => console.error('title update failed', e));
-
-            return currentChats.map((c) => (c.id === chatId ? { ...c, title: newTitle } : c));
-          }
-          return currentChats;
-        });
-      } catch (err) {
-        console.error('auto-title error', err);
+      if (socketRef.current) {
+        socketRef.current.emit('chat:join', chatId);
       }
-    } catch (err) {
-      console.error('sendMessage error', err);
-      const errMsg = {
-        id: `err-${Date.now()}`,
-        sender: 'ai',
-        type: 'text',
-        text: 'Failed to send. Try again.',
-        audio: null, image: null, video: null, file: null,
-        time: new Date().toLocaleTimeString()
-      };
-      setChats((prev) => prev.map((c) => (c.id === chatId ? { ...c, messages: [...(c.messages || []), errMsg] } : c)));
-    } finally {
-      setLoading(false);
-      setIsTyping(false); // Hide typing indicator
-      // reload messages for the active chat to get canonical state from server
-      try {
-        const token2 = localStorage.getItem('tc_token');
-        if (token2) {
-          const r = await fetch(`${API}/api/chat/history?chat_id=${chatId}`, { headers: { Authorization: `Bearer ${token2}` } });
+
+      // Title update for first message in new chats
+      if (isNewChat) {
+        const generateTitle = (txt) => {
+          const cleaned = (txt || 'Chat').replace(/\s+/g, ' ').trim();
+          const words = cleaned.split(/\s+/).slice(0, 6).join(' ');
+          return words.charAt(0).toUpperCase() + words.slice(1).replace(/[.!?]$/, '');
+        };
+        const newTitle = generateTitle(trimmed).slice(0, 60);
+        fetch(`${API}/api/chat/${chatId}`, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+          body: JSON.stringify({ title: newTitle })
+        }).catch((err) => console.error('title update error', err));
+
+        setChats((currentChats) => currentChats.map((c) => (c.id === chatId ? { ...c, title: newTitle } : c)));
+      }
+
+      // Resilient background poll after 4 seconds to catch AI reply if socket missed
+      setTimeout(async () => {
+        try {
+          const tokenCheck = localStorage.getItem('tc_token');
+          if (!tokenCheck) return;
+          const r = await fetch(`${API}/api/chat/history?chat_id=${chatId}`, { headers: { Authorization: `Bearer ${tokenCheck}` } });
           if (r.ok) {
             const d = await r.json();
             const msgs = (d.messages || []).map((m) => ({
@@ -531,15 +577,22 @@ export default function ChatPage() {
               file: m.type === 'file' ? { url: m.text, name: m.metadata?.name || 'File' } : null,
               time: m.createdAt ? new Date(m.createdAt).toLocaleTimeString() : ''
             }));
-
-            setChats((currentChats) => {
-              return currentChats.map((c) => (c.id === chatId ? { ...c, messages: msgs } : c));
-            });
+            setChats((currentChats) => currentChats.map((c) => (c.id === chatId ? { ...c, messages: msgs } : c)));
+            if (msgs.some((m) => m.sender === 'ai')) {
+              setIsTyping(false);
+            }
           }
+        } catch (pollErr) {
+          console.error('poll error', pollErr);
         }
-      } catch (err) {
-        console.error('reload after send error', err);
-      }
+      }, 4000);
+
+    } catch (err) {
+      console.error('sendMessage error', err);
+      toast.error('Failed to send message');
+      setIsTyping(false);
+    } finally {
+      setLoading(false);
     }
   }
 
@@ -718,10 +771,7 @@ export default function ChatPage() {
           chats={chats}
           activeId={activeChatId}
           onSelect={selectChat}
-          onNew={async () => {
-            await createNewChat();
-            setShowSidebar(false);
-          }}
+          onNew={handleStartNewChat}
           onDelete={deleteChat}
           collapsed={sidebarCollapsed}
           onToggleCollapse={() => {
@@ -910,17 +960,22 @@ export default function ChatPage() {
                   <div className="w-20 h-20 bg-gradient-to-br from-primary-500 to-purple-600 rounded-2xl flex items-center justify-center mb-6 shadow-lg shadow-primary-500/20 animate-pulse-slow">
                     <svg className="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" /></svg>
                   </div>
-                  <h3 className="text-2xl font-bold text-gray-800 dark:text-white mb-2">Welcome to TargetChat</h3>
-                  <p className="text-gray-500 dark:text-gray-400 max-w-md mb-8">Select a persona to start your conversation.</p>
+                  <h3 className="text-2xl font-bold text-gray-800 dark:text-white mb-2">
+                    {isRtl ? 'مرحباً بك في TargetChat' : 'Welcome to TargetChat'}
+                  </h3>
+                  <p className="text-gray-500 dark:text-gray-400 max-w-md mb-8">
+                    {isRtl ? 'اختر شخصية الذكاء الاصطناعي المناسبة للبدء.' : 'Select a persona to start your conversation.'}
+                  </p>
 
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 w-full max-w-2xl">
                     {PERSONAS.map((p) => (
                       <button
                         key={p.id}
+                        type="button"
                         onClick={() => setSelectedPersona(p.id)}
-                        className={`p-4 rounded-xl border text-left transition-all duration-200 hover:shadow-md ${selectedPersona === p.id
-                          ? 'border-primary-500 bg-primary-50 dark:bg-primary-900/20 ring-1 ring-primary-500'
-                          : 'border-gray-200 dark:border-gray-700 bg-white dark:bg-slate-800 hover:border-primary-300 dark:hover:border-primary-700'
+                        className={`p-4 rounded-xl border text-start transition-all duration-200 hover:shadow-md ${selectedPersona === p.id
+                          ? 'border-indigo-500 bg-indigo-50/80 dark:bg-indigo-950/40 dark:border-indigo-500 ring-2 ring-indigo-500/30'
+                          : 'border-gray-200 dark:border-gray-700/80 bg-white/80 dark:bg-slate-800/80 hover:border-indigo-300 dark:hover:border-indigo-500/50'
                           }`}
                       >
                         <div className="text-2xl mb-2">{p.icon}</div>
@@ -1154,8 +1209,12 @@ export default function ChatPage() {
                       sendMessage();
                     }
                   }}
-                  placeholder={activeChatId ? "Type a message..." : "Select a persona and type to start..."}
-                  className="flex-1 bg-transparent border-none focus:ring-0 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 resize-none py-3 max-h-32 min-h-[44px]"
+                  placeholder={
+                    isRtl
+                      ? (activeChatId ? "اكتب رسالتك هنا..." : "اختر النموذج المناسب واكتب رسالتك لبدء المحادثة...")
+                      : (activeChatId ? "Type a message..." : "Select a model & type a message to start...")
+                  }
+                  className="flex-1 bg-transparent border-none focus:ring-0 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 resize-none py-3 max-h-32 min-h-[44px]"
                   rows="1"
                   style={{ height: 'auto', minHeight: '44px' }}
                 />

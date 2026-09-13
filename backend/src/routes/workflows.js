@@ -13,8 +13,7 @@ router.get('/', requireAuth, async (req, res) => {
         let whereClause = { isActive: true };
 
         if (workspaceId) {
-            // If workspace_id provided, return workflows belonging to that workspace
-            // TODO: Add permission check to verify user has access to this workspace
+            // If workspace_id provided, return workflows belonging to that workspace plus public system models
             const { WorkspaceMember } = require('../models');
             const membership = await WorkspaceMember.findOne({
                 where: { workspace_id: workspaceId, user_id: userId }
@@ -24,13 +23,16 @@ router.get('/', requireAuth, async (req, res) => {
                 return res.status(403).json({ message: 'Access denied to this workspace' });
             }
 
-            whereClause.workspaceId = workspaceId;
+            whereClause[require('sequelize').Op.or] = [
+                { workspaceId: workspaceId },
+                { isPublic: true }
+            ];
         } else {
-            // If no workspace_id: Return personal workflows + assigned + public system templates
+            // If no workspace_id: Return personal workflows + assigned + public system models
             whereClause[require('sequelize').Op.or] = [
                 { userId: userId, workspaceId: null }, // Personal workflows
                 { '$assignedUsers.id$': userId, workspaceId: null }, // Assigned to user
-                { isPublic: true, userId: null, workspaceId: null } // System templates
+                { isPublic: true } // System templates & public models
             ];
         }
 

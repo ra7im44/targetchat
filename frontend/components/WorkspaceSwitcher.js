@@ -85,16 +85,16 @@ export default function WorkspaceSwitcher({ currentWorkspace, onWorkspaceChange,
                 <div className="flex items-center gap-3 flex-1 min-w-0">
                     {/* Workspace Icon */}
                     <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white font-bold text-sm shrink-0 shadow-md">
-                        {currentWorkspace?.name?.charAt(0)?.toUpperCase() || 'W'}
+                        {currentWorkspace ? currentWorkspace.name?.charAt(0)?.toUpperCase() : 'P'}
                     </div>
 
                     {/* Workspace Info */}
-                    <div className="flex-1 min-w-0 text-left">
+                    <div className="flex-1 min-w-0 text-start">
                         <div className="font-semibold text-gray-900 dark:text-white truncate">
-                            {currentWorkspace?.name || 'Select Workspace'}
+                            {currentWorkspace?.name || 'Personal Space'}
                         </div>
                         <div className="text-xs text-gray-500 dark:text-gray-400 capitalize">
-                            {currentWorkspace?.role || 'Member'}
+                            {currentWorkspace?.role || 'Personal Account'}
                         </div>
                     </div>
                 </div>

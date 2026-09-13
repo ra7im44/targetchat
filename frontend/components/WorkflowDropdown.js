@@ -11,7 +11,7 @@ export default function WorkflowDropdown({ workflows, selected, onSelect, loadin
         loading
     });
 
-    const selectedWorkflow = workflows.find(w => w.id === selected);
+    const selectedWorkflow = (workflows || []).find(w => w.id === selected) || (workflows && workflows.length > 0 ? workflows[0] : null);
 
     // Close dropdown when clicking outside
     useEffect(() => {
@@ -26,67 +26,88 @@ export default function WorkflowDropdown({ workflows, selected, onSelect, loadin
 
     if (loading) {
         return (
-            <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-gray-100 dark:bg-slate-800">
-                <div className="w-4 h-4 border-2 border-gray-300 border-t-blue-500 rounded-full animate-spin"></div>
-                <span className="text-sm text-gray-600 dark:text-gray-400">Loading...</span>
+            <div className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-gray-100/80 dark:bg-slate-800/80 border border-gray-200/60 dark:border-gray-700/60 animate-pulse">
+                <div className="w-3.5 h-3.5 border-2 border-indigo-500 border-t-transparent rounded-full animate-spin"></div>
+                <span className="text-xs font-medium text-gray-500 dark:text-gray-400">Loading...</span>
             </div>
         );
     }
+
+    const availableWorkflows = workflows || [];
 
     return (
         <div className="relative" ref={dropdownRef}>
             {/* Trigger Button */}
             <button
+                type="button"
                 onClick={() => setIsOpen(!isOpen)}
-                className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-gray-100 dark:bg-slate-800 hover:bg-gray-200 dark:hover:bg-slate-700 transition-all duration-200 border border-transparent hover:border-gray-300 dark:hover:border-gray-600"
+                className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-gray-100/90 dark:bg-slate-800/90 hover:bg-gray-200/80 dark:hover:bg-slate-700/80 transition-all duration-200 border border-gray-200/70 dark:border-gray-700/70 shadow-sm"
+                title={selectedWorkflow?.description || 'Select AI Model'}
             >
-                <span className="text-lg">{selectedWorkflow?.icon || '🤖'}</span>
-                <span className="font-medium text-sm text-gray-900 dark:text-white">
+                <span className="text-base">{selectedWorkflow?.icon || '🤖'}</span>
+                <span className="font-semibold text-xs sm:text-sm text-gray-800 dark:text-gray-100 max-w-[120px] sm:max-w-[160px] truncate">
                     {selectedWorkflow?.name || 'Select Model'}
                 </span>
                 <svg
-                    className={`w-4 h-4 text-gray-500 transition-transform ${isOpen ? 'rotate-180' : ''}`}
+                    className={`w-3.5 h-3.5 text-gray-400 transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`}
                     fill="none"
                     stroke="currentColor"
                     viewBox="0 0 24 24"
                 >
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M19 9l-7 7-7-7" />
                 </svg>
             </button>
 
             {/* Dropdown Menu */}
             {isOpen && (
-                <div className="absolute top-full left-0 mt-2 w-72 bg-white dark:bg-slate-800 rounded-xl shadow-2xl border border-gray-200 dark:border-gray-700 overflow-hidden z-50 animate-scaleIn">
-                    <div className="p-2 max-h-96 overflow-y-auto">
-                        {workflows.map(workflow => (
-                            <button
-                                key={workflow.id}
-                                onClick={() => {
-                                    onSelect(workflow.id);
-                                    setIsOpen(false);
-                                }}
-                                className={`w-full flex items-start gap-3 p-3 rounded-lg transition-all duration-200 ${selected === workflow.id
-                                    ? 'bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-700'
-                                    : 'hover:bg-gray-50 dark:hover:bg-slate-700/50'
-                                    }`}
-                            >
-                                <span className="text-2xl mt-0.5">{workflow.icon}</span>
-                                <div className="flex-1 text-left">
-                                    <div className="font-semibold text-gray-900 dark:text-white flex items-center gap-2">
-                                        {!workflow.isPublic && <span className="text-sm">🔒</span>}
-                                        {workflow.name}
-                                        {selected === workflow.id && (
-                                            <svg className="w-4 h-4 text-blue-500" fill="currentColor" viewBox="0 0 20 20">
-                                                <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                                            </svg>
-                                        )}
-                                    </div>
-                                    <div className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
-                                        {workflow.description}
-                                    </div>
-                                </div>
-                            </button>
-                        ))}
+                <div className="absolute top-full ltr:left-0 rtl:right-0 mt-2 w-80 bg-white dark:bg-slate-800 rounded-2xl shadow-2xl border border-gray-200 dark:border-gray-700/80 overflow-hidden z-50 animate-scaleIn">
+                    <div className="px-3 py-2 border-b border-gray-100 dark:border-gray-700/60 bg-gray-50/50 dark:bg-slate-900/30">
+                        <p className="text-[11px] font-semibold uppercase tracking-wider text-gray-400 dark:text-gray-500">
+                            Available Models
+                        </p>
+                    </div>
+
+                    <div className="p-1.5 max-h-80 overflow-y-auto space-y-1 scrollbar-thin">
+                        {availableWorkflows.length === 0 ? (
+                            <div className="p-4 text-center text-xs text-gray-400 dark:text-gray-500">
+                                No models configured
+                            </div>
+                        ) : (
+                            availableWorkflows.map(workflow => {
+                                const isSelected = (selectedWorkflow?.id === workflow.id) || (selected === workflow.id);
+                                return (
+                                    <button
+                                        key={workflow.id}
+                                        type="button"
+                                        onClick={() => {
+                                            onSelect(workflow.id);
+                                            setIsOpen(false);
+                                        }}
+                                        className={`w-full flex items-start gap-3 p-2.5 rounded-xl text-start transition-all duration-150 ${isSelected
+                                            ? 'bg-indigo-50/80 dark:bg-indigo-950/40 border border-indigo-200 dark:border-indigo-800/80'
+                                            : 'hover:bg-gray-100/70 dark:hover:bg-slate-700/50 border border-transparent'
+                                            }`}
+                                    >
+                                        <span className="text-xl p-1.5 rounded-lg bg-gray-100 dark:bg-slate-700/60 shrink-0">
+                                            {workflow.icon || '🤖'}
+                                        </span>
+                                        <div className="flex-1 min-w-0">
+                                            <div className="font-semibold text-xs sm:text-sm text-gray-900 dark:text-white flex items-center justify-between gap-1">
+                                                <span className="truncate">{workflow.name}</span>
+                                                {isSelected && (
+                                                    <span className="w-1.5 h-1.5 rounded-full bg-indigo-500 shrink-0"></span>
+                                                )}
+                                            </div>
+                                            {workflow.description && (
+                                                <div className="text-[11px] text-gray-500 dark:text-gray-400 line-clamp-2 mt-0.5">
+                                                    {workflow.description}
+                                                </div>
+                                            )}
+                                        </div>
+                                    </button>
+                                );
+                            })
+                        )}
                     </div>
                 </div>
             )}

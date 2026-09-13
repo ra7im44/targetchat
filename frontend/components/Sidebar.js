@@ -117,25 +117,24 @@ export default function Sidebar({ chats, activeId, onSelect, onNew, onDelete, co
                       <h3 className={`text-sm font-semibold truncate pr-2 ${c.id === activeId ? 'text-blue-900 dark:text-blue-100' : 'text-gray-800 dark:text-gray-200'}`}>
                         {c.title || 'New Chat'}
                       </h3>
-                      {c.id === activeId && (
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            setDeleteConfirm({ isOpen: true, chatId: c.id });
-                          }}
-                          className="opacity-0 group-hover:opacity-100 p-1.5 hover:bg-red-100 dark:hover:bg-red-900/30 text-red-500 dark:text-red-400 rounded-lg transition-all hover:scale-110"
-                          title="Delete Chat"
-                        >
-                          <Icon name="delete" className="w-4 h-4" />
-                        </button>
-                      )}
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setDeleteConfirm({ isOpen: true, chatId: c.id });
+                        }}
+                        className="opacity-0 group-hover:opacity-100 p-1.5 hover:bg-red-100 dark:hover:bg-red-900/30 text-red-500 dark:text-red-400 rounded-lg transition-all hover:scale-110"
+                        title="Delete Chat"
+                      >
+                        <Icon name="delete" className="w-4 h-4" />
+                      </button>
                     </div>
                     <div className="flex items-center gap-2">
-                      <p className={`text-xs ${c.id === activeId ? 'text-blue-600 dark:text-blue-300' : 'text-gray-500 dark:text-gray-400'}`}>
-                        {c.messages?.length ? `${c.messages.length} messages` : 'Empty'}
+                      <p className={`text-xs truncate ${c.id === activeId ? 'text-indigo-600 dark:text-indigo-400 font-medium' : 'text-gray-500 dark:text-gray-400'}`}>
+                        {c.messages?.length ? `${c.messages.length} messages` : 'New conversation'}
                       </p>
                       {c.id === activeId && (
-                        <div className="w-2 h-2 rounded-full bg-blue-500 animate-pulse"></div>
+                        <div className="w-2 h-2 rounded-full bg-indigo-500 animate-pulse shrink-0"></div>
                       )}
                     </div>
                   </div>
