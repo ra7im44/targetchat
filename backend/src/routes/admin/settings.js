@@ -6,6 +6,18 @@ const { requireAdmin } = require('../../middleware/rbac');
 
 router.use(requireAuth, requireAdmin);
 
+// SECURITY: internal system records (immutable upload ownership, OAuth replay
+// JTIs) live in the settings TABLE but are not admin-editable configuration.
+// They must never be listed, edited, or created through this route — exposing
+// them would let a compromised admin session rewrite file ownership or clear
+// replay protection. (admin/files.js manages ownership rows on its own screen.)
+const INTERNAL_SECTIONS = new Set(['upload_ownership', 'oauth_consumed_jti']);
+const INTERNAL_KEY_PREFIXES = ['upload_ownership_'];
+function isInternalSetting(setting) {
+    return INTERNAL_SECTIONS.has(setting.section)
+        || INTERNAL_KEY_PREFIXES.some(prefix => String(setting.key).startsWith(prefix));
+}
+
 const DEFAULT_SETTINGS = [
     // General
     { section: 'general', key: 'app_name', value: 'TargetChat', type: 'string', description: 'Application display name', isPublic: true },
@@ -75,9 +87,9 @@ router.get('/', async (req, res) => {
     try {
         // Ensure all default setting keys exist (findOrCreate preserves existing values)
         await ensureDefaultSettings();
-        const settings = await Setting.findAll({
+        const settings = (await Setting.findAll({
             order: [['section', 'ASC'], ['id', 'ASC']]
-        });
+        })).filter(s => !isInternalSetting(s));
 
         // Group by section
         const grouped = settings.reduce((acc, setting) => {
@@ -118,6 +130,15 @@ router.patch('/', async (req, res) => {
         }
 
         const keys = Object.keys(updates);
+
+        // SECURITY: reject the whole batch if any key resolves to a protected
+        // internal record (validated BEFORE any write so updates never half-apply).
+        const existingForKeys = await Setting.findAll({ where: { key: keys } });
+        const blocked = existingForKeys.find(isInternalSetting);
+        if (blocked) {
+            return res.status(403).json({ message: `Setting '${blocked.key}' is a protected system record and cannot be modified` });
+        }
+
         const updatedSettings = [];
 
         for (const key of keys) {
@@ -159,6 +180,10 @@ router.post('/', async (req, res) => {
 
         if (!key || !section) {
             return res.status(400).json({ message: 'Key and Section are required' });
+        }
+
+        if (INTERNAL_SECTIONS.has(section) || INTERNAL_KEY_PREFIXES.some(prefix => String(key).startsWith(prefix))) {
+            return res.status(403).json({ message: 'This section is reserved for protected system records' });
         }
 
         const setting = await Setting.create({
