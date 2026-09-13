@@ -53,6 +53,13 @@ router.post('/', async (req, res) => {
             || process.env.FACEBOOK_APP_SECRET
             || process.env.META_APP_SECRET;
 
+        if (!appSecret && process.env.NODE_ENV !== 'production') {
+            // Dev aid only: verification stays fail-closed (no bypass). Configure
+            // the secret in Admin Settings or env to test locally with validly
+            // signed payloads.
+            console.warn('[Dev] No Meta App Secret configured (FACEBOOK_APP_SECRET / META_APP_SECRET / admin settings). Webhook signature verification will REJECT all payloads until the secret is set.');
+        }
+
         if (!verifyMetaSignature(req.rawBody, req.headers['x-hub-signature-256'], appSecret)) {
             console.warn('[Security] Meta webhook rejected: missing or invalid X-Hub-Signature-256');
             webhookTracker.trackEndpoint('meta', {

@@ -35,10 +35,18 @@ function verifyMetaSignature(rawBody, signatureHeader, appSecret) {
         return false;
     }
 
+    // SECURITY: compare raw HMAC digest bytes, NOT the hex ASCII strings.
+    // digest('hex') emits lowercase; a provider/proxy sending uppercase hex
+    // would otherwise fail a byte-wise string comparison. Accept either case,
+    // validate the shape strictly (exactly 64 hex chars), and compare the
+    // decoded signature bytes against the raw digest.
     const providedHex = signatureHeader.slice(expected.length);
-    const provided = Buffer.from(providedHex, 'utf8');
-    const digest = crypto.createHmac('sha256', appSecret).update(rawBody).digest('hex');
-    const expectedSig = Buffer.from(digest, 'utf8');
+    if (!/^[0-9a-f]{64}$/i.test(providedHex)) {
+        return false;
+    }
+
+    const provided = Buffer.from(providedHex, 'hex');
+    const expectedSig = crypto.createHmac('sha256', appSecret).update(rawBody).digest();
 
     // Length check BEFORE timingSafeEqual (which throws on length mismatch).
     if (provided.length !== expectedSig.length) {

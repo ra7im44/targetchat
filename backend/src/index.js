@@ -143,7 +143,8 @@ io.use((socket, next) => {
 });
 
 // Authorisation helper: a chat may be acted upon by its widget owner, channel owner,
-// assignee, or creator.
+// assignee, or creator. Admins/superadmins and members of the chat's or widget's
+// workspace are also permitted so support teams can monitor and respond.
 async function canAccessChat(userId, chat) {
   if (!chat) return false;
   if (chat.assignedTo === userId) return true;
@@ -154,9 +155,26 @@ async function canAccessChat(userId, chat) {
     if (channel && channel.userId === userId) return true;
   }
   if (chat.widgetId) {
-    const widget = await require('./models').Widget.findByPk(chat.widgetId, { attributes: ['userId'] });
+    const widget = await require('./models').Widget.findByPk(chat.widgetId, { attributes: ['userId', 'workspaceId'] });
     if (widget && widget.userId === userId) return true;
+    if (widget && widget.workspaceId) {
+      const isMember = await require('./models').WorkspaceMember.findOne({
+        where: { workspace_id: widget.workspaceId, user_id: userId },
+        attributes: ['id']
+      });
+      if (isMember) return true;
+    }
   }
+  if (chat.workspace_id) {
+    const isMember = await require('./models').WorkspaceMember.findOne({
+      where: { workspace_id: chat.workspace_id, user_id: userId },
+      attributes: ['id']
+    });
+    if (isMember) return true;
+  }
+  // Admin / superadmin bypass last: avoids a User query on the common path.
+  const user = await require('./models').User.findByPk(userId, { attributes: ['id', 'role'] });
+  if (user && (user.role === 'admin' || user.role === 'superadmin')) return true;
   return false;
 }
 
@@ -312,18 +330,23 @@ app.use(helmet({
 }));
 app.use(maintenanceMiddleware);
 
-// SECURITY: capture the raw request body so webhook routes can verify HMAC
-// signatures (X-Hub-Signature-256) against the exact bytes the provider sent.
-// The JSON parser still exposes req.body exactly as before.
-app.use(bodyParser.json({
+// SECURITY: capture the raw request body ONLY for the webhook routes that
+// verify HMAC signatures (X-Hub-Signature-256) against the exact bytes the
+// provider sent. Global JSON parsing stays untouched so ordinary API requests
+// do not retain raw buffers in memory.
+const metaJsonParser = bodyParser.json({
   verify: (req, res, buf) => {
     req.rawBody = buf;
   }
-}));
+});
 
 // Meta & WhatsApp webhooks (Expect JSON)
-app.use('/webhook/meta', require('./routes/webhooks/meta'));
-app.use('/webhook/whatsapp', require('./routes/webhooks/whatsapp'));
+app.use('/webhook/meta', metaJsonParser, require('./routes/webhooks/meta'));
+app.use('/webhook/whatsapp', metaJsonParser, require('./routes/webhooks/whatsapp'));
+
+// Global JSON parser for all remaining API routes. Webhook requests never
+// reach this (their route-level parser above handles and terminates them).
+app.use(bodyParser.json());
 
 // --- Rate Limiters ---
 const globalLimiter = rateLimit({
