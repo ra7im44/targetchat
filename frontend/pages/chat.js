@@ -154,8 +154,9 @@ export default function ChatPage() {
     // load chats from server for this user
     async function loadChats(workspaceId) {
       try {
-        const url = workspaceId
-          ? `${API}/api/chat/list?workspace_id=${workspaceId}`
+        const validWs = (workspaceId && workspaceId !== 'undefined' && workspaceId !== 'null') ? workspaceId : null;
+        const url = validWs
+          ? `${API}/api/chat/list?workspace_id=${validWs}`
           : `${API}/api/chat/list`;
 
         const resp = await fetch(url, { headers: { Authorization: `Bearer ${token}` } });
@@ -163,24 +164,52 @@ export default function ChatPage() {
         const data = await resp.json();
         const chatList = Array.isArray(data) ? data : [];
 
-        // Retain loaded messages for chats already in state
-        setChats((prevChats) => {
-          return chatList.map((c) => {
-            const existing = prevChats.find((p) => p.id === c.id);
-            return {
-              ...c,
-              messages: existing?.messages?.length ? existing.messages : []
-            };
-          });
-        });
-
         // Determine active chat
         const savedActive = localStorage.getItem('tc_active_chat');
         const parsedSaved = savedActive ? parseInt(savedActive, 10) : null;
-        if (parsedSaved && chatList.some((c) => c.id === parsedSaved)) {
-          selectChat(parsedSaved);
-        } else if (chatList.length > 0) {
-          selectChat(chatList[0].id);
+        const activeTarget = (parsedSaved && chatList.some((c) => c.id === parsedSaved))
+          ? parsedSaved
+          : (chatList.length > 0 ? chatList[0].id : null);
+
+        // Fetch active chat messages eagerly so refresh is instant and seamless
+        let initialMessages = [];
+        if (activeTarget) {
+          try {
+            const histResp = await fetch(`${API}/api/chat/history?chat_id=${activeTarget}`, {
+              headers: { Authorization: `Bearer ${token}` }
+            });
+            if (histResp.ok) {
+              const histData = await histResp.json();
+              initialMessages = (histData.messages || []).map((m) => ({
+                id: m.id,
+                sender: m.sender,
+                type: m.type,
+                text: m.type === 'text' ? m.text : null,
+                image: m.type === 'image' ? m.text : null,
+                audio: m.type === 'audio' ? m.text : null,
+                video: m.type === 'video' ? m.text : null,
+                file: m.type === 'file' ? { url: m.text, name: m.metadata?.name || 'File' } : null,
+                time: m.createdAt ? new Date(m.createdAt).toLocaleTimeString() : ''
+              }));
+              if (histData.chat) {
+                if (histData.chat.workflowId) setSelectedWorkflow(histData.chat.workflowId);
+                if (histData.chat.persona) setSelectedPersona(histData.chat.persona);
+              }
+            }
+          } catch (e) {
+            console.error('initial messages fetch error', e);
+          }
+        }
+
+        setChats(chatList.map((c) => ({
+          ...c,
+          messages: c.id === activeTarget ? initialMessages : []
+        })));
+
+        if (activeTarget) {
+          setActiveChatId(activeTarget);
+          try { localStorage.setItem('tc_active_chat', activeTarget); } catch (e) {}
+          if (socketRef.current) socketRef.current.emit('chat:join', activeTarget);
         } else {
           setActiveChatId(null);
         }
@@ -191,7 +220,8 @@ export default function ChatPage() {
     }
 
     // Load initial chats based on saved workspace or default
-    const savedWorkspaceId = localStorage.getItem('current_workspace_id');
+    const rawWorkspaceId = localStorage.getItem('current_workspace_id');
+    const savedWorkspaceId = (rawWorkspaceId && rawWorkspaceId !== 'undefined' && rawWorkspaceId !== 'null') ? rawWorkspaceId : null;
     loadChats(savedWorkspaceId);
     loadWorkflows(savedWorkspaceId);
 
@@ -208,9 +238,9 @@ export default function ChatPage() {
       if (!token) return;
 
       try {
-        const workspaceId = currentWorkspace?.id;
-        const url = workspaceId
-          ? `${API}/api/chat/list?workspace_id=${workspaceId}`
+        const validWs = (currentWorkspace?.id && currentWorkspace.id !== 'undefined' && currentWorkspace.id !== 'null') ? currentWorkspace.id : null;
+        const url = validWs
+          ? `${API}/api/chat/list?workspace_id=${validWs}`
           : `${API}/api/chat/list`;
 
         const resp = await fetch(url, { headers: { Authorization: `Bearer ${token}` } });
@@ -406,7 +436,7 @@ export default function ChatPage() {
     }
   }
 
-  function selectChat(id) {
+  function selectChat(id, availableChats = null) {
     if (!id) return;
     setActiveChatId(id);
     try {
@@ -415,7 +445,8 @@ export default function ChatPage() {
     setShowSidebar(false);
 
     // Sync selected workflow and persona from active chat
-    const currentChat = chats.find((c) => c.id === id);
+    const sourceList = availableChats || chats;
+    const currentChat = sourceList.find((c) => c.id === id);
     if (currentChat) {
       if (currentChat.workflowId) setSelectedWorkflow(currentChat.workflowId);
       if (currentChat.persona) setSelectedPersona(currentChat.persona);
@@ -445,6 +476,10 @@ export default function ChatPage() {
           file: m.type === 'file' ? { url: m.text, name: m.metadata?.name || 'File' } : null,
           time: m.createdAt ? new Date(m.createdAt).toLocaleTimeString() : ''
         }));
+        if (data.chat) {
+          if (data.chat.workflowId) setSelectedWorkflow(data.chat.workflowId);
+          if (data.chat.persona) setSelectedPersona(data.chat.persona);
+        }
         setChats((prev) => prev.map((c) => (c.id === id ? { ...c, messages: msgs } : c)));
       } catch (err) {
         console.error('selectChat load messages error', err);
@@ -536,6 +571,33 @@ export default function ChatPage() {
       }
 
       if (resp.status === 401 || resp.status === 403) return handleAuthError();
+
+      if (resp.ok) {
+        try {
+          const respData = await resp.json();
+          if (respData.reply) {
+            const aiMsg = {
+              id: respData.reply.id || `ai-${Date.now()}`,
+              sender: 'ai',
+              type: respData.reply.type || 'text',
+              text: respData.reply.text,
+              time: new Date(respData.reply.createdAt || Date.now()).toLocaleTimeString()
+            };
+            setChats((currentChats) =>
+              currentChats.map((c) => {
+                if (c.id === chatId) {
+                  const msgs = c.messages || [];
+                  if (msgs.some((m) => m.id === aiMsg.id)) return c;
+                  return { ...c, messages: [...msgs, aiMsg] };
+                }
+                return c;
+              })
+            );
+            setIsTyping(false);
+            setLoading(false);
+          }
+        } catch (e) {}
+      }
 
       if (socketRef.current) {
         socketRef.current.emit('chat:join', chatId);
