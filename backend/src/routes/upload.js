@@ -73,7 +73,11 @@ const upload = multer({
 
         const ext = path.extname(file.originalname).toLowerCase();
 
-        if (allowedMimeTypes.includes(file.mimetype) || allowedExtensions.includes(ext)) {
+        // SECURITY: require BOTH an allowed MIME type AND an allowed extension.
+        // An OR check lets an attacker smuggle a file past one axis with the
+        // other (e.g. text/html body claiming image/png, or an .html file with
+        // a spoofed MIME header).
+        if (allowedMimeTypes.includes(file.mimetype) && allowedExtensions.includes(ext)) {
             cb(null, true);
         } else {
             cb(new Error('Only documents, images, audio, and video files are allowed'));

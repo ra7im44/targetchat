@@ -48,7 +48,9 @@ function redisEnabledForAdapter() {
 async function attachRedisAdapter(io) {
   if (!createAdapter) {
     console.warn('[socket-adapter] ⚠️ @socket.io/redis-adapter is not installed. ' +
-      'Run `npm install` in backend/. Running with per-process socket state — stay on ONE worker.');
+      'Fix on the deployment host: npm install @socket.io/redis-adapter@8.3.0 --no-save ' +
+      '(pure JS, node >=10 — safe on node:18-alpine). ' +
+      'Running with per-process socket state — stay on ONE worker.');
     return { enabled: false };
   }
 

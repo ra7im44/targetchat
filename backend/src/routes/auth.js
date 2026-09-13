@@ -93,8 +93,14 @@ router.post('/login', validate(schemas.login), async (req, res) => {
     const { email, password } = req.body;
     const user = await User.findOne({ where: { email } });
 
+    // SECURITY: uniform error + timing for unknown accounts vs wrong passwords
+    // (prevents account enumeration via response body and response timing).
+    const DUMMY_HASH = '$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy';
+    const INVALID_CREDENTIALS = { message: 'Invalid credentials' };
+
     if (!user) {
-      return res.status(400).json({ message: 'Invalid credentials' });
+      await bcrypt.compare(password, DUMMY_HASH);
+      return res.status(400).json(INVALID_CREDENTIALS);
     }
 
     // Check Verification

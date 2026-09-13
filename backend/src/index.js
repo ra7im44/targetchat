@@ -404,26 +404,16 @@ app.use('/api/chat/send', chatLimiter);
 app.use('/widget/public', chatLimiter);
 
 // Health Check Endpoints
+// SECURITY: minimal response only. Uptime/memory/NODE_ENV/DB errors are
+// infrastructure intel for attackers (they also help fingerprint CI vs prod);
+// detailed diagnostics live in the admin-only /api/admin/system/health.
 app.get(['/health', '/api/health'], async (req, res) => {
   try {
     await sequelize.authenticate();
-    res.json({
-      status: 'ok',
-      timestamp: new Date().toISOString(),
-      uptime: Math.round(process.uptime()),
-      database: 'connected',
-      memory: {
-        rss: Math.round(process.memoryUsage().rss / (1024 * 1024)) + ' MB',
-        heapUsed: Math.round(process.memoryUsage().heapUsed / (1024 * 1024)) + ' MB'
-      },
-      mode: process.env.NODE_ENV || 'development'
-    });
+    res.json({ status: 'ok' });
   } catch (err) {
-    res.status(503).json({
-      status: 'degraded',
-      database: 'disconnected',
-      error: err.message
-    });
+    // Do not echo err.message — it can contain DB host/credentials fragments.
+    res.status(503).json({ status: 'degraded' });
   }
 });
 // ----------------------------
@@ -544,20 +534,24 @@ process.on('unhandledRejection', (reason, promise) => {
 
 process.on('uncaughtException', (err) => {
   console.error('❌ Uncaught Exception:', err);
-  // Ideally restart the server, but for now just log
+  // SECURITY/RELIABILITY: after an uncaughtException the Node process is in an
+  // undefined state — logging and continuing risks serving corrupted responses
+  // and silently disabling auth paths. Exit so the process manager (PM2/Docker
+  // restart policy) restarts a clean worker.
+  gracefulShutdown('uncaughtException', 1);
 });
 
 // Graceful shutdown: release the adapter's dedicated Redis pub/sub connections
 // so a PM2 stop/reload leaves no dangling subscriptions.
-function gracefulShutdown(signal) {
+function gracefulShutdown(signal, exitCode = 0) {
   console.log(`[shutdown] ${signal} received — releasing socket adapter connections...`);
-  const forceExit = setTimeout(() => process.exit(0), 3000);
+  const forceExit = setTimeout(() => process.exit(exitCode), 3000);
   const handle = app.get('socketAdapter');
   if (handle) {
-    closeAdapterConnections(handle).finally(() => { clearTimeout(forceExit); process.exit(0); });
+    closeAdapterConnections(handle).finally(() => { clearTimeout(forceExit); process.exit(exitCode); });
   } else {
     clearTimeout(forceExit);
-    process.exit(0);
+    process.exit(exitCode);
   }
 }
 process.on('SIGTERM', () => gracefulShutdown('SIGTERM'));
