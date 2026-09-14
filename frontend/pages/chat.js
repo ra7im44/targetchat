@@ -1110,13 +1110,13 @@ export default function ChatPage() {
           {/* Input Area - Floating Capsule Design */}
           <div className="p-4 sm:p-6">
             <div className="max-w-3xl mx-auto">
-              <form onSubmit={sendMessage} className="glass-panel relative flex items-end gap-2 p-3 rounded-3xl shadow-lg transition-all hover:shadow-xl focus-within:ring-2 focus-within:ring-primary-500/50">
+              <form onSubmit={sendMessage} className="relative flex items-end gap-1.5 p-2.5 rounded-[20px] bg-white dark:bg-white/[0.03] border border-gray-200 dark:border-white/10 shadow-lg transition-colors focus-within:border-indigo-500/60 dark:focus-within:border-indigo-400/60 focus-within:ring-1 focus-within:ring-indigo-500/30">
 
                 {/* File Upload */}
                 <button
                   type="button"
                   onClick={() => document.getElementById('file-upload').click()}
-                  className="p-3 text-gray-400 hover:text-primary-600 dark:hover:text-primary-400 transition-colors rounded-full hover:bg-gray-200 dark:hover:bg-slate-700"
+                  className="p-3 text-gray-400 hover:text-primary-600 dark:hover:text-primary-400 transition-colors rounded-full hover:bg-gray-100 dark:hover:bg-white/5"
                   title="Upload File"
                 >
                   <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13" /></svg>
@@ -1262,7 +1262,7 @@ export default function ChatPage() {
                   <button
                     type="button"
                     onClick={() => setShowEmojiPicker(!showEmojiPicker)}
-                    className="p-3 text-gray-400 hover:text-yellow-500 dark:hover:text-yellow-400 transition-colors rounded-full hover:bg-gray-200 dark:hover:bg-slate-700"
+                    className="p-3 text-gray-400 hover:text-yellow-500 dark:hover:text-yellow-400 transition-colors rounded-full hover:bg-gray-100 dark:hover:bg-white/5"
                     title="Add Emoji"
                   >
                     <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M14.828 14.828a4 4 0 01-5.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
@@ -1306,7 +1306,7 @@ export default function ChatPage() {
                 <button
                   type="button"
                   onClick={isRecording ? stopRecording : startRecording}
-                  className={`p-3 transition-colors rounded-full ${isRecording ? 'bg-red-500 text-white animate-pulse' : 'text-gray-400 hover:text-red-500 hover:bg-gray-200 dark:hover:bg-slate-700'}`}
+                  className={`p-3 transition-colors rounded-full ${isRecording ? 'bg-red-500 text-white animate-pulse' : 'text-gray-400 hover:text-red-500 hover:bg-gray-100 dark:hover:bg-white/5'}`}
                   title={isRecording ? "Stop Recording" : "Voice Message"}
                 >
                   {isRecording ? (
@@ -1320,10 +1320,10 @@ export default function ChatPage() {
                   type="submit"
                   disabled={!text.trim() || loading}
                   className={`
-                    p-3 rounded-full shadow-lg transition-all duration-200 flex items-center justify-center
+                    p-3 rounded-full transition-colors duration-200 flex items-center justify-center
                     ${!text.trim() || loading
-                      ? 'bg-gray-300 dark:bg-slate-700 text-gray-500 cursor-not-allowed'
-                      : 'bg-gradient-to-r from-primary-600 to-purple-600 text-white hover:scale-105 hover:shadow-primary-500/30'
+                      ? 'bg-gray-200 dark:bg-white/10 text-gray-400 dark:text-gray-500 cursor-not-allowed'
+                      : 'bg-indigo-600 hover:bg-indigo-500 text-white shadow-md shadow-indigo-600/25'
                     }
                   `}
                 >

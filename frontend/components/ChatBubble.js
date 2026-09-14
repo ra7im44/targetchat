@@ -4,7 +4,7 @@ import remarkGfm from 'remark-gfm';
 import rehypeHighlight from 'rehype-highlight';
 import 'highlight.js/styles/github-dark.css';
 
-import { API_URL as API } from '../utils/apiConfig';
+import { API_URL as API, getToken } from '../utils/apiConfig';
 
 export default function ChatBubble({ sender, message }) {
   const isUser = sender === 'user';
@@ -26,7 +26,7 @@ export default function ChatBubble({ sender, message }) {
     if (!targetFilename) return;
 
     try {
-      const token = localStorage.getItem('tc_token');
+      const token = getToken();
       if (!token) return;
 
       const res = await fetch(`${API}/api/file/refresh-url`, {
@@ -102,7 +102,7 @@ export default function ChatBubble({ sender, message }) {
             rehypePlugins={[rehypeHighlight]}
             components={{
               // Custom renderers for better styling
-              p: ({ node, ...props }) => <p className="mb-3 last:mb-0 leading-7" {...props} />,
+              p: ({ node, ...props }) => <p className="mb-3 last:mb-0 leading-6" {...props} />,
               code: ({ node, inline, className, children, ...props }) => {
                 if (inline) {
                   return (
@@ -149,7 +149,7 @@ export default function ChatBubble({ sender, message }) {
               pre: ({ node, ...props }) => <pre className="my-3 rounded-xl overflow-hidden bg-[#1e1e1e]" {...props} />,
               ul: ({ node, ...props }) => <ul className="list-disc list-inside mb-3 space-y-1" {...props} />,
               ol: ({ node, ...props }) => <ol className="list-decimal list-inside mb-3 space-y-1" {...props} />,
-              li: ({ node, ...props }) => <li className="leading-7" {...props} />,
+              li: ({ node, ...props }) => <li className="leading-6" {...props} />,
               h1: ({ node, ...props }) => <h1 className="text-2xl font-bold mb-3 mt-4" {...props} />,
               h2: ({ node, ...props }) => <h2 className="text-xl font-bold mb-2 mt-3" {...props} />,
               h3: ({ node, ...props }) => <h3 className="text-lg font-bold mb-2 mt-3" {...props} />,
@@ -171,7 +171,7 @@ export default function ChatBubble({ sender, message }) {
 
     // Plain text for user messages
     return (
-      <div className="leading-7 whitespace-pre-wrap break-words">
+      <div className="leading-6 whitespace-pre-wrap break-words">
         {text || (type === 'text' ? '' : `[${type} message]`)}
       </div>
     );
@@ -183,10 +183,10 @@ export default function ChatBubble({ sender, message }) {
 
         {/* Avatar */}
         <div className={`
-          w-9 h-9 rounded-full flex items-center justify-center shrink-0 text-xs font-bold shadow-md transition-transform group-hover:scale-110
+          w-9 h-9 rounded-full flex items-center justify-center shrink-0 text-xs font-bold
           ${isUser
-            ? 'bg-gradient-to-br from-blue-500 to-blue-600 text-white'
-            : 'bg-gradient-to-br from-purple-500 to-purple-600 text-white'
+            ? 'bg-blue-600 text-white'
+            : 'bg-violet-600 text-white'
           }
         `}>
           {isUser ? 'Y' : '✨'}
@@ -196,10 +196,10 @@ export default function ChatBubble({ sender, message }) {
         <div className="flex flex-col gap-1 min-w-0">
           {/* Bubble */}
           <div className={`
-            relative px-5 py-4 shadow-md transition-all
+            relative px-5 py-3.5
             ${isUser
-              ? 'bg-gradient-to-br from-blue-600 to-blue-700 text-white rounded-3xl rounded-tr-md'
-              : 'bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-100 border border-gray-200 dark:border-gray-700 rounded-3xl rounded-tl-md'
+              ? 'bg-blue-600 text-white rounded-2xl rounded-tr-md shadow-sm'
+              : 'bg-white dark:bg-white/[0.04] text-gray-800 dark:text-gray-100 border border-gray-200 dark:border-white/10 rounded-2xl rounded-tl-md shadow-sm'
             }
           `}>
             {renderContent()}
