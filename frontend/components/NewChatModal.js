@@ -47,7 +47,7 @@ export default function NewChatModal({ isOpen, onClose, selectedWorkflow, onSele
                                 onClose();
                             }}
                             disabled={!selectedWorkflow}
-                            className="px-5 py-2.5 rounded-xl font-medium bg-accent hover:bg-accent-hover text-white shadow-lg transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                            className="px-5 py-2.5 rounded-xl font-medium bg-accent hover:bg-accent-hover text-background shadow-lg transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
                         >
                             Create Chat
                         </button>

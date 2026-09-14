@@ -176,7 +176,7 @@ export default function AdminBillingCenter() {
                                     router.push(`/admin/billing?tab=${t}`, undefined, { shallow: true });
                                 }}
                                 className={`px-6 py-2.5 rounded-xl text-sm font-bold transition-all capitalize ${activeTab === t
-                                    ? 'bg-accent text-white shadow-lg '
+                                    ? 'bg-accent text-background shadow-lg '
                                     : 'text-gray-500 hover:text-gray-900 dark:hover:text-white'
                                     }`}
                             >
@@ -373,7 +373,7 @@ function PlansTab({ plans, loading, onEdit, onDelete, onCreate }) {
     return (
         <div className="space-y-8 animate-fadeIn">
             <div className="flex justify-end">
-                <button onClick={onCreate} className="px-6 py-3 bg-accent text-white rounded-card font-bold shadow-lg hover:bg-accent-hover active:scale-95 transition-all flex items-center gap-2">
+                <button onClick={onCreate} className="px-6 py-3 bg-accent text-background rounded-card font-bold shadow-lg hover:bg-accent-hover active:scale-95 transition-all flex items-center gap-2">
                     <Plus size={18} /> Create New Plan
                 </button>
             </div>
@@ -401,7 +401,7 @@ function PlansTab({ plans, loading, onEdit, onDelete, onCreate }) {
                         </div>
 
                         <div className="flex gap-4">
-                            <button onClick={() => onEdit(plan)} className="flex-1 py-3 rounded-card bg-gray-100 dark:bg-surface-elevated text-gray-900 dark:text-foreground font-bold hover:bg-accent hover:text-white transition-all transform active:scale-95">Edit Plan</button>
+                            <button onClick={() => onEdit(plan)} className="flex-1 py-3 rounded-card bg-gray-100 dark:bg-surface-elevated text-gray-900 dark:text-foreground font-bold hover:bg-accent hover:text-background transition-all transform active:scale-95">Edit Plan</button>
                             <button onClick={() => onDelete(plan.id)} className="w-12 h-12 rounded-card bg-danger/10 dark:bg-danger/20 text-danger flex items-center justify-center hover:bg-red-500 hover:text-white transition-all active:scale-90"><Trash2 size={18} /></button>
                         </div>
                     </div>
@@ -454,7 +454,7 @@ function CouponsTab({ coupons, loading, onEdit, onDelete, onCreate }) {
                                     {c.isActive ? <span className="text-success flex items-center gap-1 text-[10px] font-bold uppercase"><CheckCircle size={16} /> Active</span> : <span className="text-gray-400 flex items-center gap-1 text-[10px] font-bold uppercase"><XCircle size={16} /> Expired</span>}
                                 </td>
                                 <td className="px-8 py-5 text-right flex justify-end gap-2">
-                                    <button onClick={() => onEdit(c)} className="p-2.5 rounded-xl bg-gray-100 dark:bg-surface-elevated hover:bg-accent-hover hover:text-white transition-all"><Edit2 size={18} /></button>
+                                    <button onClick={() => onEdit(c)} className="p-2.5 rounded-xl bg-gray-100 dark:bg-surface-elevated hover:bg-accent-hover hover:text-background transition-all"><Edit2 size={18} /></button>
                                     <button onClick={() => onDelete(c.id)} className="p-2.5 rounded-xl bg-danger/10 dark:bg-danger/20 text-danger hover:bg-red-500 hover:text-white transition-all"><Trash2 size={18} /></button>
                                 </td>
                             </tr>

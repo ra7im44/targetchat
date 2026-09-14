@@ -84,7 +84,7 @@ export default function WorkspaceSwitcher({ currentWorkspace, onWorkspaceChange,
             >
                 <div className="flex items-center gap-3 flex-1 min-w-0">
                     {/* Workspace Icon */}
-                    <div className="w-10 h-10 rounded-xl bg-accent flex items-center justify-center text-white font-bold text-sm shrink-0 shadow-md">
+                    <div className="w-10 h-10 rounded-xl bg-accent flex items-center justify-center text-background font-bold text-sm shrink-0 shadow-md">
                         {currentWorkspace ? currentWorkspace.name?.charAt(0)?.toUpperCase() : 'P'}
                     </div>
 

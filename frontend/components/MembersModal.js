@@ -147,7 +147,7 @@ export default function MembersModal({ isOpen, onClose, workspace }) {
                                 members.map((member) => (
                                     <div key={member.id} className="flex items-center justify-between p-4 bg-gray-50 dark:bg-surface-elevated/50 rounded-xl">
                                         <div className="flex items-center gap-3">
-                                            <div className="w-10 h-10 rounded-full bg-accent flex items-center justify-center text-white font-bold">
+                                            <div className="w-10 h-10 rounded-full bg-accent flex items-center justify-center text-background font-bold">
                                                 {member.user?.name?.charAt(0)?.toUpperCase() || 'U'}
                                             </div>
                                             <div>
@@ -213,7 +213,7 @@ export default function MembersModal({ isOpen, onClose, workspace }) {
                             <button
                                 type="submit"
                                 disabled={inviting}
-                                className="w-full py-3 bg-accent text-white rounded-xl font-medium disabled:opacity-50 transition-all shadow-lg"
+                                className="w-full py-3 bg-accent text-background rounded-xl font-medium disabled:opacity-50 transition-all shadow-lg"
                             >
                                 {inviting ? 'Sending Invitation...' : 'Send Invitation'}
                             </button>

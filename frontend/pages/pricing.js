@@ -150,7 +150,7 @@ export default function PricingPage() {
             <nav className="absolute top-0 left-0 w-full p-6 z-50">
                 <div className="container mx-auto flex justify-between items-center">
                     <Link href="/" className="flex items-center gap-3 group">
-                        <div className="w-10 h-10 bg-accent rounded-xl flex items-center justify-center text-white font-bold text-xl shadow-lg group-hover:scale-110 transition-transform">T</div>
+                        <div className="w-10 h-10 bg-accent rounded-xl flex items-center justify-center text-background font-bold text-xl shadow-lg group-hover:scale-110 transition-transform">T</div>
                         <span className="text-xl font-bold text-white tracking-wide">TargetChat</span>
                     </Link>
                     <Link href="/" className="text-muted hover:text-white font-medium transition-colors">
@@ -243,7 +243,7 @@ export default function PricingPage() {
                                             } rounded-card p-8 transition-all duration-300`}
                                     >
                                         {isPopular && (
-                                            <div className="absolute -top-4 left-1/2 -translate-x-1/2 px-4 py-1 bg-accent text-white text-xs font-bold uppercase tracking-wider rounded-full shadow-lg">
+                                            <div className="absolute -top-4 left-1/2 -translate-x-1/2 px-4 py-1 bg-accent text-background text-xs font-bold uppercase tracking-wider rounded-full shadow-lg">
                                                 Most Popular
                                             </div>
                                         )}
@@ -262,7 +262,7 @@ export default function PricingPage() {
                                             onClick={() => handleSubscribe(plan)}
                                             disabled={processingPlan === plan.id || isCurrentPlan}
                                             className={`w-full py-4 rounded-xl font-bold text-sm tracking-wide transition-all duration-300 ${isPopular
-                                                ? 'bg-accent text-white shadow-lg'
+                                                ? 'bg-accent text-background shadow-lg'
                                                 : 'bg-white/10 text-white hover:bg-white/20'
                                                 } disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100 flex items-center justify-center gap-2`}
                                         >

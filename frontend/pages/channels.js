@@ -489,7 +489,7 @@ export default function UserChannels() {
                                     <div className="space-y-6">
                                         <div className="grid grid-cols-3 gap-3">
                                             {[
-                                                { id: 'facebook', icon: <Facebook size={18} />, label: 'Facebook', color: 'hover:bg-accent-hover hover:text-white' },
+                                                { id: 'facebook', icon: <Facebook size={18} />, label: 'Facebook', color: 'hover:bg-accent-hover hover:text-background' },
                                                 { id: 'instagram', icon: <Instagram size={18} />, label: 'Instagram', color: 'hover:bg-pink-600 hover:text-white' },
                                                 { id: 'whatsapp', icon: <MessageCircle size={18} />, label: 'WhatsApp', color: 'hover:bg-success hover:text-white' }
                                             ].map(plat => (

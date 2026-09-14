@@ -150,7 +150,7 @@ export default function WidgetsPage() {
                         <Link href={`/widgets/${widget.id}`} key={widget.id} className="group relative bg-white dark:bg-surface rounded-card p-6 shadow-sm border border-gray-100 dark:border-border hover:shadow-lg transition-all duration-300">
                             {/* Header */}
                             <div className="flex justify-between items-start mb-6">
-                                <div className={`w-14 h-14 rounded-card bg-accent ${getGradient(widget.name || 'W')} flex items-center justify-center text-white text-xl font-bold shadow-lg`}>
+                                <div className={`w-14 h-14 rounded-card bg-accent ${getGradient(widget.name || 'W')} flex items-center justify-center text-background text-xl font-bold shadow-lg`}>
                                     {(widget.name || 'W').substring(0, 2).toUpperCase()}
                                 </div>
                                 <div className="flex items-center gap-2">

@@ -219,7 +219,7 @@ export default function LeadsPage() {
                                     <tr key={lead.id} className="hover:bg-gray-50 dark:hover:bg-surface-hover/30 transition-colors group">
                                         <td className="px-8 py-5 whitespace-nowrap">
                                             <div className="flex items-center">
-                                                <div className="h-10 w-10 flex-shrink-0 rounded-full bg-accent flex items-center justify-center text-white font-bold text-sm shadow-md group-hover:scale-110 transition-transform">
+                                                <div className="h-10 w-10 flex-shrink-0 rounded-full bg-accent flex items-center justify-center text-background font-bold text-sm shadow-md group-hover:scale-110 transition-transform">
                                                     {getInitials(lead.name)}
                                                 </div>
                                                 <div className="ml-4">

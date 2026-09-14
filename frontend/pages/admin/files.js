@@ -575,7 +575,7 @@ export default function AdminFiles() {
                                             }`}
                                     >
                                         <span>{cat.label}</span>
-                                        <span className={`text-[10px] px-1.5 py-0.2 rounded-full font-mono ${isActive ? 'bg-accent text-white' : 'bg-gray-100 dark:bg-surface-elevated text-gray-500'}`}>
+                                        <span className={`text-[10px] px-1.5 py-0.2 rounded-full font-mono ${isActive ? 'bg-accent text-background' : 'bg-gray-100 dark:bg-surface-elevated text-gray-500'}`}>
                                             {count}
                                         </span>
                                     </button>

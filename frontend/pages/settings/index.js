@@ -55,7 +55,7 @@ export default function SettingsPage() {
                             <div className="bg-white dark:bg-surface rounded-card shadow-sm border border-gray-100 dark:border-border p-8 animate-in fade-in slide-in- duration-300">
                                 <div className="flex items-center gap-6 mb-8 border-b border-gray-100 dark:border-border pb-8">
                                     <div className="relative group cursor-pointer">
-                                        <div className="w-24 h-24 rounded-full bg-accent flex items-center justify-center text-white text-3xl font-bold shadow-lg">
+                                        <div className="w-24 h-24 rounded-full bg-accent flex items-center justify-center text-background text-3xl font-bold shadow-lg">
                                             {user.name.substring(0, 2).toUpperCase()}
                                         </div>
                                         <div className="absolute inset-0 bg-black/40 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">

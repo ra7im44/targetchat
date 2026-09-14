@@ -182,7 +182,7 @@ export default function CreateWorkspaceModal({ isOpen, onClose, onCreated }) {
                         <button
                             type="submit"
                             disabled={loading}
-                            className="flex-1 px-4 py-3 rounded-xl bg-accent text-white font-medium disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-lg"
+                            className="flex-1 px-4 py-3 rounded-xl bg-accent text-background font-medium disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-lg"
                         >
                             {loading ? 'Creating...' : 'Create Workspace'}
                         </button>

@@ -100,7 +100,7 @@ export default function AdminDashboard() {
                     </p>
                     <button
                         onClick={() => router.push('/chat')}
-                        className="px-6 py-3 bg-accent text-white rounded-xl font-bold hover:bg-accent-hover transition-all"
+                        className="px-6 py-3 bg-accent text-background rounded-xl font-bold hover:bg-accent-hover transition-all"
                     >
                         Return to Chat
                     </button>
@@ -140,7 +140,7 @@ export default function AdminDashboard() {
                     </div>
                     <Link
                         href="/admin/announcements"
-                        className="group flex items-center gap-2 px-5 py-2.5 bg-accent text-white rounded-xl font-bold shadow-lg transition-all"
+                        className="group flex items-center gap-2 px-5 py-2.5 bg-accent text-background rounded-xl font-bold shadow-lg transition-all"
                     >
                         <MessageSquare size={18} />
                         <span>Post Announcement</span>

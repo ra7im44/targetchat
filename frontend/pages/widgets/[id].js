@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
 import DashboardLayout from '../../components/layouts/DashboardLayout';
 import { toast } from 'react-hot-toast';
-import { ClipboardList } from 'lucide-react';
+import { ClipboardList, Eye } from 'lucide-react';
 
 import { API_URL as API } from '../../utils/apiConfig';
 
@@ -831,7 +831,7 @@ export default function WidgetEditor() {
                                                             style={{ backgroundColor: widget.theme.primaryColor }}
                                                             onClick={(e) => {
                                                                 e.preventDefault();
-                                                                toast('This is just a preview!', { icon: '👀' });
+                                                                toast('This is just a preview!', { icon: <Eye size={16} /> });
                                                             }}
                                                         >
                                                             Start Chat
@@ -876,7 +876,7 @@ export default function WidgetEditor() {
                                                                 style={{ backgroundColor: widget.theme.primaryColor }}
                                                                 onClick={(e) => {
                                                                     e.preventDefault();
-                                                                    toast('This is just a preview!', { icon: '👀' });
+                                                                    toast('This is just a preview!', { icon: <Eye size={16} /> });
                                                                 }}
                                                             >
                                                                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path></svg>

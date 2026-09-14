@@ -315,7 +315,7 @@ export default function AdminSecurity() {
                                     <button
                                         onClick={() => handleIpLookup()}
                                         disabled={searching}
-                                        className="px-6 py-3.5 bg-accent text-white font-bold rounded-xl hover:bg-accent-hover transition-all disabled:opacity-50"
+                                        className="px-6 py-3.5 bg-accent text-background font-bold rounded-xl hover:bg-accent-hover transition-all disabled:opacity-50"
                                     >
                                         Search
                                     </button>

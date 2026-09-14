@@ -159,7 +159,7 @@ export default function WorkspaceMembersPage() {
                         </div>
                         <button
                             onClick={() => setShowInviteModal(true)}
-                            className="px-6 py-3 bg-accent text-white rounded-xl font-medium transition-all shadow-lg"
+                            className="px-6 py-3 bg-accent text-background rounded-xl font-medium transition-all shadow-lg"
                         >
                             + Invite Member
                         </button>
@@ -176,7 +176,7 @@ export default function WorkspaceMembersPage() {
                                 <div className="flex items-center justify-between">
                                     <div className="flex items-center gap-4">
                                         {/* Avatar */}
-                                        <div className="w-12 h-12 rounded-full bg-accent flex items-center justify-center text-white font-bold text-lg">
+                                        <div className="w-12 h-12 rounded-full bg-accent flex items-center justify-center text-background font-bold text-lg">
                                             {member.user?.name?.charAt(0)?.toUpperCase() || 'U'}
                                         </div>
 
@@ -270,7 +270,7 @@ export default function WorkspaceMembersPage() {
                                 <button
                                     type="submit"
                                     disabled={inviting}
-                                    className="flex-1 px-4 py-3 rounded-xl bg-accent text-white font-medium disabled:opacity-50 shadow-lg"
+                                    className="flex-1 px-4 py-3 rounded-xl bg-accent text-background font-medium disabled:opacity-50 shadow-lg"
                                 >
                                     {inviting ? 'Sending...' : 'Send Invite'}
                                 </button>

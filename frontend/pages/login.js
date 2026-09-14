@@ -61,7 +61,7 @@ export default function Login() {
       <nav className="absolute top-0 left-0 w-full p-6 z-50">
         <div className="container mx-auto flex justify-between items-center">
           <button onClick={() => router.push('/')} className="flex items-center gap-3 hover:opacity-80 transition-opacity">
-            <div className="w-10 h-10 bg-accent rounded-xl flex items-center justify-center text-white font-bold text-xl shadow-lg">T</div>
+            <div className="w-10 h-10 bg-accent rounded-xl flex items-center justify-center text-background font-bold text-xl shadow-lg">T</div>
             <span className="text-xl font-bold text-white tracking-wide">TargetChat</span>
           </button>
         </div>

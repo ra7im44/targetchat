@@ -79,7 +79,7 @@ export default function DashboardNavbar({ user }) {
                             <div className="text-sm font-medium text-gray-900 dark:text-foreground">{user?.name || 'User'}</div>
                             <div className="text-xs text-gray-500 dark:text-muted">{user?.email}</div>
                         </div>
-                        <div className="w-9 h-9 rounded-full bg-accent flex items-center justify-center text-white font-bold shadow-md ring-2 ring-white dark:ring-background">
+                        <div className="w-9 h-9 rounded-full bg-accent flex items-center justify-center text-background font-bold shadow-md ring-2 ring-white dark:ring-background">
                             {(user?.name || 'U').charAt(0).toUpperCase()}
                         </div>
                     </button>

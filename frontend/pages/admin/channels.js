@@ -391,7 +391,7 @@ export default function AdminChannelSettings() {
                         </p>
                         <button
                             onClick={handleRefresh}
-                            className="inline-flex items-center gap-2 px-6 py-3 bg-accent hover:bg-accent-hover text-white font-bold rounded-xl transition-colors focus:outline-none focus:ring-2 focus:ring-accent/60 focus:ring-offset-2"
+                            className="inline-flex items-center gap-2 px-6 py-3 bg-accent hover:bg-accent-hover text-background font-bold rounded-xl transition-colors focus:outline-none focus:ring-2 focus:ring-accent/60 focus:ring-offset-2"
                         >
                             <RefreshCw size={18} aria-hidden="true" />
                             Retry
@@ -455,7 +455,7 @@ export default function AdminChannelSettings() {
                         <button
                             onClick={handleRefresh}
                             disabled={refreshing}
-                            className="inline-flex items-center gap-2 px-5 py-2.5 bg-accent hover:bg-accent-hover disabled:opacity-60 text-white font-bold rounded-xl transition-colors shadow-lg focus:outline-none focus:ring-2 focus:ring-accent/60 focus:ring-offset-2"
+                            className="inline-flex items-center gap-2 px-5 py-2.5 bg-accent hover:bg-accent-hover disabled:opacity-60 text-background font-bold rounded-xl transition-colors shadow-lg focus:outline-none focus:ring-2 focus:ring-accent/60 focus:ring-offset-2"
                             aria-label="Refresh channel health"
                         >
                             <RefreshCw size={18} aria-hidden="true" className={refreshing ? 'animate-spin' : ''} />
@@ -620,7 +620,7 @@ export default function AdminChannelSettings() {
                                     </p>
                                     <Link
                                         href="/channels"
-                                        className="inline-flex items-center gap-2 px-6 py-3 bg-accent hover:bg-accent-hover text-white font-bold rounded-xl transition-colors shadow-lg focus:outline-none focus:ring-2 focus:ring-accent/60 focus:ring-offset-2"
+                                        className="inline-flex items-center gap-2 px-6 py-3 bg-accent hover:bg-accent-hover text-background font-bold rounded-xl transition-colors shadow-lg focus:outline-none focus:ring-2 focus:ring-accent/60 focus:ring-offset-2"
                                     >
                                         <Share2 size={18} aria-hidden="true" />
                                         Connect Channel
@@ -629,7 +629,7 @@ export default function AdminChannelSettings() {
                             ) : (
                                 <ul className="space-y-4">
                                     {providers.map((ch) => (
-                                        <li key={ch.id} className="p-5 bg-gray-50 dark:bg-background rounded-card border border-gray-100 dark:border-border hover:border-accent/30 dark:hover:border-indigo-800 transition-colors">
+                                        <li key={ch.id} className="p-5 bg-gray-50 dark:bg-background rounded-card border border-gray-100 dark:border-border hover:border-accent/30 dark:hover:border-strong transition-colors">
                                             <div className="flex flex-wrap items-start justify-between gap-3 mb-3">
                                                 <div className="flex items-center gap-3 min-w-0">
                                                     <div className="w-11 h-11 bg-white dark:bg-surface rounded-xl flex items-center justify-center shadow-sm shrink-0">
@@ -669,7 +669,7 @@ export default function AdminChannelSettings() {
                                                 <button
                                                     onClick={() => handleValidate(ch)}
                                                     disabled={validatingId === ch.id}
-                                                    className="inline-flex items-center gap-1.5 px-4 py-2 bg-white dark:bg-surface border border-gray-200 dark:border-border hover:border-indigo-400 hover:text-accent rounded-xl text-xs font-bold transition-colors disabled:opacity-60 focus:outline-none focus:ring-2 focus:ring-accent/60"
+                                                    className="inline-flex items-center gap-1.5 px-4 py-2 bg-white dark:bg-surface border border-gray-200 dark:border-border hover:border-accent/50 hover:text-accent rounded-xl text-xs font-bold transition-colors disabled:opacity-60 focus:outline-none focus:ring-2 focus:ring-accent/60"
                                                     aria-label={`Test connection for ${ch.name}`}
                                                 >
                                                     <FlaskConical size={16} aria-hidden="true" />
@@ -677,7 +677,7 @@ export default function AdminChannelSettings() {
                                                 </button>
                                                 <Link
                                                     href="/channels"
-                                                    className="inline-flex items-center gap-1.5 px-4 py-2 bg-white dark:bg-surface border border-gray-200 dark:border-border hover:border-indigo-400 hover:text-accent rounded-xl text-xs font-bold transition-colors focus:outline-none focus:ring-2 focus:ring-accent/60"
+                                                    className="inline-flex items-center gap-1.5 px-4 py-2 bg-white dark:bg-surface border border-gray-200 dark:border-border hover:border-accent/50 hover:text-accent rounded-xl text-xs font-bold transition-colors focus:outline-none focus:ring-2 focus:ring-accent/60"
                                                     aria-label={`Configure ${ch.name}`}
                                                 >
                                                     <Settings size={16} aria-hidden="true" />
@@ -773,7 +773,7 @@ export default function AdminChannelSettings() {
 
                     {/* Right column */}
                     <div className="space-y-6 min-w-0">
-                        <section className="bg-accent rounded-card p-6 md:p-8 text-white shadow-lg" aria-label="Security status">
+                        <section className="bg-accent rounded-card p-6 md:p-8 text-background shadow-lg" aria-label="Security status">
                             <h3 className="text-lg font-bold mb-4 flex items-center gap-2">
                                 <ShieldCheck size={18} aria-hidden="true" />
                                 Security Status
@@ -808,7 +808,7 @@ export default function AdminChannelSettings() {
                             <div className="flex flex-col gap-2">
                                 <Link
                                     href="/channels"
-                                    className="inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-accent hover:bg-accent-hover text-white text-sm font-bold rounded-xl transition-colors focus:outline-none focus:ring-2 focus:ring-accent/60 focus:ring-offset-2"
+                                    className="inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-accent hover:bg-accent-hover text-background text-sm font-bold rounded-xl transition-colors focus:outline-none focus:ring-2 focus:ring-accent/60 focus:ring-offset-2"
                                 >
                                     <Share2 size={16} aria-hidden="true" />
                                     Connect Channel
@@ -917,7 +917,7 @@ export default function AdminChannelSettings() {
                                             tabIndex={0}
                                             role="button"
                                             aria-label={`View details for ${log.eventType} from ${log.provider}`}
-                                            className="border-b border-gray-50 dark:border-border hover:bg-accent/10 dark:hover:bg-indigo-900/10 cursor-pointer transition-colors focus:outline-none focus:ring-2 focus:ring-inset focus:ring-accent/60"
+                                            className="border-b border-gray-50 dark:border-border hover:bg-accent/10 dark:hover:bg-accent/10 cursor-pointer transition-colors focus:outline-none focus:ring-2 focus:ring-inset focus:ring-accent/60"
                                         >
                                             <td className="py-2.5 pr-3 font-mono text-xs text-gray-500 whitespace-nowrap">{formatDateTime(log.timestamp)}</td>
                                             <td className="py-2.5 pr-3 capitalize font-semibold text-gray-700 dark:text-secondary">{log.provider}</td>

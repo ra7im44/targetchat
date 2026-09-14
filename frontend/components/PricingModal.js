@@ -336,7 +336,7 @@ export default function PricingModal({ isOpen, onClose, currentWorkspace, onUpgr
                                             onClick={() => handleSubscribe(plan)}
                                             disabled={processingPlan === plan.id || isCurrent}
                                             className={`mt-auto w-full py-3 rounded-xl font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/60 ${isPopular
-                                                ? 'bg-accent text-white hover:bg-accent shadow-md'
+                                                ? 'bg-accent text-background hover:bg-accent shadow-md'
                                                 : 'bg-white dark:bg-surface text-gray-900 dark:text-foreground hover:bg-gray-100 dark:hover:bg-white/10 border border-gray-300/80 dark:border-white/15'
                                                 } disabled:opacity-50 disabled:cursor-not-allowed`}
                                         >

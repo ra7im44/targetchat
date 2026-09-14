@@ -184,7 +184,7 @@ export default function AdminAnnouncements() {
                                     <button
                                         onClick={() => handleSendClick(false)}
                                         disabled={sending}
-                                        className={`w-full py-4 bg-accent hover:bg-accent-hover text-white rounded-xl font-bold text-lg shadow-lg  transition-all transform hover:scale-[1.01] active:scale-95 flex items-center justify-center gap-3 ${sending ? 'opacity-70 cursor-not-allowed' : ''}`}
+                                        className={`w-full py-4 bg-accent hover:bg-accent-hover text-background rounded-xl font-bold text-lg shadow-lg  transition-all transform hover:scale-[1.01] active:scale-95 flex items-center justify-center gap-3 ${sending ? 'opacity-70 cursor-not-allowed' : ''}`}
                                     >
                                         {sending ? (
                                             <>

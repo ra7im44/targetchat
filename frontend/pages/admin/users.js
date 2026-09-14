@@ -294,7 +294,7 @@ export default function UsersPage() {
                     <div className="fixed bottom-6 left-1/2 transform -translate-x-1/2 z-50 animate-scaleIn w-max max-w-[calc(100vw-2rem)]">
                         <div className="bg-white dark:bg-surface px-6 py-3 rounded-card shadow-lg flex flex-wrap items-center justify-center gap-x-6 gap-y-3 border border-accent ring-4 ring-accent/10">
                             <span className="font-bold text-gray-900 dark:text-foreground flex items-center gap-2">
-                                <span className="bg-accent text-white w-6 h-6 rounded-full flex items-center justify-center text-xs">
+                                <span className="bg-accent text-background w-6 h-6 rounded-full flex items-center justify-center text-xs">
                                     {selectedUsers.length}
                                 </span>
                                 Selected
@@ -411,7 +411,7 @@ export default function UsersPage() {
                                                     }
                                                 }}
                                             >
-                                                <div className="w-10 h-10 rounded-full bg-accent flex items-center justify-center text-white font-bold shadow-md flex-shrink-0 mt-0.5">
+                                                <div className="w-10 h-10 rounded-full bg-accent flex items-center justify-center text-background font-bold shadow-md flex-shrink-0 mt-0.5">
                                                     {user.avatar ? <img src={user.avatar} className="w-full h-full rounded-full object-cover" alt="" /> : user.name.charAt(0).toUpperCase()}
                                                 </div>
                                                 <div className="min-w-0">

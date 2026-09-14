@@ -295,7 +295,7 @@ export default function VisitorsTrackingPage() {
                                                 {/* User Info */}
                                                 <td className="px-6 py-4">
                                                     <div className="flex items-center gap-3">
-                                                        <div className="w-10 h-10 rounded-full bg-accent flex items-center justify-center text-white font-bold shadow-sm flex-shrink-0">
+                                                        <div className="w-10 h-10 rounded-full bg-accent flex items-center justify-center text-background font-bold shadow-sm flex-shrink-0">
                                                             {row.avatar ? (
                                                                 <img src={row.avatar} className="w-full h-full rounded-full object-cover" alt="" />
                                                             ) : (

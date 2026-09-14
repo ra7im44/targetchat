@@ -1386,7 +1386,7 @@ export default function ChatPage() {
                     className={`w-10 h-10 flex items-center justify-center rounded-xl border active:scale-95 transition-all duration-200 shrink-0 shadow-xs ${
                       showAttachMenu
                         ? 'text-accent bg-accent/10 dark:bg-accent/10 border-accent dark:border-accent ring-2 ring-accent/40'
-                        : 'bg-gray-100/90 dark:bg-surface text-gray-600 dark:text-secondary hover:text-accent dark:hover:text-accent hover:bg-indigo-50 dark:hover:bg-surface-hover border-gray-200 dark:border-border'
+                        : 'bg-gray-100/90 dark:bg-surface text-gray-600 dark:text-secondary hover:text-accent dark:hover:text-accent hover:bg-gray-100 dark:hover:bg-surface-hover border-gray-200 dark:border-border'
                     }`}
                     title={isRtl ? "إرفاق وسائط أو ملفات" : "Attach media or files"}
                   >
