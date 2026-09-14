@@ -122,7 +122,7 @@ export default function AdminDashboard() {
         { icon: HardDrive, label: 'System', href: '/admin/system', color: 'text-gray-500', bg: 'bg-gray-100 dark:bg-surface' },
         { icon: Shield, label: 'Security', href: '/admin/security', color: 'text-danger-ink dark:text-danger', bg: 'bg-danger/10 dark:bg-danger/20' },
         { icon: Navigation, label: 'Session Tracking', href: '/admin/visitors', color: 'text-primary-700 dark:text-accent', bg: 'bg-accent/10 dark:bg-accent/20' },
-        { icon: Folder, label: 'Files', href: '/admin/files', color: 'text-teal-500', bg: 'bg-teal-50 dark:bg-teal-900/20' },
+        { icon: Folder, label: 'Files', href: '/admin/files', color: 'text-primary-700 dark:text-accent', bg: 'bg-accent/10 dark:bg-accent/20' },
     ];
 
     return (
@@ -204,15 +204,15 @@ export default function AdminDashboard() {
 
                     {/* Mini Metric Counters (Active Sessions, Last 5min, Today) */}
                     <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                        <div className="p-4 rounded-xl bg-surface border border-accent/30 dark:border-accent/30">
+                        <div className="p-4 rounded-xl bg-white dark:bg-surface border border-accent/30 dark:border-accent/30">
                             <span className="text-xs font-semibold text-primary-700 dark:text-info uppercase tracking-wider">Active Logged Users</span>
                             <div className="text-2xl font-bold text-gray-900 dark:text-foreground mt-1">
                                 {stats?.users?.activeLoggedUsers ?? stats?.users?.active ?? 0}
                             </div>
-                            <p className="text-xs text-gray-500 mt-1">Users with live active session</p>
+                            <p className="text-xs text-gray-500 dark:text-muted mt-1">Users with live active session</p>
                         </div>
 
-                        <div className="p-4 rounded-xl bg-surface border border-success dark:border-success/30">
+                        <div className="p-4 rounded-xl bg-white dark:bg-surface border border-success/40 dark:border-success/30">
                             <span className="text-xs font-semibold text-success-ink dark:text-success uppercase tracking-wider flex items-center gap-1.5">
                                 <span className="w-2 h-2 rounded-full bg-success animate-pulse"></span>
                                 Active (Last 5 min)
@@ -220,15 +220,15 @@ export default function AdminDashboard() {
                             <div className="text-2xl font-bold text-gray-900 dark:text-foreground mt-1">
                                 {stats?.users?.activeLast5Minutes ?? 0}
                             </div>
-                            <p className="text-xs text-gray-500 mt-1">Real-time online presence</p>
+                            <p className="text-xs text-gray-500 dark:text-muted mt-1">Real-time online presence</p>
                         </div>
 
-                        <div className="p-4 rounded-xl bg-surface border border-purple-100 dark:border-purple-900/30">
-                            <span className="text-xs font-semibold text-purple-600 dark:text-purple-400 uppercase tracking-wider">Sessions Today</span>
+                        <div className="p-4 rounded-xl bg-white dark:bg-surface border border-primary-200 dark:border-primary-900/30">
+                            <span className="text-xs font-semibold text-primary-700 dark:text-primary-400 uppercase tracking-wider">Sessions Today</span>
                             <div className="text-2xl font-bold text-gray-900 dark:text-foreground mt-1">
                                 {stats?.users?.totalSessionsToday ?? 0}
                             </div>
-                            <p className="text-xs text-gray-500 mt-1">Total user visits logged today</p>
+                            <p className="text-xs text-gray-500 dark:text-muted mt-1">Total user visits logged today</p>
                         </div>
                     </div>
 
@@ -335,7 +335,7 @@ export default function AdminDashboard() {
                                     <option>Last 30 Days</option>
                                 </select>
                             </div>
-                            <AdminChart data={chartData} color="#3b82f6" />
+                            <AdminChart data={chartData} color="#6875F5" />
                         </div>
                     </div>
 

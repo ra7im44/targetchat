@@ -74,22 +74,22 @@ export default function DashboardHome() {
                 <svg viewBox="0 0 100 100" className="w-full h-full overflow-visible preserve-3d">
                     <defs>
                         <linearGradient id="msgVolume" x1="0" x2="0" y1="0" y2="1">
-                            <stop offset="0%" stopColor="#2DD4BF" stopOpacity="0.25" />
-                            <stop offset="100%" stopColor="#2DD4BF" stopOpacity="0" />
+                            <stop offset="0%" stopColor="#6875F5" stopOpacity="0.25" />
+                            <stop offset="100%" stopColor="#6875F5" stopOpacity="0" />
                         </linearGradient>
                     </defs>
                     {[25, 50, 75].map((y) => (
                         <line key={y} x1="0" x2="100" y1={y} y2={y} stroke="currentColor" strokeWidth="0.3" className="text-gray-200 dark:text-white/5" />
                     ))}
                     <path d={areaPath} fill="url(#msgVolume)" />
-                    <polyline fill="none" stroke="#2DD4BF" strokeWidth="1.5" points={points} vectorEffect="non-scaling-stroke" />
+                    <polyline fill="none" stroke="#6875F5" strokeWidth="1.5" points={points} vectorEffect="non-scaling-stroke" />
 
                     {/* Tooltip circles */}
                     {data.map((d, i) => {
                         const x = data.length > 1 ? (i / (data.length - 1)) * 100 : 50;
                         const y = 100 - (d.count / max) * 100;
                         return (
-                            <circle key={i} cx={x} cy={y} r="1.5" fill="#0B1114" stroke="#2DD4BF" strokeWidth="1" className="opacity-0 group-hover:opacity-100 transition-opacity duration-200" />
+                            <circle key={i} cx={x} cy={y} r="1.5" fill="#0F1117" stroke="#6875F5" strokeWidth="1" className="opacity-0 group-hover:opacity-100 transition-opacity duration-200" />
                         );
                     })}
                 </svg>

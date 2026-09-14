@@ -262,7 +262,7 @@ export default function WorkflowsPage() {
                                 {/* Header */}
                                 <div className="flex items-start justify-between mb-4 relative z-10">
                                     <div className="flex items-center gap-4">
-                                        <div className="w-14 h-14 rounded-card bg-surface flex items-center justify-center text-3xl shadow-inner border border-blue-100 dark:border-blue-800/30">
+                                        <div className="w-14 h-14 rounded-card bg-gray-50 dark:bg-surface flex items-center justify-center text-3xl shadow-inner border border-blue-100 dark:border-blue-800/30">
                                             {/* Ideally this would be a dynamic icon component, but assuming string for now or passed element */}
                                             {workflow.icon}
                                         </div>

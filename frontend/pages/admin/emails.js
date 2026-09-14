@@ -36,7 +36,7 @@ export default function EmailsPage() {
 
                     <div className="relative z-10">
                         <h1 className="text-4xl font-bold text-gray-900 dark:text-foreground tracking-tight flex items-center gap-4">
-                            <div className="p-3 bg-accent text-background rounded-card shadow-lg
+                            <div className="p-3 bg-accent text-background rounded-card shadow-lg">
                                 <Mail size={32} />
                             </div>
                             Email Engine

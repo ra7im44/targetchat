@@ -3,7 +3,7 @@ import React from 'react';
 /* TargetChat shared UI primitives.
    Visual-only building blocks on the semantic token system.
    Rules: radius 6/8/10/12 (controls/inputs/cards/modals), borders over shadows,
-   accent #2DD4BF for primary actions with dark text, monochrome icons. */
+   U-Axis Soft Indigo (#6875F5) for primary actions with white text, monochrome icons. */
 
 const btnBase =
     'inline-flex items-center justify-center gap-2 text-sm font-semibold rounded-lg transition-colors ' +
@@ -11,7 +11,7 @@ const btnBase =
     'disabled:opacity-50 disabled:cursor-not-allowed disabled:pointer-events-none';
 
 const btnVariants = {
-    primary: 'bg-accent text-background hover:bg-accent-hover active:bg-accent-active shadow-sm',
+    primary: 'bg-accent text-white hover:bg-accent-hover active:bg-accent-active shadow-sm',
     secondary:
         'bg-white dark:bg-surface-elevated text-gray-800 dark:text-foreground ' +
         'border border-gray-300/80 dark:border-border hover:bg-gray-100 dark:hover:bg-surface-hover',

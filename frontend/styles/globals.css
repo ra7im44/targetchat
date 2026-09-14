@@ -4,33 +4,45 @@
 @tailwind components;
 @tailwind utilities;
 
-/* ============ TargetChat design tokens ============ */
+/* ============ U-Axis design tokens ============ */
 :root {
-    --background: #0B1114;
-    --surface: #111A1F;
-    --surface-elevated: #172329;
-    --surface-hover: #1C2A31;
-    --border: #293940;
-    --border-strong: #344750;
-    --text-primary: #F2F6F7;
-    --text-secondary: #B0BDC2;
-    --text-muted: #7F9097;
-    --accent: #2DD4BF;
-    --accent-hover: #20BFAA;
-    --accent-active: #149D8C;
-    --danger: #EF6464;
-    --danger-hover: #DC5050;
-    --warning: #EAB85C;
-    --success: #58C98D;
-    --info: #63A7D8;
+    /* U-Axis Dark Semantic Tokens */
+    --background: #0F1117;
+    --surface: #1A1D27;
+    --surface-elevated: #242938;
+    --surface-hover: #222634;
+    --border: #25293A;
+    --border-strong: #33394D;
+    --text-primary: #F3F4F8;
+    --text-secondary: #9DA4B7;
+    --text-muted: #6D758B;
+    --accent: #545FDB;
+    --accent-hover: #454FB8;
+    --accent-active: #39429E;
+    --danger: #DC2626;
+    --danger-hover: #B91C1C;
+    --warning: #D97706;
+    --success: #059669;
+    --info: #545FDB;
 
-    /* Light-mode surfaces */
-    --lm-bg: #f4f6f7;
-    --lm-surface: #ffffff;
-    --lm-border: #d3dbe0;
-    --lm-text: #16211f;
-    --lm-text-secondary: #4b5b61;
-    --lm-text-muted: #5f6e75;
+    /* U-Axis Light-mode surfaces */
+    --lm-bg: #F7F8FA;
+    --lm-surface: #FFFFFF;
+    --lm-border: #E2E5EC;
+    --lm-text: #111625;
+    --lm-text-secondary: #4E5569;
+    --lm-text-muted: #697287;
+}
+
+html.dark {
+    --accent: #6875F5;
+    --accent-hover: #7B85F8;
+    --accent-active: #5863D8;
+    --danger: #EF4444;
+    --danger-hover: #DC2626;
+    --warning: #F59E0B;
+    --success: #10B981;
+    --info: #6875F5;
 }
 
 html,
@@ -177,7 +189,7 @@ html.dark .mesh-bg {
 }
 .bubble.user {
     background: var(--accent);
-    color: #0B1114;
+    color: #FFFFFF;
 }
 .bubble.ai {
     background: var(--lm-surface);
@@ -188,6 +200,15 @@ html.dark .bubble.ai {
     background: var(--surface);
     color: var(--text-primary);
     border-color: var(--border);
+}
+
+/* Ensure button text on primary/accent is crisp white like in U-Axis */
+.bg-accent.text-background,
+.text-background.bg-accent,
+[class*="bg-accent"][class*="text-background"],
+button.bg-accent,
+a.bg-accent {
+    color: #FFFFFF !important;
 }
 
 /* Sidebar chat items: surface shift + accent bar, no glow */
@@ -204,7 +225,7 @@ html.dark .chat-item:hover {
     background: var(--surface-hover);
 }
 .chat-item.active {
-    background: rgba(45, 212, 191, 0.1);
+    background: rgba(104, 117, 245, 0.12);
     border-left-color: var(--accent);
     font-weight: 500;
 }

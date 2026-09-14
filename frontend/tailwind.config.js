@@ -7,66 +7,83 @@ module.exports = {
         sans: ['Inter', 'ui-sans-serif', 'system-ui', 'sans-serif'],
       },
       colors: {
-        /* Brand accent scale (teal). Replaces the old indigo `primary` scale so
-           existing primary-* classes migrate automatically. */
+        /* U-Axis Brand Scale — Soft Indigo / Royal Blue */
         primary: {
-          50: '#effdfa',
-          100: '#ccfbf1',
-          200: '#99f6e4',
-          300: '#5eead4',
-          400: '#2dd4bf',
-          500: '#14b8a6',
-          600: '#0d9488',
-          700: '#0f766e',
-          800: '#115e59',
-          900: '#134e4a',
-          950: '#042f2e',
-          DEFAULT: '#2dd4bf',
+          50: '#EEF2FF',
+          100: '#E0E7FF',
+          200: '#C7D2FE',
+          300: '#A5B4FC',
+          400: '#818CF8',
+          500: '#6875F5',
+          600: '#545FDB',
+          700: '#434EB8',
+          800: '#353D94',
+          900: '#292E70',
+          950: '#1E2356',
+          DEFAULT: '#6875F5',
         },
-        /* Semantic surfaces (dark UI) */
-        background: '#0B1114',
+        /* Semantic surfaces (U-Axis Dark UI) */
+        background: '#0F1117',
         surface: {
-          DEFAULT: '#111A1F',
-          elevated: '#172329',
-          hover: '#1C2A31',
+          DEFAULT: '#1A1D27',
+          secondary: '#1F2330',
+          elevated: '#242938',
+          hover: '#222634',
+          active: '#292E40',
         },
-        /* Semantic borders */
+        /* Semantic borders (U-Axis) */
         border: {
-          DEFAULT: '#293940',
-          strong: '#344750',
+          DEFAULT: '#25293A',
+          subtle: 'rgba(255, 255, 255, 0.06)',
+          strong: '#33394D',
         },
-        default: '#293940',
-        /* Semantic text (dark UI) */
-        foreground: '#F2F6F7',
-        secondary: '#B0BDC2',
-        muted: '#7F9097',
+        default: '#25293A',
+        /* Semantic text (U-Axis Dark UI) */
+        foreground: '#F3F4F8',
+        secondary: '#9DA4B7',
+        muted: '#6D758B',
         /* Semantic accent + states */
         accent: {
-          DEFAULT: '#2DD4BF',
-          hover: '#20BFAA',
-          active: '#149D8C',
+          DEFAULT: '#6875F5',
+          hover: '#7B85F8',
+          active: '#5863D8',
+          light: '#545FDB',
         },
         danger: {
-          DEFAULT: '#EF6464',
-          hover: '#DC5050',
-          ink: '#C43D3D',
+          DEFAULT: '#EF4444',
+          hover: '#DC2626',
+          ink: '#B91C1C',
         },
         warning: {
-          DEFAULT: '#EAB85C',
-          ink: '#8A5A00',
+          DEFAULT: '#F59E0B',
+          ink: '#D97706',
         },
         success: {
-          DEFAULT: '#58C98D',
-          ink: '#0E7A4D',
+          DEFAULT: '#10B981',
+          ink: '#059669',
         },
         info: {
-          DEFAULT: '#63A7D8',
-          ink: '#2577B8',
+          DEFAULT: '#6875F5',
+          ink: '#434EB8',
         },
-        /* Legacy slate-850 alias kept for unmigrated files (do not use in new code) */
+        /* Neutral scale mapped to U-Axis light and dark tokens */
+        gray: {
+          50: '#F7F8FA',
+          100: '#F1F3F7',
+          200: '#E2E5EC',
+          300: '#CBD1DC',
+          400: '#9BA3B5',
+          500: '#697287',
+          600: '#4E5569',
+          700: '#33394D',
+          800: '#1F2330',
+          900: '#111625',
+          950: '#0F1117',
+        },
+        /* Legacy slate aliases kept for compatibility */
         slate: {
-          850: '#1e293b',
-          900: '#0f172a',
+          850: '#1A1D27',
+          900: '#0F1117',
         },
       },
       borderRadius: {
