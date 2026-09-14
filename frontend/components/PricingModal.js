@@ -3,7 +3,7 @@ import { useRouter } from 'next/router';
 import { toast } from 'react-hot-toast';
 import { useGlobalConfig } from '../context/GlobalConfig';
 
-import { API_URL as API } from '../utils/apiConfig';
+import { API_URL as API, getToken } from '../utils/apiConfig';
 
 export default function PricingModal({ isOpen, onClose, currentWorkspace, onUpgrade }) {
     const router = useRouter();
@@ -58,7 +58,7 @@ export default function PricingModal({ isOpen, onClose, currentWorkspace, onUpgr
     async function handleApplyCoupon() {
         if (!couponCode) return;
 
-        const token = localStorage.getItem('tc_token');
+        const token = getToken();
         if (!token) return;
 
         try {
@@ -87,7 +87,7 @@ export default function PricingModal({ isOpen, onClose, currentWorkspace, onUpgr
     const [gateway, setGateway] = useState('stripe');
 
     async function handleSubscribe(plan) {
-        const token = localStorage.getItem('tc_token');
+        const token = getToken();
         if (!token) {
             router.push('/login?redirect=/pricing');
             return;
@@ -161,6 +161,10 @@ export default function PricingModal({ isOpen, onClose, currentWorkspace, onUpgr
 
     if (!isOpen) return null;
 
+    const paidPlanIdx = plans.findIndex((p) => parseFloat(p.priceMonthly) > 0);
+    const popularIndex = paidPlanIdx === -1 ? 1 : paidPlanIdx;
+    const currentPlanName = currentWorkspace?.plan_type || null;
+
     return (
         <div className="fixed inset-0 z-[60] flex items-center justify-center p-4">
             {/* Backdrop */}
@@ -190,25 +194,27 @@ export default function PricingModal({ isOpen, onClose, currentWorkspace, onUpgr
                         </p>
 
                         <div className="flex flex-col items-center gap-6">
-                            <div className="inline-flex items-center gap-4 p-1 bg-gray-100 dark:bg-gray-800 rounded-xl">
+                            <div className="inline-flex items-center gap-1 p-1 bg-gray-100 dark:bg-white/5 border border-gray-200/70 dark:border-white/10 rounded-xl" role="group" aria-label="Billing period">
                                 <button
                                     onClick={() => setBillingCycle('monthly')}
-                                    className={`px-6 py-2 rounded-lg font-medium transition-all ${billingCycle === 'monthly'
-                                        ? 'bg-white dark:bg-gray-700 text-gray-900 dark:text-white shadow-md'
-                                        : 'text-gray-600 dark:text-gray-400'
+                                    aria-pressed={billingCycle === 'monthly'}
+                                    className={`px-6 py-2 rounded-lg text-sm font-semibold transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/60 ${billingCycle === 'monthly'
+                                        ? 'bg-white dark:bg-white/10 text-gray-900 dark:text-white shadow-sm'
+                                        : 'text-gray-500 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200'
                                         }`}
                                 >
                                     Monthly
                                 </button>
                                 <button
                                     onClick={() => setBillingCycle('yearly')}
-                                    className={`px-6 py-2 rounded-lg font-medium transition-all ${billingCycle === 'yearly'
-                                        ? 'bg-white dark:bg-gray-700 text-gray-900 dark:text-white shadow-md'
-                                        : 'text-gray-600 dark:text-gray-400'
+                                    aria-pressed={billingCycle === 'yearly'}
+                                    className={`px-6 py-2 rounded-lg text-sm font-semibold transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/60 ${billingCycle === 'yearly'
+                                        ? 'bg-white dark:bg-white/10 text-gray-900 dark:text-white shadow-sm'
+                                        : 'text-gray-500 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200'
                                         }`}
                                 >
                                     Yearly
-                                    <span className="ml-2 text-xs text-green-600 dark:text-green-400">Save 17%</span>
+                                    <span className="ml-2 text-xs font-bold text-emerald-600 dark:text-emerald-400">Save 17%</span>
                                 </button>
                             </div>
 
@@ -273,68 +279,67 @@ export default function PricingModal({ isOpen, onClose, currentWorkspace, onUpgr
                             <div className="w-12 h-12 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
                         </div>
                     ) : (
-                        <div className="grid md:grid-cols-3 gap-8">
+                        <div className="grid md:grid-cols-3 gap-6 md:gap-8 items-stretch">
                             {plans.map((plan, index) => {
-                                const features = plan.features || {};
-                                const isPopular = index === 1;
+                                const isPopular = index === popularIndex;
+                                const isFree = parseFloat(plan.priceMonthly) === 0;
+                                const isCurrent = currentPlanName
+                                    ? plan.name === currentPlanName
+                                    : isFree;
+                                const feat = (v, singular) => `${v === -1 ? 'Unlimited' : Number(v).toLocaleString()} ${singular}${v === 1 ? '' : 's'}`;
 
                                 return (
                                     <div
                                         key={plan.id}
-                                        className={`relative bg-gray-50 dark:bg-gray-800 rounded-2xl p-8 border ${isPopular
-                                            ? 'border-blue-500 shadow-xl ring-1 ring-blue-500'
-                                            : 'border-transparent'
+                                        className={`relative rounded-2xl p-8 border transition-all duration-200 flex flex-col ${isPopular
+                                            ? 'bg-white dark:bg-white/[0.04] border-blue-500 shadow-xl shadow-blue-500/10 ring-1 ring-blue-500 md:-translate-y-2'
+                                            : 'bg-gray-50 dark:bg-white/[0.02] border-gray-200/80 dark:border-white/10 hover:border-gray-300 dark:hover:border-white/20 hover:shadow-lg hover:-translate-y-0.5'
                                             }`}
                                     >
                                         {isPopular && (
-                                            <div className="absolute -top-4 left-1/2 -translate-x-1/2 px-4 py-1 bg-blue-500 text-white text-sm font-bold rounded-full">
+                                            <div className="absolute -top-3.5 left-1/2 -translate-x-1/2 px-4 py-1 bg-blue-600 text-white text-xs font-bold uppercase tracking-wider rounded-full shadow-md">
                                                 Most Popular
                                             </div>
                                         )}
 
                                         <div className="text-center mb-6">
-                                            <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">
+                                            <h3 className="text-lg font-semibold tracking-tight text-gray-900 dark:text-white mb-1.5">
                                                 {plan.name}
                                             </h3>
-                                            <p className="text-gray-600 dark:text-gray-400 text-sm mb-4 h-10">
+                                            <p className="text-gray-500 dark:text-gray-400 text-sm mb-5 min-h-10">
                                                 {plan.description}
                                             </p>
-                                            <div className="text-4xl font-bold text-gray-900 dark:text-white">
+                                            <div className="text-[2.5rem] leading-none font-bold tracking-tight text-gray-900 dark:text-white">
                                                 {getPrice(plan)}
-                                                <span className="text-lg font-normal text-gray-600 dark:text-gray-400">
+                                                <span className="text-base font-normal text-gray-500 dark:text-gray-400">
                                                     {getPriceLabel(plan)}
                                                 </span>
                                             </div>
                                         </div>
 
-                                        <ul className="space-y-3 mb-8">
-                                            <li className="flex items-center gap-2 text-gray-700 dark:text-gray-300">
-                                                <span className="text-green-500">✓</span>
-                                                {plan.maxChats === -1 ? 'Unlimited' : plan.maxChats} Chats
-                                            </li>
-                                            <li className="flex items-center gap-2 text-gray-700 dark:text-gray-300">
-                                                <span className="text-green-500">✓</span>
-                                                {plan.maxMessagesPerMonth === -1 ? 'Unlimited' : plan.maxMessagesPerMonth.toLocaleString()} Messages
-                                            </li>
-                                            <li className="flex items-center gap-2 text-gray-700 dark:text-gray-300">
-                                                <span className="text-green-500">✓</span>
-                                                {plan.maxWidgets === -1 ? 'Unlimited' : plan.maxWidgets} Widgets
-                                            </li>
-                                            <li className="flex items-center gap-2 text-gray-700 dark:text-gray-300">
-                                                <span className="text-green-500">✓</span>
-                                                {plan.maxMembers === -1 ? 'Unlimited' : plan.maxMembers} Members
-                                            </li>
+                                        <ul className="space-y-3 mb-8 text-[15px]">
+                                            {[
+                                                feat(plan.maxChats, 'Chat'),
+                                                `${plan.maxMessagesPerMonth === -1 ? 'Unlimited' : Number(plan.maxMessagesPerMonth).toLocaleString()} Message${plan.maxMessagesPerMonth === 1 ? '' : 's'}`,
+                                                feat(plan.maxWidgets, 'Widget'),
+                                                feat(plan.maxMembers, 'Member'),
+                                            ].map((f) => (
+                                                <li key={f} className="flex items-center gap-2.5 text-gray-700 dark:text-gray-300">
+                                                    <span className="text-emerald-500 font-bold">✓</span>
+                                                    <span className="font-medium">{f}</span>
+                                                </li>
+                                            ))}
                                         </ul>
 
                                         <button
                                             onClick={() => handleSubscribe(plan)}
-                                            disabled={processingPlan === plan.id}
-                                            className={`w-full py-3 rounded-xl font-semibold transition-all ${isPopular
-                                                ? 'bg-blue-500 text-white hover:bg-blue-600'
-                                                : 'bg-white dark:bg-gray-700 text-gray-900 dark:text-white hover:bg-gray-200 dark:hover:bg-gray-600 border border-gray-200 dark:border-gray-600'
-                                                } disabled:opacity-50`}
+                                            disabled={processingPlan === plan.id || isCurrent}
+                                            className={`mt-auto w-full py-3 rounded-xl font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/60 ${isPopular
+                                                ? 'bg-blue-600 text-white hover:bg-blue-500 shadow-md shadow-blue-600/25'
+                                                : 'bg-white dark:bg-white/5 text-gray-900 dark:text-white hover:bg-gray-100 dark:hover:bg-white/10 border border-gray-300/80 dark:border-white/15'
+                                                } disabled:opacity-50 disabled:cursor-not-allowed`}
                                         >
-                                            {processingPlan === plan.id ? 'Processing...' : plan.priceMonthly === 0 ? 'Current Plan' : 'Subscribe'}
+                                            {processingPlan === plan.id ? 'Processing...' : isCurrent ? 'Current Plan' : isFree ? 'Choose Free' : 'Subscribe'}
                                         </button>
                                     </div>
                                 );
