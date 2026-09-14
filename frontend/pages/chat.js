@@ -1110,7 +1110,7 @@ export default function ChatPage() {
           {/* Input Area - Floating Capsule Design */}
           <div className="p-4 sm:p-6">
             <div className="max-w-3xl mx-auto">
-              <form onSubmit={sendMessage} className="relative flex items-end gap-1.5 p-2.5 rounded-[20px] bg-white dark:bg-white/[0.03] border border-gray-200 dark:border-white/10 shadow-lg transition-colors focus-within:border-indigo-500/60 dark:focus-within:border-indigo-400/60 focus-within:ring-1 focus-within:ring-indigo-500/30">
+              <form onSubmit={sendMessage} className="relative flex items-end gap-1.5 p-2.5 rounded-[20px] bg-white dark:bg-white/[0.03] border border-gray-300/80 dark:border-white/10 shadow-[0_8px_30px_-12px_rgba(0,0,0,0.18)] transition-colors focus-within:border-indigo-500/60 dark:focus-within:border-indigo-400/60 focus-within:ring-1 focus-within:ring-indigo-500/30">
 
                 {/* File Upload */}
                 <button
@@ -1315,6 +1315,8 @@ export default function ChatPage() {
                     <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" /></svg>
                   )}
                 </button>
+
+                <span aria-hidden="true" className="w-px h-6 bg-gray-200 dark:bg-white/10 mx-0.5 self-center" />
 
                 <button
                   type="submit"
