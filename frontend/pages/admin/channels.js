@@ -44,13 +44,13 @@ function formatLatency(ms) {
 }
 
 const STATUS_STYLES = {
-    connected: 'bg-success text-success dark:bg-success/30 dark:text-success',
+    connected: 'bg-success text-success-ink dark:bg-success/30 dark:text-success',
     disconnected: 'bg-gray-100 text-gray-600 dark:bg-surface-elevated dark:text-secondary',
-    degraded: 'bg-warning text-warning dark:bg-warning/30 dark:text-warning',
-    configuration_required: 'bg-warning text-warning dark:bg-warning/30 dark:text-warning',
-    token_expiring: 'bg-warning text-warning dark:bg-warning/30 dark:text-warning',
-    token_expired: 'bg-red-100 text-danger dark:bg-red-900/30 dark:text-danger',
-    error: 'bg-red-100 text-danger dark:bg-red-900/30 dark:text-danger'
+    degraded: 'bg-warning text-warning-ink dark:bg-warning/30 dark:text-warning',
+    configuration_required: 'bg-warning text-warning-ink dark:bg-warning/30 dark:text-warning',
+    token_expiring: 'bg-warning text-warning-ink dark:bg-warning/30 dark:text-warning',
+    token_expired: 'bg-red-100 text-danger-ink dark:bg-red-900/30 dark:text-danger',
+    error: 'bg-red-100 text-danger-ink dark:bg-red-900/30 dark:text-danger'
 };
 
 const STATUS_LABELS = {
@@ -74,14 +74,14 @@ function StatusBadge({ status }) {
 }
 
 const TOKEN_STYLES = {
-    healthy: 'bg-success text-success dark:bg-success/30 dark:text-success',
-    expiring: 'bg-warning text-warning dark:bg-warning/30 dark:text-warning',
-    token_expiring: 'bg-warning text-warning dark:bg-warning/30 dark:text-warning',
-    expired: 'bg-red-100 text-danger dark:bg-red-900/30 dark:text-danger',
-    token_expired: 'bg-red-100 text-danger dark:bg-red-900/30 dark:text-danger',
-    invalid: 'bg-red-100 text-danger dark:bg-red-900/30 dark:text-danger',
+    healthy: 'bg-success text-success-ink dark:bg-success/30 dark:text-success',
+    expiring: 'bg-warning text-warning-ink dark:bg-warning/30 dark:text-warning',
+    token_expiring: 'bg-warning text-warning-ink dark:bg-warning/30 dark:text-warning',
+    expired: 'bg-red-100 text-danger-ink dark:bg-red-900/30 dark:text-danger',
+    token_expired: 'bg-red-100 text-danger-ink dark:bg-red-900/30 dark:text-danger',
+    invalid: 'bg-red-100 text-danger-ink dark:bg-red-900/30 dark:text-danger',
     not_configured: 'bg-gray-100 text-gray-600 dark:bg-surface-elevated dark:text-secondary',
-    configuration_required: 'bg-warning text-warning dark:bg-warning/30 dark:text-warning',
+    configuration_required: 'bg-warning text-warning-ink dark:bg-warning/30 dark:text-warning',
     unknown: 'bg-gray-100 text-gray-600 dark:bg-surface-elevated dark:text-secondary'
 };
 
@@ -110,7 +110,7 @@ function MetricCard({ label, value, sub, tooltip, icon, accent = 'text-gray-900 
     return (
         <div className="bg-white dark:bg-surface p-6 rounded-card border border-gray-100 dark:border-border shadow-sm hover:shadow-md transition-shadow">
             <div className="flex items-center gap-1.5 mb-2">
-                <p className="text-sm font-bold text-gray-400">{label}</p>
+                <p className="text-sm font-bold text-gray-500 dark:text-muted">{label}</p>
                 {tooltip && (
                     <span title={tooltip} aria-label={tooltip} className="text-gray-300 dark:text-gray-600 hover:text-accent cursor-help">
                         <Info size={16} aria-hidden="true" />
@@ -136,7 +136,7 @@ function SkeletonCard() {
 }
 
 function ProviderIcon({ type, size = 20 }) {
-    if (type === 'facebook') return <Facebook className="text-accent" size={size} aria-hidden="true" />;
+    if (type === 'facebook') return <Facebook className="text-primary-700 dark:text-accent" size={size} aria-hidden="true" />;
     if (type === 'instagram') return <Instagram size={size} aria-hidden="true" />;
     if (type === 'whatsapp') return <MessageCircle size={size} aria-hidden="true" />;
     return <Share2 size={size} aria-hidden="true" />;
@@ -349,7 +349,7 @@ export default function AdminChannelSettings() {
                     <div className="flex items-center justify-between">
                         <div>
                             <h1 className="text-3xl font-bold text-gray-900 dark:text-foreground flex items-center gap-3">
-                                <Server className="text-accent" size={18} aria-hidden="true" />
+                                <Server className="text-primary-700 dark:text-accent" size={18} aria-hidden="true" />
                                 Omnichannel Infrastructure
                             </h1>
                             <p className="text-gray-500 dark:text-muted mt-1">
@@ -376,7 +376,7 @@ export default function AdminChannelSettings() {
                 <div className="space-y-6">
                     <div>
                         <h1 className="text-3xl font-bold text-gray-900 dark:text-foreground flex items-center gap-3">
-                            <Server className="text-accent" size={18} aria-hidden="true" />
+                            <Server className="text-primary-700 dark:text-accent" size={18} aria-hidden="true" />
                             Omnichannel Infrastructure
                         </h1>
                         <p className="text-gray-500 dark:text-muted mt-1">
@@ -384,7 +384,7 @@ export default function AdminChannelSettings() {
                         </p>
                     </div>
                     <div className="bg-white dark:bg-surface rounded-card p-12 text-center border border-red-100 dark:border-red-900/40 shadow-sm" role="alert">
-                        <XCircle className="mx-auto text-danger mb-4" size={18} aria-hidden="true" />
+                        <XCircle className="mx-auto text-danger-ink dark:text-danger mb-4" size={18} aria-hidden="true" />
                         <h2 className="text-xl font-bold text-gray-900 dark:text-foreground mb-2">Backend unavailable</h2>
                         <p className="text-sm text-gray-500 dark:text-muted mb-6 max-w-md mx-auto">
                             Could not reach the channels health API ({error}). The backend may be down or your session may have expired.
@@ -428,13 +428,13 @@ export default function AdminChannelSettings() {
                 <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
                     <div>
                         <h1 className="text-3xl font-bold text-gray-900 dark:text-foreground flex items-center gap-3">
-                            <Server className="text-accent" size={18} aria-hidden="true" />
+                            <Server className="text-primary-700 dark:text-accent" size={18} aria-hidden="true" />
                             Omnichannel Infrastructure
                         </h1>
                         <p className="text-gray-500 dark:text-muted mt-1">
                             System-wide monitoring and global configuration for external messaging gateways.
                         </p>
-                        <p className="text-xs text-gray-400 dark:text-muted mt-2 flex items-center gap-1.5" aria-live="polite">
+                        <p className="text-xs text-gray-500 dark:text-muted mt-2 flex items-center gap-1.5" aria-live="polite">
                             <Clock size={16} aria-hidden="true" />
                             {health?.lastCheckedAt ? timeAgo(health.lastCheckedAt, now) : 'Not checked yet'}
                             <span className="text-gray-300 dark:text-gray-600" aria-hidden="true">·</span>
@@ -467,7 +467,7 @@ export default function AdminChannelSettings() {
                 {error && health && (
                     <div className="p-4 bg-warning dark:bg-warning/20 border border-amber-200 dark:border-amber-800 rounded-card flex items-start gap-3" role="alert">
                         <AlertTriangle className="mt-0.5" size={18} aria-hidden="true" />
-                        <div className="text-sm text-warning dark:text-warning">
+                        <div className="text-sm text-warning-ink dark:text-warning">
                             <p className="font-bold">Partial refresh failed</p>
                             <p>{error}. Showing the last known data.</p>
                         </div>
@@ -488,11 +488,11 @@ export default function AdminChannelSettings() {
                                     }`}
                             >
                                 <AlertCircle
-                                    className={alert.severity === 'error' ? 'text-danger' : alert.severity === 'warning' ? 'text-warning' : 'text-accent'}
+                                    className={alert.severity === 'error' ? 'text-danger-ink' : alert.severity === 'warning' ? 'text-warning-ink dark:text-warning' : 'text-primary-700'}
                                     size={18}
                                     aria-hidden="true"
                                 />
-                                <p className={`text-sm ${alert.severity === 'error' ? 'text-danger dark:text-danger' : alert.severity === 'warning' ? 'text-warning dark:text-warning' : 'text-accent-active dark:text-info'}`}>
+                                <p className={`text-sm ${alert.severity === 'error' ? 'text-danger-ink dark:text-danger' : alert.severity === 'warning' ? 'text-warning-ink dark:text-warning' : 'text-accent-active dark:text-info'}`}>
                                     {alert.message}
                                 </p>
                             </div>
@@ -517,7 +517,7 @@ export default function AdminChannelSettings() {
                     />
                     <div className="bg-white dark:bg-surface p-6 rounded-card border border-gray-100 dark:border-border shadow-sm hover:shadow-md transition-shadow">
                         <div className="flex items-center gap-1.5 mb-2">
-                            <p className="text-sm font-bold text-gray-400">Token Health</p>
+                            <p className="text-sm font-bold text-gray-500 dark:text-muted">Token Health</p>
                             <span title="Aggregated token state. Unknown means a token is stored but expiry cannot be determined. Never shown as 100% without proof." aria-label="Token health meaning" className="text-gray-300 dark:text-gray-600 hover:text-accent cursor-help">
                                 <Info size={16} aria-hidden="true" />
                             </span>
@@ -532,14 +532,14 @@ export default function AdminChannelSettings() {
                         value={summary.messages24h ?? 0}
                         sub="Messages stored in the last 24 hours"
                         tooltip="Count of message records created in the last 24 hours."
-                        accent="text-accent"
+                        accent="text-primary-700 dark:text-accent"
                     />
                     <MetricCard
                         label="Failed Events (24h)"
                         value={summary.failedEvents24h ?? 0}
                         sub={(summary.failedEvents24h ?? 0) > 0 ? 'Requires attention' : 'No failures recorded'}
                         tooltip="Webhook and delivery events marked as failed in the last 24 hours (in-memory tracker; resets on restart)."
-                        accent={(summary.failedEvents24h ?? 0) > 0 ? 'text-danger' : 'text-gray-900 dark:text-foreground'}
+                        accent={(summary.failedEvents24h ?? 0) > 0 ? 'text-danger-ink' : 'text-gray-900 dark:text-foreground'}
                     />
                 </div>
 
@@ -550,10 +550,10 @@ export default function AdminChannelSettings() {
                         <section className="bg-white dark:bg-surface rounded-card p-6 md:p-8 border border-gray-100 dark:border-border shadow-sm" aria-label="Global Meta configuration">
                             <div className="flex flex-wrap items-center justify-between gap-3 mb-6">
                                 <h3 className="text-xl font-bold text-gray-900 dark:text-foreground flex items-center gap-2">
-                                    <Settings className="text-accent" size={18} aria-hidden="true" />
+                                    <Settings className="text-primary-700 dark:text-accent" size={18} aria-hidden="true" />
                                     Global Meta Configuration
                                 </h3>
-                                <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider ${configComplete ? 'bg-success text-success dark:bg-success/30 dark:text-success' : 'bg-warning text-warning dark:bg-warning/30 dark:text-warning'}`}>
+                                <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider ${configComplete ? 'bg-success text-success-ink dark:bg-success/30 dark:text-success' : 'bg-warning text-warning-ink dark:bg-warning/30 dark:text-warning'}`}>
                                     {configComplete ? 'Complete' : 'Incomplete'}
                                 </span>
                             </div>
@@ -573,9 +573,9 @@ export default function AdminChannelSettings() {
                                             {row.value ? (
                                                 <span className="break-all">{row.value}</span>
                                             ) : row.configured ? (
-                                                <span className="text-success dark:text-success font-sans font-bold">Configured</span>
+                                                <span className="text-success-ink dark:text-success font-sans font-bold">Configured</span>
                                             ) : (
-                                                <span className="text-gray-400 font-sans">Not configured</span>
+                                                <span className="text-gray-500 dark:text-muted font-sans">Not configured</span>
                                             )}
                                         </span>
                                     </li>
@@ -583,7 +583,7 @@ export default function AdminChannelSettings() {
                             </ul>
                             <div className="mt-4 p-4 bg-warning dark:bg-warning/20 border border-yellow-100 dark:border-yellow-800 rounded-card flex items-start gap-3">
                                 <AlertCircle className="shrink-0" size={18} aria-hidden="true" />
-                                <p className="text-xs text-warning dark:text-warning">
+                                <p className="text-xs text-warning-ink dark:text-warning">
                                     Provider credentials are managed through server environment variables and{' '}
                                     <Link href="/admin/settings" className="underline font-bold hover:text-warning dark:hover:text-warning">
                                         Admin &gt; Settings &gt; Integrations
@@ -597,13 +597,13 @@ export default function AdminChannelSettings() {
                         <section className="bg-white dark:bg-surface rounded-card p-6 md:p-8 border border-gray-100 dark:border-border shadow-sm" aria-label="Connected channels">
                             <div className="flex flex-wrap items-center justify-between gap-3 mb-6">
                                 <h3 className="text-xl font-bold text-gray-900 dark:text-foreground flex items-center gap-2">
-                                    <PlugZap className="text-accent" size={18} aria-hidden="true" />
+                                    <PlugZap className="text-primary-700 dark:text-accent" size={18} aria-hidden="true" />
                                     Connected Channels
-                                    <span className="text-sm font-bold text-gray-400">({providers.length})</span>
+                                    <span className="text-sm font-bold text-gray-500 dark:text-muted">({providers.length})</span>
                                 </h3>
                                 <Link
                                     href="/channels"
-                                    className="inline-flex items-center gap-1.5 text-sm font-bold text-accent hover:text-accent focus:outline-none focus:ring-2 focus:ring-accent/60 rounded-lg px-2 py-1"
+                                    className="inline-flex items-center gap-1.5 text-sm font-bold text-primary-700 dark:text-accent hover:text-accent focus:outline-none focus:ring-2 focus:ring-accent/60 rounded-lg px-2 py-1"
                                 >
                                     Open Channel Setup <ChevronRight size={16} aria-hidden="true" />
                                 </Link>
@@ -649,19 +649,19 @@ export default function AdminChannelSettings() {
                                             </div>
                                             <dl className="grid grid-cols-2 md:grid-cols-4 gap-3 text-xs mb-4">
                                                 <div>
-                                                    <dt className="uppercase font-bold text-gray-400 text-[10px] mb-1">Owner</dt>
+                                                    <dt className="uppercase font-bold text-gray-500 dark:text-muted text-[10px] mb-1">Owner</dt>
                                                     <dd className="text-gray-700 dark:text-secondary truncate">{ch.owner?.email || '—'}</dd>
                                                 </div>
                                                 <div>
-                                                    <dt className="uppercase font-bold text-gray-400 text-[10px] mb-1">Routing</dt>
+                                                    <dt className="uppercase font-bold text-gray-500 dark:text-muted text-[10px] mb-1">Routing</dt>
                                                     <dd className="text-gray-700 dark:text-secondary capitalize">{ch.mode || '—'}</dd>
                                                 </div>
                                                 <div>
-                                                    <dt className="uppercase font-bold text-gray-400 text-[10px] mb-1">Last active</dt>
+                                                    <dt className="uppercase font-bold text-gray-500 dark:text-muted text-[10px] mb-1">Last active</dt>
                                                     <dd className="text-gray-700 dark:text-secondary">{ch.lastActiveAt ? formatDateTime(ch.lastActiveAt) : 'No data yet'}</dd>
                                                 </div>
                                                 <div>
-                                                    <dt className="uppercase font-bold text-gray-400 text-[10px] mb-1">Last Validated</dt>
+                                                    <dt className="uppercase font-bold text-gray-500 dark:text-muted text-[10px] mb-1">Last Validated</dt>
                                                     <dd className="text-gray-700 dark:text-secondary">{ch.lastHealthCheckAt ? formatDateTime(ch.lastHealthCheckAt) : 'Never verified'}</dd>
                                                 </div>
                                             </dl>
@@ -701,7 +701,7 @@ export default function AdminChannelSettings() {
                         {/* Webhook endpoints */}
                         <section className="bg-white dark:bg-surface rounded-card p-6 md:p-8 border border-gray-100 dark:border-border shadow-sm" aria-label="Webhook endpoints">
                             <h3 className="text-xl font-bold text-gray-900 dark:text-foreground mb-2 flex items-center gap-2">
-                                <Globe className="text-accent" size={18} aria-hidden="true" />
+                                <Globe className="text-primary-700 dark:text-accent" size={18} aria-hidden="true" />
                                 Webhook Endpoints
                             </h3>
                             <p className="text-xs text-gray-500 dark:text-muted mb-6">
@@ -710,7 +710,7 @@ export default function AdminChannelSettings() {
                             {configuration.publicWebhookUrl?.isLocalhost && (
                                 <div className="mb-4 p-4 bg-warning dark:bg-warning/20 border border-amber-200 dark:border-amber-800 rounded-card flex items-start gap-3" role="alert">
                                     <AlertTriangle className="shrink-0" size={18} aria-hidden="true" />
-                                    <p className="text-xs text-warning dark:text-warning">
+                                    <p className="text-xs text-warning-ink dark:text-warning">
                                         Current base URL is localhost. Meta requires a public HTTPS webhook URL — configure{' '}
                                         <code className="font-mono font-bold">BACKEND_URL</code> (or <code className="font-mono font-bold">PUBLIC_BASE_URL</code>) on the server.
                                     </p>
@@ -724,7 +724,7 @@ export default function AdminChannelSettings() {
                                                 <p className="font-bold text-gray-900 dark:text-foreground">{hook.name}</p>
                                                 <p className="text-xs text-gray-500 font-mono truncate" title={hook.url}>{hook.url}</p>
                                             </div>
-                                            <span className="inline-flex items-center gap-1.5 text-success font-bold text-sm">
+                                            <span className="inline-flex items-center gap-1.5 text-success-ink dark:text-success font-bold text-sm">
                                                 <span className="w-2.5 h-2.5 bg-success rounded-full animate-pulse" aria-hidden="true" />
                                                 Online
                                             </span>
@@ -737,8 +737,8 @@ export default function AdminChannelSettings() {
                                         </div>
                                         {hook.lastCheckAt && (
                                             <div className="text-[11px] text-gray-500 dark:text-muted mb-3 px-3 py-1.5 bg-gray-100/70 dark:bg-surface rounded-xl flex flex-wrap items-center justify-between gap-1 border border-gray-200/50 dark:border-border">
-                                                <span>Self-Check Ping: <strong className={hook.lastCheckOk ? 'text-success dark:text-success' : 'text-danger dark:text-danger'}>{hook.lastCheckOk ? 'Operational' : 'Failing'}</strong> ({formatLatency(hook.lastCheckLatencyMs)}{hook.lastCheckHttpStatus ? `, HTTP ${hook.lastCheckHttpStatus}` : ''})</span>
-                                                <span className="text-[10px] text-gray-400">{formatDateTime(hook.lastCheckAt)}</span>
+                                                <span>Self-Check Ping: <strong className={hook.lastCheckOk ? 'text-success-ink dark:text-success' : 'text-danger-ink dark:text-danger'}>{hook.lastCheckOk ? 'Operational' : 'Failing'}</strong> ({formatLatency(hook.lastCheckLatencyMs)}{hook.lastCheckHttpStatus ? `, HTTP ${hook.lastCheckHttpStatus}` : ''})</span>
+                                                <span className="text-[10px] text-gray-500 dark:text-muted">{formatDateTime(hook.lastCheckAt)}</span>
                                             </div>
                                         )}
                                         <div className="flex flex-wrap gap-2">
@@ -790,7 +790,7 @@ export default function AdminChannelSettings() {
                                         <span aria-hidden="true" className="flex items-center">{check.enabled ? <CheckCircle2 size={16} /> : <AlertTriangle size={16} />}</span>
                                         <span>
                                             <span className="font-semibold">{check.label}</span>
-                                            <span className="block text-xs text-info">{check.enabled ? 'Enabled' : 'Attention needed'}</span>
+                                            <span className="block text-xs text-info-ink dark:text-info">{check.enabled ? 'Enabled' : 'Attention needed'}</span>
                                         </span>
                                     </li>
                                 ))}
@@ -799,7 +799,7 @@ export default function AdminChannelSettings() {
 
                         <section className="bg-white dark:bg-surface rounded-card p-6 md:p-8 border border-gray-100 dark:border-border shadow-sm" aria-label="Setup guidance">
                             <h3 className="text-lg font-bold text-gray-900 dark:text-foreground mb-3 flex items-center gap-2">
-                                <ExternalLink size={18} className="text-accent" aria-hidden="true" />
+                                <ExternalLink size={18} className="text-primary-700 dark:text-accent" aria-hidden="true" />
                                 Setup
                             </h3>
                             <p className="text-xs text-gray-500 dark:text-muted mb-4">
@@ -829,14 +829,14 @@ export default function AdminChannelSettings() {
                 <section ref={logsRef} className="bg-white dark:bg-surface rounded-card p-6 md:p-8 border border-gray-100 dark:border-border shadow-sm scroll-mt-6" aria-label="Recent webhook logs">
                     <div className="flex flex-wrap items-center justify-between gap-3 mb-6">
                         <h3 className="text-xl font-bold text-gray-900 dark:text-foreground flex items-center gap-2">
-                            <Activity size={18} className="text-accent" aria-hidden="true" />
+                            <Activity size={18} className="text-primary-700 dark:text-accent" aria-hidden="true" />
                             Recent Logs
-                            <span className="text-sm font-bold text-gray-400">({logs.length})</span>
+                            <span className="text-sm font-bold text-gray-500 dark:text-muted">({logs.length})</span>
                         </h3>
                         <button
                             onClick={() => { setAppliedSearch(logSearch); fetchLogs(); }}
                             disabled={logsLoading}
-                            className="inline-flex items-center gap-1.5 text-xs font-bold text-accent hover:text-accent disabled:opacity-60 focus:outline-none focus:ring-2 focus:ring-accent/60 rounded-lg px-2 py-1"
+                            className="inline-flex items-center gap-1.5 text-xs font-bold text-primary-700 dark:text-accent hover:text-accent disabled:opacity-60 focus:outline-none focus:ring-2 focus:ring-accent/60 rounded-lg px-2 py-1"
                             aria-label="Reload logs"
                         >
                             <RefreshCw size={16} aria-hidden="true" className={logsLoading ? 'animate-spin' : ''} />
@@ -882,7 +882,7 @@ export default function AdminChannelSettings() {
 
                     {logsError ? (
                         <div className="p-6 text-center border border-amber-200 dark:border-amber-800 bg-warning dark:bg-warning/20 rounded-card" role="alert">
-                            <p className="text-sm text-warning dark:text-warning mb-3">Could not load logs ({logsError}). Health data above is unaffected.</p>
+                            <p className="text-sm text-warning-ink dark:text-warning mb-3">Could not load logs ({logsError}). Health data above is unaffected.</p>
                             <button onClick={fetchLogs} className="inline-flex items-center gap-1.5 px-4 py-2 bg-warning hover:bg-warning text-white text-xs font-bold rounded-xl transition-colors focus:outline-none focus:ring-2 focus:ring-amber-500">
                                 <RefreshCw size={16} aria-hidden="true" /> Retry logs
                             </button>
@@ -897,7 +897,7 @@ export default function AdminChannelSettings() {
                         <div className="overflow-x-auto -mx-2 px-2">
                             <table className="w-full text-sm min-w-[720px]">
                                 <thead>
-                                    <tr className="text-left text-[11px] uppercase tracking-wider text-gray-400 border-b border-gray-100 dark:border-border">
+                                    <tr className="text-left text-[11px] uppercase tracking-wider text-gray-500 dark:text-muted border-b border-gray-100 dark:border-border">
                                         <th className="py-2 pr-3 font-bold">Timestamp</th>
                                         <th className="py-2 pr-3 font-bold">Provider</th>
                                         <th className="py-2 pr-3 font-bold">Direction</th>
@@ -924,7 +924,7 @@ export default function AdminChannelSettings() {
                                             <td className="py-2.5 pr-3 capitalize text-gray-500">{log.direction}</td>
                                             <td className="py-2.5 pr-3 font-mono text-xs text-gray-700 dark:text-secondary">{log.eventType}</td>
                                             <td className="py-2.5 pr-3">
-                                                <span className={`inline-flex px-2 py-0.5 rounded-full text-[11px] font-bold uppercase ${log.status === 'failed' ? 'bg-red-100 text-danger dark:bg-red-900/30 dark:text-danger' : 'bg-success text-success dark:bg-success/30 dark:text-success'}`}>
+                                                <span className={`inline-flex px-2 py-0.5 rounded-full text-[11px] font-bold uppercase ${log.status === 'failed' ? 'bg-red-100 text-danger-ink dark:bg-red-900/30 dark:text-danger' : 'bg-success text-success-ink dark:bg-success/30 dark:text-success'}`}>
                                                     {log.status}
                                                 </span>
                                             </td>
@@ -949,7 +949,7 @@ export default function AdminChannelSettings() {
                             <h3 className="text-lg font-bold text-gray-900 dark:text-foreground">Event details</h3>
                             <button
                                 onClick={() => setSelectedLog(null)}
-                                className="p-2 text-gray-400 hover:bg-gray-100 dark:hover:bg-surface-hover rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-accent/60"
+                                className="p-2 text-gray-500 dark:text-muted hover:bg-gray-100 dark:hover:bg-surface-hover rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-accent/60"
                                 aria-label="Close event details"
                                 autoFocus
                             >
@@ -969,16 +969,16 @@ export default function AdminChannelSettings() {
                                 ['Error', selectedLog.error || '—']
                             ].map(([k, v]) => (
                                 <div key={k} className="flex justify-between gap-4 p-3 bg-gray-50 dark:bg-background rounded-xl">
-                                    <dt className="text-gray-400 font-bold text-xs uppercase shrink-0">{k}</dt>
+                                    <dt className="text-gray-500 dark:text-muted font-bold text-xs uppercase shrink-0">{k}</dt>
                                     <dd className="text-gray-800 dark:text-gray-100 font-mono text-xs text-right break-all">{String(v)}</dd>
                                 </div>
                             ))}
                         </dl>
-                        <p className="text-xs font-bold text-gray-400 uppercase mb-2">Sanitized metadata</p>
+                        <p className="text-xs font-bold text-gray-500 dark:text-muted uppercase mb-2">Sanitized metadata</p>
                         <pre className="text-xs font-mono bg-gray-950 text-gray-200 rounded-card p-4 overflow-x-auto whitespace-pre-wrap break-all" aria-label="Sanitized request metadata">
                             {selectedLog.body ? JSON.stringify(selectedLog.body, null, 2).slice(0, 8000) : 'No payload stored.'}
                         </pre>
-                        <p className="text-[11px] text-gray-400 mt-3">
+                        <p className="text-[11px] text-gray-500 dark:text-muted mt-3">
                             Tokens, secrets, and authorization headers are redacted server-side before storage.
                         </p>
                     </div>
@@ -992,7 +992,7 @@ export default function AdminChannelSettings() {
                     <div className="relative bg-white dark:bg-surface w-full max-w-md rounded-modal shadow-lg p-6">
                         <div className="flex items-center gap-3 mb-4">
                             <div className="w-11 h-11 bg-red-100 dark:bg-red-900/30 rounded-card flex items-center justify-center">
-                                <Unplug className="text-danger" size={18} aria-hidden="true" />
+                                <Unplug className="text-danger-ink dark:text-danger" size={18} aria-hidden="true" />
                             </div>
                             <h3 className="text-lg font-bold text-gray-900 dark:text-foreground">Disconnect {disconnectTarget.name}?</h3>
                         </div>

@@ -137,7 +137,7 @@ export default function EmbedPage() {
     if (loadError) return (
         <div className="flex items-center justify-center h-screen bg-gray-50 p-6">
             <div className="max-w-sm text-center bg-white rounded-card shadow-sm border border-gray-200 p-8">
-                <div className="flex justify-center mb-3 text-warning"><TriangleAlert size={18} /></div>
+                <div className="flex justify-center mb-3 text-warning-ink dark:text-warning"><TriangleAlert size={18} /></div>
                 <h1 className="font-bold text-gray-900 mb-2">Chat unavailable</h1>
                 <p className="text-sm text-gray-500 mb-4">{loadError}</p>
                 <button
@@ -238,7 +238,7 @@ export default function EmbedPage() {
                 </div>
                 {config.settings.showBranding && (
                     <div className="text-center mt-2">
-                        <a href="https://targetchat.ai" target="_blank" rel="noopener noreferrer" className="text-[10px] text-gray-400 hover:text-gray-600 transition-colors">
+                        <a href="https://targetchat.ai" target="_blank" rel="noopener noreferrer" className="text-[10px] text-gray-500 dark:text-muted hover:text-gray-600 transition-colors">
                             Powered by TargetChat
                         </a>
                     </div>

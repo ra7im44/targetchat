@@ -56,7 +56,7 @@ export default function DashboardHome() {
     // Custom SVG Area Chart
     const Chart = ({ data }) => {
         if (!data || data.length === 0) return (
-            <div className="h-32 flex items-center justify-center text-gray-400 text-sm">No chart data</div>
+            <div className="h-32 flex items-center justify-center text-gray-500 dark:text-muted text-sm">No chart data</div>
         );
         const max = Math.max(...data.map(d => d.count), 5); // Minimum scale of 5
         const span = data.length > 1 ? (data.length - 1) : 1;
@@ -94,7 +94,7 @@ export default function DashboardHome() {
                     })}
                 </svg>
                 {/* X-Axis Labels */}
-                <div className="flex justify-between mt-2 text-[10px] text-gray-400 dark:text-muted">
+                <div className="flex justify-between mt-2 text-[10px] text-gray-500 dark:text-muted">
                     {data.map((d, i) => (
                         <span key={i}>{d.date}</span>
                     ))}
@@ -155,7 +155,7 @@ export default function DashboardHome() {
                                 <h2 className="text-base font-semibold text-gray-900 dark:text-foreground">Message volume</h2>
                                 <p className="text-[13px] text-gray-500 dark:text-muted mt-0.5">Last 7 days</p>
                             </div>
-                            <span className="text-xs text-gray-400 dark:text-muted tabular-nums">
+                            <span className="text-xs text-gray-500 dark:text-muted tabular-nums">
                                 {(stats.dailyStats || []).reduce((s, d) => s + (d.count || 0), 0)} total
                             </span>
                         </div>
@@ -169,16 +169,16 @@ export default function DashboardHome() {
                                 <h2 className="text-base font-semibold text-gray-900 dark:text-foreground">Recent leads</h2>
                                 <p className="text-[13px] text-gray-500 dark:text-muted mt-0.5">Latest potential customers</p>
                             </div>
-                            <Link href="/leads" className="text-[13px] font-semibold text-info hover:underline">View all →</Link>
+                            <Link href="/leads" className="text-[13px] font-semibold text-info-ink dark:text-info hover:underline">View all →</Link>
                         </div>
                         <div className="overflow-x-auto -mx-1 px-1">
                             <table className="w-full">
                                 <thead>
                                     <tr className="border-b border-gray-200 dark:border-border">
-                                        <th className="py-3 pr-6 text-left text-[11px] font-semibold uppercase tracking-wider text-gray-400 dark:text-muted">User</th>
-                                        <th className="py-3 pr-6 text-left text-[11px] font-semibold uppercase tracking-wider text-gray-400 dark:text-muted">Source</th>
-                                        <th className="py-3 pr-6 text-left text-[11px] font-semibold uppercase tracking-wider text-gray-400 dark:text-muted">Status</th>
-                                        <th className="py-3 text-right text-[11px] font-semibold uppercase tracking-wider text-gray-400 dark:text-muted">Date</th>
+                                        <th className="py-3 pr-6 text-left text-[11px] font-semibold uppercase tracking-wider text-gray-500 dark:text-muted">User</th>
+                                        <th className="py-3 pr-6 text-left text-[11px] font-semibold uppercase tracking-wider text-gray-500 dark:text-muted">Source</th>
+                                        <th className="py-3 pr-6 text-left text-[11px] font-semibold uppercase tracking-wider text-gray-500 dark:text-muted">Status</th>
+                                        <th className="py-3 text-right text-[11px] font-semibold uppercase tracking-wider text-gray-500 dark:text-muted">Date</th>
                                     </tr>
                                 </thead>
                                 <tbody className="divide-y divide-gray-100 dark:divide-white/5">
@@ -233,7 +233,7 @@ export default function DashboardHome() {
                                         <div className={`absolute -left-[31px] top-1 h-2.5 w-2.5 rounded-full ${idx === 0 ? 'bg-accent' : 'bg-gray-300 dark:bg-surface-elevated border border-white dark:border-strong'}`}></div>
                                         <div>
                                             <p className="text-sm font-medium text-gray-900 dark:text-foreground leading-snug">{log.action}</p>
-                                            <p className="text-xs text-gray-400 dark:text-muted mt-0.5 tabular-nums">
+                                            <p className="text-xs text-gray-500 dark:text-muted mt-0.5 tabular-nums">
                                                 {new Date(log.createdAt || log.created_at).toLocaleString()}
                                             </p>
                                         </div>
@@ -247,7 +247,7 @@ export default function DashboardHome() {
                     <section>
                         <div className="flex items-baseline justify-between mb-4">
                             <h2 className="text-base font-semibold text-gray-900 dark:text-foreground">Your widgets</h2>
-                            <Link href="/widgets" className="text-[13px] font-semibold text-info hover:underline">Manage all</Link>
+                            <Link href="/widgets" className="text-[13px] font-semibold text-info-ink dark:text-info hover:underline">Manage all</Link>
                         </div>
                         <div className="divide-y divide-gray-100 dark:divide-white/5 border-y border-gray-200 dark:border-border">
                             {lists.widgets.length === 0 ? (
@@ -261,10 +261,10 @@ export default function DashboardHome() {
                                             </div>
                                             <div className="truncate min-w-0">
                                                 <div className="font-semibold text-sm text-gray-900 dark:text-foreground truncate group-hover:text-accent-active dark:group-hover:text-accent transition-colors">{w.name}</div>
-                                                <div className="text-xs text-gray-400 dark:text-muted truncate font-mono">{w.slug}.targetchat.ai</div>
+                                                <div className="text-xs text-gray-500 dark:text-muted truncate font-mono">{w.slug}.targetchat.ai</div>
                                             </div>
                                         </div>
-                                        <span className={`text-[11px] font-semibold uppercase tracking-wider shrink-0 ${w.status === 'active' || !w.status ? 'text-success' : 'text-gray-400 dark:text-muted'}`}>
+                                        <span className={`text-[11px] font-semibold uppercase tracking-wider shrink-0 ${w.status === 'active' || !w.status ? 'text-success-ink' : 'text-gray-500 dark:text-muted'}`}>
                                             {w.status || 'Active'}
                                         </span>
                                     </div>

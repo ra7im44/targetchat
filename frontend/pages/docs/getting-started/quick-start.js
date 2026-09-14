@@ -22,7 +22,7 @@ export default function QuickStart() {
 
             <h2 id="step-1">Step 1: Create Your Account</h2>
             <p>
-                If you haven't already, <Link href="/register" className="text-info dark:text-info hover:underline">sign up for a free TargetChat account</Link>. You'll receive a verification email - click the link to activate your account.
+                If you haven't already, <Link href="/register" className="text-info-ink dark:text-info hover:underline">sign up for a free TargetChat account</Link>. You'll receive a verification email - click the link to activate your account.
             </p>
 
             <h2 id="step-2">Step 2: Create Your First Widget</h2>
@@ -117,7 +117,7 @@ export default function QuickStart() {
             </div>
 
             <Callout type="tip" title="Need Help?">
-                Join our community or contact support at <a href="mailto:support@targetchat.ai" className="text-info dark:text-info hover:underline">support@targetchat.ai</a>
+                Join our community or contact support at <a href="mailto:support@targetchat.ai" className="text-info-ink dark:text-info hover:underline">support@targetchat.ai</a>
             </Callout>
         </DocsLayout>
     );

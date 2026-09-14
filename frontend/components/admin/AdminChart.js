@@ -2,7 +2,7 @@ import React from 'react';
 
 const AdminChart = ({ data, color = '#6366f1' }) => {
     if (!data || data.length === 0) return (
-        <div className="h-32 flex items-center justify-center text-gray-400 text-sm">No chart data</div>
+        <div className="h-32 flex items-center justify-center text-gray-500 dark:text-muted text-sm">No chart data</div>
     );
 
     // Normalize data
@@ -38,7 +38,7 @@ const AdminChart = ({ data, color = '#6366f1' }) => {
                     );
                 })}
             </svg>
-            <div className="flex justify-between mt-2 text-[10px] text-gray-400">
+            <div className="flex justify-between mt-2 text-[10px] text-gray-500 dark:text-muted">
                 {data.map((d, i) => (
                     <span key={i}>{d.date}</span>
                 ))}

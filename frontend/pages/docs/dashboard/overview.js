@@ -59,14 +59,14 @@ export default function DashboardOverview() {
                 The "Your Widgets" panel shows the health status of your deployed bots.
             </p>
             <ul>
-                <li><span className="text-success font-bold">Active:</span> Widget is live and responding.</li>
+                <li><span className="text-success-ink dark:text-success font-bold">Active:</span> Widget is live and responding.</li>
                 <li><span className="text-gray-500 font-bold">Inactive:</span> Widget is disabled.</li>
             </ul>
 
             <h2 id="next-steps">Next Steps</h2>
             <ul>
-                <li><a href="/docs/features/workspaces" className="text-info dark:text-info hover:underline">Manage Workspaces</a></li>
-                <li><a href="/docs/widgets/creating" className="text-info dark:text-info hover:underline">Create a Widget</a></li>
+                <li><a href="/docs/features/workspaces" className="text-info-ink dark:text-info hover:underline">Manage Workspaces</a></li>
+                <li><a href="/docs/widgets/creating" className="text-info-ink dark:text-info hover:underline">Create a Widget</a></li>
             </ul>
         </DocsLayout>
     );

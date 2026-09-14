@@ -78,10 +78,10 @@ export default function EmailLogsTab() {
     const getStatusBadge = (status) => {
         const colors = {
             queued: 'bg-gray-100 text-gray-700 dark:bg-surface-elevated/50 dark:text-secondary',
-            sent: 'bg-blue-100 text-info dark:bg-surface-elevated dark:text-info',
-            delivered: 'bg-green-100 text-success dark:bg-green-900/30 dark:text-success',
-            opened: 'bg-purple-100 text-info dark:bg-purple-900/30 dark:text-info',
-            failed: 'bg-red-100 text-danger dark:bg-red-900/30 dark:text-danger'
+            sent: 'bg-blue-100 text-info-ink dark:bg-surface-elevated dark:text-info',
+            delivered: 'bg-green-100 text-success-ink dark:bg-green-900/30 dark:text-success',
+            opened: 'bg-purple-100 text-info-ink dark:bg-purple-900/30 dark:text-info',
+            failed: 'bg-red-100 text-danger-ink dark:bg-red-900/30 dark:text-danger'
         };
         return colors[status] || 'bg-gray-100 text-gray-600';
     };
@@ -101,7 +101,7 @@ export default function EmailLogsTab() {
             <div className="bg-white dark:bg-surface rounded-xl p-4 border border-gray-100 dark:border-border">
                 <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
                     <div className="relative">
-                        <Search className="absolute left-3 top-2.5 text-gray-400" size={18} />
+                        <Search className="absolute left-3 top-2.5 text-gray-500 dark:text-muted" size={18} />
                         <input
                             type="text"
                             placeholder="Recipient email..."
@@ -165,11 +165,11 @@ export default function EmailLogsTab() {
                                 <td className="px-6 py-4 text-xs text-gray-500">{new Date(log.createdAt || log.created_at).toLocaleString()}</td>
                                 <td className="px-6 py-4">
                                     <div className="flex gap-2">
-                                        <button onClick={() => viewDetails(log)} className="p-1.5 text-info hover:bg-surface-hover dark:hover:bg-surface-hover rounded-md shadow-sm">
+                                        <button onClick={() => viewDetails(log)} className="p-1.5 text-info-ink dark:text-info hover:bg-surface-hover dark:hover:bg-surface-hover rounded-md shadow-sm">
                                             <Eye size={16} />
                                         </button>
                                         {log.status === 'failed' && (
-                                            <button onClick={() => handleRetry(log.id)} className="p-1.5 text-warning hover:bg-orange-50 dark:hover:bg-orange-900/20 rounded-md shadow-sm">
+                                            <button onClick={() => handleRetry(log.id)} className="p-1.5 text-warning-ink dark:text-warning hover:bg-orange-50 dark:hover:bg-orange-900/20 rounded-md shadow-sm">
                                                 <RotateCcw size={16} />
                                             </button>
                                         )}
@@ -220,10 +220,10 @@ function EmailLogDetailModal({ log, onClose, onRetry }) {
                 <div className="p-6 border-b border-gray-100 dark:border-border flex justify-between items-center bg-gray-50/50 dark:bg-background/50">
                     <div>
                         <h2 className="text-xl font-bold text-gray-900 dark:text-foreground uppercase tracking-tight">Email Delivery Details</h2>
-                        <p className="text-xs text-gray-400 font-mono mt-1">{log.id}</p>
+                        <p className="text-xs text-gray-500 dark:text-muted font-mono mt-1">{log.id}</p>
                     </div>
                     <button onClick={onClose} className="p-2 hover:bg-gray-200 dark:hover:bg-surface-hover rounded-xl transition-all">
-                        <X size={24} className="text-gray-400" />
+                        <X size={24} className="text-gray-500 dark:text-muted" />
                     </button>
                 </div>
 
@@ -231,32 +231,32 @@ function EmailLogDetailModal({ log, onClose, onRetry }) {
                     {/* Header Info */}
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                         <div className="p-4 bg-gray-50 dark:bg-background rounded-card border border-gray-100 dark:border-border">
-                            <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest block mb-1">Recipient</label>
+                            <label className="text-[10px] font-bold text-gray-500 dark:text-muted uppercase tracking-widest block mb-1">Recipient</label>
                             <p className="text-sm font-bold text-gray-900 dark:text-foreground truncate" title={log.recipientEmail}>{log.recipientEmail}</p>
                         </div>
                         <div className="p-4 bg-gray-50 dark:bg-background rounded-card border border-gray-100 dark:border-border">
-                            <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest block mb-1">Status</label>
-                            <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider ${log.status === 'delivered' ? 'bg-green-100 text-success' :
-                                log.status === 'failed' ? 'bg-red-100 text-danger' : 'bg-blue-100 text-info'
+                            <label className="text-[10px] font-bold text-gray-500 dark:text-muted uppercase tracking-widest block mb-1">Status</label>
+                            <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider ${log.status === 'delivered' ? 'bg-green-100 text-success-ink dark:text-success' :
+                                log.status === 'failed' ? 'bg-red-100 text-danger-ink' : 'bg-blue-100 text-info-ink dark:text-info'
                                 }`}>
                                 {log.status}
                             </span>
                         </div>
                         <div className="p-4 bg-gray-50 dark:bg-background rounded-card border border-gray-100 dark:border-border">
-                            <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest block mb-1">Sent Date</label>
+                            <label className="text-[10px] font-bold text-gray-500 dark:text-muted uppercase tracking-widest block mb-1">Sent Date</label>
                             <p className="text-sm font-bold text-gray-900 dark:text-foreground">{new Date(log.createdAt || log.created_at).toLocaleString()}</p>
                         </div>
                     </div>
 
                     {/* Subject */}
                     <div className="p-4 bg-gray-50 dark:bg-background rounded-card border border-gray-100 dark:border-border">
-                        <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest block mb-1">Subject</label>
+                        <label className="text-[10px] font-bold text-gray-500 dark:text-muted uppercase tracking-widest block mb-1">Subject</label>
                         <p className="text-sm font-bold text-gray-900 dark:text-foreground">{log.subject}</p>
                     </div>
 
                     {/* Rendered Content */}
                     <div className="space-y-4">
-                        <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Rendered Content</label>
+                        <label className="text-[10px] font-bold text-gray-500 dark:text-muted uppercase tracking-widest">Rendered Content</label>
                         <div className="border border-gray-100 dark:border-border rounded-card overflow-hidden bg-white">
                             <iframe
                                 srcDoc={log.htmlBody || `<div style="padding: 20px; font-family: sans-serif;">${log.textContent || 'No content found'}</div>`}
@@ -269,11 +269,11 @@ function EmailLogDetailModal({ log, onClose, onRetry }) {
                     {/* Metadata / Variables */}
                     {log.variables && Object.keys(log.variables).length > 0 && (
                         <div className="space-y-4">
-                            <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Used Variables</label>
+                            <label className="text-[10px] font-bold text-gray-500 dark:text-muted uppercase tracking-widest">Used Variables</label>
                             <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-left">
                                 {Object.entries(log.variables).map(([key, val]) => (
                                     <div key={key} className="p-3 bg-gray-50/50 dark:bg-background/50 rounded-xl border border-gray-100 dark:border-border">
-                                        <p className="text-[9px] font-bold text-gray-400 uppercase tracking-tighter mb-1">{key}</p>
+                                        <p className="text-[9px] font-bold text-gray-500 dark:text-muted uppercase tracking-tighter mb-1">{key}</p>
                                         <p className="text-xs font-mono text-gray-600 dark:text-secondary truncate" title={String(val)}>{String(val)}</p>
                                     </div>
                                 ))}
@@ -284,8 +284,8 @@ function EmailLogDetailModal({ log, onClose, onRetry }) {
                     {/* Error Info */}
                     {log.errorMessage && (
                         <div className="p-4 bg-red-50 dark:bg-red-900/20 border border-red-100 dark:border-red-900/50 rounded-card">
-                            <label className="text-[10px] font-bold text-danger uppercase tracking-widest block mb-1">Delivery Error</label>
-                            <p className="text-sm text-danger dark:text-danger font-medium">{log.errorMessage}</p>
+                            <label className="text-[10px] font-bold text-danger-ink dark:text-danger uppercase tracking-widest block mb-1">Delivery Error</label>
+                            <p className="text-sm text-danger-ink dark:text-danger font-medium">{log.errorMessage}</p>
                         </div>
                     )}
                 </div>

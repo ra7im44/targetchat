@@ -246,7 +246,7 @@ export default function AdminPlansPage() {
                         ))
                     ) : plans.length === 0 ? (
                         <div className="col-span-full text-center py-16 text-gray-500 dark:text-muted">
-                            <div className="flex justify-center mb-3 text-muted"><Package size={18} /></div>
+                            <div className="flex justify-center mb-3 text-gray-500 dark:text-muted"><Package size={18} /></div>
                             <p className="font-semibold">No plans yet</p>
                             <p className="text-sm mt-1">Create your first plan to start selling.</p>
                         </div>
@@ -256,7 +256,7 @@ export default function AdminPlansPage() {
                                 <div className="flex justify-between items-start mb-3">
                                     <h3 className="text-xl font-bold tracking-tight text-gray-900 dark:text-foreground">{plan.name}</h3>
                                     <span className={`px-2.5 py-1 text-[11px] rounded-full font-bold ${plan.isActive
-                                        ? 'bg-success text-success dark:bg-success/30 dark:text-success'
+                                        ? 'bg-success text-success-ink dark:bg-success/30 dark:text-success'
                                         : 'bg-gray-100 text-gray-600 dark:bg-surface-elevated dark:text-muted'
                                         }`}>
                                         {plan.isActive ? 'ACTIVE' : 'HIDDEN'}
@@ -278,7 +278,7 @@ export default function AdminPlansPage() {
                                 <div className="grid grid-cols-2 gap-2 mb-4 text-sm">
                                     {[['Chats', plan.maxChats], ['Msgs/mo', plan.maxMessagesPerMonth], ['Widgets', plan.maxWidgets], ['Members', plan.maxMembers]].map(([label, v]) => (
                                         <div key={label} className="bg-gray-50 dark:bg-surface rounded-lg px-3 py-2">
-                                            <div className="text-[11px] uppercase tracking-wider text-gray-400">{label}</div>
+                                            <div className="text-[11px] uppercase tracking-wider text-gray-500 dark:text-muted">{label}</div>
                                             <div className="font-bold text-gray-900 dark:text-foreground">{fmtLimit(v)}</div>
                                         </div>
                                     ))}
@@ -288,7 +288,7 @@ export default function AdminPlansPage() {
                                 {plan.features && Object.keys(plan.features).length > 0 && (
                                     <div className="flex flex-wrap gap-1.5 mb-4">
                                         {Object.entries(plan.features).map(([k, v]) => (
-                                            <span key={k} className={`px-2 py-0.5 text-[11px] font-mono rounded-md ${v ? 'bg-accent/10 text-accent-active dark:bg-accent/20 dark:text-info' : 'bg-gray-100 text-gray-400 dark:bg-surface line-through'}`}>
+                                            <span key={k} className={`px-2 py-0.5 text-[11px] font-mono rounded-md ${v ? 'bg-accent/10 text-accent-active dark:bg-accent/20 dark:text-info' : 'bg-gray-100 text-gray-500 dark:bg-surface line-through'}`}>
                                                 {k}
                                             </span>
                                         ))}
@@ -305,7 +305,7 @@ export default function AdminPlansPage() {
                                     <button
                                         onClick={() => handleDelete(plan)}
                                         disabled={deletingId === plan.id}
-                                        className="flex-1 py-2 text-sm font-bold bg-danger/10 dark:bg-danger/20 text-danger dark:text-danger hover:bg-red-100 dark:hover:bg-red-900/40 rounded-lg transition-colors disabled:opacity-50"
+                                        className="flex-1 py-2 text-sm font-bold bg-danger/10 dark:bg-danger/20 text-danger-ink dark:text-danger hover:bg-red-100 dark:hover:bg-red-900/40 rounded-lg transition-colors disabled:opacity-50"
                                     >
                                         {deletingId === plan.id ? '...' : 'Delete'}
                                     </button>
@@ -397,7 +397,7 @@ export default function AdminPlansPage() {
                                     className="text-xs font-bold text-accent-active dark:text-info hover:underline">+ Add feature</button>
                             </div>
                             {form.features.length === 0 ? (
-                                <p className="text-xs text-gray-400">No flags — add keys like <code className="font-mono bg-gray-100 dark:bg-surface-elevated px-1 rounded">priority_support</code> to gate features in code via <code className="font-mono bg-gray-100 dark:bg-surface-elevated px-1 rounded">plan.hasFeature(key)</code>.</p>
+                                <p className="text-xs text-gray-500 dark:text-muted">No flags — add keys like <code className="font-mono bg-gray-100 dark:bg-surface-elevated px-1 rounded">priority_support</code> to gate features in code via <code className="font-mono bg-gray-100 dark:bg-surface-elevated px-1 rounded">plan.hasFeature(key)</code>.</p>
                             ) : (
                                 <div className="space-y-2">
                                     {form.features.map((row, i) => (
@@ -411,7 +411,7 @@ export default function AdminPlansPage() {
                                                 On
                                             </label>
                                             <button type="button" onClick={() => removeFeatureRow(i)}
-                                                className="p-2 text-gray-400 hover:text-danger transition-colors" title="Remove">
+                                                className="p-2 text-gray-500 dark:text-muted hover:text-danger transition-colors" title="Remove">
                                                 <X size={18} />
                                             </button>
                                         </div>

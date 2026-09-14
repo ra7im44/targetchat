@@ -68,15 +68,15 @@ export default function ResetPassword() {
                 <div className="w-full bg-white/10 backdrop-blur-xl rounded-card shadow-lg border border-white/20 overflow-hidden">
                     <div className="p-8 text-center border-b border-white/10">
                         <h1 className="text-3xl font-bold text-white mb-2">New Password</h1>
-                        <p className="text-info">Enter your new password below</p>
+                        <p className="text-info-ink dark:text-info">Enter your new password below</p>
                     </div>
 
                     <form onSubmit={submit} className="p-8 space-y-6">
-                        {message && <div className="p-4 rounded-xl bg-success/20 text-success text-sm">{message}</div>}
-                        {error && <div className="p-4 rounded-xl bg-red-500/20 text-danger text-sm">{error}</div>}
+                        {message && <div className="p-4 rounded-xl bg-success/20 text-success-ink dark:text-success text-sm">{message}</div>}
+                        {error && <div className="p-4 rounded-xl bg-red-500/20 text-danger-ink dark:text-danger text-sm">{error}</div>}
 
                         <div>
-                            <label className="block text-sm font-medium text-info mb-2">New Password</label>
+                            <label className="block text-sm font-medium text-info-ink dark:text-info mb-2">New Password</label>
                             <input
                                 type="password"
                                 value={password}
@@ -89,7 +89,7 @@ export default function ResetPassword() {
                         </div>
 
                         <div>
-                            <label className="block text-sm font-medium text-info mb-2">Confirm Password</label>
+                            <label className="block text-sm font-medium text-info-ink dark:text-info mb-2">Confirm Password</label>
                             <input
                                 type="password"
                                 value={confirmPassword}

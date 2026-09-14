@@ -96,7 +96,7 @@ export default function ChatBubble({ sender, message }) {
           href={currentUrl}
           target="_blank"
           rel="noopener noreferrer"
-          className="flex items-center gap-2 text-accent hover:underline font-medium"
+          className="flex items-center gap-2 text-primary-700 dark:text-accent hover:underline font-medium"
         >
           <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
           {file?.name || 'Download File'}
@@ -197,7 +197,7 @@ export default function ChatBubble({ sender, message }) {
           w-9 h-9 rounded-full flex items-center justify-center shrink-0 text-xs font-bold
           ${isUser
             ? 'bg-accent text-background'
-            : 'bg-surface-elevated text-secondary border border-border'
+            : 'bg-surface-elevated text-gray-600 dark:text-secondary border border-border'
           }
         `}>
           {isUser ? 'Y' : <Sparkles size={16} />}
@@ -218,17 +218,17 @@ export default function ChatBubble({ sender, message }) {
 
           {/* Action Row: Timestamp & Copy Button */}
           <div className={`flex items-center gap-2 px-1 text-[11px] font-medium ${isUser ? 'justify-end' : 'justify-start'}`}>
-            {time && <span className="text-gray-400 dark:text-muted">{time}</span>}
+            {time && <span className="text-gray-500 dark:text-muted">{time}</span>}
             <button
               type="button"
               onClick={handleCopyMessage}
-              className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-md hover:bg-gray-100 dark:hover:bg-surface-elevated text-gray-400 hover:text-accent dark:hover:text-info transition-colors"
+              className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-md hover:bg-gray-100 dark:hover:bg-surface-elevated text-gray-500 dark:text-muted hover:text-accent dark:hover:text-info transition-colors"
               title="Copy message"
             >
               {copiedMessage ? (
                 <>
-                  <svg className="w-3.5 h-3.5 text-success" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" /></svg>
-                  <span className="text-[10px] text-success dark:text-success font-medium">Copied!</span>
+                  <svg className="w-3.5 h-3.5 text-success-ink dark:text-success" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" /></svg>
+                  <span className="text-[10px] text-success-ink dark:text-success font-medium">Copied!</span>
                 </>
               ) : (
                 <>

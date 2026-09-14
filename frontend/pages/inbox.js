@@ -367,11 +367,11 @@ export default function InboxPage() {
             switch (chat.channel.type) {
                 case 'facebook': return <div className="relative"><Facebook className="text-accent-active" size={14} />{StatusDot}</div>;
                 case 'instagram': return <div className="relative"><Instagram className="text-pink-600" size={14} />{StatusDot}</div>;
-                case 'whatsapp': return <div className="relative"><MessageCircle className="text-success" size={14} />{StatusDot}</div>;
-                default: return <div className="relative"><Share2 className="text-gray-400" size={14} />{StatusDot}</div>;
+                case 'whatsapp': return <div className="relative"><MessageCircle className="text-success-ink dark:text-success" size={14} />{StatusDot}</div>;
+                default: return <div className="relative"><Share2 className="text-gray-500 dark:text-muted" size={14} />{StatusDot}</div>;
             }
         }
-        return <Globe className="text-accent" size={14} />;
+        return <Globe className="text-primary-700 dark:text-accent" size={14} />;
     };
 
     return (
@@ -381,13 +381,13 @@ export default function InboxPage() {
                 <div className="h-16 border-b border-gray-100 dark:border-border flex items-center justify-between px-6 bg-white dark:bg-background sticky top-0 z-10">
                     <div className="flex items-center gap-3">
                         <div className="p-2 bg-accent/10 dark:bg-accent/10 rounded-lg">
-                            <svg className="w-5 h-5 text-accent dark:text-accent" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" /></svg>
+                            <svg className="w-5 h-5 text-primary-700 dark:text-accent" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" /></svg>
                         </div>
                         <h1 className="text-lg font-bold text-gray-900 dark:text-foreground">Inbox</h1>
                     </div>
                     {stats && (
                         <div className="flex gap-4">
-                            <span className="flex items-center gap-2 px-3 py-1 bg-success text-success rounded-full text-xs font-bold dark:bg-success/20 dark:text-success">
+                            <span className="flex items-center gap-2 px-3 py-1 bg-success text-success-ink rounded-full text-xs font-bold dark:bg-success/20 dark:text-success">
                                 <span className="w-2 h-2 rounded-full bg-success animate-pulse"></span>
                                 {stats.activeChats} Active
                             </span>
@@ -430,7 +430,7 @@ export default function InboxPage() {
                                                 </div>
                                                 <div className="text-xs text-gray-500 truncate max-w-[140px] flex items-center gap-1">
                                                     {typingChats[chat.id] ? (
-                                                        <span className="text-info font-bold animate-pulse flex items-center gap-1">
+                                                        <span className="text-info-ink dark:text-info font-bold animate-pulse flex items-center gap-1">
                                                             <Cpu size={10} className="animate-spin" /> typing...
                                                         </span>
                                                     ) : (
@@ -439,7 +439,7 @@ export default function InboxPage() {
                                                 </div>
                                             </div>
                                         </div>
-                                        <span className="text-[10px] text-gray-400 font-medium whitespace-nowrap">
+                                        <span className="text-[10px] text-gray-500 dark:text-muted font-medium whitespace-nowrap">
                                             {new Date(chat.updated_at || chat.updatedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                                         </span>
                                     </div>
@@ -465,7 +465,7 @@ export default function InboxPage() {
                                             </div>
                                             <div className="text-xs">
                                                 {typingChats[selectedChat.id] ? (
-                                                    <span className="text-info font-bold animate-pulse">is typing...</span>
+                                                    <span className="text-info-ink dark:text-info font-bold animate-pulse">is typing...</span>
                                                 ) : (
                                                     <span className="text-gray-500">{selectedChat.lead?.email || selectedChat.channel?.name || 'Visitor'}</span>
                                                 )}
@@ -476,15 +476,15 @@ export default function InboxPage() {
                                         <button
                                             onClick={toggleAI}
                                             className={`px-4 py-2 rounded-xl text-xs font-bold transition-all shadow-sm flex items-center gap-2 ${selectedChat.aiPaused
-                                                ? 'bg-warning text-warning hover:bg-warning'
-                                                : 'bg-success text-success hover:bg-success'}`}
+                                                ? 'bg-warning text-warning-ink dark:text-warning hover:bg-warning'
+                                                : 'bg-success text-success-ink dark:text-success hover:bg-success'}`}
                                         >
                                             <span className={`w-2 h-2 rounded-full ${selectedChat.aiPaused ? 'bg-warning' : 'bg-success animate-pulse'}`}></span>
                                             {selectedChat.aiPaused ? 'AI Paused' : 'AI Active'}
                                         </button>
                                         <button
                                             onClick={() => setShowSidebar(!showSidebar)}
-                                            className="p-2 text-gray-400 hover:bg-gray-100 dark:hover:bg-surface-hover rounded-lg transition-colors"
+                                            className="p-2 text-gray-500 dark:text-muted hover:bg-gray-100 dark:hover:bg-surface-hover rounded-lg transition-colors"
                                         >
                                             <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
                                         </button>
@@ -509,12 +509,12 @@ export default function InboxPage() {
                                                             {msg.content || msg.text}
                                                         </ReactMarkdown>
                                                     </div>
-                                                    <div className={`text-[10px] mt-1 flex items-center justify-end gap-1 opacity-70 ${isUser ? 'text-gray-400' : 'text-info'}`}>
+                                                    <div className={`text-[10px] mt-1 flex items-center justify-end gap-1 opacity-70 ${isUser ? 'text-gray-500 dark:text-muted' : 'text-info-ink'}`}>
                                                         {new Date(msg.createdAt || msg.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                                                         {!isUser && (
                                                             <span className="flex">
                                                                 {reads[selectedChat.id] >= new Date(msg.createdAt).getTime() ? (
-                                                                    <svg className="w-3 h-3 text-info" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7M5 13l4 4L19 7" /></svg>
+                                                                    <svg className="w-3 h-3 text-info-ink dark:text-info" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7M5 13l4 4L19 7" /></svg>
                                                                 ) : deliveries[selectedChat.id] >= new Date(msg.createdAt).getTime() ? (
                                                                     <svg className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7M5 13l4 4L19 7" /></svg>
                                                                 ) : (
@@ -565,7 +565,7 @@ export default function InboxPage() {
                         ) : (
                             <div className="flex-1 flex flex-col items-center justify-center text-center p-8 bg-gray-50/50 dark:bg-background/50">
                                 <div className="w-24 h-24 bg-accent/10 dark:bg-accent/10 rounded-full flex items-center justify-center mb-6">
-                                    <svg className="w-12 h-12 text-accent" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" /></svg>
+                                    <svg className="w-12 h-12 text-primary-700 dark:text-accent" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" /></svg>
                                 </div>
                                 <h3 className="text-2xl font-bold text-gray-900 dark:text-foreground mb-2">Your Inbox is Empty</h3>
                                 <p className="text-gray-500 max-w-sm">Select a chat from the sidebar to start messaging your leads and customers.</p>
@@ -627,11 +627,11 @@ export default function InboxPage() {
                                                 <h4 className="text-xs font-bold text-gray-500 uppercase tracking-wider mb-3">Contact</h4>
                                                 <div className="space-y-3">
                                                     <div>
-                                                        <label className="text-xs text-gray-400 block mb-1">Email</label>
+                                                        <label className="text-xs text-gray-500 dark:text-muted block mb-1">Email</label>
                                                         <div className="text-sm font-medium text-gray-900 dark:text-foreground break-all">{selectedChat.lead?.email || '-'}</div>
                                                     </div>
                                                     <div>
-                                                        <label className="text-xs text-gray-400 block mb-1">Phone</label>
+                                                        <label className="text-xs text-gray-500 dark:text-muted block mb-1">Phone</label>
                                                         <div className="text-sm font-medium text-gray-900 dark:text-foreground">{selectedChat.lead?.phone || selectedChat.lead?.whatsapp_id || '-'}</div>
                                                     </div>
                                                 </div>

@@ -180,7 +180,7 @@ export default function TokenModal({ onClose, onSuccess }) {
                         <div className="p-4 bg-yellow-500/10 border border-yellow-500/20 rounded-xl flex gap-3 items-start">
                             <span className="mt-0.5"><TriangleAlert size={18} /></span>
                             <div>
-                                <p className="text-sm font-bold text-warning dark:text-warning mb-1">
+                                <p className="text-sm font-bold text-warning-ink dark:text-warning mb-1">
                                     Copy this token now!
                                 </p>
                                 <p className="text-sm text-warning/90 dark:text-warning/80">
@@ -194,11 +194,11 @@ export default function TokenModal({ onClose, onSuccess }) {
                                 type="text"
                                 readOnly
                                 value={createdToken?.token}
-                                className="w-full px-4 py-4 rounded-xl border border-emerald-500/30 bg-emerald-50/50 dark:bg-emerald-900/10 text-success dark:text-success font-mono text-sm break-all pr-12 focus:ring-2 focus:ring-success/50 outline-none"
+                                className="w-full px-4 py-4 rounded-xl border border-emerald-500/30 bg-emerald-50/50 dark:bg-emerald-900/10 text-success-ink dark:text-success font-mono text-sm break-all pr-12 focus:ring-2 focus:ring-success/50 outline-none"
                             />
                             <button
                                 onClick={handleCopy}
-                                className="absolute right-2 top-2 bottom-2 aspect-square flex items-center justify-center rounded-lg hover:bg-emerald-100 dark:hover:bg-emerald-900/30 text-success dark:text-success transition-all font-medium"
+                                className="absolute right-2 top-2 bottom-2 aspect-square flex items-center justify-center rounded-lg hover:bg-emerald-100 dark:hover:bg-emerald-900/30 text-success-ink dark:text-success transition-all font-medium"
                                 title="Copy to clipboard"
                             >
                                 <Copy size={16} />

@@ -114,9 +114,9 @@ export default function LeadsPage() {
 
     function getStatusBadge(status) {
         const styles = {
-            new: 'bg-accent/10 text-info border-accent/30 dark:bg-accent/20 dark:text-info',
-            contacted: 'bg-warning text-warning border-yellow-200 dark:bg-warning/30 dark:text-warning',
-            converted: 'bg-success text-success border-success dark:bg-success/30 dark:text-success',
+            new: 'bg-accent/10 text-info-ink border-accent/30 dark:bg-accent/20 dark:text-info',
+            contacted: 'bg-warning text-warning-ink border-yellow-200 dark:bg-warning/30 dark:text-warning',
+            converted: 'bg-success text-success-ink border-success dark:bg-success/30 dark:text-success',
             lost: 'bg-gray-100 text-gray-700 border-gray-200 dark:bg-surface-elevated dark:text-secondary'
         };
         const style = styles[status] || styles.new;
@@ -150,7 +150,7 @@ export default function LeadsPage() {
             {/* Filters Bar */}
             <div className="bg-white dark:bg-surface rounded-card shadow-sm border border-gray-100 dark:border-border p-2 mb-6 flex flex-col md:flex-row gap-2">
                 <div className="flex-1 relative">
-                    <svg className="w-5 h-5 absolute left-4 top-3.5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
+                    <svg className="w-5 h-5 absolute left-4 top-3.5 text-gray-500 dark:text-muted" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
                     <input
                         type="text"
                         placeholder="Search leads..."
@@ -193,7 +193,7 @@ export default function LeadsPage() {
                 ) : leads.length === 0 ? (
                     <div className="p-16 text-center">
                         <div className="w-16 h-16 bg-gray-100 dark:bg-surface-elevated rounded-full flex items-center justify-center mx-auto mb-4">
-                            <Inbox size={18} className="text-muted" />
+                            <Inbox size={18} className="text-gray-500 dark:text-muted" />
                         </div>
                         <h3 className="text-xl font-bold text-gray-900 dark:text-foreground mb-2">No leads found</h3>
                         <p className="text-gray-500 dark:text-muted max-w-sm mx-auto">
@@ -207,11 +207,11 @@ export default function LeadsPage() {
                         <table className="w-full">
                             <thead className="bg-gray-50/50 dark:bg-surface-elevated/30">
                                 <tr>
-                                    <th className="px-8 py-5 text-left text-xs font-bold text-gray-400 uppercase tracking-wider">Contact</th>
-                                    <th className="px-8 py-5 text-left text-xs font-bold text-gray-400 uppercase tracking-wider">Contact Info</th>
-                                    <th className="px-8 py-5 text-left text-xs font-bold text-gray-400 uppercase tracking-wider">Company</th>
-                                    <th className="px-8 py-5 text-left text-xs font-bold text-gray-400 uppercase tracking-wider">Status</th>
-                                    <th className="px-8 py-5 text-right text-xs font-bold text-gray-400 uppercase tracking-wider">Created</th>
+                                    <th className="px-8 py-5 text-left text-xs font-bold text-gray-500 dark:text-muted uppercase tracking-wider">Contact</th>
+                                    <th className="px-8 py-5 text-left text-xs font-bold text-gray-500 dark:text-muted uppercase tracking-wider">Contact Info</th>
+                                    <th className="px-8 py-5 text-left text-xs font-bold text-gray-500 dark:text-muted uppercase tracking-wider">Company</th>
+                                    <th className="px-8 py-5 text-left text-xs font-bold text-gray-500 dark:text-muted uppercase tracking-wider">Status</th>
+                                    <th className="px-8 py-5 text-right text-xs font-bold text-gray-500 dark:text-muted uppercase tracking-wider">Created</th>
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-gray-100 dark:divide-border/50">

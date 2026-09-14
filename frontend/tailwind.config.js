@@ -49,10 +49,20 @@ module.exports = {
         danger: {
           DEFAULT: '#EF6464',
           hover: '#DC5050',
+          ink: '#C43D3D',
         },
-        warning: '#EAB85C',
-        success: '#58C98D',
-        info: '#63A7D8',
+        warning: {
+          DEFAULT: '#EAB85C',
+          ink: '#8A5A00',
+        },
+        success: {
+          DEFAULT: '#58C98D',
+          ink: '#0E7A4D',
+        },
+        info: {
+          DEFAULT: '#63A7D8',
+          ink: '#2577B8',
+        },
         /* Legacy slate-850 alias kept for unmigrated files (do not use in new code) */
         slate: {
           850: '#1e293b',

@@ -282,7 +282,7 @@ export default function WidgetEditor() {
                         <button
                             type="button"
                             onClick={handleDeleteWidget}
-                            className="px-4 py-2 bg-danger/10 dark:bg-danger/20 border border-red-200 dark:border-red-800 text-danger dark:text-danger rounded-xl font-medium hover:bg-red-100 dark:hover:bg-red-900/40 transition-colors flex items-center gap-1.5"
+                            className="px-4 py-2 bg-danger/10 dark:bg-danger/20 border border-red-200 dark:border-red-800 text-danger-ink dark:text-danger rounded-xl font-medium hover:bg-red-100 dark:hover:bg-red-900/40 transition-colors flex items-center gap-1.5"
                             title="Delete Widget"
                         >
                             <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -571,7 +571,7 @@ export default function WidgetEditor() {
                                                     formFields: [...currentFields, newField]
                                                 });
                                             }}
-                                            className="px-3 py-1.5 bg-accent/10 text-accent hover:bg-accent/10 dark:bg-accent/20 dark:text-info rounded-lg text-sm font-medium transition-colors"
+                                            className="px-3 py-1.5 bg-accent/10 text-primary-700 hover:bg-accent/10 dark:bg-accent/20 dark:text-info rounded-lg text-sm font-medium transition-colors"
                                         >
                                             + Add Field
                                         </button>
@@ -627,7 +627,7 @@ export default function WidgetEditor() {
                                                                     newFields[index].required = e.target.checked;
                                                                     setWidget({ ...widget, formFields: newFields });
                                                                 }}
-                                                                className="w-4 h-4 text-accent rounded focus:ring-accent/60"
+                                                                className="w-4 h-4 text-primary-700 dark:text-accent rounded focus:ring-accent/60"
                                                             />
                                                             <span className="text-sm text-gray-700 dark:text-secondary">Required</span>
                                                         </label>
@@ -638,7 +638,7 @@ export default function WidgetEditor() {
                                                         const newFields = widget.formFields.filter((_, i) => i !== index);
                                                         setWidget({ ...widget, formFields: newFields });
                                                     }}
-                                                    className="mt-6 p-1.5 text-danger hover:bg-danger/10 dark:hover:bg-red-900/20 rounded-lg transition-colors"
+                                                    className="mt-6 p-1.5 text-danger-ink dark:text-danger hover:bg-danger/10 dark:hover:bg-red-900/20 rounded-lg transition-colors"
                                                 >
                                                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
                                                 </button>
@@ -677,7 +677,7 @@ export default function WidgetEditor() {
                                             id="branding"
                                             checked={widget.settings.showBranding}
                                             onChange={(e) => setWidget({ ...widget, settings: { ...widget.settings, showBranding: e.target.checked } })}
-                                            className="w-5 h-5 text-accent rounded focus:ring-accent/60"
+                                            className="w-5 h-5 text-primary-700 dark:text-accent rounded focus:ring-accent/60"
                                         />
                                         <label htmlFor="branding" className="text-sm font-medium text-gray-700 dark:text-secondary">Show "Powered by TargetChat" branding</label>
                                     </div>
@@ -688,8 +688,8 @@ export default function WidgetEditor() {
                             {activeTab === 'install' && (
                                 <div className="space-y-6">
                                     <div className="bg-accent/10 dark:bg-accent/20 border border-accent/30 dark:border-accent/30 rounded-xl p-4">
-                                        <h3 className="font-semibold text-info dark:text-info mb-2">Installation Instructions</h3>
-                                        <p className="text-sm text-info dark:text-info">
+                                        <h3 className="font-semibold text-info-ink dark:text-info mb-2">Installation Instructions</h3>
+                                        <p className="text-sm text-info-ink dark:text-info">
                                             Copy the code below and paste it into your website's HTML, just before the closing <code>&lt;/body&gt;</code> tag.
                                         </p>
                                     </div>
@@ -883,7 +883,7 @@ export default function WidgetEditor() {
                                                             </button>
                                                         </div>
                                                         {widget.settings.showBranding && (
-                                                            <div className="text-center mt-1 text-[9px] text-gray-400">Powered by TargetChat</div>
+                                                            <div className="text-center mt-1 text-[9px] text-gray-500 dark:text-muted">Powered by TargetChat</div>
                                                         )}
                                                     </div>
                                                 </>

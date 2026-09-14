@@ -1072,7 +1072,7 @@ export default function ChatPage() {
                     <h1 className="font-bold text-lg text-gray-900 dark:text-foreground truncate max-w-[180px] sm:max-w-md">
                       {(chats.find((c) => c.id === activeChatId)?.title) || 'New Chat'}
                     </h1>
-                    <svg className="w-4 h-4 text-gray-400 hover:text-accent transition-colors shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg className="w-4 h-4 text-gray-500 dark:text-muted hover:text-accent transition-colors shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
                     </svg>
                   </div>
@@ -1086,8 +1086,8 @@ export default function ChatPage() {
                       }}
                       className={`p-1.5 rounded-lg transition-all ${
                         chats.find((c) => c.id === activeChatId)?.pinned
-                          ? 'text-warning hover:bg-amber-50 dark:hover:bg-amber-950/30'
-                          : 'text-gray-400 hover:text-warning hover:bg-gray-100 dark:hover:bg-surface-hover'
+                          ? 'text-warning-ink dark:text-warning hover:bg-amber-50 dark:hover:bg-amber-950/30'
+                          : 'text-gray-500 dark:text-muted hover:text-warning hover:bg-gray-100 dark:hover:bg-surface-hover'
                       }`}
                       title={chats.find((c) => c.id === activeChatId)?.pinned ? "Unpin" : "Pin"}
                     >
@@ -1101,8 +1101,8 @@ export default function ChatPage() {
               ) : (
                 <form onSubmit={async (e) => { e.preventDefault(); try { const token = localStorage.getItem('tc_token'); if (!token) return router.replace('/login'); await fetch(`${API}/api/chat/${activeChatId}`, { method: 'PATCH', headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` }, body: JSON.stringify({ title: titleValue }) }); setChats((prev) => prev.map((c) => c.id === activeChatId ? { ...c, title: titleValue } : c)); } catch (err) { console.error('title save', err); } finally { setEditingTitle(false); } }} className="flex items-center gap-2">
                   <input autoFocus value={titleValue} onChange={(e) => setTitleValue(e.target.value)} className="px-3 py-1.5 rounded-lg border border-accent dark:border-accent bg-white dark:bg-surface text-sm focus:ring-2 focus:ring-accent outline-none" />
-                  <button type="submit" className="p-1.5 text-success hover:bg-green-50 dark:hover:bg-green-900/20 rounded-lg transition-colors"><svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" /></svg></button>
-                  <button type="button" className="p-1.5 text-danger hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors" onClick={() => setEditingTitle(false)}><svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" /></svg></button>
+                  <button type="submit" className="p-1.5 text-success-ink dark:text-success hover:bg-green-50 dark:hover:bg-green-900/20 rounded-lg transition-colors"><svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" /></svg></button>
+                  <button type="button" className="p-1.5 text-danger-ink dark:text-danger hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors" onClick={() => setEditingTitle(false)}><svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" /></svg></button>
                 </form>
               )}
             </div>
@@ -1125,7 +1125,7 @@ export default function ChatPage() {
                 onClick={() => setThemePreset('light')}
                 aria-label="Light mode"
                 aria-pressed={!themeDark}
-                className={`p-2 rounded-full transition-all duration-200 ${!themeDark ? 'bg-white shadow-md text-warning scale-110' : 'text-gray-400 hover:text-gray-600 dark:hover:text-secondary'}`}
+                className={`p-2 rounded-full transition-all duration-200 ${!themeDark ? 'bg-white shadow-md text-warning-ink scale-110' : 'text-gray-500 dark:text-muted hover:text-gray-600 dark:hover:text-secondary'}`}
                 title="Light Mode"
               >
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" /></svg>
@@ -1134,7 +1134,7 @@ export default function ChatPage() {
                 onClick={() => setThemePreset('dark')}
                 aria-label="Dark mode"
                 aria-pressed={themeDark}
-                className={`p-2 rounded-full transition-all duration-200 ${themeDark ? 'bg-gray-700 shadow-md text-info scale-110' : 'text-gray-400 hover:text-gray-600 dark:hover:text-secondary'}`}
+                className={`p-2 rounded-full transition-all duration-200 ${themeDark ? 'bg-gray-700 shadow-md text-info-ink scale-110' : 'text-gray-500 dark:text-muted hover:text-gray-600 dark:hover:text-secondary'}`}
                 title="Dark Mode"
               >
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" /></svg>
@@ -1163,7 +1163,7 @@ export default function ChatPage() {
                       onClick={() => router.push('/dashboard')}
                       className="w-full px-4 py-2.5 text-left text-[14px] font-semibold text-gray-700 dark:text-secondary hover:bg-gray-100 dark:hover:bg-surface-hover flex items-center gap-3 transition-colors focus-visible:outline-none focus-visible:bg-gray-100 dark:focus-visible:bg-surface-hover"
                     >
-                      <svg className="w-[18px] h-[18px] text-gray-400 dark:text-muted" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="square" strokeLinejoin="miter" strokeWidth="1.75" d="M4 4h7v7H4zM13 4h7v4h-7zM13 11h7v9h-7zM4 14h7v6H4z" /></svg>
+                      <svg className="w-[18px] h-[18px] text-gray-500 dark:text-muted" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="square" strokeLinejoin="miter" strokeWidth="1.75" d="M4 4h7v7H4zM13 4h7v4h-7zM13 11h7v9h-7zM4 14h7v6H4z" /></svg>
                       <span>Dashboard</span>
                     </button>
                     <button
@@ -1174,7 +1174,7 @@ export default function ChatPage() {
                       }}
                       className="w-full px-4 py-2.5 text-left text-[14px] font-semibold text-gray-700 dark:text-secondary hover:bg-gray-100 dark:hover:bg-surface-hover flex items-center gap-3 transition-colors focus-visible:outline-none focus-visible:bg-gray-100 dark:focus-visible:bg-surface-hover"
                     >
-                      <svg className="w-[18px] h-[18px] text-gray-400 dark:text-muted" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="square" strokeLinejoin="miter" strokeWidth="1.75" d="M12 12a4 4 0 100-8 4 4 0 000 8zM4 20c1.5-3.5 4.5-5 8-5s6.5 1.5 8 5" /></svg>
+                      <svg className="w-[18px] h-[18px] text-gray-500 dark:text-muted" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="square" strokeLinejoin="miter" strokeWidth="1.75" d="M12 12a4 4 0 100-8 4 4 0 000 8zM4 20c1.5-3.5 4.5-5 8-5s6.5 1.5 8 5" /></svg>
                       <span>Profile</span>
                     </button>
                     <button
@@ -1185,7 +1185,7 @@ export default function ChatPage() {
                       }}
                       className="w-full px-4 py-2.5 text-left text-[14px] font-semibold text-gray-700 dark:text-secondary hover:bg-gray-100 dark:hover:bg-surface-hover flex items-center gap-3 transition-colors focus-visible:outline-none focus-visible:bg-gray-100 dark:focus-visible:bg-surface-hover"
                     >
-                      <svg className="w-[18px] h-[18px] text-gray-400 dark:text-muted" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="square" strokeLinejoin="miter" strokeWidth="1.75" d="M12 15a3 3 0 100-6 3 3 0 000 6zM19 12a7 7 0 01-.1 1.2l2 1.6-2 3.4-2.4-1a7 7 0 01-2 1.2L14 20h-4l-.5-2.6a7 7 0 01-2-1.2l-2.4 1-2-3.4 2-1.6A7 7 0 015 12a7 7 0 01.1-1.2l-2-1.6 2-3.4 2.4 1a7 7 0 012-1.2L10 4h4l.5 2.6a7 7 0 012 1.2l2.4-1 2 3.4-2 1.6c.06.4.1.8.1 1.2z" /></svg>
+                      <svg className="w-[18px] h-[18px] text-gray-500 dark:text-muted" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="square" strokeLinejoin="miter" strokeWidth="1.75" d="M12 15a3 3 0 100-6 3 3 0 000 6zM19 12a7 7 0 01-.1 1.2l2 1.6-2 3.4-2.4-1a7 7 0 01-2 1.2L14 20h-4l-.5-2.6a7 7 0 01-2-1.2l-2.4 1-2-3.4 2-1.6A7 7 0 015 12a7 7 0 01.1-1.2l-2-1.6 2-3.4 2.4 1a7 7 0 012-1.2L10 4h4l.5 2.6a7 7 0 012 1.2l2.4-1 2 3.4-2 1.6c.06.4.1.8.1 1.2z" /></svg>
                       <span>Settings</span>
                     </button>
                     <hr className="my-1.5 border-gray-200 dark:border-border" />
@@ -1208,7 +1208,7 @@ export default function ChatPage() {
                         } catch (e) {}
                         router.replace('/login');
                       }}
-                      className="w-full px-4 py-2.5 text-left text-[14px] font-semibold text-danger dark:text-danger hover:bg-red-50 dark:hover:bg-red-500/10 flex items-center gap-3 transition-colors focus-visible:outline-none focus-visible:bg-red-50 dark:focus-visible:bg-red-500/10"
+                      className="w-full px-4 py-2.5 text-left text-[14px] font-semibold text-danger-ink dark:text-danger hover:bg-red-50 dark:hover:bg-red-500/10 flex items-center gap-3 transition-colors focus-visible:outline-none focus-visible:bg-red-50 dark:focus-visible:bg-red-500/10"
                     >
                       <svg className="w-[18px] h-[18px]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="square" strokeLinejoin="miter" strokeWidth="1.75" d="M14 4H6v16h8M10 12h11M18 8l3 4-3 4" /></svg>
                       <span>Sign Out</span>
@@ -1262,7 +1262,7 @@ export default function ChatPage() {
                   <div className="w-20 h-20 bg-accent rounded-card flex items-center justify-center mb-6 shadow-lg ring-1 ring-white/20">
                     <svg className="w-10 h-10 text-background" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" /></svg>
                   </div>
-                  <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-accent mb-3">
+                  <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-primary-700 dark:text-accent mb-3">
                     {isRtl ? 'شخصيات الذكاء الاصطناعي' : 'AI Personas'}
                   </p>
                   <h3 className="text-3xl font-semibold tracking-tight text-gray-900 dark:text-foreground mb-2">
@@ -1385,7 +1385,7 @@ export default function ChatPage() {
                     onClick={() => setShowAttachMenu(!showAttachMenu)}
                     className={`w-10 h-10 flex items-center justify-center rounded-xl border active:scale-95 transition-all duration-200 shrink-0 shadow-xs ${
                       showAttachMenu
-                        ? 'text-accent bg-accent/10 dark:bg-accent/10 border-accent dark:border-accent ring-2 ring-accent/40'
+                        ? 'text-primary-700 dark:text-accent bg-accent/10 dark:bg-accent/10 border-accent dark:border-accent ring-2 ring-accent/40'
                         : 'bg-gray-100/90 dark:bg-surface text-gray-600 dark:text-secondary hover:text-accent dark:hover:text-accent hover:bg-gray-100 dark:hover:bg-surface-hover border-gray-200 dark:border-border'
                     }`}
                     title={isRtl ? "إرفاق وسائط أو ملفات" : "Attach media or files"}
@@ -1421,7 +1421,7 @@ export default function ChatPage() {
                             <span className="font-semibold text-[13px] leading-tight text-gray-800 dark:text-foreground">
                               {isRtl ? "إرفاق صورة" : "Attach Image"}
                             </span>
-                            <span className="text-[11px] text-gray-400 dark:text-muted">JPG, PNG, WebP</span>
+                            <span className="text-[11px] text-gray-500 dark:text-muted">JPG, PNG, WebP</span>
                           </div>
                         </button>
 
@@ -1443,7 +1443,7 @@ export default function ChatPage() {
                             <span className="font-semibold text-[13px] leading-tight text-gray-800 dark:text-foreground">
                               {isRtl ? "إرفاق فيديو" : "Attach Video"}
                             </span>
-                            <span className="text-[11px] text-gray-400 dark:text-muted">MP4, WebM, MOV</span>
+                            <span className="text-[11px] text-gray-500 dark:text-muted">MP4, WebM, MOV</span>
                           </div>
                         </button>
 
@@ -1465,7 +1465,7 @@ export default function ChatPage() {
                             <span className="font-semibold text-[13px] leading-tight text-gray-800 dark:text-foreground">
                               {isRtl ? "إرفاق ملف" : "Attach File"}
                             </span>
-                            <span className="text-[11px] text-gray-400 dark:text-muted">PDF, DOC, XLS, ZIP</span>
+                            <span className="text-[11px] text-gray-500 dark:text-muted">PDF, DOC, XLS, ZIP</span>
                           </div>
                         </button>
                       </div>
@@ -1548,7 +1548,7 @@ export default function ChatPage() {
                   className={`
                     w-10 h-10 sm:w-11 sm:h-11 rounded-xl sm:rounded-card flex items-center justify-center transition-all duration-200 shrink-0
                     ${!text.trim() || loading
-                      ? 'bg-gray-100 dark:bg-surface-elevated text-gray-400 dark:text-muted border border-gray-200 dark:border-border cursor-not-allowed'
+                      ? 'bg-gray-100 dark:bg-surface-elevated text-gray-500 dark:text-muted border border-gray-200 dark:border-border cursor-not-allowed'
                       : 'bg-accent hover:bg-accent-hover text-background shadow-lg active:scale-[0.98] ring-1 ring-white/20'
                     }
                   `}
@@ -1562,7 +1562,7 @@ export default function ChatPage() {
                 </button>
               </form>
               <div className="flex items-center justify-center mt-2.5 text-center">
-                <p className="inline-flex items-center gap-1.5 text-[11px] sm:text-xs text-gray-400 dark:text-muted">
+                <p className="inline-flex items-center gap-1.5 text-[11px] sm:text-xs text-gray-500 dark:text-muted">
                   <svg className="w-3.5 h-3.5 opacity-60 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
                   <span>TargetChat AI can make mistakes. Consider checking important information.</span>
                 </p>

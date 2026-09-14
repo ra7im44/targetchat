@@ -127,7 +127,7 @@ export default function CouponModal({ isOpen, onClose, onSubmit, editingCoupon }
                                 type="checkbox"
                                 checked={formData.isActive}
                                 onChange={(e) => setFormData({ ...formData, isActive: e.target.checked })}
-                                className="rounded text-info"
+                                className="rounded text-info-ink dark:text-info"
                             />
                             <span className="text-sm font-medium dark:text-secondary">Is Active</span>
                         </label>

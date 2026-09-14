@@ -98,7 +98,7 @@ export default function UserDetailsPage() {
                             <h1 className="text-3xl font-bold text-gray-900 dark:text-foreground">{user.name}</h1>
                             <span className={`px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider ${user.role === 'admin'
                                 ? 'bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-300 border border-purple-200 dark:border-purple-800'
-                                : 'bg-blue-100 text-info dark:bg-blue-900/30 dark:text-info border border-blue-200 dark:border-blue-800'
+                                : 'bg-blue-100 text-info-ink dark:bg-blue-900/30 dark:text-info border border-blue-200 dark:border-blue-800'
                                 }`}>
                                 {user.role}
                             </span>
@@ -114,7 +114,7 @@ export default function UserDetailsPage() {
                             <span className="inline-flex items-center gap-1 font-medium text-gray-700 dark:text-secondary bg-gray-100 dark:bg-surface px-2.5 py-1 rounded-lg">
                                 {countryName(user.country)} {user.city ? `· ${user.city}` : ''}
                             </span>
-                            <span className="font-mono bg-blue-50 dark:bg-blue-900/30 text-info dark:text-info px-2.5 py-1 rounded-lg border border-blue-200/50 dark:border-blue-800/50">
+                            <span className="font-mono bg-blue-50 dark:bg-blue-900/30 text-info-ink dark:text-info px-2.5 py-1 rounded-lg border border-blue-200/50 dark:border-blue-800/50">
                                 <Globe size={16} /> <code>{user.lastIp || 'No IP'}</code>
                             </span>
                             <span className="bg-gray-100 dark:bg-surface px-2.5 py-1 rounded-lg text-gray-600 dark:text-secondary">
@@ -146,7 +146,7 @@ export default function UserDetailsPage() {
                             key={tab}
                             onClick={() => setActiveTab(tab)}
                             className={`pb-3 text-sm font-semibold capitalize transition-all relative ${activeTab === tab
-                                ? 'text-accent dark:text-info'
+                                ? 'text-primary-700 dark:text-info'
                                 : 'text-gray-500 dark:text-muted hover:text-gray-700 dark:hover:text-gray-200'
                                 }`}
                         >
@@ -241,7 +241,7 @@ export default function UserDetailsPage() {
                                         <tbody className="divide-y divide-gray-100 dark:divide-gray-800">
                                             {user.recentSessions.map(sess => (
                                                 <tr key={sess.id}>
-                                                    <td className="py-3 font-mono text-xs text-accent dark:text-info">
+                                                    <td className="py-3 font-mono text-xs text-primary-700 dark:text-info">
                                                         <code>{sess.ipAddress || '127.0.0.1'}</code>
                                                     </td>
                                                     <td className="py-3">
@@ -297,7 +297,7 @@ export default function UserDetailsPage() {
                                                     <td className="p-4">
                                                         <span className={`inline-block px-2 py-1 rounded text-xs font-bold ${log.action === 'LOGIN' ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300' :
                                                             log.action === 'DELETE_USER' ? 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-300' :
-                                                                'bg-blue-100 text-info dark:bg-blue-900/30 dark:text-info'
+                                                                'bg-blue-100 text-info-ink dark:bg-blue-900/30 dark:text-info'
                                                             }`}>
                                                             {log.action}
                                                         </span>

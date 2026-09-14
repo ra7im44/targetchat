@@ -81,7 +81,7 @@ export default function DeveloperTools() {
                 <div className="flex items-center justify-between">
                     <div>
                         <h1 className="text-3xl font-bold text-gray-900 dark:text-foreground flex items-center gap-3">
-                            <Terminal className="text-accent" size={18} />
+                            <Terminal className="text-primary-700 dark:text-accent" size={18} />
                             Developer Tools
                         </h1>
                         <p className="text-gray-500 dark:text-muted mt-1">
@@ -100,7 +100,7 @@ export default function DeveloperTools() {
                             </h2>
                             <button
                                 onClick={clearLogs}
-                                className="p-2 text-gray-400 hover:text-danger hover:bg-danger/10 dark:hover:bg-red-900/20 rounded-lg transition-all"
+                                className="p-2 text-gray-500 dark:text-muted hover:text-danger hover:bg-danger/10 dark:hover:bg-red-900/20 rounded-lg transition-all"
                                 title="Clear Logs"
                             >
                                 <Trash2 size={18} />
@@ -125,8 +125,8 @@ export default function DeveloperTools() {
                                         return (
                                         <div key={log.id} className="bg-gray-800/50 rounded-xl border border-gray-700/50 p-4 transition-all hover:border-gray-600">
                                             <div className="flex justify-between items-start mb-2">
-                                                <span className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase ${isWA ? 'bg-success/30 text-success' :
-                                                        isMeta ? 'bg-accent/20 text-info' : 'bg-surface-elevated text-secondary'
+                                                <span className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase ${isWA ? 'bg-success/30 text-success-ink dark:text-success' :
+                                                        isMeta ? 'bg-accent/20 text-info-ink' : 'bg-surface-elevated text-gray-600 dark:text-secondary'
                                                     }`}>
                                                     {platformLabel}
                                                 </span>
@@ -134,7 +134,7 @@ export default function DeveloperTools() {
                                                     {timeValid ? new Date(log.timestamp).toLocaleTimeString() : '—'}
                                                 </span>
                                             </div>
-                                            <pre className="text-[11px] text-info overflow-x-auto p-2 bg-gray-900/50 rounded-lg">
+                                            <pre className="text-[11px] text-info-ink dark:text-info overflow-x-auto p-2 bg-gray-900/50 rounded-lg">
                                                 {JSON.stringify(log.body, null, 2)}
                                             </pre>
                                         </div>
@@ -154,7 +154,7 @@ export default function DeveloperTools() {
                             </h2>
                             <div className="space-y-4">
                                 <div>
-                                    <label className="text-xs font-bold text-gray-400 block mb-1.5 uppercase">Platform</label>
+                                    <label className="text-xs font-bold text-gray-500 dark:text-muted block mb-1.5 uppercase">Platform</label>
                                     <select
                                         className="w-full bg-gray-50 dark:bg-background border border-gray-200 dark:border-border rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-accent/60 transition-all"
                                         value={mockData.platform}
@@ -165,7 +165,7 @@ export default function DeveloperTools() {
                                     </select>
                                 </div>
                                 <div>
-                                    <label className="text-xs font-bold text-gray-400 block mb-1.5 uppercase">Sender ID / Phone</label>
+                                    <label className="text-xs font-bold text-gray-500 dark:text-muted block mb-1.5 uppercase">Sender ID / Phone</label>
                                     <input
                                         type="text"
                                         className="w-full bg-gray-50 dark:bg-background border border-gray-200 dark:border-border rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-accent/60 transition-all font-mono"
@@ -174,7 +174,7 @@ export default function DeveloperTools() {
                                     />
                                 </div>
                                 <div>
-                                    <label className="text-xs font-bold text-gray-400 block mb-1.5 uppercase">Message Text</label>
+                                    <label className="text-xs font-bold text-gray-500 dark:text-muted block mb-1.5 uppercase">Message Text</label>
                                     <textarea
                                         className="w-full bg-gray-50 dark:bg-background border border-gray-200 dark:border-border rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-accent/60 transition-all"
                                         rows={3}
@@ -189,7 +189,7 @@ export default function DeveloperTools() {
                                     <MessageSquare size={18} />
                                     Trigger Mock Event
                                 </button>
-                                <p className="text-[10px] text-gray-400 text-center italic">
+                                <p className="text-[10px] text-gray-500 dark:text-muted text-center italic">
                                     Mock events help you test the UI without needing real hardware or API credits.
                                 </p>
                             </div>

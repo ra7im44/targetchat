@@ -84,13 +84,13 @@ export default function Login() {
                 {/* Header */}
                 <div className="p-8 text-center border-b border-white/5">
                   <h1 className="text-3xl font-bold text-white tracking-tight mb-2">Welcome Back</h1>
-                  <p className="text-sm text-muted font-medium">Command center access</p>
+                  <p className="text-sm text-gray-500 dark:text-muted font-medium">Command center access</p>
                 </div>
 
                 {/* Form */}
                 <form onSubmit={submit} className="p-8 space-y-6">
                   <div className="space-y-2">
-                    <label className="text-xs font-bold text-muted uppercase tracking-wider ml-1">Email Access</label>
+                    <label className="text-xs font-bold text-gray-500 dark:text-muted uppercase tracking-wider ml-1">Email Access</label>
                     <div className="relative group/input">
                       <div className="absolute -inset-0.5 bg-accent rounded-xl blur opacity-0 group-hover/input:opacity-50 transition duration-500"></div>
                       <input
@@ -106,11 +106,11 @@ export default function Login() {
 
                   <div className="space-y-2">
                     <div className="flex justify-between items-center ml-1">
-                      <label className="text-xs font-bold text-muted uppercase tracking-wider">Passcode</label>
+                      <label className="text-xs font-bold text-gray-500 dark:text-muted uppercase tracking-wider">Passcode</label>
                       <button
                         type="button"
                         onClick={() => router.push('/forgot-password')}
-                        className="text-xs text-info hover:text-info font-medium transition-colors"
+                        className="text-xs text-info-ink dark:text-info hover:text-info font-medium transition-colors"
                       >
                         Recover?
                       </button>
@@ -150,11 +150,11 @@ export default function Login() {
 
                 {/* Footer */}
                 <div className="px-8 pb-8 text-center">
-                  <p className="text-sm text-muted">
+                  <p className="text-sm text-gray-500 dark:text-muted">
                     Don't have an account?{' '}
                     <button
                       onClick={() => router.push('/register')}
-                      className="text-info hover:text-info font-medium transition-colors"
+                      className="text-info-ink dark:text-info hover:text-info font-medium transition-colors"
                     >
                       Sign up
                     </button>

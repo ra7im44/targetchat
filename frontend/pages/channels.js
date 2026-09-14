@@ -237,7 +237,7 @@ export default function UserChannels() {
         switch (type) {
             case 'facebook': return <Facebook className="text-accent-active" />;
             case 'instagram': return <Instagram className="text-pink-600" />;
-            case 'whatsapp': return <MessageCircle className="text-success" />;
+            case 'whatsapp': return <MessageCircle className="text-success-ink dark:text-success" />;
             default: return <Share2 />;
         }
     };
@@ -338,7 +338,7 @@ export default function UserChannels() {
                 <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
                     <div>
                         <h1 className="text-3xl font-bold text-gray-900 dark:text-foreground flex items-center gap-3">
-                            <Share2 className="text-accent" size={32} />
+                            <Share2 className="text-primary-700 dark:text-accent" size={32} />
                             Channel Control
                         </h1>
                         <p className="text-gray-500 dark:text-muted mt-1">
@@ -356,8 +356,8 @@ export default function UserChannels() {
 
                 {/* Info Alert */}
                 <div className="bg-accent/10 dark:bg-accent/20 border border-accent/30 dark:border-accent/30 p-4 rounded-card flex items-start gap-3">
-                    <AlertCircle className="text-accent mt-0.5" size={20} />
-                    <div className="text-sm text-info dark:text-info">
+                    <AlertCircle className="text-primary-700 dark:text-accent mt-0.5" size={20} />
+                    <div className="text-sm text-info-ink dark:text-info">
                         <p className="font-semibold">Automated Routing</p>
                         <p>Incoming messages from these channels will follow your workflow settings or appear directly in your Inbox.</p>
                     </div>
@@ -367,7 +367,7 @@ export default function UserChannels() {
                 {channels.length === 0 ? (
                     <div className="bg-white dark:bg-surface rounded-card p-12 text-center border-2 border-dashed border-gray-200 dark:border-border shadow-sm">
                         <div className="w-16 h-16 bg-gray-50 dark:bg-background rounded-card flex items-center justify-center mx-auto mb-4">
-                            <Share2 className="text-gray-400" size={32} />
+                            <Share2 className="text-gray-500 dark:text-muted" size={32} />
                         </div>
                         <h3 className="text-xl font-bold text-gray-900 dark:text-foreground mb-2">No Channels Connected</h3>
                         <p className="text-gray-500 dark:text-muted max-w-md mx-auto mb-8">
@@ -399,7 +399,7 @@ export default function UserChannels() {
                                     <div className="w-12 h-12 bg-gray-50 dark:bg-background rounded-card flex items-center justify-center shadow-inner group-hover:scale-110 transition-transform">
                                         {getChannelIcon(channel.type)}
                                     </div>
-                                    <div className={`px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider ${channel.isActive ? 'bg-success text-success dark:bg-success/30 dark:text-success' : 'bg-gray-100 text-gray-700'}`}>
+                                    <div className={`px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider ${channel.isActive ? 'bg-success text-success-ink dark:bg-success/30 dark:text-success' : 'bg-gray-100 text-gray-700'}`}>
                                         {channel.isActive ? 'Active' : 'Paused'}
                                     </div>
                                 </div>
@@ -411,21 +411,21 @@ export default function UserChannels() {
 
                                 <div className="grid grid-cols-2 gap-4 mb-6">
                                     <div className="p-3 bg-gray-50 dark:bg-background/50 rounded-card border border-gray-100 dark:border-border">
-                                        <p className="text-[10px] uppercase font-bold text-gray-400 mb-1 font-sans">Routing</p>
-                                        <div className="flex items-center gap-1.5 font-bold text-sm text-accent">
+                                        <p className="text-[10px] uppercase font-bold text-gray-500 dark:text-muted mb-1 font-sans">Routing</p>
+                                        <div className="flex items-center gap-1.5 font-bold text-sm text-primary-700 dark:text-accent">
                                             {channel.mode === 'workflow' ? <Zap size={14} /> : <User size={14} />}
                                             <span className="capitalize">{channel.mode}</span>
                                         </div>
                                     </div>
                                     <div className="p-3 bg-gray-50 dark:bg-background/50 rounded-card border border-gray-100 dark:border-border">
-                                        <p className="text-[10px] uppercase font-bold text-gray-400 mb-1 font-sans">Token</p>
+                                        <p className="text-[10px] uppercase font-bold text-gray-500 dark:text-muted mb-1 font-sans">Token</p>
                                         {channel.hasToken ? (
-                                            <div className="flex items-center gap-1.5 font-bold text-sm text-success">
+                                            <div className="flex items-center gap-1.5 font-bold text-sm text-success-ink dark:text-success">
                                                 <CheckCircle2 size={14} />
                                                 <span>Configured</span>
                                             </div>
                                         ) : (
-                                            <div className="flex items-center gap-1.5 font-bold text-sm text-warning">
+                                            <div className="flex items-center gap-1.5 font-bold text-sm text-warning-ink dark:text-warning">
                                                 <AlertCircle size={14} />
                                                 <span>Missing</span>
                                             </div>
@@ -477,7 +477,7 @@ export default function UserChannels() {
                                     type="button"
                                     disabled={isSaving}
                                     onClick={() => { if (!isSaving) setIsModalOpen(false); }}
-                                    className={`p-2 text-gray-400 hover:bg-gray-100 dark:hover:bg-surface-hover rounded-full transition-colors ${isSaving ? 'opacity-50 cursor-not-allowed' : ''}`}
+                                    className={`p-2 text-gray-500 dark:text-muted hover:bg-gray-100 dark:hover:bg-surface-hover rounded-full transition-colors ${isSaving ? 'opacity-50 cursor-not-allowed' : ''}`}
                                     aria-label="Close"
                                 >
                                     <X size={24} />
@@ -498,8 +498,8 @@ export default function UserChannels() {
                                                     type="button"
                                                     onClick={() => setFormData({ ...formData, type: plat.id })}
                                                     className={`flex flex-col items-center justify-center p-4 rounded-card border-2 transition-all gap-2 ${formData.type === plat.id
-                                                        ? 'border-accent bg-accent/10 dark:bg-accent/20 text-accent'
-                                                        : 'border-gray-100 dark:border-border bg-gray-50 dark:bg-background text-gray-400 ' + plat.color
+                                                        ? 'border-accent bg-accent/10 dark:bg-accent/20 text-primary-700 dark:text-accent'
+                                                        : 'border-gray-100 dark:border-border bg-gray-50 dark:bg-background text-gray-500 dark:text-muted ' + plat.color
                                                         }`}
                                                 >
                                                     {plat.icon}
@@ -556,7 +556,7 @@ export default function UserChannels() {
                                                     )}
                                                 </button>
                                                 {isConnecting && (
-                                                    <p className="text-xs text-gray-400">Complete the authorization in the popup — your accounts will appear here automatically.</p>
+                                                    <p className="text-xs text-gray-500 dark:text-muted">Complete the authorization in the popup — your accounts will appear here automatically.</p>
                                                 )}
                                             </div>
                                         )}
@@ -588,7 +588,7 @@ export default function UserChannels() {
                                                             </p>
                                                         </div>
                                                     </div>
-                                                    <CheckCircle2 className="text-accent opacity-0 group-hover:opacity-100" size={18} />
+                                                    <CheckCircle2 className="text-primary-700 dark:text-accent opacity-0 group-hover:opacity-100" size={18} />
                                                 </button>
                                             ))}
                                             {availablePages.length === 0 && (
@@ -599,7 +599,7 @@ export default function UserChannels() {
                                             )}
                                         </div>
                                         <div className="flex items-center justify-between gap-3">
-                                            <button onClick={() => setWizardStep(1)} className="text-xs font-bold text-accent uppercase hover:underline">← Change Platform</button>
+                                            <button onClick={() => setWizardStep(1)} className="text-xs font-bold text-primary-700 dark:text-accent uppercase hover:underline">← Change Platform</button>
                                             <button onClick={handleMetaLogin} disabled={isConnecting} className="text-xs font-bold text-gray-500 uppercase hover:text-accent hover:underline disabled:opacity-50 flex items-center gap-1">
                                                 {isConnecting ? <Loader2 size={12} className="animate-spin" /> : null}
                                                 Resync Accounts
@@ -615,7 +615,7 @@ export default function UserChannels() {
                                                 {getChannelIcon(formData.type)}
                                             </div>
                                             <div>
-                                                <p className="text-xs text-accent dark:text-info font-bold uppercase">Linked Account</p>
+                                                <p className="text-xs text-primary-700 dark:text-info font-bold uppercase">Linked Account</p>
                                                 <h4 className="font-bold text-gray-900 dark:text-foreground">{formData.name}</h4>
                                             </div>
                                         </div>
@@ -672,7 +672,7 @@ export default function UserChannels() {
 
                                             <div>
                                                 <label className="block text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-2">
-                                                    Access Token {isEditing && <span className="normal-case font-medium text-gray-400">(leave blank to keep current)</span>}
+                                                    Access Token {isEditing && <span className="normal-case font-medium text-gray-500 dark:text-muted">(leave blank to keep current)</span>}
                                                 </label>
                                                 <input
                                                     type="password"
@@ -684,7 +684,7 @@ export default function UserChannels() {
                                                     className="w-full px-4 py-3 bg-gray-50 dark:bg-background border-none rounded-xl focus:ring-2 focus:ring-accent/60 text-gray-900 dark:text-foreground font-mono text-sm"
                                                 />
                                                 {isEditing && !formData.accessToken && (
-                                                    <p className="text-xs text-gray-400 mt-1.5">
+                                                    <p className="text-xs text-gray-500 dark:text-muted mt-1.5">
                                                         {selectedChannel?.hasToken ? 'A token is already configured for this channel.' : 'No token configured — messaging will fail until you set one.'}
                                                     </p>
                                                 )}

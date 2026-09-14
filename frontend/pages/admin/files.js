@@ -235,20 +235,20 @@ export default function AdminFiles() {
 
     const getCategoryIcon = (category, size = 20) => {
         switch (category) {
-            case 'folder': return <Folder size={size} className="text-warning fill-amber-500/20" />;
-            case 'image': return <ImageIcon size={size} className="text-success" />;
+            case 'folder': return <Folder size={size} className="text-warning-ink dark:text-warning fill-amber-500/20" />;
+            case 'image': return <ImageIcon size={size} className="text-success-ink dark:text-success" />;
             case 'video': return <Video size={size} className="text-rose-500" />;
             case 'audio': return <Music size={size} className="text-purple-500" />;
-            case 'document': return <FileText size={size} className="text-accent" />;
+            case 'document': return <FileText size={size} className="text-primary-700 dark:text-accent" />;
             case 'archive': return <Archive size={size} className="text-orange-500" />;
-            default: return <FileText size={size} className="text-gray-400" />;
+            default: return <FileText size={size} className="text-gray-500 dark:text-muted" />;
         }
     };
 
     const getCategoryBadgeClass = (category) => {
         switch (category) {
-            case 'folder': return 'bg-warning text-warning dark:bg-warning/30 dark:text-warning border-amber-200 dark:border-amber-800/50';
-            case 'image': return 'bg-success text-success dark:bg-success/30 dark:text-success border-success dark:border-success/50';
+            case 'folder': return 'bg-warning text-warning-ink dark:bg-warning/30 dark:text-warning border-amber-200 dark:border-amber-800/50';
+            case 'image': return 'bg-success text-success-ink dark:bg-success/30 dark:text-success border-success dark:border-success/50';
             case 'video': return 'bg-rose-100 text-rose-700 dark:bg-rose-900/30 dark:text-rose-300 border-rose-200 dark:border-rose-800/50';
             case 'audio': return 'bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-300 border-purple-200 dark:border-purple-800/50';
             case 'document': return 'bg-accent/10 text-accent-active dark:bg-accent/20 dark:text-info border-accent/30 dark:border-accent/30';
@@ -324,7 +324,7 @@ export default function AdminFiles() {
                 {isDragging && (
                     <div className="fixed inset-0 z-50 bg-accent/20 backdrop-blur-sm border-4 border-dashed border-accent rounded-card flex items-center justify-center pointer-events-none transition-all">
                         <div className="bg-white dark:bg-surface p-8 rounded-card shadow-lg flex flex-col items-center gap-3">
-                            <Upload size={48} className="text-accent" />
+                            <Upload size={48} className="text-primary-700 dark:text-accent" />
                             <h3 className="text-xl font-bold text-gray-900 dark:text-foreground">Drop files to upload</h3>
                             <p className="text-sm text-gray-500">Files will be saved into "{currentFolder || 'Root'}"</p>
                         </div>
@@ -364,7 +364,7 @@ export default function AdminFiles() {
                             onClick={() => setIsCreateFolderOpen(true)}
                             className="inline-flex items-center gap-2 px-4 py-2.5 bg-white dark:bg-surface hover:bg-gray-50 dark:hover:bg-surface-hover text-gray-700 dark:text-secondary border border-gray-200 dark:border-border rounded-xl font-semibold text-sm transition-all shadow-sm"
                         >
-                            <FolderPlus size={18} className="text-warning" />
+                            <FolderPlus size={18} className="text-warning-ink dark:text-warning" />
                             <span>New Folder</span>
                         </button>
 
@@ -388,7 +388,7 @@ export default function AdminFiles() {
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                     <div className="p-5 rounded-card bg-white dark:bg-surface/90 border border-gray-100 dark:border-border shadow-sm relative overflow-hidden">
                         <div className="flex items-center justify-between">
-                            <span className="text-xs font-bold uppercase tracking-wider text-gray-400">Total Storage Used</span>
+                            <span className="text-xs font-bold uppercase tracking-wider text-gray-500 dark:text-muted">Total Storage Used</span>
                             <div className="p-2 bg-accent/10 dark:bg-accent/20 text-accent-active dark:text-info rounded-xl">
                                 <HardDrive size={18} />
                             </div>
@@ -398,13 +398,13 @@ export default function AdminFiles() {
                                 {formatSize(stats.totalSize)}
                             </span>
                         </div>
-                        <p className="text-xs text-gray-400 mt-1">Across all uploaded directories</p>
+                        <p className="text-xs text-gray-500 dark:text-muted mt-1">Across all uploaded directories</p>
                     </div>
 
                     <div className="p-5 rounded-card bg-white dark:bg-surface/90 border border-gray-100 dark:border-border shadow-sm relative overflow-hidden">
                         <div className="flex items-center justify-between">
-                            <span className="text-xs font-bold uppercase tracking-wider text-gray-400">Total Files</span>
-                            <div className="p-2 bg-success dark:bg-success/30 text-success dark:text-success rounded-xl">
+                            <span className="text-xs font-bold uppercase tracking-wider text-gray-500 dark:text-muted">Total Files</span>
+                            <div className="p-2 bg-success dark:bg-success/30 text-success-ink dark:text-success rounded-xl">
                                 <FileText size={18} />
                             </div>
                         </div>
@@ -413,13 +413,13 @@ export default function AdminFiles() {
                                 {stats.totalFiles}
                             </span>
                         </div>
-                        <p className="text-xs text-gray-400 mt-1">Images, audio, video & docs</p>
+                        <p className="text-xs text-gray-500 dark:text-muted mt-1">Images, audio, video & docs</p>
                     </div>
 
                     <div className="p-5 rounded-card bg-white dark:bg-surface/90 border border-gray-100 dark:border-border shadow-sm relative overflow-hidden">
                         <div className="flex items-center justify-between">
-                            <span className="text-xs font-bold uppercase tracking-wider text-gray-400">Folders</span>
-                            <div className="p-2 bg-warning dark:bg-warning/30 text-warning dark:text-warning rounded-xl">
+                            <span className="text-xs font-bold uppercase tracking-wider text-gray-500 dark:text-muted">Folders</span>
+                            <div className="p-2 bg-warning dark:bg-warning/30 text-warning-ink dark:text-warning rounded-xl">
                                 <Folder size={18} />
                             </div>
                         </div>
@@ -428,12 +428,12 @@ export default function AdminFiles() {
                                 {stats.totalFolders}
                             </span>
                         </div>
-                        <p className="text-xs text-gray-400 mt-1">Subdirectories & categories</p>
+                        <p className="text-xs text-gray-500 dark:text-muted mt-1">Subdirectories & categories</p>
                     </div>
 
                     <div className="p-5 rounded-card bg-white dark:bg-surface/90 border border-gray-100 dark:border-border shadow-sm relative overflow-hidden">
                         <div className="flex items-center justify-between">
-                            <span className="text-xs font-bold uppercase tracking-wider text-gray-400">Current Folder Items</span>
+                            <span className="text-xs font-bold uppercase tracking-wider text-gray-500 dark:text-muted">Current Folder Items</span>
                             <div className="p-2 bg-purple-50 dark:bg-purple-900/30 text-purple-600 dark:text-purple-400 rounded-xl">
                                 <FolderOpen size={18} />
                             </div>
@@ -443,7 +443,7 @@ export default function AdminFiles() {
                                 {items.length}
                             </span>
                         </div>
-                        <p className="text-xs text-gray-400 mt-1">Direct items in current view</p>
+                        <p className="text-xs text-gray-500 dark:text-muted mt-1">Direct items in current view</p>
                     </div>
                 </div>
 
@@ -468,7 +468,7 @@ export default function AdminFiles() {
                                             {idx === 0 ? <HardDrive size={15} /> : <Folder size={15} />}
                                             <span>{crumb.name}</span>
                                         </button>
-                                        {!isLast && <ChevronRight size={14} className="text-gray-400" />}
+                                        {!isLast && <ChevronRight size={14} className="text-gray-500 dark:text-muted" />}
                                     </React.Fragment>
                                 );
                             })}
@@ -478,7 +478,7 @@ export default function AdminFiles() {
                         <div className="flex items-center gap-2.5 flex-wrap">
                             {/* Search */}
                             <div className="relative w-full sm:w-56">
-                                <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={16} />
+                                <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 dark:text-muted" size={16} />
                                 <input
                                     type="text"
                                     placeholder="Search files..."
@@ -489,7 +489,7 @@ export default function AdminFiles() {
                                 {searchTerm && (
                                     <button
                                         onClick={() => setSearchTerm('')}
-                                        className="absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                                        className="absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-500 dark:text-muted hover:text-gray-600"
                                     >
                                         <X size={14} />
                                     </button>
@@ -510,7 +510,7 @@ export default function AdminFiles() {
                                     <option value="name-asc">Name (A-Z)</option>
                                     <option value="name-desc">Name (Z-A)</option>
                                 </select>
-                                <ArrowUpDown size={14} className="absolute left-2.5 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
+                                <ArrowUpDown size={14} className="absolute left-2.5 top-1/2 -translate-y-1/2 text-gray-500 dark:text-muted pointer-events-none" />
                             </div>
 
                             {/* View Switcher */}
@@ -520,7 +520,7 @@ export default function AdminFiles() {
                                     onClick={() => setViewMode('grid')}
                                     className={`p-1.5 rounded-lg transition-all ${viewMode === 'grid'
                                         ? 'bg-white dark:bg-surface text-accent-active dark:text-info shadow-sm'
-                                        : 'text-gray-400 hover:text-gray-700 dark:hover:text-gray-200'
+                                        : 'text-gray-500 dark:text-muted hover:text-gray-700 dark:hover:text-gray-200'
                                         }`}
                                     title="Grid View"
                                 >
@@ -531,7 +531,7 @@ export default function AdminFiles() {
                                     onClick={() => setViewMode('list')}
                                     className={`p-1.5 rounded-lg transition-all ${viewMode === 'list'
                                         ? 'bg-white dark:bg-surface text-accent-active dark:text-info shadow-sm'
-                                        : 'text-gray-400 hover:text-gray-700 dark:hover:text-gray-200'
+                                        : 'text-gray-500 dark:text-muted hover:text-gray-700 dark:hover:text-gray-200'
                                         }`}
                                     title="List View"
                                 >
@@ -603,7 +603,7 @@ export default function AdminFiles() {
                                     <button
                                         type="button"
                                         onClick={handleBatchDelete}
-                                        className="text-xs font-semibold text-danger hover:text-danger flex items-center gap-1 bg-danger/10 dark:bg-red-900/30 px-2.5 py-1 rounded-lg border border-red-200 dark:border-red-800/50"
+                                        className="text-xs font-semibold text-danger-ink dark:text-danger hover:text-danger flex items-center gap-1 bg-danger/10 dark:bg-red-900/30 px-2.5 py-1 rounded-lg border border-red-200 dark:border-red-800/50"
                                     >
                                         <Trash2 size={13} />
                                         <span>Delete Selected ({selectedItems.size})</span>
@@ -622,13 +622,13 @@ export default function AdminFiles() {
                             </div>
                         ) : filteredItems.length === 0 ? (
                             <div className="text-center py-20 px-6 border-2 border-dashed border-gray-200 dark:border-border rounded-card">
-                                <div className="w-14 h-14 bg-gray-100 dark:bg-surface text-gray-400 rounded-card flex items-center justify-center mx-auto mb-3">
+                                <div className="w-14 h-14 bg-gray-100 dark:bg-surface text-gray-500 dark:text-muted rounded-card flex items-center justify-center mx-auto mb-3">
                                     <FolderOpen size={28} />
                                 </div>
                                 <h3 className="text-base font-bold text-gray-800 dark:text-secondary">
                                     {searchTerm ? 'No matching files found' : 'This folder is empty'}
                                 </h3>
-                                <p className="text-xs text-gray-400 mt-1 max-w-sm mx-auto">
+                                <p className="text-xs text-gray-500 dark:text-muted mt-1 max-w-sm mx-auto">
                                     {searchTerm
                                         ? `No items match the query "${searchTerm}". Try a different search term.`
                                         : 'Upload files directly or drag and drop assets into this directory.'}
@@ -673,7 +673,7 @@ export default function AdminFiles() {
                                                 onClick={() => toggleSelectItem(item.path)}
                                                 className={`absolute top-2 left-2 z-20 p-1 rounded-lg transition-opacity ${isSelected
                                                     ? 'opacity-100 text-accent-active bg-white dark:bg-surface shadow-sm'
-                                                    : 'opacity-0 group-hover:opacity-100 text-gray-400 hover:text-gray-600 bg-white/80 dark:bg-surface/80 backdrop-blur-sm'
+                                                    : 'opacity-0 group-hover:opacity-100 text-gray-500 dark:text-muted hover:text-gray-600 bg-white/80 dark:bg-surface/80 backdrop-blur-sm'
                                                     }`}
                                             >
                                                 {isSelected ? <CheckSquare size={16} /> : <Square size={16} />}
@@ -692,8 +692,8 @@ export default function AdminFiles() {
                                             >
                                                 {item.isDirectory ? (
                                                     <div className="flex flex-col items-center justify-center text-center p-2 group-hover:scale-105 transition-transform">
-                                                        <Folder size={46} className="text-warning fill-amber-500/20 drop-shadow-sm" />
-                                                        <span className="text-[11px] font-semibold text-warning dark:text-warning mt-1 bg-warning dark:bg-warning/40 px-2 py-0.5 rounded-full font-mono">
+                                                        <Folder size={46} className="text-warning-ink dark:text-warning fill-amber-500/20 drop-shadow-sm" />
+                                                        <span className="text-[11px] font-semibold text-warning-ink dark:text-warning mt-1 bg-warning dark:bg-warning/40 px-2 py-0.5 rounded-full font-mono">
                                                             {item.itemCount} items
                                                         </span>
                                                     </div>
@@ -715,7 +715,7 @@ export default function AdminFiles() {
                                                         <div className="p-3 rounded-card bg-gray-100 dark:bg-surface group-hover:scale-110 transition-transform">
                                                             {getCategoryIcon(item.category, 32)}
                                                         </div>
-                                                        <span className="text-[10px] font-mono text-gray-400 uppercase mt-2 font-bold tracking-wider">
+                                                        <span className="text-[10px] font-mono text-gray-500 dark:text-muted uppercase mt-2 font-bold tracking-wider">
                                                             {item.extension || item.category}
                                                         </span>
                                                     </div>
@@ -753,7 +753,7 @@ export default function AdminFiles() {
                                                             e.stopPropagation();
                                                             setDeleteModalItem(item);
                                                         }}
-                                                        className="p-2 bg-white/90 hover:bg-white text-danger rounded-xl shadow-lg hover:scale-110 transition-transform"
+                                                        className="p-2 bg-white/90 hover:bg-white text-danger-ink dark:text-danger rounded-xl shadow-lg hover:scale-110 transition-transform"
                                                         title="Delete"
                                                     >
                                                         <Trash2 size={15} />
@@ -773,7 +773,7 @@ export default function AdminFiles() {
                                                 >
                                                     {item.name}
                                                 </p>
-                                                <div className="flex items-center justify-between mt-1 text-[11px] text-gray-400 font-mono">
+                                                <div className="flex items-center justify-between mt-1 text-[11px] text-gray-500 dark:text-muted font-mono">
                                                     <span>{item.isDirectory ? `${item.itemCount} items` : formatSize(item.size)}</span>
                                                     <span>{formatDate(item.createdAt)}</span>
                                                 </div>
@@ -787,7 +787,7 @@ export default function AdminFiles() {
                             <div className="overflow-x-auto">
                                 <table className="w-full text-left text-sm">
                                     <thead>
-                                        <tr className="border-b border-gray-100 dark:border-border text-xs font-bold text-gray-400 uppercase tracking-wider">
+                                        <tr className="border-b border-gray-100 dark:border-border text-xs font-bold text-gray-500 dark:text-muted uppercase tracking-wider">
                                             <th className="py-3 px-3 w-8">
                                                 <button onClick={toggleSelectAll}>
                                                     {selectedItems.size === filteredItems.length && filteredItems.length > 0 ? (
@@ -818,7 +818,7 @@ export default function AdminFiles() {
                                                             {isSelected ? (
                                                                 <CheckSquare size={16} className="text-accent-active" />
                                                             ) : (
-                                                                <Square size={16} className="text-gray-400" />
+                                                                <Square size={16} className="text-gray-500 dark:text-muted" />
                                                             )}
                                                         </button>
                                                     </td>
@@ -838,7 +838,7 @@ export default function AdminFiles() {
                                                                     {item.name}
                                                                 </p>
                                                                 {item.isDirectory && (
-                                                                    <p className="text-[11px] text-warning dark:text-warning font-mono">
+                                                                    <p className="text-[11px] text-warning-ink dark:text-warning font-mono">
                                                                         Folder • {item.itemCount} items
                                                                     </p>
                                                                 )}
@@ -904,14 +904,14 @@ export default function AdminFiles() {
                         <div className="bg-white dark:bg-surface rounded-card max-w-md w-full p-6 shadow-lg border border-gray-100 dark:border-border">
                             <div className="flex items-center justify-between mb-4">
                                 <div className="flex items-center gap-2.5">
-                                    <div className="p-2 bg-warning dark:bg-warning/30 text-warning rounded-xl">
+                                    <div className="p-2 bg-warning dark:bg-warning/30 text-warning-ink dark:text-warning rounded-xl">
                                         <FolderPlus size={20} />
                                     </div>
                                     <h3 className="text-lg font-bold text-gray-900 dark:text-foreground">Create New Folder</h3>
                                 </div>
                                 <button
                                     onClick={() => setIsCreateFolderOpen(false)}
-                                    className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200"
+                                    className="text-gray-500 dark:text-muted hover:text-gray-600 dark:hover:text-gray-200"
                                 >
                                     <X size={18} />
                                 </button>
@@ -930,7 +930,7 @@ export default function AdminFiles() {
                                         autoFocus
                                         className="w-full px-4 py-2.5 bg-gray-50 dark:bg-background border border-gray-200 dark:border-border rounded-xl text-sm focus:ring-2 focus:ring-accent/60 outline-none text-gray-800 dark:text-secondary"
                                     />
-                                    <p className="text-xs text-gray-400 mt-1">
+                                    <p className="text-xs text-gray-500 dark:text-muted mt-1">
                                         Location: /{currentFolder || 'Root'}
                                     </p>
                                 </div>
@@ -960,7 +960,7 @@ export default function AdminFiles() {
                 {deleteModalItem && (
                     <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-xs flex items-center justify-center p-4 animate-fadeIn">
                         <div className="bg-white dark:bg-surface rounded-card max-w-sm w-full p-6 shadow-lg border border-gray-100 dark:border-border">
-                            <div className="w-12 h-12 rounded-card bg-danger/10 dark:bg-red-900/30 text-danger flex items-center justify-center mb-4">
+                            <div className="w-12 h-12 rounded-card bg-danger/10 dark:bg-red-900/30 text-danger-ink dark:text-danger flex items-center justify-center mb-4">
                                 <AlertCircle size={24} />
                             </div>
                             <h3 className="text-lg font-bold text-gray-900 dark:text-foreground mb-1">
@@ -1006,14 +1006,14 @@ export default function AdminFiles() {
                                         <h3 className="text-base font-bold text-gray-900 dark:text-foreground truncate max-w-xs sm:max-w-md">
                                             {previewItem.name}
                                         </h3>
-                                        <p className="text-xs text-gray-400 font-mono">
+                                        <p className="text-xs text-gray-500 dark:text-muted font-mono">
                                             {formatSize(previewItem.size)} • {formatDate(previewItem.createdAt)}
                                         </p>
                                     </div>
                                 </div>
                                 <button
                                     onClick={() => setPreviewItem(null)}
-                                    className="p-1.5 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 rounded-lg"
+                                    className="p-1.5 text-gray-500 dark:text-muted hover:text-gray-600 dark:hover:text-gray-200 rounded-lg"
                                 >
                                     <X size={20} />
                                 </button>
@@ -1046,7 +1046,7 @@ export default function AdminFiles() {
                                         <p className="text-sm font-semibold text-gray-700 dark:text-secondary mt-3">
                                             {previewItem.name}
                                         </p>
-                                        <p className="text-xs text-gray-400 mt-1">
+                                        <p className="text-xs text-gray-500 dark:text-muted mt-1">
                                             Preview not available for this file type.
                                         </p>
                                     </div>
@@ -1083,7 +1083,7 @@ export default function AdminFiles() {
                                             setPreviewItem(null);
                                             setDeleteModalItem(itemToDelete);
                                         }}
-                                        className="inline-flex items-center gap-1.5 px-3 py-2 bg-danger/10 dark:bg-red-900/30 text-danger text-xs font-semibold rounded-xl hover:bg-red-100 transition-all"
+                                        className="inline-flex items-center gap-1.5 px-3 py-2 bg-danger/10 dark:bg-red-900/30 text-danger-ink dark:text-danger text-xs font-semibold rounded-xl hover:bg-red-100 transition-all"
                                     >
                                         <Trash2 size={14} />
                                         <span>Delete</span>

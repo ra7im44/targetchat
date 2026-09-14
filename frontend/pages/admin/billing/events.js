@@ -91,7 +91,7 @@ export default function BillingEventsPage() {
                                                 {event.stripeEventId}
                                             </td>
                                             <td className="px-6 py-4 whitespace-nowrap">
-                                                <span className="text-accent dark:text-info font-medium">
+                                                <span className="text-primary-700 dark:text-info font-medium">
                                                     {event.eventType}
                                                 </span>
                                             </td>

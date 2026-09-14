@@ -262,9 +262,9 @@ export default function SettingsPanel({ isOpen, onClose }) {
 
     const getStatusBadge = (status) => {
         const badges = {
-            active: 'bg-success text-success dark:bg-success/30 dark:text-success',
-            trialing: 'bg-accent/10 text-info dark:bg-accent/20 dark:text-info',
-            past_due: 'bg-red-100 text-danger dark:bg-red-900/30 dark:text-danger',
+            active: 'bg-success text-success-ink dark:bg-success/30 dark:text-success',
+            trialing: 'bg-accent/10 text-info-ink dark:bg-accent/20 dark:text-info',
+            past_due: 'bg-red-100 text-danger-ink dark:bg-red-900/30 dark:text-danger',
             canceled: 'bg-gray-100 text-gray-700 dark:bg-surface-elevated dark:text-secondary'
         };
         return (
@@ -302,7 +302,7 @@ export default function SettingsPanel({ isOpen, onClose }) {
                         <button
                             onClick={() => setActiveTab('general')}
                             className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg text-left transition-all ${activeTab === 'general'
-                                ? 'bg-accent/10 dark:bg-accent/20 text-accent dark:text-info'
+                                ? 'bg-accent/10 dark:bg-accent/20 text-primary-700 dark:text-info'
                                 : 'text-gray-700 dark:text-secondary hover:bg-gray-100 dark:hover:bg-surface-hover'
                                 }`}
                         >
@@ -313,7 +313,7 @@ export default function SettingsPanel({ isOpen, onClose }) {
                         <button
                             onClick={() => setActiveTab('billing')}
                             className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg text-left transition-all ${activeTab === 'billing'
-                                ? 'bg-accent/10 dark:bg-accent/20 text-accent dark:text-info'
+                                ? 'bg-accent/10 dark:bg-accent/20 text-primary-700 dark:text-info'
                                 : 'text-gray-700 dark:text-secondary hover:bg-gray-100 dark:hover:bg-surface-hover'
                                 }`}
                         >
@@ -324,7 +324,7 @@ export default function SettingsPanel({ isOpen, onClose }) {
                         <button
                             onClick={() => setActiveTab('security')}
                             className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg text-left transition-all ${activeTab === 'security'
-                                ? 'bg-accent/10 dark:bg-accent/20 text-accent dark:text-info'
+                                ? 'bg-accent/10 dark:bg-accent/20 text-primary-700 dark:text-info'
                                 : 'text-gray-700 dark:text-secondary hover:bg-gray-100 dark:hover:bg-surface-hover'
                                 }`}
                         >
@@ -335,7 +335,7 @@ export default function SettingsPanel({ isOpen, onClose }) {
                         <button
                             onClick={() => setActiveTab('account')}
                             className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg text-left transition-all ${activeTab === 'account'
-                                ? 'bg-accent/10 dark:bg-accent/20 text-accent dark:text-info'
+                                ? 'bg-accent/10 dark:bg-accent/20 text-primary-700 dark:text-info'
                                 : 'text-gray-700 dark:text-secondary hover:bg-gray-100 dark:hover:bg-surface-hover'
                                 }`}
                         >
@@ -349,8 +349,8 @@ export default function SettingsPanel({ isOpen, onClose }) {
                 <div className="flex-1 overflow-y-auto p-8">
                     {message && (
                         <div className={`p-4 rounded-lg mb-6 ${message.type === 'success'
-                            ? 'bg-success dark:bg-success/20 text-success dark:text-success'
-                            : 'bg-danger/10 dark:bg-danger/20 text-danger dark:text-danger'
+                            ? 'bg-success dark:bg-success/20 text-success-ink dark:text-success'
+                            : 'bg-danger/10 dark:bg-danger/20 text-danger-ink dark:text-danger'
                             }`}>
                             {message.text}
                         </div>
@@ -456,7 +456,7 @@ export default function SettingsPanel({ isOpen, onClose }) {
                                         </div>
                                         {subscription.cancelAtPeriodEnd && (
                                             <div className="bg-warning dark:bg-warning/20 border border-warning/30 dark:border-warning/30 rounded-lg p-3">
-                                                <p className="text-sm text-warning dark:text-warning flex items-center gap-1.5"><TriangleAlert size={16} /> Your subscription will be canceled on {formatDate(subscription.currentPeriodEnd)}</p>
+                                                <p className="text-sm text-warning-ink dark:text-warning flex items-center gap-1.5"><TriangleAlert size={16} /> Your subscription will be canceled on {formatDate(subscription.currentPeriodEnd)}</p>
                                             </div>
                                         )}
                                     </div>
@@ -488,7 +488,7 @@ export default function SettingsPanel({ isOpen, onClose }) {
                                                         <td className="py-3 px-4">{getStatusBadge(inv.status)}</td>
                                                         <td className="py-3 px-4 text-right">
                                                             {inv.invoicePdf && (
-                                                                <a href={inv.invoicePdf} target="_blank" rel="noopener noreferrer" className="text-accent hover:text-accent">Download</a>
+                                                                <a href={inv.invoicePdf} target="_blank" rel="noopener noreferrer" className="text-primary-700 dark:text-accent hover:text-accent">Download</a>
                                                             )}
                                                         </td>
                                                     </tr>
@@ -528,12 +528,12 @@ export default function SettingsPanel({ isOpen, onClose }) {
                                 <h4 className="text-xl font-semibold text-gray-900 dark:text-foreground mb-4">Account Information</h4>
                                 <div className="space-y-3 text-gray-700 dark:text-secondary">
                                     <div className="flex justify-between"><span className="font-medium">Account ID:</span><span className="text-gray-600 dark:text-muted">{user?.id}</span></div>
-                                    <div className="flex justify-between"><span className="font-medium">Role:</span><span className="px-3 py-1 rounded-full text-sm bg-accent/10 dark:bg-accent/20 text-info dark:text-info">{user?.role === 'admin' ? 'Admin' : 'User'}</span></div>
+                                    <div className="flex justify-between"><span className="font-medium">Role:</span><span className="px-3 py-1 rounded-full text-sm bg-accent/10 dark:bg-accent/20 text-info-ink dark:text-info">{user?.role === 'admin' ? 'Admin' : 'User'}</span></div>
                                 </div>
                             </div>
                             <div className="bg-danger/10 dark:bg-danger/20 rounded-lg p-6 border border-danger/30 dark:border-danger/30">
-                                <h4 className="text-xl font-semibold text-danger dark:text-danger mb-2 flex items-center gap-2"><TriangleAlert size={18} /> DANGER ZONE</h4>
-                                <p className="text-danger dark:text-danger mb-4 text-sm">Permanently remove your account and all associated data. This action cannot be undone.</p>
+                                <h4 className="text-xl font-semibold text-danger-ink dark:text-danger mb-2 flex items-center gap-2"><TriangleAlert size={18} /> DANGER ZONE</h4>
+                                <p className="text-danger-ink dark:text-danger mb-4 text-sm">Permanently remove your account and all associated data. This action cannot be undone.</p>
                                 <button onClick={() => setShowDeleteModal(true)} className="px-6 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors">Delete My Account</button>
                             </div>
                         </div>

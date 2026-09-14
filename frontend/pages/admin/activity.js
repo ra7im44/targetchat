@@ -77,7 +77,7 @@ export default function ActivityLogs() {
                     </div>
                     <button
                         onClick={() => loadLogs()}
-                        className="p-2 text-gray-400 hover:text-accent hover:bg-gray-100 dark:hover:bg-surface-hover rounded-lg transition-all"
+                        className="p-2 text-gray-500 dark:text-muted hover:text-accent hover:bg-gray-100 dark:hover:bg-surface-hover rounded-lg transition-all"
                         title="Refresh"
                     >
                         <RefreshCw size={18} className={loading ? 'animate-spin' : ''} />
@@ -150,7 +150,7 @@ export default function ActivityLogs() {
                                 ))
                             ) : logs.length === 0 ? (
                                 <tr>
-                                    <td colSpan="5" className="px-6 py-20 text-center text-gray-400">
+                                    <td colSpan="5" className="px-6 py-20 text-center text-gray-500 dark:text-muted">
                                         <div className="flex flex-col items-center justify-center gap-2">
                                             <Search size={18} />
                                             <p>No activity logs found</p>
@@ -165,7 +165,7 @@ export default function ActivityLogs() {
                                                     ? 'bg-red-50 text-red-700 border-red-100 dark:bg-red-900/20 dark:border-red-800 dark:text-red-400'
                                                     : log.action.includes('LOGIN')
                                                         ? 'bg-green-50 text-green-700 border-green-100 dark:bg-green-900/20 dark:border-green-800 dark:text-green-400'
-                                                        : 'bg-blue-50 text-info border-blue-100 dark:bg-blue-900/20 dark:border-blue-800 dark:text-info'
+                                                        : 'bg-blue-50 text-info-ink border-blue-100 dark:bg-blue-900/20 dark:border-blue-800 dark:text-info'
                                                 }`}>
                                                 {log.action}
                                             </span>

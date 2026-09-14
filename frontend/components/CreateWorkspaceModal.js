@@ -122,7 +122,7 @@ export default function CreateWorkspaceModal({ isOpen, onClose, onCreated }) {
                                     value="free"
                                     checked={planType === 'free'}
                                     onChange={(e) => setPlanType(e.target.value)}
-                                    className="w-4 h-4 text-accent"
+                                    className="w-4 h-4 text-primary-700 dark:text-accent"
                                 />
                                 <div className="ml-3 flex-1">
                                     <div className="font-medium text-gray-900 dark:text-foreground">Free</div>
@@ -141,7 +141,7 @@ export default function CreateWorkspaceModal({ isOpen, onClose, onCreated }) {
                                     value="team"
                                     checked={planType === 'team'}
                                     onChange={(e) => setPlanType(e.target.value)}
-                                    className="w-4 h-4 text-accent"
+                                    className="w-4 h-4 text-primary-700 dark:text-accent"
                                 />
                                 <div className="ml-3 flex-1">
                                     <div className="font-medium text-gray-900 dark:text-foreground">Team - $25/month</div>
@@ -160,7 +160,7 @@ export default function CreateWorkspaceModal({ isOpen, onClose, onCreated }) {
                                     value="enterprise"
                                     checked={planType === 'enterprise'}
                                     onChange={(e) => setPlanType(e.target.value)}
-                                    className="w-4 h-4 text-accent"
+                                    className="w-4 h-4 text-primary-700 dark:text-accent"
                                 />
                                 <div className="ml-3 flex-1">
                                     <div className="font-medium text-gray-900 dark:text-foreground">Enterprise - $100/month</div>

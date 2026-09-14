@@ -90,12 +90,12 @@ export default function DashboardSidebar({
                             key={item.name}
                             href={item.href}
                             className={`flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors ${isActive
-                                ? 'bg-gray-100 dark:bg-surface-elevated text-accent dark:text-accent font-medium'
+                                ? 'bg-gray-100 dark:bg-surface-elevated text-primary-700 dark:text-accent font-medium'
                                 : 'text-gray-600 dark:text-muted hover:bg-gray-50 dark:hover:bg-surface-hover'
                                 }`}
                             title={collapsed ? item.name : ''}
                         >
-                            <Icon name={item.icon} className={`w-5 h-5 ${isActive ? 'text-accent dark:text-accent' : 'text-gray-500 dark:text-muted'}`} />
+                            <Icon name={item.icon} className={`w-5 h-5 ${isActive ? 'text-primary-700 dark:text-accent' : 'text-gray-500 dark:text-muted'}`} />
                             {!collapsed && <span>{item.name}</span>}
                         </Link>
                     );

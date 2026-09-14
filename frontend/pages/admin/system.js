@@ -92,7 +92,7 @@ export default function SystemPage() {
             <div className="max-w-7xl mx-auto space-y-8 animate-fadeIn">
                 <div className="mb-10">
                     <h1 className="text-3xl font-bold text-gray-900 dark:text-foreground flex items-center gap-3">
-                        <Activity size={18} className="text-danger" />
+                        <Activity size={18} className="text-danger-ink dark:text-danger" />
                         System Health
                     </h1>
                     <p className="text-gray-500 dark:text-muted mt-1">

@@ -230,7 +230,7 @@ export default function UsersPage() {
                 <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                     <div>
                         <h1 className="text-3xl font-bold text-gray-900 dark:text-foreground flex items-center gap-3">
-                            <Users size={18} className="text-accent" />
+                            <Users size={18} className="text-primary-700 dark:text-accent" />
                             User Management
                         </h1>
                         <p className="text-gray-500 dark:text-muted mt-1">
@@ -248,7 +248,7 @@ export default function UsersPage() {
                             <Users size={18} />
                         </div>
                         <div className="relative z-10">
-                            <div className="p-3 bg-blue-50 dark:bg-blue-900/20 rounded-xl w-fit mb-4 text-accent dark:text-info">
+                            <div className="p-3 bg-blue-50 dark:bg-blue-900/20 rounded-xl w-fit mb-4 text-primary-700 dark:text-info">
                                 <Users size={18} />
                             </div>
                             <h3 className="text-3xl font-bold text-gray-900 dark:text-foreground mb-1">
@@ -322,7 +322,7 @@ export default function UsersPage() {
                             </div>
                             <button
                                 onClick={() => setSelectedUsers([])}
-                                className="ml-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200"
+                                className="ml-2 text-gray-500 dark:text-muted hover:text-gray-600 dark:hover:text-gray-200"
                             >
                                 <X size={18} />
                             </button>
@@ -417,7 +417,7 @@ export default function UsersPage() {
                                                 <div className="min-w-0">
                                                     <div className="font-semibold text-gray-900 dark:text-foreground hover:text-accent transition-colors flex items-center gap-2">
                                                         <span>{user.name}</span>
-                                                        <span className="text-[11px] font-mono text-gray-400 font-normal">#{user.id}</span>
+                                                        <span className="text-[11px] font-mono text-gray-500 dark:text-muted font-normal">#{user.id}</span>
                                                     </div>
                                                     <div className="text-sm text-gray-500 dark:text-muted truncate">{user.email}</div>
                                                     {/* Geo, IP and Device Sub-row (Like U-Axis SPA) */}
@@ -426,7 +426,7 @@ export default function UsersPage() {
                                                             {countryName(user.country)} {user.city ? `· ${user.city}` : ''}
                                                         </span>
                                                         <span className="text-gray-300 dark:text-gray-600">•</span>
-                                                        <span className="font-mono text-[11px] bg-blue-50 dark:bg-blue-900/30 text-info dark:text-info px-1.5 py-0.5 rounded border border-blue-200/50 dark:border-blue-800/50" title="Last IP Address">
+                                                        <span className="font-mono text-[11px] bg-blue-50 dark:bg-blue-900/30 text-info-ink dark:text-info px-1.5 py-0.5 rounded border border-blue-200/50 dark:border-blue-800/50" title="Last IP Address">
                                                             <Globe size={16} /> <code>{user.lastIp || 'No IP'}</code>
                                                         </span>
                                                         <span className="text-gray-300 dark:text-gray-600">•</span>
@@ -462,7 +462,7 @@ export default function UsersPage() {
                                             <div className="flex gap-2 justify-end opacity-100 lg:opacity-0 lg:group-hover:opacity-100 lg:focus-within:opacity-100 transition-opacity">
                                                 <button
                                                     onClick={() => setEditingUser(user)}
-                                                    className="p-2 rounded-lg text-accent hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-all"
+                                                    className="p-2 rounded-lg text-primary-700 dark:text-accent hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-all"
                                                     title="Edit User"
                                                     aria-label={`Edit ${user.name}`}
                                                 >
@@ -497,7 +497,7 @@ export default function UsersPage() {
 
                     {users.length === 0 && (
                         <div className="text-center py-16">
-                            <div className="w-20 h-20 bg-gray-100 dark:bg-surface rounded-full flex items-center justify-center mx-auto mb-4 text-gray-400">
+                            <div className="w-20 h-20 bg-gray-100 dark:bg-surface rounded-full flex items-center justify-center mx-auto mb-4 text-gray-500 dark:text-muted">
                                 <Users size={18} />
                             </div>
                             <h3 className="text-xl font-bold text-gray-900 dark:text-foreground mb-2">No users found</h3>

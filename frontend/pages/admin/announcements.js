@@ -142,7 +142,7 @@ export default function AdminAnnouncements() {
                                     />
                                     <p className="text-xs text-gray-500 mt-2 flex items-center gap-1">
                                         <span className="font-bold bg-gray-100 dark:bg-surface-elevated px-1 rounded text-gray-700 dark:text-secondary">Tip:</span>
-                                        Basic HTML tags allowed. Use <code className="bg-blue-50 dark:bg-blue-900/30 text-accent dark:text-info px-1 rounded text-xs">{`{{name}}`}</code> to insert user's name.
+                                        Basic HTML tags allowed. Use <code className="bg-blue-50 dark:bg-blue-900/30 text-primary-700 dark:text-info px-1 rounded text-xs">{`{{name}}`}</code> to insert user's name.
                                     </p>
                                 </div>
 
@@ -227,17 +227,17 @@ export default function AdminAnnouncements() {
                                                     ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400'
                                                     : log.status === 'failed'
                                                         ? 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400'
-                                                        : 'bg-blue-100 text-info dark:bg-blue-900/30 dark:text-info'
+                                                        : 'bg-blue-100 text-info-ink dark:bg-blue-900/30 dark:text-info'
                                                     }`}>
                                                     {log.status === 'sent' && <CheckCircle size={10} />}
                                                     {log.status === 'failed' && <AlertCircle size={10} />}
                                                     {log.status}
                                                 </span>
-                                                <span className="text-xs text-gray-400">{new Date(log.createdAt || log.created_at).toLocaleDateString()}</span>
+                                                <span className="text-xs text-gray-500 dark:text-muted">{new Date(log.createdAt || log.created_at).toLocaleDateString()}</span>
                                             </div>
                                             <p className="font-semibold text-gray-900 dark:text-foreground text-sm mb-1 line-clamp-2">{log.subject}</p>
                                             <p className="text-xs text-gray-500 truncate mt-1">
-                                                <span className="font-medium text-gray-400">To:</span> {log.recipientEmail}
+                                                <span className="font-medium text-gray-500 dark:text-muted">To:</span> {log.recipientEmail}
                                             </p>
                                         </div>
                                     ))

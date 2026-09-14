@@ -86,13 +86,13 @@ export default function Register() {
                 {/* Header */}
                 <div className="p-8 text-center border-b border-white/5">
                   <h1 className="text-3xl font-bold text-white tracking-tight mb-2">Start Free Trial</h1>
-                  <p className="text-sm text-muted font-medium">Deploy your AI agent in seconds</p>
+                  <p className="text-sm text-gray-500 dark:text-muted font-medium">Deploy your AI agent in seconds</p>
                 </div>
 
                 {/* Form */}
                 <form onSubmit={submit} className="p-8 space-y-6">
                   <div className="space-y-2">
-                    <label className="text-xs font-bold text-muted uppercase tracking-wider ml-1">Full Name</label>
+                    <label className="text-xs font-bold text-gray-500 dark:text-muted uppercase tracking-wider ml-1">Full Name</label>
                     <div className="relative group/input">
                       <div className="absolute -inset-0.5 bg-accent rounded-xl blur opacity-0 group-hover/input:opacity-50 transition duration-500"></div>
                       <input
@@ -107,7 +107,7 @@ export default function Register() {
                   </div>
 
                   <div className="space-y-2">
-                    <label className="text-xs font-bold text-muted uppercase tracking-wider ml-1">Email Access</label>
+                    <label className="text-xs font-bold text-gray-500 dark:text-muted uppercase tracking-wider ml-1">Email Access</label>
                     <div className="relative group/input">
                       <div className="absolute -inset-0.5 bg-accent rounded-xl blur opacity-0 group-hover/input:opacity-50 transition duration-500"></div>
                       <input
@@ -122,7 +122,7 @@ export default function Register() {
                   </div>
 
                   <div className="space-y-2">
-                    <label className="text-xs font-bold text-muted uppercase tracking-wider ml-1">Passcode</label>
+                    <label className="text-xs font-bold text-gray-500 dark:text-muted uppercase tracking-wider ml-1">Passcode</label>
                     <div className="relative group/input">
                       <div className="absolute -inset-0.5 bg-accent rounded-xl blur opacity-0 group-hover/input:opacity-50 transition duration-500"></div>
                       <input
@@ -158,7 +158,7 @@ export default function Register() {
 
                 {/* Footer */}
                 <div className="px-8 pb-8 text-center">
-                  <p className="text-sm text-muted">
+                  <p className="text-sm text-gray-500 dark:text-muted">
                     Already have an account?{' '}
                     <button
                       onClick={() => router.push('/login')}

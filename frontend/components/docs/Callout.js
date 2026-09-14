@@ -27,7 +27,7 @@ const typeStyles = {
         bg: 'bg-red-50 dark:bg-red-900/20',
         border: 'border-red-200 dark:border-red-800',
         Icon: Siren,
-        iconClass: 'text-danger',
+        iconClass: 'text-danger-ink dark:text-danger',
         title: 'Important'
     }
 };

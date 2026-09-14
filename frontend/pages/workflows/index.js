@@ -158,7 +158,7 @@ export default function MyWorkflowsPage() {
             ) : workflows.length === 0 ? (
                 <div className="text-center py-20 bg-white dark:bg-surface rounded-card border-2 border-dashed border-gray-200 dark:border-border">
                     <div className="w-20 h-20 bg-accent/10 dark:bg-accent/20 rounded-full flex items-center justify-center mx-auto mb-6">
-                        <Zap size={18} className="text-accent" />
+                        <Zap size={18} className="text-primary-700 dark:text-accent" />
                     </div>
                     <h2 className="text-2xl font-bold text-gray-900 dark:text-foreground mb-2">No workflows found</h2>
                     <p className="text-gray-500 dark:text-muted mb-8 max-w-md mx-auto">
@@ -188,14 +188,14 @@ export default function MyWorkflowsPage() {
                                     <div className="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
                                         <button
                                             onClick={() => openEditModal(workflow)}
-                                            className="p-2 text-accent hover:bg-accent/10 dark:hover:bg-accent/20 rounded-lg transition-colors"
+                                            className="p-2 text-primary-700 dark:text-accent hover:bg-accent/10 dark:hover:bg-accent/20 rounded-lg transition-colors"
                                             title="Edit"
                                         >
                                             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg>
                                         </button>
                                         <button
                                             onClick={() => handleDelete(workflow.id)}
-                                            className="p-2 text-danger hover:bg-danger/10 dark:hover:bg-danger/20 rounded-lg transition-colors"
+                                            className="p-2 text-danger-ink dark:text-danger hover:bg-danger/10 dark:hover:bg-danger/20 rounded-lg transition-colors"
                                             title="Delete"
                                         >
                                             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
@@ -226,7 +226,7 @@ export default function MyWorkflowsPage() {
                     ))}
 
                     {/* Create New Card (Placeholder style) */}
-                    <button onClick={openCreateModal} className="group flex flex-col items-center justify-center h-full min-h-[250px] rounded-card border-2 border-dashed border-gray-200 dark:border-border hover:border-accent hover:bg-accent/10 dark:hover:bg-accent/20 transition-all text-gray-400 hover:text-accent">
+                    <button onClick={openCreateModal} className="group flex flex-col items-center justify-center h-full min-h-[250px] rounded-card border-2 border-dashed border-gray-200 dark:border-border hover:border-accent hover:bg-accent/10 dark:hover:bg-accent/20 transition-all text-gray-500 dark:text-muted hover:text-accent">
                         <div className="w-12 h-12 rounded-full bg-gray-100 dark:bg-surface-elevated group-hover:bg-accent/10 dark:group-hover:bg-accent/20 flex items-center justify-center mb-4 transition-colors">
                             <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" /></svg>
                         </div>
@@ -243,7 +243,7 @@ export default function MyWorkflowsPage() {
                             <h2 className="text-2xl font-bold text-gray-900 dark:text-foreground">
                                 {editingWorkflow ? 'Edit Workflow' : 'Create New Workflow'}
                             </h2>
-                            <button onClick={() => setShowModal(false)} className="p-2 text-gray-400 hover:text-gray-600 transition-colors">
+                            <button onClick={() => setShowModal(false)} className="p-2 text-gray-500 dark:text-muted hover:text-gray-600 transition-colors">
                                 <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
                             </button>
                         </div>
@@ -251,7 +251,7 @@ export default function MyWorkflowsPage() {
                         <form onSubmit={handleSubmit} className="space-y-6">
                             <div>
                                 <label className="block text-sm font-bold text-gray-900 dark:text-foreground mb-2">
-                                    Workflow Name <span className="text-danger">*</span>
+                                    Workflow Name <span className="text-danger-ink dark:text-danger">*</span>
                                 </label>
                                 <input
                                     type="text"
@@ -278,7 +278,7 @@ export default function MyWorkflowsPage() {
 
                             <div>
                                 <label className="block text-sm font-bold text-gray-900 dark:text-foreground mb-2">
-                                    n8n Webhook URL <span className="text-danger">*</span>
+                                    n8n Webhook URL <span className="text-danger-ink dark:text-danger">*</span>
                                 </label>
                                 <input
                                     type="url"

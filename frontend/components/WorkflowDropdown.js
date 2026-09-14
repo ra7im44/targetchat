@@ -50,7 +50,7 @@ export default function WorkflowDropdown({ workflows, selected, onSelect, loadin
                     {selectedWorkflow?.name || 'Select Model'}
                 </span>
                 <svg
-                    className={`w-3.5 h-3.5 text-gray-400 transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`}
+                    className={`w-3.5 h-3.5 text-gray-500 dark:text-muted transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`}
                     fill="none"
                     stroke="currentColor"
                     viewBox="0 0 24 24"
@@ -63,14 +63,14 @@ export default function WorkflowDropdown({ workflows, selected, onSelect, loadin
             {isOpen && (
                 <div className="absolute top-full ltr:left-0 rtl:right-0 mt-2 w-80 bg-white dark:bg-surface rounded-card shadow-lg border border-gray-200 dark:border-border/80 overflow-hidden z-50">
                     <div className="px-3 py-2 border-b border-gray-100 dark:border-border/60 bg-gray-50/50 dark:bg-background/30">
-                        <p className="text-[11px] font-semibold uppercase tracking-wider text-gray-400 dark:text-muted">
+                        <p className="text-[11px] font-semibold uppercase tracking-wider text-gray-500 dark:text-muted">
                             Available Models
                         </p>
                     </div>
 
                     <div className="p-1.5 max-h-80 overflow-y-auto space-y-1 scrollbar-thin">
                         {availableWorkflows.length === 0 ? (
-                            <div className="p-4 text-center text-xs text-gray-400 dark:text-muted">
+                            <div className="p-4 text-center text-xs text-gray-500 dark:text-muted">
                                 No models configured
                             </div>
                         ) : (

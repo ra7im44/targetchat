@@ -100,7 +100,7 @@ export default function VisitorsTrackingPage() {
                 <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                     <div>
                         <h1 className="text-3xl font-bold text-gray-900 dark:text-foreground flex items-center gap-3">
-                            <Navigation size={18} className="text-accent" />
+                            <Navigation size={18} className="text-primary-700 dark:text-accent" />
                             Session Tracking & User Intelligence
                         </h1>
                         <p className="text-gray-500 dark:text-muted mt-1">
@@ -136,7 +136,7 @@ export default function VisitorsTrackingPage() {
                             <Users size={18} />
                         </div>
                         <div className="relative z-10">
-                            <div className="p-3 bg-blue-50 dark:bg-blue-900/20 rounded-xl w-fit mb-4 text-accent dark:text-info">
+                            <div className="p-3 bg-blue-50 dark:bg-blue-900/20 rounded-xl w-fit mb-4 text-primary-700 dark:text-info">
                                 <Users size={18} />
                             </div>
                             <h3 className="text-3xl font-bold text-gray-900 dark:text-foreground mb-1">
@@ -197,7 +197,7 @@ export default function VisitorsTrackingPage() {
                                                 <span>{countryName(item.country)}</span>
                                             </span>
                                             <span className="font-bold text-gray-600 dark:text-muted">
-                                                {item.count} <span className="text-xs text-gray-400 font-normal">({item.percentage}%)</span>
+                                                {item.count} <span className="text-xs text-gray-500 dark:text-muted font-normal">({item.percentage}%)</span>
                                             </span>
                                         </div>
                                         <div className="w-full bg-gray-100 dark:bg-surface-elevated h-2 rounded-full overflow-hidden">
@@ -229,7 +229,7 @@ export default function VisitorsTrackingPage() {
                                                 <span>{item.device}</span>
                                             </span>
                                             <span className="font-bold text-gray-600 dark:text-muted">
-                                                {item.count} <span className="text-xs text-gray-400 font-normal">({item.percentage}%)</span>
+                                                {item.count} <span className="text-xs text-gray-500 dark:text-muted font-normal">({item.percentage}%)</span>
                                             </span>
                                         </div>
                                         <div className="w-full bg-gray-100 dark:bg-surface-elevated h-2 rounded-full overflow-hidden">
@@ -329,7 +329,7 @@ export default function VisitorsTrackingPage() {
                                                         {row.isUserActive ? 'Active' : 'Inactive'}
                                                     </span>
                                                     <div className="text-xs text-gray-500 mt-1">
-                                                        Session: <span className={row.isSessionActive ? 'text-emerald-600 font-semibold' : 'text-gray-400'}>{row.isSessionActive ? 'Active' : 'Ended'}</span>
+                                                        Session: <span className={row.isSessionActive ? 'text-emerald-600 font-semibold' : 'text-gray-500 dark:text-muted'}>{row.isSessionActive ? 'Active' : 'Ended'}</span>
                                                     </div>
                                                 </td>
 
@@ -344,7 +344,7 @@ export default function VisitorsTrackingPage() {
                                                         <span className={`w-1.5 h-1.5 rounded-full ${row.presence === 'Online' ? 'bg-emerald-500 animate-pulse' : row.presence === 'RecentlyActive' ? 'bg-amber-500' : 'bg-gray-400'}`}></span>
                                                         {row.presence === 'Online' ? 'Online' : row.presence === 'RecentlyActive' ? 'Recently Active' : 'Idle'}
                                                     </span>
-                                                    <div className="text-xs text-gray-400 mt-1">
+                                                    <div className="text-xs text-gray-500 dark:text-muted mt-1">
                                                         Activity: {formatRelativeTime(row.lastActivity)}
                                                     </div>
                                                 </td>
@@ -365,12 +365,12 @@ export default function VisitorsTrackingPage() {
                                                 {/* Network / Device */}
                                                 <td className="px-6 py-4">
                                                     <div className="flex items-center gap-2">
-                                                        <code className="text-xs font-mono bg-blue-50 dark:bg-blue-900/30 text-info dark:text-info px-2 py-0.5 rounded border border-blue-200/50 dark:border-blue-800/50">
+                                                        <code className="text-xs font-mono bg-blue-50 dark:bg-blue-900/30 text-info-ink dark:text-info px-2 py-0.5 rounded border border-blue-200/50 dark:border-blue-800/50">
                                                             {row.ipAddress}
                                                         </code>
                                                         <button
                                                             onClick={() => copyToClipboard(row.ipAddress)}
-                                                            className="text-gray-400 hover:text-accent transition"
+                                                            className="text-gray-500 dark:text-muted hover:text-accent transition"
                                                             title="Copy IP"
                                                             aria-label={`Copy IP address ${row.ipAddress}`}
                                                         >
@@ -382,7 +382,7 @@ export default function VisitorsTrackingPage() {
                                                         <span>{parseDevice(row.deviceInfo)}</span>
                                                     </div>
                                                     {row.deviceInfo && (
-                                                        <div className="text-[10px] text-gray-400 truncate max-w-xs mt-0.5" title={row.deviceInfo}>
+                                                        <div className="text-[10px] text-gray-500 dark:text-muted truncate max-w-xs mt-0.5" title={row.deviceInfo}>
                                                             {row.deviceInfo}
                                                         </div>
                                                     )}

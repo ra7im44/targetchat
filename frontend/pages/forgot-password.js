@@ -43,18 +43,18 @@ export default function ForgotPassword() {
                 <div className="w-full bg-white/10 backdrop-blur-xl rounded-card shadow-lg border border-white/20 overflow-hidden">
                     <div className="p-8 text-center border-b border-white/10">
                         <h1 className="text-3xl font-bold text-white mb-2">Recovery</h1>
-                        <p className="text-info">Reset your password</p>
+                        <p className="text-info-ink dark:text-info">Reset your password</p>
                     </div>
 
                     <form onSubmit={submit} className="p-8 space-y-6">
                         {message && (
-                            <div className={`p-4 rounded-xl text-sm ${message.includes('sent') ? 'bg-success/20 text-success' : 'bg-red-500/20 text-danger'}`}>
+                            <div className={`p-4 rounded-xl text-sm ${message.includes('sent') ? 'bg-success/20 text-success-ink dark:text-success' : 'bg-red-500/20 text-danger-ink'}`}>
                                 {message}
                             </div>
                         )}
 
                         <div>
-                            <label className="block text-sm font-medium text-info mb-2">
+                            <label className="block text-sm font-medium text-info-ink dark:text-info mb-2">
                                 Email Address
                             </label>
                             <input
@@ -79,7 +79,7 @@ export default function ForgotPassword() {
                     <div className="px-8 pb-8 text-center">
                         <button
                             onClick={() => router.push('/login')}
-                            className="text-info hover:text-info transition-colors text-sm"
+                            className="text-info-ink dark:text-info hover:text-info transition-colors text-sm"
                         >
                             ← Back to Login
                         </button>

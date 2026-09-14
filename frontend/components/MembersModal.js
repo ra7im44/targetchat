@@ -116,7 +116,7 @@ export default function MembersModal({ isOpen, onClose, workspace }) {
                     <button
                         onClick={() => setActiveTab('members')}
                         className={`flex-1 py-3 text-sm font-medium transition-colors ${activeTab === 'members'
-                                ? 'text-accent border-b-2 border-accent bg-accent/10 dark:bg-accent/20'
+                                ? 'text-primary-700 dark:text-accent border-b-2 border-accent bg-accent/10 dark:bg-accent/20'
                                 : 'text-gray-500 hover:text-gray-700 dark:hover:text-secondary'
                             }`}
                     >
@@ -125,7 +125,7 @@ export default function MembersModal({ isOpen, onClose, workspace }) {
                     <button
                         onClick={() => setActiveTab('invite')}
                         className={`flex-1 py-3 text-sm font-medium transition-colors ${activeTab === 'invite'
-                                ? 'text-accent border-b-2 border-accent bg-accent/10 dark:bg-accent/20'
+                                ? 'text-primary-700 dark:text-accent border-b-2 border-accent bg-accent/10 dark:bg-accent/20'
                                 : 'text-gray-500 hover:text-gray-700 dark:hover:text-secondary'
                             }`}
                     >
@@ -161,7 +161,7 @@ export default function MembersModal({ isOpen, onClose, workspace }) {
                                         </div>
                                         <div className="flex items-center gap-3">
                                             <span className={`px-3 py-1 rounded-full text-xs font-medium capitalize ${member.role === 'owner' ? 'bg-purple-100 text-purple-700' :
-                                                    member.role === 'manager' ? 'bg-accent/10 text-info' :
+                                                    member.role === 'manager' ? 'bg-accent/10 text-info-ink dark:text-info' :
                                                         'bg-gray-200 text-gray-700'
                                                 }`}>
                                                 {member.role}
@@ -169,7 +169,7 @@ export default function MembersModal({ isOpen, onClose, workspace }) {
                                             {member.role !== 'owner' && (
                                                 <button
                                                     onClick={() => handleRemoveMember(member.user_id)}
-                                                    className="text-danger hover:text-danger p-1"
+                                                    className="text-danger-ink dark:text-danger hover:text-danger p-1"
                                                     title="Remove member"
                                                 >
                                                     <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">

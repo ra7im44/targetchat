@@ -7,7 +7,7 @@ const OverviewCard = ({ title, value, subtext }) => (
         <div className="text-2xl font-semibold tracking-tight tabular-nums text-gray-900 dark:text-foreground">{value ?? 0}</div>
         <div className="text-[13px] text-gray-500 dark:text-muted mt-1">{title}</div>
         {subtext && (
-            <div className="text-xs text-success mt-1.5">{subtext}</div>
+            <div className="text-xs text-success-ink dark:text-success mt-1.5">{subtext}</div>
         )}
     </div>
 );

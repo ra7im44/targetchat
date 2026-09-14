@@ -6,7 +6,7 @@ export default function DeleteUserModal({ user, onDelete, onClose }) {
             <div className="glass-panel w-full max-w-md rounded-card shadow-lg overflow-hidden animate-scaleIn border border-red-500/30">
                 {/* Header */}
                 <div className="p-6 border-b border-red-100 dark:border-red-900/30 bg-red-50/50 dark:bg-red-900/10 backdrop-blur-md">
-                    <h2 className="text-2xl font-bold text-danger dark:text-danger flex items-center gap-2">
+                    <h2 className="text-2xl font-bold text-danger-ink dark:text-danger flex items-center gap-2">
                         <TriangleAlert size={18} /> Delete User?
                     </h2>
                 </div>
@@ -20,7 +20,7 @@ export default function DeleteUserModal({ user, onDelete, onClose }) {
                     {/* User Info Card */}
                     <div className="p-4 bg-white/60 dark:bg-surface/60 border border-gray-200 dark:border-border rounded-xl flex items-center gap-4 shadow-sm">
                         <div className="w-12 h-12 rounded-full bg-danger/10 flex items-center justify-center">
-                            <User size={22} className="text-danger" />
+                            <User size={22} className="text-danger-ink dark:text-danger" />
                         </div>
                         <div>
                             <h3 className="font-bold text-gray-900 dark:text-foreground text-lg leading-none mb-1">
@@ -35,14 +35,14 @@ export default function DeleteUserModal({ user, onDelete, onClose }) {
                     {/* Impact Warning */}
                     {user.stats && (
                         <div className="p-4 bg-orange-50/80 dark:bg-orange-900/20 border border-orange-200 dark:border-orange-800 rounded-xl">
-                            <p className="text-sm font-bold text-warning dark:text-warning mb-2 uppercase tracking-wide">
+                            <p className="text-sm font-bold text-warning-ink dark:text-warning mb-2 uppercase tracking-wide">
                                 Data Impact
                             </p>
                             <div className="flex gap-4">
-                                <div className="text-sm text-warning dark:text-warning flex items-center gap-1.5">
+                                <div className="text-sm text-warning-ink dark:text-warning flex items-center gap-1.5">
                                     <span className="font-bold">{user.stats.chats || 0}</span> Chats
                                 </div>
-                                <div className="text-sm text-warning dark:text-warning flex items-center gap-1.5">
+                                <div className="text-sm text-warning-ink dark:text-warning flex items-center gap-1.5">
                                     <span className="font-bold">{user.stats.messages || 0}</span> Messages
                                 </div>
                             </div>

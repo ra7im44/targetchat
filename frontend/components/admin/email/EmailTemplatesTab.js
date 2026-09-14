@@ -65,11 +65,11 @@ export default function EmailTemplatesTab() {
 
     const getCategoryBadge = (category) => {
         const colors = {
-            auth: 'bg-blue-100 text-info dark:bg-surface-elevated dark:text-info',
-            billing: 'bg-green-100 text-success dark:bg-green-900/30 dark:text-success',
-            workflow: 'bg-purple-100 text-info dark:bg-purple-900/30 dark:text-info',
+            auth: 'bg-blue-100 text-info-ink dark:bg-surface-elevated dark:text-info',
+            billing: 'bg-green-100 text-success-ink dark:bg-green-900/30 dark:text-success',
+            workflow: 'bg-purple-100 text-info-ink dark:bg-purple-900/30 dark:text-info',
             system: 'bg-gray-100 text-gray-700 dark:bg-surface-elevated dark:text-secondary',
-            admin: 'bg-red-100 text-danger dark:bg-red-900/30 dark:text-danger'
+            admin: 'bg-red-100 text-danger-ink dark:bg-red-900/30 dark:text-danger'
         };
         return colors[category] || colors.system;
     };
@@ -199,7 +199,7 @@ export default function EmailTemplatesTab() {
                             <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider ${getCategoryBadge(template.category)}`}>
                                 {template.category}
                             </span>
-                            <span className="text-xs text-gray-400 font-mono">{template.slug}</span>
+                            <span className="text-xs text-gray-500 dark:text-muted font-mono">{template.slug}</span>
                         </div>
                         <h4 className="font-bold text-gray-900 dark:text-foreground mb-2">{template.name}</h4>
                         <p className="text-sm text-gray-600 dark:text-muted mb-6 line-clamp-2">{template.subject}</p>
@@ -213,21 +213,21 @@ export default function EmailTemplatesTab() {
                             </button>
                             <button
                                 onClick={() => openModal('test', template)}
-                                className="flex-1 p-2 bg-blue-50 dark:bg-blue-900/20 text-accent dark:text-accent rounded-lg hover:bg-surface-hover transition-all flex items-center justify-center"
+                                className="flex-1 p-2 bg-blue-50 dark:bg-blue-900/20 text-primary-700 dark:text-accent rounded-lg hover:bg-surface-hover transition-all flex items-center justify-center"
                                 title="Send Test"
                             >
                                 <Send size={18} />
                             </button>
                             <button
                                 onClick={() => openModal('edit', template)}
-                                className="flex-1 p-2 bg-green-50 dark:bg-green-900/20 text-success dark:text-success rounded-lg hover:bg-green-100 transition-all flex items-center justify-center"
+                                className="flex-1 p-2 bg-green-50 dark:bg-green-900/20 text-success-ink dark:text-success rounded-lg hover:bg-green-100 transition-all flex items-center justify-center"
                                 title="Edit"
                             >
                                 <Edit size={18} />
                             </button>
                             <button
                                 onClick={() => handleDelete(template.id)}
-                                className="flex-1 p-2 bg-red-50 dark:bg-red-900/20 text-danger dark:text-danger rounded-lg hover:bg-red-100 transition-all flex items-center justify-center"
+                                className="flex-1 p-2 bg-red-50 dark:bg-red-900/20 text-danger-ink dark:text-danger rounded-lg hover:bg-red-100 transition-all flex items-center justify-center"
                                 title="Delete"
                             >
                                 <Trash2 size={18} />
@@ -273,10 +273,10 @@ function TemplateModal({ mode, template, onClose, onSave, onTest, saving }) {
                         <h2 className="text-xl font-bold text-gray-900 dark:text-foreground uppercase tracking-tight">
                             {mode === 'create' ? 'Create Template' : mode === 'edit' ? 'Edit Template' : mode === 'preview' ? 'Preview Template' : 'Send Test Email'}
                         </h2>
-                        {template && <p className="text-xs text-gray-400 font-mono mt-1">{template.slug}</p>}
+                        {template && <p className="text-xs text-gray-500 dark:text-muted font-mono mt-1">{template.slug}</p>}
                     </div>
                     <button onClick={onClose} className="p-2 hover:bg-gray-200 dark:hover:bg-surface-hover rounded-xl transition-all">
-                        <X size={24} className="text-gray-400" />
+                        <X size={24} className="text-gray-500 dark:text-muted" />
                     </button>
                 </div>
 
@@ -284,7 +284,7 @@ function TemplateModal({ mode, template, onClose, onSave, onTest, saving }) {
                     {isPreview ? (
                         <div className="space-y-6">
                             <div className="p-4 bg-gray-50 dark:bg-background rounded-card border border-gray-100 dark:border-border">
-                                <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest block mb-1">Subject Line</label>
+                                <label className="text-[10px] font-bold text-gray-500 dark:text-muted uppercase tracking-widest block mb-1">Subject Line</label>
                                 <p className="text-sm font-bold text-gray-900 dark:text-foreground">{template.subject}</p>
                             </div>
                             <div className="border border-gray-100 dark:border-border rounded-card overflow-hidden bg-white">

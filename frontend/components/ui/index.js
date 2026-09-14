@@ -17,7 +17,7 @@ const btnVariants = {
         'border border-gray-300/80 dark:border-border hover:bg-gray-100 dark:hover:bg-surface-hover',
     ghost: 'text-gray-600 dark:text-secondary hover:bg-gray-100 dark:hover:bg-surface-hover hover:text-gray-900 dark:hover:text-foreground',
     danger:
-        'bg-danger/10 text-danger hover:bg-danger hover:text-white ' +
+        'bg-danger/10 text-danger-ink dark:text-danger hover:bg-danger hover:text-white ' +
         'dark:bg-danger/15 dark:text-danger border border-danger/30',
 };
 
@@ -46,7 +46,7 @@ export function IconButton({ label, size = 18, className = '', children, ...prop
             aria-label={label}
             title={label}
             className={
-                'p-2 rounded-lg text-gray-400 hover:text-gray-700 dark:hover:text-foreground ' +
+                'p-2 rounded-lg text-gray-500 dark:text-muted hover:text-gray-700 dark:hover:text-foreground ' +
                 'hover:bg-gray-100 dark:hover:bg-surface-hover transition-colors ' +
                 'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/60 ' +
                 'disabled:opacity-50 disabled:cursor-not-allowed ' +
@@ -89,8 +89,8 @@ const badgeTones = {
     accent: 'bg-accent/10 text-accent-active dark:text-accent border-accent/30',
     success: 'bg-success/10 text-green-700 dark:text-success border-success/30',
     warning: 'bg-warning/10 text-yellow-700 dark:text-warning border-warning/30',
-    danger: 'bg-danger/10 text-danger border-danger/30',
-    info: 'bg-info/10 text-info border-info/30',
+    danger: 'bg-danger/10 text-danger-ink dark:text-danger border-danger/30',
+    info: 'bg-info/10 text-info-ink dark:text-info border-info/30',
 };
 
 export function Badge({ tone = 'neutral', className = '', children }) {

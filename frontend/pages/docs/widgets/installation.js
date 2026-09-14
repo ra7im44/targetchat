@@ -211,9 +211,9 @@ export default function MyApp({ Component, pageProps }) {
 
             <h2 id="next-steps">Next Steps</h2>
             <ul>
-                <li><a href="/docs/widgets/creating#step-3-appearance" className="text-info dark:text-info hover:underline">Customize widget appearance</a></li>
-                <li><a href="/docs/automation/private-workflows" className="text-info dark:text-info hover:underline">Set up automation</a></li>
-                <li><a href="/docs/troubleshooting" className="text-info dark:text-info hover:underline">Troubleshooting guide</a></li>
+                <li><a href="/docs/widgets/creating#step-3-appearance" className="text-info-ink dark:text-info hover:underline">Customize widget appearance</a></li>
+                <li><a href="/docs/automation/private-workflows" className="text-info-ink dark:text-info hover:underline">Set up automation</a></li>
+                <li><a href="/docs/troubleshooting" className="text-info-ink dark:text-info hover:underline">Troubleshooting guide</a></li>
             </ul>
         </DocsLayout>
     );

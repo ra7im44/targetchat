@@ -246,7 +246,7 @@ export default function AdminSettings() {
                                             }`}
                                     >
                                         <div className="flex items-center gap-3">
-                                            <Icon size={18} className={isCurrent ? 'text-white' : 'text-gray-400 dark:text-muted'} />
+                                            <Icon size={18} className={isCurrent ? 'text-white' : 'text-gray-500 dark:text-muted'} />
                                             <span className="capitalize text-sm font-semibold">{section}</span>
                                         </div>
                                         <span className={`text-xs px-2 py-0.5 rounded-full font-mono ${isCurrent
@@ -294,7 +294,7 @@ export default function AdminSettings() {
                                                     {formatSettingLabel(setting.key)}
                                                 </label>
                                                 <span className={`text-[11px] px-2 py-0.5 rounded-md font-medium ${setting.isPublic
-                                                    ? 'bg-success text-success dark:bg-success/30 dark:text-success'
+                                                    ? 'bg-success text-success-ink dark:bg-success/30 dark:text-success'
                                                     : 'bg-gray-200 text-gray-600 dark:bg-surface-elevated dark:text-secondary'
                                                     }`}>
                                                     {setting.isPublic ? 'Public' : 'Server Only'}
@@ -342,7 +342,7 @@ export default function AdminSettings() {
                                                     <button
                                                         type="button"
                                                         onClick={() => togglePasswordVisibility(setting.key)}
-                                                        className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:hover:text-secondary"
+                                                        className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 dark:text-muted hover:text-gray-600 dark:hover:text-secondary"
                                                     >
                                                         {showPasswords[setting.key] ? <EyeOff size={16} /> : <Eye size={16} />}
                                                     </button>

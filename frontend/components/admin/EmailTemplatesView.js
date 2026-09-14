@@ -78,11 +78,11 @@ export default function EmailTemplatesPage() {
 
     const getCategoryBadge = (category) => {
         const colors = {
-            auth: 'bg-blue-100 text-info dark:bg-surface-elevated dark:text-info',
-            billing: 'bg-green-100 text-success dark:bg-green-900/30 dark:text-success',
-            workflow: 'bg-purple-100 text-info dark:bg-purple-900/30 dark:text-info',
+            auth: 'bg-blue-100 text-info-ink dark:bg-surface-elevated dark:text-info',
+            billing: 'bg-green-100 text-success-ink dark:bg-green-900/30 dark:text-success',
+            workflow: 'bg-purple-100 text-info-ink dark:bg-purple-900/30 dark:text-info',
             system: 'bg-gray-100 text-gray-700 dark:bg-surface-elevated dark:text-secondary',
-            admin: 'bg-red-100 text-danger dark:bg-red-900/30 dark:text-danger'
+            admin: 'bg-red-100 text-danger-ink dark:bg-red-900/30 dark:text-danger'
         };
         return colors[category] || colors.system;
     };
@@ -121,7 +121,7 @@ export default function EmailTemplatesPage() {
 
                 {/* Message */}
                 {message.text && (
-                    <div className={`p-4 rounded-lg mb-6 ${message.type === 'success' ? 'bg-green-50 text-success dark:bg-green-900/30' : 'bg-red-50 text-danger dark:bg-red-900/30'}`}>
+                    <div className={`p-4 rounded-lg mb-6 ${message.type === 'success' ? 'bg-green-50 text-success-ink dark:text-success dark:bg-green-900/30' : 'bg-red-50 text-danger-ink dark:bg-red-900/30'}`}>
                         {message.text}
                     </div>
                 )}
@@ -225,19 +225,19 @@ export default function EmailTemplatesPage() {
                                 </button>
                                 <button
                                     onClick={() => openModal('test', template)}
-                                    className="flex-1 px-3 py-2 bg-blue-50 hover:bg-surface-hover dark:bg-surface-elevated dark:hover:bg-surface-hover text-accent dark:text-accent rounded-lg text-sm font-medium transition-colors flex items-center justify-center gap-1.5"
+                                    className="flex-1 px-3 py-2 bg-blue-50 hover:bg-surface-hover dark:bg-surface-elevated dark:hover:bg-surface-hover text-primary-700 dark:text-accent rounded-lg text-sm font-medium transition-colors flex items-center justify-center gap-1.5"
                                 >
                                     <Send size={16} /> Test
                                 </button>
                                 <button
                                     onClick={() => openModal('edit', template)}
-                                    className="px-3 py-2 bg-green-50 hover:bg-green-100 dark:bg-green-900/30 dark:hover:bg-green-900/50 text-success dark:text-success rounded-lg text-sm font-medium transition-colors flex items-center justify-center"
+                                    className="px-3 py-2 bg-green-50 hover:bg-green-100 dark:bg-green-900/30 dark:hover:bg-green-900/50 text-success-ink dark:text-success rounded-lg text-sm font-medium transition-colors flex items-center justify-center"
                                 >
                                     <Pencil size={16} />
                                 </button>
                                 <button
                                     onClick={() => handleDelete(template.id)}
-                                    className="px-3 py-2 bg-red-50 hover:bg-red-100 dark:bg-red-900/30 dark:hover:bg-red-900/50 text-danger dark:text-danger rounded-lg text-sm font-medium transition-colors flex items-center justify-center"
+                                    className="px-3 py-2 bg-red-50 hover:bg-red-100 dark:bg-red-900/30 dark:hover:bg-red-900/50 text-danger-ink dark:text-danger rounded-lg text-sm font-medium transition-colors flex items-center justify-center"
                                 >
                                     <Trash2 size={16} />
                                 </button>

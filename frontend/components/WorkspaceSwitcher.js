@@ -101,7 +101,7 @@ export default function WorkspaceSwitcher({ currentWorkspace, onWorkspaceChange,
 
                 {/* Dropdown Arrow */}
                 <svg
-                    className={`w-5 h-5 text-gray-400 transition-transform ${showDropdown ? 'rotate-180' : ''}`}
+                    className={`w-5 h-5 text-gray-500 dark:text-muted transition-transform ${showDropdown ? 'rotate-180' : ''}`}
                     fill="none"
                     stroke="currentColor"
                     viewBox="0 0 24 24"

@@ -59,8 +59,8 @@ export default function PrivateWorkflows() {
 
             <h2 id="next-steps">Next Steps</h2>
             <ul>
-                <li><a href="/docs/widgets/creating" className="text-info dark:text-info hover:underline">Connect Workflow to Widget</a></li>
-                <li><a href="/docs/integrations/overview" className="text-info dark:text-info hover:underline">Learn about APIs</a></li>
+                <li><a href="/docs/widgets/creating" className="text-info-ink dark:text-info hover:underline">Connect Workflow to Widget</a></li>
+                <li><a href="/docs/integrations/overview" className="text-info-ink dark:text-info hover:underline">Learn about APIs</a></li>
             </ul>
         </DocsLayout>
     );

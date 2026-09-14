@@ -145,7 +145,7 @@ export default function ManageUsersModal({ workflow, onClose, onUpdate }) {
                                                 <button
                                                     onClick={() => unassignUser(user.id)}
                                                     disabled={saving}
-                                                    className="px-3 py-1.5 text-sm font-medium text-danger dark:text-danger hover:bg-red-100 dark:hover:bg-red-900/30 rounded-lg transition-colors disabled:opacity-50"
+                                                    className="px-3 py-1.5 text-sm font-medium text-danger-ink dark:text-danger hover:bg-red-100 dark:hover:bg-red-900/30 rounded-lg transition-colors disabled:opacity-50"
                                                 >
                                                     Remove
                                                 </button>
@@ -179,7 +179,7 @@ export default function ManageUsersModal({ workflow, onClose, onUpdate }) {
                                                 <button
                                                     onClick={() => assignUser(user.id)}
                                                     disabled={saving}
-                                                    className="px-3 py-1.5 text-sm font-medium text-accent dark:text-accent hover:bg-surface-hover dark:hover:bg-surface-hover rounded-lg transition-colors disabled:opacity-50"
+                                                    className="px-3 py-1.5 text-sm font-medium text-primary-700 dark:text-accent hover:bg-surface-hover dark:hover:bg-surface-hover rounded-lg transition-colors disabled:opacity-50"
                                                 >
                                                     Assign
                                                 </button>

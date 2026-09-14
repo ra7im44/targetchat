@@ -127,7 +127,7 @@ export default function AdminSecurity() {
                 <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                     <div>
                         <h1 className="text-3xl font-bold text-gray-900 dark:text-foreground mb-2 flex items-center gap-3">
-                            <Shield className="text-danger" size={18} />
+                            <Shield className="text-danger-ink dark:text-danger" size={18} />
                             Security Control Room
                         </h1>
                         <p className="text-gray-600 dark:text-muted">
@@ -140,7 +140,7 @@ export default function AdminSecurity() {
                         <button
                             onClick={() => setActiveTab('blocking')}
                             className={`px-6 py-2.5 text-sm font-bold rounded-lg transition-all ${activeTab === 'blocking'
-                                ? 'bg-white dark:bg-surface-elevated text-accent dark:text-info shadow-sm'
+                                ? 'bg-white dark:bg-surface-elevated text-primary-700 dark:text-info shadow-sm'
                                 : 'text-gray-500 hover:text-gray-700 dark:hover:text-gray-300'
                                 }`}
                         >
@@ -149,7 +149,7 @@ export default function AdminSecurity() {
                         <button
                             onClick={() => setActiveTab('intelligence')}
                             className={`px-6 py-2.5 text-sm font-bold rounded-lg transition-all ${activeTab === 'intelligence'
-                                ? 'bg-white dark:bg-surface-elevated text-accent dark:text-info shadow-sm'
+                                ? 'bg-white dark:bg-surface-elevated text-primary-700 dark:text-info shadow-sm'
                                 : 'text-gray-500 hover:text-gray-700 dark:hover:text-gray-300'
                                 }`}
                         >
@@ -324,8 +324,8 @@ export default function AdminSecurity() {
                                 {selectedIpData ? (
                                     <div className="space-y-4 animate-fadeIn">
                                         <div className="p-4 bg-blue-50 dark:bg-blue-900/20 rounded-xl border border-blue-100 dark:border-blue-800 flex justify-between items-center">
-                                            <span className="font-bold text-info dark:text-info font-mono">{selectedIpData.ip}</span>
-                                            <span className="text-xs font-bold text-accent">{selectedIpData.users.length} Users</span>
+                                            <span className="font-bold text-info-ink dark:text-info font-mono">{selectedIpData.ip}</span>
+                                            <span className="text-xs font-bold text-primary-700 dark:text-accent">{selectedIpData.users.length} Users</span>
                                         </div>
 
                                         <div className="space-y-3">
@@ -333,10 +333,10 @@ export default function AdminSecurity() {
                                                 <div key={u.id} className="p-4 rounded-xl border border-gray-100 dark:border-border bg-gray-50/30 dark:bg-surface/30 flex justify-between items-center">
                                                     <div>
                                                         <p className="font-bold text-gray-900 dark:text-foreground leading-tight">{u.name}</p>
-                                                        <p className="text-xs text-gray-400 mt-0.5">{u.email}</p>
+                                                        <p className="text-xs text-gray-500 dark:text-muted mt-0.5">{u.email}</p>
                                                     </div>
                                                     <div className="text-right">
-                                                        <span className="text-[10px] uppercase font-bold tracking-widest text-gray-400">{u.role}</span>
+                                                        <span className="text-[10px] uppercase font-bold tracking-widest text-gray-500 dark:text-muted">{u.role}</span>
                                                         <p className="text-[10px] text-gray-500 mt-1">Reg: {u.registrationIp === selectedIpData.ip ? 'MATCH' : 'DIFF'}</p>
                                                     </div>
                                                 </div>
@@ -346,7 +346,7 @@ export default function AdminSecurity() {
                                 ) : (
                                     <div className="text-center py-20 bg-gray-50/50 dark:bg-background rounded-card border border-dashed border-gray-200 dark:border-border">
                                         <Globe size={18} className="mx-auto mb-4" />
-                                        <p className="text-gray-400">Search an IP to see who has accessed the system from it.</p>
+                                        <p className="text-gray-500 dark:text-muted">Search an IP to see who has accessed the system from it.</p>
                                     </div>
                                 )}
                             </div>

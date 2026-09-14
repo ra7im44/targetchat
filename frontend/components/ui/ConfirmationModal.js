@@ -22,12 +22,12 @@ export default function ConfirmationModal({
                 {/* Header */}
                 <div className="flex justify-between items-center p-6 border-b border-gray-100 dark:border-border">
                     <h3 className="text-xl font-bold text-gray-900 dark:text-foreground flex items-center gap-2">
-                        {isDangerous && <AlertTriangle className="text-danger" size={24} />}
+                        {isDangerous && <AlertTriangle className="text-danger-ink dark:text-danger" size={24} />}
                         {title}
                     </h3>
                     <button
                         onClick={onClose}
-                        className="text-gray-400 hover:text-gray-500 dark:hover:text-secondary transition-colors p-1 rounded-full hover:bg-gray-100 dark:hover:bg-surface-hover"
+                        className="text-gray-500 dark:text-muted hover:text-gray-500 dark:hover:text-secondary transition-colors p-1 rounded-full hover:bg-gray-100 dark:hover:bg-surface-hover"
                     >
                         <X size={20} />
                     </button>

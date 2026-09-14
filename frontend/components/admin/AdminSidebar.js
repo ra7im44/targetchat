@@ -57,7 +57,7 @@ export default function AdminSidebar({ collapsed, onToggleCollapse }) {
                 {!collapsed && (
                     <div className="ml-3 animate-fadeIn">
                         <h1 className="font-bold text-gray-900 dark:text-foreground text-lg leading-none">TargetChat</h1>
-                        <span className="text-xs text-accent font-semibold bg-accent/10 dark:bg-accent/10 px-2 py-0.5 rounded-full mt-1 inline-block">
+                        <span className="text-xs text-primary-700 dark:text-accent font-semibold bg-accent/10 dark:bg-accent/10 px-2 py-0.5 rounded-full mt-1 inline-block">
                             ADMIN
                         </span>
                     </div>
@@ -75,12 +75,12 @@ export default function AdminSidebar({ collapsed, onToggleCollapse }) {
                             key={item.href}
                             href={item.href}
                             className={`flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all group relative ${isActive
-                                ? 'bg-gray-100 dark:bg-surface-elevated text-accent dark:text-accent font-medium shadow-sm'
+                                ? 'bg-gray-100 dark:bg-surface-elevated text-primary-700 dark:text-accent font-medium shadow-sm'
                                 : 'text-gray-600 dark:text-muted hover:bg-gray-50 dark:hover:bg-surface-hover hover:text-gray-900 dark:hover:text-foreground'
                                 }`}
                             title={collapsed ? item.label : ''}
                         >
-                            <IconCallback size={20} className={`${isActive ? 'text-accent dark:text-accent' : 'text-gray-500 dark:text-muted group-hover:text-gray-700 dark:group-hover:text-secondary'}`} />
+                            <IconCallback size={20} className={`${isActive ? 'text-primary-700 dark:text-accent' : 'text-gray-500 dark:text-muted group-hover:text-gray-700 dark:group-hover:text-secondary'}`} />
 
                             {!collapsed && (
                                 <span className="font-medium truncate">{item.label}</span>
@@ -112,7 +112,7 @@ export default function AdminSidebar({ collapsed, onToggleCollapse }) {
                 {/* Back to Chat */}
                 <Link
                     href="/chat"
-                    className={`flex items-center gap-3 w-full px-3 py-2.5 rounded-lg text-accent dark:text-accent hover:bg-surface-hover dark:hover:bg-surface-hover transition-all mt-1 ${collapsed ? 'justify-center' : ''}`}
+                    className={`flex items-center gap-3 w-full px-3 py-2.5 rounded-lg text-primary-700 dark:text-accent hover:bg-surface-hover dark:hover:bg-surface-hover transition-all mt-1 ${collapsed ? 'justify-center' : ''}`}
                     title="Back to Chat"
                 >
                     <MessageSquare size={20} />
@@ -122,7 +122,7 @@ export default function AdminSidebar({ collapsed, onToggleCollapse }) {
                 {/* Logout */}
                 <button
                     onClick={handleLogout}
-                    className={`flex items-center gap-3 w-full px-3 py-2.5 rounded-lg text-danger dark:text-danger hover:bg-red-50 dark:hover:bg-red-900/20 transition-all mt-1 ${collapsed ? 'justify-center' : ''}`}
+                    className={`flex items-center gap-3 w-full px-3 py-2.5 rounded-lg text-danger-ink dark:text-danger hover:bg-red-50 dark:hover:bg-red-900/20 transition-all mt-1 ${collapsed ? 'justify-center' : ''}`}
                     title="Logout"
                 >
                     <LogOut size={20} />

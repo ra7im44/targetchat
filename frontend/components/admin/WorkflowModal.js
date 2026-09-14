@@ -82,7 +82,7 @@ export default function WorkflowModal({ workflow, onSave, onClose }) {
                                 type="button"
                                 onClick={() => setFormData({ ...formData, isPublic: true })}
                                 className={`flex-1 px-4 py-3 rounded-xl border-2 transition-all ${formData.isPublic
-                                    ? 'border-success bg-success dark:bg-success/20 text-success dark:text-success'
+                                    ? 'border-success bg-success dark:bg-success/20 text-success-ink dark:text-success'
                                     : 'border-gray-200 dark:border-border bg-white/50 dark:bg-surface/50 text-gray-600 dark:text-muted'
                                     }`}
                             >
@@ -94,7 +94,7 @@ export default function WorkflowModal({ workflow, onSave, onClose }) {
                                 type="button"
                                 onClick={() => setFormData({ ...formData, isPublic: false })}
                                 className={`flex-1 px-4 py-3 rounded-xl border-2 transition-all ${!formData.isPublic
-                                    ? 'border-orange-500 bg-orange-50 dark:bg-orange-500/20 text-warning dark:text-warning'
+                                    ? 'border-orange-500 bg-orange-50 dark:bg-orange-500/20 text-warning-ink dark:text-warning'
                                     : 'border-gray-200 dark:border-border bg-white/50 dark:bg-surface/50 text-gray-600 dark:text-muted'
                                     }`}
                             >
@@ -148,7 +148,7 @@ export default function WorkflowModal({ workflow, onSave, onClose }) {
                                 className="w-full pl-4 pr-10 py-2.5 rounded-xl border border-gray-200 dark:border-border bg-white/50 dark:bg-background/50 text-gray-900 dark:text-foreground focus:ring-2 focus:ring-accent/50 outline-none font-mono text-sm placeholder:text-gray-400"
                                 placeholder="https://n8n.your-domain.com/webhook/..."
                             />
-                            <span className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400"><Link2 size={16} /></span>
+                            <span className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 dark:text-muted"><Link2 size={16} /></span>
                         </div>
                         <p className="mt-1.5 text-xs text-gray-500 dark:text-muted ml-1">
                             The endpoint where TargetChat will send user messages for processing.

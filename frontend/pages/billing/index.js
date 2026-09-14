@@ -19,7 +19,7 @@ const UsageRow = ({ label, icon, current, max, color, shadow }) => {
                 </div>
                 <div className="text-right">
                     <span className="text-2xl font-bold text-gray-900 dark:text-foreground">{current.toLocaleString()}</span>
-                    <span className="text-gray-400 text-sm font-medium"> / {isUnlimited ? '∞' : max.toLocaleString()}</span>
+                    <span className="text-gray-500 dark:text-muted text-sm font-medium"> / {isUnlimited ? '∞' : max.toLocaleString()}</span>
                 </div>
             </div>
             <div className="h-4 bg-gray-100 dark:bg-surface-elevated rounded-full overflow-hidden">
@@ -88,7 +88,7 @@ export default function BillingPage() {
                             {subscription?.gateway === 'paypal' ? (
                                 <span className="text-[10px] bg-accent/10 text-accent-active px-2 py-0.5 rounded-full font-bold uppercase tracking-tighter border border-accent/30">PayPal Account</span>
                             ) : subscription?.gateway === 'stripe' ? (
-                                <span className="text-[10px] bg-accent/10 text-accent px-2 py-0.5 rounded-full font-bold uppercase tracking-tighter border border-accent/30">Stripe Account</span>
+                                <span className="text-[10px] bg-accent/10 text-primary-700 dark:text-accent px-2 py-0.5 rounded-full font-bold uppercase tracking-tighter border border-accent/30">Stripe Account</span>
                             ) : null}
                         </h1>
                         <p className="text-gray-500 dark:text-muted mt-2 font-medium">Manage your subscription, view usage, and download invoices.</p>
@@ -143,7 +143,7 @@ export default function BillingPage() {
                         <div className="space-y-8">
                             <UsageRow
                                 label="Monthly Messages"
-                                icon={<svg className="w-4 h-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" /></svg>}
+                                icon={<svg className="w-4 h-4 text-gray-500 dark:text-muted" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" /></svg>}
                                 current={usage.messages}
                                 max={maxMessages}
                                 color=""
@@ -151,7 +151,7 @@ export default function BillingPage() {
                             />
                             <UsageRow
                                 label="Active Widgets"
-                                icon={<svg className="w-4 h-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8h2a2 2 0 012 2v6a2 2 0 01-2 2h-2v4l-4-4H9a1.994 1.994 0 01-1.414-.586m0 0L11 14h4a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2v4l.586-.586z" /></svg>}
+                                icon={<svg className="w-4 h-4 text-gray-500 dark:text-muted" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8h2a2 2 0 012 2v6a2 2 0 01-2 2h-2v4l-4-4H9a1.994 1.994 0 01-1.414-.586m0 0L11 14h4a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2v4l.586-.586z" /></svg>}
                                 current={usage.widgets}
                                 max={maxWidgets}
                                 color=""
@@ -159,7 +159,7 @@ export default function BillingPage() {
                             />
                             <UsageRow
                                 label="Team Members"
-                                icon={<svg className="w-4 h-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" /></svg>}
+                                icon={<svg className="w-4 h-4 text-gray-500 dark:text-muted" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" /></svg>}
                                 current={usage.members}
                                 max={maxMembers}
                                 color=""
@@ -198,7 +198,7 @@ export default function BillingPage() {
                                             <td className="px-8 py-5 text-sm text-gray-900 dark:text-foreground">{new Date(invoice.created_at).toLocaleDateString()}</td>
                                             <td className="px-8 py-5 text-sm font-bold text-gray-900 dark:text-foreground">${(invoice.amount / 100).toFixed(2)}</td>
                                             <td className="px-8 py-5">
-                                                <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold uppercase ${invoice.status === 'paid' ? 'bg-success text-success' : 'bg-gray-100 text-gray-700'}`}>
+                                                <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold uppercase ${invoice.status === 'paid' ? 'bg-success text-success-ink dark:text-success' : 'bg-gray-100 text-gray-700'}`}>
                                                     {invoice.status}
                                                 </span>
                                             </td>

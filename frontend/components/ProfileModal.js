@@ -181,8 +181,8 @@ export default function ProfileModal({ onClose }) {
         <div className="p-6">
           {message && (
             <div className={`p-3 rounded-lg mb-4 text-sm ${message.type === 'success'
-                ? 'bg-success dark:bg-success/20 text-success dark:text-success'
-                : 'bg-danger/10 dark:bg-danger/20 text-danger dark:text-danger'
+                ? 'bg-success dark:bg-success/20 text-success-ink dark:text-success'
+                : 'bg-danger/10 dark:bg-danger/20 text-danger-ink dark:text-danger'
               }`}>
               {message.text}
             </div>
@@ -289,7 +289,7 @@ export default function ProfileModal({ onClose }) {
               </div>
               <div className="flex justify-between">
                 <span className="text-gray-600 dark:text-muted">Role:</span>
-                <span className="px-2 py-1 rounded text-xs bg-accent/10 dark:bg-accent/20 text-info dark:text-info">
+                <span className="px-2 py-1 rounded text-xs bg-accent/10 dark:bg-accent/20 text-info-ink dark:text-info">
                   {user?.role === 'admin' ? 'Admin' : 'User'}
                 </span>
               </div>

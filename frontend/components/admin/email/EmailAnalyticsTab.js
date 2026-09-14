@@ -59,7 +59,7 @@ export default function EmailAnalyticsTab() {
                             { label: 'Total Sent', value: stats.totalSent, icon: <TrendingUp size={18} />, bg: 'bg-blue-50 dark:bg-blue-900/20' },
                             { label: 'Delivered', value: `${stats.rates.delivery}%`, icon: <Target size={18} />, bg: 'bg-green-50 dark:bg-green-900/20' },
                             { label: 'Open Rate', value: `${stats.rates.open}%`, icon: <Eye size={18} />, bg: 'bg-purple-50 dark:bg-purple-900/20' },
-                            { label: 'Failures', value: stats.statusBreakdown.find(s => s.status === 'failed')?.count || 0, icon: <TrendingDown className="text-danger" />, bg: 'bg-red-50 dark:bg-red-900/20' }
+                            { label: 'Failures', value: stats.statusBreakdown.find(s => s.status === 'failed')?.count || 0, icon: <TrendingDown className="text-danger-ink dark:text-danger" />, bg: 'bg-red-50 dark:bg-red-900/20' }
                         ].map((card, i) => (
                             <div key={i} className={`${card.bg} rounded-card p-6 border border-white/50 dark:border-border/30 shadow-sm`}>
                                 <div className="flex justify-between items-start mb-4">
@@ -112,7 +112,7 @@ export default function EmailAnalyticsTab() {
                                                 <p className="text-[10px] text-gray-500 font-mono uppercase">{template['template.slug'] || 'manual'}</p>
                                             </div>
                                         </div>
-                                        <span className="text-sm font-bold text-accent dark:text-accent">{template.count} emails</span>
+                                        <span className="text-sm font-bold text-primary-700 dark:text-accent">{template.count} emails</span>
                                     </div>
                                 ))}
                             </div>

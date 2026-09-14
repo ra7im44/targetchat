@@ -131,7 +131,7 @@ export default function WidgetsPage() {
             ) : widgets.length === 0 ? (
                 <div className="text-center py-20 bg-white dark:bg-surface rounded-card border-2 border-dashed border-gray-200 dark:border-border">
                     <div className="w-20 h-20 bg-accent/10 dark:bg-accent/20 rounded-full flex items-center justify-center mx-auto mb-6">
-                        <svg className="w-10 h-10 text-accent" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" /></svg>
+                        <svg className="w-10 h-10 text-primary-700 dark:text-accent" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" /></svg>
                     </div>
                     <h2 className="text-2xl font-bold text-gray-900 dark:text-foreground mb-2">No widgets created</h2>
                     <p className="text-gray-500 dark:text-muted mb-8 max-w-md mx-auto">
@@ -155,14 +155,14 @@ export default function WidgetsPage() {
                                 </div>
                                 <div className="flex items-center gap-2">
                                     <span className={`px-3 py-1 text-xs font-bold uppercase tracking-wider rounded-full border ${widget.status === 'active'
-                                        ? 'bg-success text-success border-success dark:bg-success/30 dark:text-success'
+                                        ? 'bg-success text-success-ink border-success dark:bg-success/30 dark:text-success'
                                         : 'bg-gray-50 text-gray-600 border-gray-100 dark:bg-surface-elevated dark:text-muted'}`}>
                                         {widget.status || 'Active'}
                                     </span>
                                     <button
                                         type="button"
                                         onClick={(e) => handleDelete(e, widget.id, widget.name)}
-                                        className="p-1.5 text-gray-400 hover:text-danger hover:bg-danger/10 dark:hover:bg-red-900/30 rounded-lg transition-colors"
+                                        className="p-1.5 text-gray-500 dark:text-muted hover:text-danger hover:bg-danger/10 dark:hover:bg-red-900/30 rounded-lg transition-colors"
                                         title="Delete Widget"
                                     >
                                         <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -185,10 +185,10 @@ export default function WidgetsPage() {
 
                             {/* Footer / Actions */}
                             <div className="flex items-center justify-between pt-6 border-t border-gray-100 dark:border-border">
-                                <span className="text-xs font-medium text-gray-400">
+                                <span className="text-xs font-medium text-gray-500 dark:text-muted">
                                     Created {new Date(widget.createdAt || widget.created_at || Date.now()).toLocaleDateString()}
                                 </span>
-                                <span className="text-sm font-bold text-accent group-hover:underline">
+                                <span className="text-sm font-bold text-primary-700 dark:text-accent group-hover:underline">
                                     Manage →
                                 </span>
                             </div>
@@ -196,7 +196,7 @@ export default function WidgetsPage() {
                     ))}
 
                     {/* 'Add New' Card */}
-                    <button onClick={handleCreate} className="flex flex-col items-center justify-center h-full min-h-[280px] rounded-card border-2 border-dashed border-gray-200 dark:border-border hover:border-accent hover:bg-accent/10 dark:hover:bg-accent/20 transition-all group text-gray-400 hover:text-accent">
+                    <button onClick={handleCreate} className="flex flex-col items-center justify-center h-full min-h-[280px] rounded-card border-2 border-dashed border-gray-200 dark:border-border hover:border-accent hover:bg-accent/10 dark:hover:bg-accent/20 transition-all group text-gray-500 dark:text-muted hover:text-accent">
                         <div className="w-14 h-14 rounded-full bg-gray-100 dark:bg-surface-elevated group-hover:bg-accent/10 dark:group-hover:bg-accent/20 flex items-center justify-center mb-4 transition-colors">
                             <svg className="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" /></svg>
                         </div>

@@ -21,12 +21,12 @@ export default function N8nTemplateGuide() {
             <strong>Webhook (POST)</strong><br />
             <span className="text-gray-500">Receives `message` & `chat_id`</span>
           </div>
-          <div className="text-gray-400">↓</div>
+          <div className="text-gray-500 dark:text-muted">↓</div>
           <div className="p-3 bg-accent/10 dark:bg-accent/20 rounded shadow border border-accent/30 dark:border-accent/30">
             <strong>AI Agent (LangChain)</strong><br />
-            <span className="text-accent dark:text-accent">Processes logic + System Prompt</span>
+            <span className="text-primary-700 dark:text-accent">Processes logic + System Prompt</span>
           </div>
-          <div className="text-gray-400">↓</div>
+          <div className="text-gray-500 dark:text-muted">↓</div>
           <div className="p-3 bg-white dark:bg-background rounded shadow">
             <strong>Respond to Webhook</strong><br />
             <span className="text-gray-500">Returns JSON reply</span>

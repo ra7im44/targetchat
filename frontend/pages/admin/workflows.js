@@ -301,7 +301,7 @@ export default function WorkflowsPage() {
 
                                 {/* Webhook URL */}
                                 <div className="mb-6 relative z-10">
-                                    <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1">Webhook Endpoint</p>
+                                    <p className="text-[10px] font-bold text-gray-500 dark:text-muted uppercase tracking-wider mb-1">Webhook Endpoint</p>
                                     <div className="bg-gray-50 dark:bg-black/30 rounded-lg border border-gray-100 dark:border-border p-2 flex items-center gap-2 group/copy transition-colors hover:border-blue-200 dark:hover:border-blue-800/50">
                                         <code className="text-xs font-mono text-gray-600 dark:text-secondary truncate flex-1">
                                             {workflow.webhookUrl}
@@ -311,7 +311,7 @@ export default function WorkflowsPage() {
                                                 navigator.clipboard.writeText(workflow.webhookUrl);
                                                 // toast success?
                                             }}
-                                            className="text-gray-400 hover:text-accent transition-colors p-1 rounded"
+                                            className="text-gray-500 dark:text-muted hover:text-accent transition-colors p-1 rounded"
                                             title="Copy URL"
                                         >
                                             <Copy size={16} />
@@ -333,7 +333,7 @@ export default function WorkflowsPage() {
                                     </button>
                                     <button
                                         onClick={() => setEditingWorkflow(workflow)}
-                                        className="flex-1 flex items-center justify-center gap-2 px-3 py-2 text-sm font-medium rounded-lg bg-blue-50 dark:bg-blue-900/20 text-accent dark:text-info hover:bg-blue-100 dark:hover:bg-blue-900/40 transition-all border border-transparent"
+                                        className="flex-1 flex items-center justify-center gap-2 px-3 py-2 text-sm font-medium rounded-lg bg-blue-50 dark:bg-blue-900/20 text-primary-700 dark:text-info hover:bg-blue-100 dark:hover:bg-blue-900/40 transition-all border border-transparent"
                                     >
                                         <Edit size={16} /> Edit
                                     </button>

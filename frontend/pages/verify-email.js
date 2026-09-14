@@ -75,7 +75,7 @@ export default function VerifyEmail() {
                         {status === 'processing' ? 'Verifying...' :
                             status === 'success' ? 'Verified!' : 'Verification Failed'}
                     </h1>
-                    <p className="text-gray-400 mb-6">{message}</p>
+                    <p className="text-gray-500 dark:text-muted mb-6">{message}</p>
 
                     {status === 'error' && (
                         <button

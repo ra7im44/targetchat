@@ -45,7 +45,7 @@ export default function DocsTableOfContents() {
                         href={`#${heading.id}`}
                         className={`block text-sm transition-colors ${heading.level === 3 ? 'pl-4' : ''
                             } ${activeId === heading.id
-                                ? 'text-accent dark:text-accent font-medium'
+                                ? 'text-primary-700 dark:text-accent font-medium'
                                 : 'text-gray-600 dark:text-muted hover:text-gray-900 dark:hover:text-foreground'
                             }`}
                         onClick={(e) => {

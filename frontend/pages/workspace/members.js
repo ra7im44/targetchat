@@ -196,7 +196,7 @@ export default function WorkspaceMembersPage() {
                                         <span className={`px-4 py-2 rounded-full text-sm font-medium ${member.role === 'owner'
                                                 ? 'bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300'
                                                 : member.role === 'manager'
-                                                    ? 'bg-accent/10 dark:bg-accent/20 text-info dark:text-info'
+                                                    ? 'bg-accent/10 dark:bg-accent/20 text-info-ink dark:text-info'
                                                     : 'bg-gray-100 dark:bg-surface-elevated text-gray-700 dark:text-secondary'
                                             }`}>
                                             {member.role.charAt(0).toUpperCase() + member.role.slice(1)}
@@ -206,7 +206,7 @@ export default function WorkspaceMembersPage() {
                                         {member.role !== 'owner' && (
                                             <button
                                                 onClick={() => handleRemoveMember(member.user_id)}
-                                                className="p-2 text-danger dark:text-danger hover:bg-danger/10 dark:hover:bg-red-900/20 rounded-lg transition-colors"
+                                                className="p-2 text-danger-ink dark:text-danger hover:bg-danger/10 dark:hover:bg-red-900/20 rounded-lg transition-colors"
                                                 title="Remove member"
                                             >
                                                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">

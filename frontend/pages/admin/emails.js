@@ -58,8 +58,8 @@ export default function EmailsPage() {
                                     }`}
                             >
                                 <span className={`${activeTab === tab.id ?
-                                    (tab.color === 'blue' ? 'text-accent' : tab.color === 'purple' ? 'text-purple-500' : 'text-success')
-                                    : 'text-gray-400'}`}>
+                                    (tab.color === 'blue' ? 'text-primary-700' : tab.color === 'purple' ? 'text-purple-500' : 'text-success-ink dark:text-success')
+                                    : 'text-gray-500 dark:text-muted'}`}>
                                     {tab.icon}
                                 </span>
                                 {tab.label}
@@ -83,7 +83,7 @@ export default function EmailsPage() {
                 {/* Logic/Tips area */}
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6 opacity-80 hover:opacity-100 transition-opacity">
                     <div className="p-6 bg-accent/10 dark:bg-accent/20 rounded-card border border-accent/30 dark:border-accent/30 flex gap-4">
-                        <div className="text-accent"><FileText size={24} /></div>
+                        <div className="text-primary-700 dark:text-accent"><FileText size={24} /></div>
                         <div>
                             <h4 className="font-bold text-accent-active dark:text-info text-sm">Dynamic Variables</h4>
                             <p className="text-xs text-accent-active/70 dark:text-info/60 mt-1">Use `{"{{name}}"}` or `{"{{cta_link}}"}` in your templates to personalize communication.</p>
@@ -97,9 +97,9 @@ export default function EmailsPage() {
                         </div>
                     </div>
                     <div className="p-6 bg-success/50 dark:bg-success/10 rounded-card border border-success/50 dark:border-success/20 flex gap-4">
-                        <div className="text-success"><BarChart2 size={24} /></div>
+                        <div className="text-success-ink dark:text-success"><BarChart2 size={24} /></div>
                         <div>
-                            <h4 className="font-bold text-success dark:text-success text-sm">Real-time stats</h4>
+                            <h4 className="font-bold text-success-ink dark:text-success text-sm">Real-time stats</h4>
                             <p className="text-xs text-success/70 dark:text-success/60 mt-1">Analytics are updated instantly as webhooks from providers (Postmark/SES) are received.</p>
                         </div>
                     </div>

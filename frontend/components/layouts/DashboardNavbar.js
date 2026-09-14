@@ -97,7 +97,7 @@ export default function DashboardNavbar({ user }) {
                             </Link>
 
                             {user?.role === 'admin' && (
-                                <Link href="/admin" className="flex items-center gap-2 px-4 py-2 text-sm text-accent dark:text-accent hover:bg-surface-hover dark:hover:bg-surface-hover font-medium transition-colors">
+                                <Link href="/admin" className="flex items-center gap-2 px-4 py-2 text-sm text-primary-700 dark:text-accent hover:bg-surface-hover dark:hover:bg-surface-hover font-medium transition-colors">
                                     <ShieldCheck size={16} /> Admin Panel
                                 </Link>
                             )}
@@ -110,7 +110,7 @@ export default function DashboardNavbar({ user }) {
 
                             <button
                                 onClick={handleLogout}
-                                className="w-full flex items-center gap-2 px-4 py-2 text-sm text-danger dark:text-danger hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors font-medium"
+                                className="w-full flex items-center gap-2 px-4 py-2 text-sm text-danger-ink dark:text-danger hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors font-medium"
                             >
                                 <LogOut size={16} /> Log Out
                             </button>

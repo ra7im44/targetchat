@@ -103,7 +103,7 @@ export default function TokensPage() {
 
                 {/* Search */}
                 <div className="bg-white dark:bg-surface p-2 rounded-card flex items-center shadow-sm border border-gray-100 dark:border-border">
-                    <div className="pl-4 pr-3 text-gray-400">
+                    <div className="pl-4 pr-3 text-gray-500 dark:text-muted">
                         <Search size={18} />
                     </div>
                     <input
@@ -144,7 +144,7 @@ export default function TokensPage() {
                                     </div>
                                     <button
                                         onClick={() => revokeToken(token.id)}
-                                        className="text-gray-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 px-3 py-1.5 rounded-lg text-sm font-medium transition-all flex items-center gap-1 opacity-0 group-hover:opacity-100"
+                                        className="text-gray-500 dark:text-muted hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 px-3 py-1.5 rounded-lg text-sm font-medium transition-all flex items-center gap-1 opacity-0 group-hover:opacity-100"
                                     >
                                         <Trash2 size={16} /> Revoke
                                     </button>
@@ -154,7 +154,7 @@ export default function TokensPage() {
                                 <div className="mb-6">
                                     <code className="block w-full bg-gray-50 dark:bg-black/20 p-3 rounded-lg text-sm text-gray-600 dark:text-muted font-mono break-all border border-gray-200 dark:border-border">
                                         {token.tokenPrefix || '••••••••'}
-                                        <span className="text-gray-400 text-xs ml-2">(prefix)</span>
+                                        <span className="text-gray-500 dark:text-muted text-xs ml-2">(prefix)</span>
                                     </code>
                                 </div>
 

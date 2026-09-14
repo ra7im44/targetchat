@@ -42,7 +42,7 @@ export default function EditUserModal({ user, onSave, onClose }) {
                     </h2>
                     <button
                         onClick={onClose}
-                        className="p-2 rounded-xl hover:bg-gray-100/80 dark:hover:bg-surface-hover text-gray-400 hover:text-gray-600 transition-all"
+                        className="p-2 rounded-xl hover:bg-gray-100/80 dark:hover:bg-surface-hover text-gray-500 dark:text-muted hover:text-gray-600 transition-all"
                     >
                         <X size={18} />
                     </button>
@@ -51,7 +51,7 @@ export default function EditUserModal({ user, onSave, onClose }) {
                 {/* Form */}
                 <form onSubmit={handleSubmit} className="p-6 space-y-5 bg-white/40 dark:bg-background/40">
                     {error && (
-                        <div className="p-3 bg-red-500/10 border border-red-500/20 rounded-xl text-danger dark:text-danger text-sm font-medium flex items-center gap-2">
+                        <div className="p-3 bg-red-500/10 border border-red-500/20 rounded-xl text-danger-ink dark:text-danger text-sm font-medium flex items-center gap-2">
                             <TriangleAlert size={18} /> {error}
                         </div>
                     )}
@@ -93,7 +93,7 @@ export default function EditUserModal({ user, onSave, onClose }) {
                         </label>
                         <div className="flex gap-4">
                             <label className={`flex-1 flex items-center justify-center gap-2 p-3 rounded-xl border cursor-pointer transition-all ${formData.role === 'user'
-                                    ? 'bg-accent/10 border-accent text-accent dark:bg-accent/10 dark:border-accent dark:text-accent shadow-sm'
+                                    ? 'bg-accent/10 border-accent text-primary-700 dark:bg-accent/10 dark:border-accent dark:text-accent shadow-sm'
                                     : 'border-transparent hover:bg-gray-100 dark:hover:bg-surface-hover/50 text-gray-500'
                                 }`}>
                                 <input
@@ -108,7 +108,7 @@ export default function EditUserModal({ user, onSave, onClose }) {
                             </label>
 
                             <label className={`flex-1 flex items-center justify-center gap-2 p-3 rounded-xl border cursor-pointer transition-all ${formData.role === 'admin'
-                                    ? 'bg-accent/10 border-accent text-accent dark:bg-accent/10 dark:border-accent dark:text-accent shadow-sm'
+                                    ? 'bg-accent/10 border-accent text-primary-700 dark:bg-accent/10 dark:border-accent dark:text-accent shadow-sm'
                                     : 'border-transparent hover:bg-gray-100 dark:hover:bg-surface-hover/50 text-gray-500'
                                 }`}>
                                 <input
@@ -123,7 +123,7 @@ export default function EditUserModal({ user, onSave, onClose }) {
                             </label>
                         </div>
                         {formData.role === 'admin' && (
-                            <p className="text-xs text-center text-accent dark:text-accent animate-fadeIn">
+                            <p className="text-xs text-center text-primary-700 dark:text-accent animate-fadeIn">
                                 Granting full system access
                             </p>
                         )}

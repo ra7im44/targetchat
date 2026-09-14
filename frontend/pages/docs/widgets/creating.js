@@ -59,7 +59,7 @@ export default function CreatingWidgets() {
                 Once created, you need to install the widget code on your website.
             </p>
             <p>
-                <a href="/docs/widgets/installation" className="text-info dark:text-info hover:underline">Go to Installation Guide →</a>
+                <a href="/docs/widgets/installation" className="text-info-ink dark:text-info hover:underline">Go to Installation Guide →</a>
             </p>
         </DocsLayout>
     );

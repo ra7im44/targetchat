@@ -93,7 +93,7 @@ export default function AdminDashboard() {
         return (
             <div className="flex items-center justify-center h-screen bg-gray-50 dark:bg-background">
                 <div className="text-center max-w-md p-8 bg-white dark:bg-surface rounded-card shadow-lg">
-                    <AlertCircle className="w-16 h-16 text-danger mx-auto mb-4" />
+                    <AlertCircle className="w-16 h-16 text-danger-ink dark:text-danger mx-auto mb-4" />
                     <h2 className="text-2xl font-bold text-gray-900 dark:text-foreground mb-2">Access Denied</h2>
                     <p className="text-gray-600 dark:text-muted mb-6">
                         You don't have permission to access the admin dashboard.
@@ -110,18 +110,18 @@ export default function AdminDashboard() {
     }
 
     const quickActions = [
-        { icon: Users, label: 'Users', href: '/admin/users', color: 'text-accent', bg: 'bg-accent/10 dark:bg-accent/20' },
+        { icon: Users, label: 'Users', href: '/admin/users', color: 'text-primary-700 dark:text-accent', bg: 'bg-accent/10 dark:bg-accent/20' },
         { icon: Zap, label: 'Workflows', href: '/admin/workflows', color: 'text-purple-500', bg: 'bg-purple-50 dark:bg-purple-900/20' },
-        { icon: Key, label: 'API Tokens', href: '/admin/tokens', color: 'text-warning', bg: 'bg-warning dark:bg-warning/20' },
+        { icon: Key, label: 'API Tokens', href: '/admin/tokens', color: 'text-warning-ink dark:text-warning', bg: 'bg-warning dark:bg-warning/20' },
         { icon: Activity, label: 'Activity Logs', href: '/admin/activity', color: 'text-cyan-500', bg: 'bg-cyan-50 dark:bg-cyan-900/20' },
-        { icon: CreditCard, label: 'Billing Center', href: '/admin/billing', color: 'text-success', bg: 'bg-success dark:bg-success/20' },
-        { icon: FileText, label: 'Plans', href: '/admin/billing?tab=plans', color: 'text-accent', bg: 'bg-accent/10 dark:bg-accent/20' },
+        { icon: CreditCard, label: 'Billing Center', href: '/admin/billing', color: 'text-success-ink dark:text-success', bg: 'bg-success dark:bg-success/20' },
+        { icon: FileText, label: 'Plans', href: '/admin/billing?tab=plans', color: 'text-primary-700 dark:text-accent', bg: 'bg-accent/10 dark:bg-accent/20' },
         { icon: Tag, label: 'Coupons', href: '/admin/billing?tab=coupons', color: 'text-pink-500', bg: 'bg-pink-50 dark:bg-pink-900/20' },
         { icon: MessageSquare, label: 'Announcements', href: '/admin/announcements', color: 'text-rose-500', bg: 'bg-rose-50 dark:bg-rose-900/20' },
         { icon: Mail, label: 'Email Logs', href: '/admin/emails', color: 'text-sky-500', bg: 'bg-sky-50 dark:bg-sky-900/20' },
         { icon: HardDrive, label: 'System', href: '/admin/system', color: 'text-gray-500', bg: 'bg-gray-100 dark:bg-surface' },
-        { icon: Shield, label: 'Security', href: '/admin/security', color: 'text-danger', bg: 'bg-danger/10 dark:bg-danger/20' },
-        { icon: Navigation, label: 'Session Tracking', href: '/admin/visitors', color: 'text-accent', bg: 'bg-accent/10 dark:bg-accent/20' },
+        { icon: Shield, label: 'Security', href: '/admin/security', color: 'text-danger-ink dark:text-danger', bg: 'bg-danger/10 dark:bg-danger/20' },
+        { icon: Navigation, label: 'Session Tracking', href: '/admin/visitors', color: 'text-primary-700 dark:text-accent', bg: 'bg-accent/10 dark:bg-accent/20' },
         { icon: Folder, label: 'Files', href: '/admin/files', color: 'text-teal-500', bg: 'bg-teal-50 dark:bg-teal-900/20' },
     ];
 
@@ -185,7 +185,7 @@ export default function AdminDashboard() {
                     <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-gray-100 dark:border-border">
                         <div>
                             <h2 className="text-xl font-bold text-gray-900 dark:text-foreground flex items-center gap-2.5">
-                                <Globe className="text-accent" size={18} />
+                                <Globe className="text-primary-700 dark:text-accent" size={18} />
                                 User Demographics, Locations & Devices
                             </h2>
                             <p className="text-sm text-gray-500 dark:text-muted mt-0.5">
@@ -194,7 +194,7 @@ export default function AdminDashboard() {
                         </div>
                         <Link
                             href="/admin/visitors"
-                            className="inline-flex items-center gap-2 px-4 py-2 bg-accent/10 dark:bg-accent/20 hover:bg-accent/10 dark:hover:bg-accent/20 text-accent dark:text-info rounded-xl text-sm font-bold transition-all"
+                            className="inline-flex items-center gap-2 px-4 py-2 bg-accent/10 dark:bg-accent/20 hover:bg-accent/10 dark:hover:bg-accent/20 text-primary-700 dark:text-info rounded-xl text-sm font-bold transition-all"
                         >
                             <Navigation size={16} />
                             <span>Full Session Tracking</span>
@@ -205,7 +205,7 @@ export default function AdminDashboard() {
                     {/* Mini Metric Counters (Active Sessions, Last 5min, Today) */}
                     <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                         <div className="p-4 rounded-xl bg-surface border border-accent/30 dark:border-accent/30">
-                            <span className="text-xs font-semibold text-accent dark:text-info uppercase tracking-wider">Active Logged Users</span>
+                            <span className="text-xs font-semibold text-primary-700 dark:text-info uppercase tracking-wider">Active Logged Users</span>
                             <div className="text-2xl font-bold text-gray-900 dark:text-foreground mt-1">
                                 {stats?.users?.activeLoggedUsers ?? stats?.users?.active ?? 0}
                             </div>
@@ -213,7 +213,7 @@ export default function AdminDashboard() {
                         </div>
 
                         <div className="p-4 rounded-xl bg-surface border border-success dark:border-success/30">
-                            <span className="text-xs font-semibold text-success dark:text-success uppercase tracking-wider flex items-center gap-1.5">
+                            <span className="text-xs font-semibold text-success-ink dark:text-success uppercase tracking-wider flex items-center gap-1.5">
                                 <span className="w-2 h-2 rounded-full bg-success animate-pulse"></span>
                                 Active (Last 5 min)
                             </span>
@@ -250,7 +250,7 @@ export default function AdminDashboard() {
                                                 <span>{countryName(item.country)}</span>
                                             </span>
                                             <span className="font-bold text-gray-600 dark:text-muted">
-                                                {item.count} <span className="text-xs text-gray-400 font-normal">({item.percentage}%)</span>
+                                                {item.count} <span className="text-xs text-gray-500 dark:text-muted font-normal">({item.percentage}%)</span>
                                             </span>
                                         </div>
                                         <div className="w-full bg-gray-100 dark:bg-surface-elevated h-2 rounded-full overflow-hidden">
@@ -280,7 +280,7 @@ export default function AdminDashboard() {
                                                 <span>{item.device}</span>
                                             </span>
                                             <span className="font-bold text-gray-600 dark:text-muted">
-                                                {item.count} <span className="text-xs text-gray-400 font-normal">({item.percentage}%)</span>
+                                                {item.count} <span className="text-xs text-gray-500 dark:text-muted font-normal">({item.percentage}%)</span>
                                             </span>
                                         </div>
                                         <div className="w-full bg-gray-100 dark:bg-surface-elevated h-2 rounded-full overflow-hidden">
@@ -347,7 +347,7 @@ export default function AdminDashboard() {
                                     <Activity size={18} />
                                     Recent Activity
                                 </h3>
-                                <Link href="/admin/activity" className="text-xs font-bold text-accent hover:text-accent bg-accent/10 dark:bg-accent/20 px-2 py-1 rounded-lg transition-colors">
+                                <Link href="/admin/activity" className="text-xs font-bold text-primary-700 dark:text-accent hover:text-accent bg-accent/10 dark:bg-accent/20 px-2 py-1 rounded-lg transition-colors">
                                     View All
                                 </Link>
                             </div>
@@ -386,15 +386,15 @@ export default function AdminDashboard() {
                                 <div className="space-y-3">
                                     <div className="flex justify-between items-center text-sm">
                                         <span className="text-gray-500 dark:text-muted">Database</span>
-                                        <span className="text-success bg-success dark:bg-success/20 px-2 py-0.5 rounded text-xs font-bold">Operational</span>
+                                        <span className="text-success-ink dark:text-success bg-success dark:bg-success/20 px-2 py-0.5 rounded text-xs font-bold">Operational</span>
                                     </div>
                                     <div className="flex justify-between items-center text-sm">
                                         <span className="text-gray-500 dark:text-muted">API Gateway</span>
-                                        <span className="text-success bg-success dark:bg-success/20 px-2 py-0.5 rounded text-xs font-bold">Operational</span>
+                                        <span className="text-success-ink dark:text-success bg-success dark:bg-success/20 px-2 py-0.5 rounded text-xs font-bold">Operational</span>
                                     </div>
                                     <div className="flex justify-between items-center text-sm">
                                         <span className="text-gray-500 dark:text-muted">Email Service</span>
-                                        <span className="text-success bg-success dark:bg-success/20 px-2 py-0.5 rounded text-xs font-bold">Operational</span>
+                                        <span className="text-success-ink dark:text-success bg-success dark:bg-success/20 px-2 py-0.5 rounded text-xs font-bold">Operational</span>
                                     </div>
                                 </div>
                             </div>

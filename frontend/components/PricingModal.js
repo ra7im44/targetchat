@@ -30,10 +30,10 @@ export default function PricingModal({ isOpen, onClose, currentWorkspace, onUpgr
             <div className="fixed inset-0 z-[60] flex items-center justify-center p-4">
                 <div className="fixed inset-0 bg-black/50 backdrop-blur-sm transition-opacity" onClick={onClose} />
                 <div className="relative bg-white dark:bg-background rounded-modal p-8 shadow-lg max-w-md w-full text-center">
-                    <button onClick={onClose} className="absolute top-4 right-4 text-gray-400 hover:text-gray-600">
+                    <button onClick={onClose} className="absolute top-4 right-4 text-gray-500 dark:text-muted hover:text-gray-600">
                         <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" /></svg>
                     </button>
-                    <div className="w-16 h-16 bg-accent/10 dark:bg-accent/20 text-accent rounded-card flex items-center justify-center mx-auto mb-4"><Gem size={18} /></div>
+                    <div className="w-16 h-16 bg-accent/10 dark:bg-accent/20 text-primary-700 dark:text-accent rounded-card flex items-center justify-center mx-auto mb-4"><Gem size={18} /></div>
                     <h2 className="text-2xl font-bold text-gray-900 dark:text-foreground mb-2">Upgrade Unavailable</h2>
                     <p className="text-gray-600 dark:text-muted mb-6">Online payments are currently disabled. Please contact sales.</p>
                     <a href="mailto:sales@targetchat.com" className="block w-full py-3 bg-accent text-background font-bold rounded-xl hover:bg-accent-hover">Contact Sales</a>
@@ -178,7 +178,7 @@ export default function PricingModal({ isOpen, onClose, currentWorkspace, onUpgr
             <div className="relative bg-white dark:bg-background rounded-modal shadow-lg max-w-6xl w-full max-h-[90vh] overflow-y-auto">
                 <button
                     onClick={onClose}
-                    className="absolute top-4 right-4 p-2 text-gray-400 hover:text-gray-600 dark:hover:text-secondary z-10"
+                    className="absolute top-4 right-4 p-2 text-gray-500 dark:text-muted hover:text-gray-600 dark:hover:text-secondary z-10"
                 >
                     <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
@@ -215,12 +215,12 @@ export default function PricingModal({ isOpen, onClose, currentWorkspace, onUpgr
                                         }`}
                                 >
                                     Yearly
-                                    <span className="ml-2 text-xs font-bold text-success dark:text-success">Save 17%</span>
+                                    <span className="ml-2 text-xs font-bold text-success-ink dark:text-success">Save 17%</span>
                                 </button>
                             </div>
 
                             <div className="w-full max-w-sm flex items-center gap-2 p-1 bg-accent/10 dark:bg-accent/20 border border-accent/30 dark:border-accent/30 rounded-xl">
-                                <span className="pl-3 py-2 text-accent">
+                                <span className="pl-3 py-2 text-primary-700 dark:text-accent">
                                     <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" /></svg>
                                 </span>
                                 <input
@@ -234,7 +234,7 @@ export default function PricingModal({ isOpen, onClose, currentWorkspace, onUpgr
                                 {couponData ? (
                                     <button
                                         onClick={() => { setCouponData(null); setCouponCode(''); }}
-                                        className="px-4 py-2 text-xs font-bold text-danger hover:text-danger uppercase"
+                                        className="px-4 py-2 text-xs font-bold text-danger-ink dark:text-danger hover:text-danger uppercase"
                                     >
                                         Remove
                                     </button>
@@ -249,7 +249,7 @@ export default function PricingModal({ isOpen, onClose, currentWorkspace, onUpgr
                                 )}
                             </div>
                             {couponData && (
-                                <p className="text-xs font-bold text-success flex items-center gap-1 animate-fadeIn">
+                                <p className="text-xs font-bold text-success-ink dark:text-success flex items-center gap-1 animate-fadeIn">
                                     <svg className="w-3 h-3" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" /></svg>
                                     Applied: {couponData.description || `${couponData.discountValue}${couponData.discountType === 'percentage' ? '%' : '$'} Off`}
                                 </p>
@@ -260,13 +260,13 @@ export default function PricingModal({ isOpen, onClose, currentWorkspace, onUpgr
                                 <div className="flex p-1 bg-gray-100 dark:bg-surface rounded-lg">
                                     <button
                                         onClick={() => setGateway('stripe')}
-                                        className={`px-4 py-1.5 rounded-md text-xs font-bold transition-all flex items-center gap-2 ${gateway === 'stripe' ? 'bg-white dark:bg-surface-elevated text-accent shadow-sm' : 'text-gray-500'}`}
+                                        className={`px-4 py-1.5 rounded-md text-xs font-bold transition-all flex items-center gap-2 ${gateway === 'stripe' ? 'bg-white dark:bg-surface-elevated text-primary-700 dark:text-accent shadow-sm' : 'text-gray-500'}`}
                                     >
                                         Card
                                     </button>
                                     <button
                                         onClick={() => setGateway('paypal')}
-                                        className={`px-4 py-1.5 rounded-md text-xs font-bold transition-all flex items-center gap-2 ${gateway === 'paypal' ? 'bg-white dark:bg-surface-elevated text-info shadow-sm' : 'text-gray-500'}`}
+                                        className={`px-4 py-1.5 rounded-md text-xs font-bold transition-all flex items-center gap-2 ${gateway === 'paypal' ? 'bg-white dark:bg-surface-elevated text-info-ink dark:text-info shadow-sm' : 'text-gray-500'}`}
                                     >
                                         PayPal
                                     </button>
@@ -326,7 +326,7 @@ export default function PricingModal({ isOpen, onClose, currentWorkspace, onUpgr
                                                 feat(plan.maxMembers, 'Member'),
                                             ].map((f) => (
                                                 <li key={f} className="flex items-center gap-2.5 text-gray-700 dark:text-secondary">
-                                                    <span className="text-success font-bold"><Check size={16} /></span>
+                                                    <span className="text-success-ink dark:text-success font-bold"><Check size={16} /></span>
                                                     <span className="font-medium">{f}</span>
                                                 </li>
                                             ))}

@@ -64,7 +64,7 @@ export default function AuthForm() {
                         onClick={() => setMode('login')}
                         className={`flex-1 py-3 text-sm font-bold rounded-xl transition-all duration-300 ${mode === 'login'
                             ? 'bg-accent text-background shadow-lg'
-                            : 'text-muted hover:bg-white/5 hover:text-white'
+                            : 'text-gray-500 dark:text-muted hover:bg-white/5 hover:text-white'
                             }`}
                     >
                         Login
@@ -73,7 +73,7 @@ export default function AuthForm() {
                         onClick={() => setMode('register')}
                         className={`flex-1 py-3 text-sm font-bold rounded-lg transition-colors ${mode === 'register'
                             ? 'bg-accent text-background shadow-sm'
-                            : 'text-muted hover:bg-white/5 hover:text-foreground'
+                            : 'text-gray-500 dark:text-muted hover:bg-white/5 hover:text-foreground'
                             }`}
                     >
                         Sign Up
@@ -86,7 +86,7 @@ export default function AuthForm() {
                         <h3 className="text-2xl font-bold text-white tracking-tight">
                             {mode === 'login' ? 'Welcome Back' : 'Start Free Trial'}
                         </h3>
-                        <p className="text-sm text-muted mt-2 font-medium">
+                        <p className="text-sm text-gray-500 dark:text-muted mt-2 font-medium">
                             {mode === 'login'
                                 ? 'Command center access'
                                 : 'Deploy your AI agent in seconds'}
@@ -95,7 +95,7 @@ export default function AuthForm() {
 
                     {mode === 'register' && (
                         <div className="space-y-2 animate-slideIn">
-                            <label className="text-xs font-bold text-muted uppercase tracking-wider ml-1">Full Name</label>
+                            <label className="text-xs font-bold text-gray-500 dark:text-muted uppercase tracking-wider ml-1">Full Name</label>
                             <div className="relative group/input">
                                 <div className="absolute -inset-0.5 bg-accent rounded-xl blur opacity-0 group-hover/input:opacity-50 transition duration-500"></div>
                                 <input
@@ -111,7 +111,7 @@ export default function AuthForm() {
                     )}
 
                     <div className="space-y-2">
-                        <label className="text-xs font-bold text-muted uppercase tracking-wider ml-1">Email Access</label>
+                        <label className="text-xs font-bold text-gray-500 dark:text-muted uppercase tracking-wider ml-1">Email Access</label>
                         <div className="relative group/input">
                             <div className="absolute -inset-0.5 bg-accent rounded-xl blur opacity-0 group-hover/input:opacity-50 transition duration-500"></div>
                             <input
@@ -127,9 +127,9 @@ export default function AuthForm() {
 
                     <div className="space-y-2">
                         <div className="flex justify-between items-center ml-1">
-                            <label className="text-xs font-bold text-muted uppercase tracking-wider">Passcode</label>
+                            <label className="text-xs font-bold text-gray-500 dark:text-muted uppercase tracking-wider">Passcode</label>
                             {mode === 'login' && (
-                                <a href="/forgot-password" className="text-xs text-info hover:text-info font-medium transition-colors">Recover?</a>
+                                <a href="/forgot-password" className="text-xs text-info-ink dark:text-info hover:text-info font-medium transition-colors">Recover?</a>
                             )}
                         </div>
                         <div className="relative group/input">

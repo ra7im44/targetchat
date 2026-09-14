@@ -43,13 +43,13 @@ export default function DocsHome() {
                 </div>
 
                 <div className="relative z-10 max-w-3xl mx-auto">
-                    <span className="inline-block px-4 py-1.5 rounded-full bg-surface-elevated border border-border text-sm font-medium text-secondary mb-6">
+                    <span className="inline-block px-4 py-1.5 rounded-full bg-surface-elevated border border-border text-sm font-medium text-gray-600 dark:text-secondary mb-6">
                         Documentation v1.0
                     </span>
                     <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6 tracking-tight text-foreground">
                         How can we help you?
                     </h1>
-                    <p className="text-secondary text-lg md:text-xl mb-10 max-w-2xl mx-auto leading-relaxed">
+                    <p className="text-gray-600 dark:text-secondary text-lg md:text-xl mb-10 max-w-2xl mx-auto leading-relaxed">
                         Explore our comprehensive guides to master TargetChat, from setting up your first widget to building advanced AI workflows.
                     </p>
 
@@ -57,7 +57,7 @@ export default function DocsHome() {
                     <div className="relative max-w-xl mx-auto group">
                         <div className="absolute inset-0 bg-accent blur-xl rounded-full opacity-0 group-hover:opacity-5 transition-opacity duration-500"></div>
                         <div className="relative flex items-center bg-surface-elevated border border-border rounded-full px-6 py-4 shadow-lg transition-all">
-                            <svg className="w-6 h-6 text-muted mr-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <svg className="w-6 h-6 text-gray-500 dark:text-muted mr-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                             </svg>
                             <input
@@ -66,7 +66,7 @@ export default function DocsHome() {
                                 className="w-full bg-transparent border-none focus:ring-0 text-foreground placeholder:text-muted text-lg"
                                 disabled
                             />
-                            <span className="text-xs font-mono text-muted border border-border rounded px-2 py-1 ml-4 hidden sm:block">
+                            <span className="text-xs font-mono text-gray-500 dark:text-muted border border-border rounded px-2 py-1 ml-4 hidden sm:block">
                                 CTRL K
                             </span>
                         </div>
