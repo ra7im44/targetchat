@@ -50,6 +50,21 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.STRING(45),
       allowNull: true,
       field: 'registration_ip'
+    },
+    country: {
+      type: DataTypes.STRING(10),
+      allowNull: true,
+      field: 'country'
+    },
+    city: {
+      type: DataTypes.STRING(100),
+      allowNull: true,
+      field: 'city'
+    },
+    deviceInfo: {
+      type: DataTypes.STRING(500),
+      allowNull: true,
+      field: 'device_info'
     }
   }, {
     tableName: 'users',

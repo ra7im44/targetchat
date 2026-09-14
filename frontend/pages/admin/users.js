@@ -6,10 +6,11 @@ import DeleteUserModal from '../../components/admin/DeleteUserModal';
 import {
     Users, Shield, Activity, Search, Trash2,
     Edit, Ban, CheckCircle, X, ChevronLeft, ChevronRight,
-    Crown, User
+    Crown, User, Globe
 } from 'lucide-react';
+import { countryName, countryFlag, parseDevice } from '../../utils/deviceHelper';
 
-const API = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
+import { API_URL as API } from '../../utils/apiConfig';
 
 export default function UsersPage() {
     const router = useRouter();
@@ -335,8 +336,8 @@ export default function UsersPage() {
                         <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" size={20} />
                         <input
                             type="text"
-                            placeholder="Search by name or email..."
-                            aria-label="Search users by name or email"
+                            placeholder="Search by name, email, country, IP, or device..."
+                            aria-label="Search users by name, email, country, IP, or device"
                             value={search}
                             onChange={(e) => setSearch(e.target.value)}
                             className="w-full pl-11 pr-4 py-3 rounded-xl bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 focus:ring-2 focus:ring-blue-500/50 outline-none transition-all placeholder:text-gray-400"
@@ -398,7 +399,7 @@ export default function UsersPage() {
                                         </td>
                                         <td className="px-6 py-4">
                                             <div
-                                                className="flex items-center gap-4 cursor-pointer"
+                                                className="flex items-start gap-4 cursor-pointer"
                                                 role="link"
                                                 tabIndex={0}
                                                 aria-label={`Open details for ${user.name}`}
@@ -410,12 +411,29 @@ export default function UsersPage() {
                                                     }
                                                 }}
                                             >
-                                                <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white font-bold shadow-md">
-                                                    {user.name.charAt(0).toUpperCase()}
+                                                <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white font-bold shadow-md flex-shrink-0 mt-0.5">
+                                                    {user.avatar ? <img src={user.avatar} className="w-full h-full rounded-full object-cover" alt="" /> : user.name.charAt(0).toUpperCase()}
                                                 </div>
-                                                <div>
-                                                    <div className="font-semibold text-gray-900 dark:text-white hover:text-blue-600 transition-colors">{user.name}</div>
-                                                    <div className="text-sm text-gray-500 dark:text-gray-400">{user.email}</div>
+                                                <div className="min-w-0">
+                                                    <div className="font-semibold text-gray-900 dark:text-white hover:text-blue-600 transition-colors flex items-center gap-2">
+                                                        <span>{user.name}</span>
+                                                        <span className="text-[11px] font-mono text-gray-400 font-normal">#{user.id}</span>
+                                                    </div>
+                                                    <div className="text-sm text-gray-500 dark:text-gray-400 truncate">{user.email}</div>
+                                                    {/* Geo, IP and Device Sub-row (Like U-Axis SPA) */}
+                                                    <div className="flex flex-wrap items-center gap-2 mt-1.5 text-xs">
+                                                        <span className="inline-flex items-center gap-1 font-medium text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-700/60 px-2 py-0.5 rounded-md" title={`Location: ${user.city || ''} ${user.country || ''}`}>
+                                                            {countryName(user.country)} {user.city ? `· ${user.city}` : ''}
+                                                        </span>
+                                                        <span className="text-gray-300 dark:text-gray-600">•</span>
+                                                        <span className="font-mono text-[11px] bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 px-1.5 py-0.5 rounded border border-blue-200/50 dark:border-blue-800/50" title="Last IP Address">
+                                                            🌐 <code>{user.lastIp || 'No IP'}</code>
+                                                        </span>
+                                                        <span className="text-gray-300 dark:text-gray-600">•</span>
+                                                        <span className="text-gray-500 dark:text-gray-400" title="Device & OS">
+                                                            📱 {parseDevice(user.deviceInfo)}
+                                                        </span>
+                                                    </div>
                                                 </div>
                                             </div>
                                         </td>

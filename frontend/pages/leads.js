@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
 import DashboardLayout from '../components/layouts/DashboardLayout';
 
-const API = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
+import { API_URL as API } from '../utils/apiConfig';
 
 export default function LeadsPage() {
     const router = useRouter();

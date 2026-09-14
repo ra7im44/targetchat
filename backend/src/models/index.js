@@ -13,6 +13,7 @@ const WorkflowUser = require('./WorkflowUser')(sequelize, DataTypes);
 const ActivityLog = require('./ActivityLog')(sequelize, DataTypes);
 const Channel = require('./Channel')(sequelize, DataTypes);
 const CannedResponse = require('./CannedResponse')(sequelize, DataTypes);
+const UserSession = require('./UserSession')(sequelize, DataTypes);
 
 // Email system models
 const EmailTemplate = require('./EmailTemplate')(sequelize, DataTypes);
@@ -184,9 +185,13 @@ Workflow.belongsTo(Workspace, { foreignKey: 'workspace_id', as: 'workspace' });
 User.hasMany(CannedResponse, { foreignKey: 'userId', as: 'cannedResponses' });
 CannedResponse.belongsTo(User, { foreignKey: 'userId', as: 'user' });
 
+User.hasMany(UserSession, { foreignKey: 'userId', as: 'sessions' });
+UserSession.belongsTo(User, { foreignKey: 'userId', as: 'user' });
+
 module.exports = {
     sequelize,
     User,
+    UserSession,
     Chat,
     Message,
     Workflow,

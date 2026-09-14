@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { toast } from 'react-hot-toast';
 import { Search, RefreshCw, Eye, RotateCcw, Filter, X } from 'lucide-react';
 
-const API = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
+import { API_URL as API } from '../../../utils/apiConfig';
 
 export default function EmailLogsTab() {
     const [logs, setLogs] = useState([]);

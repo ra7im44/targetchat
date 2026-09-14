@@ -5,7 +5,8 @@
   "main": "src/index.js",
   "scripts": {
     "start": "node src/index.js",
-    "dev": "nodemon src/index.js"
+    "dev": "nodemon src/index.js",
+    "migrate:sessions": "node scripts/migrate_user_sessions.js"
   },
   "dependencies": {
     "@sendgrid/mail": "^8.1.6",

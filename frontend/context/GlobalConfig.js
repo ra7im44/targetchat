@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
+import { API_URL } from '../utils/apiConfig';
 
 const GlobalConfigContext = createContext();
 
@@ -22,7 +23,7 @@ export const GlobalConfigProvider = ({ children }) => {
         try {
             // Note: This endpoint must be PUBLIC or handle unauthenticated requests safely
             // Use /api/settings/public if available, or just fetch known safe keys
-            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'}/api/settings/public`);
+            const res = await fetch(`${API_URL}/api/settings/public`);
             if (res.ok) {
                 const data = await res.json();
                 setConfig(prev => ({

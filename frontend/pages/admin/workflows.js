@@ -8,7 +8,7 @@ import {
     Copy, Trash2, Edit, Pause, Play, Plus, X
 } from 'lucide-react';
 
-const API = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
+import { API_URL as API } from '../../utils/apiConfig';
 
 export default function WorkflowsPage() {
     const router = useRouter();

@@ -18,6 +18,15 @@ export default function DashboardHome() {
     });
     const [activity, setActivity] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [displayName] = useState(() => {
+        try {
+            if (typeof window === 'undefined') return 'there';
+            const u = JSON.parse(window.localStorage.getItem('tc_user') || 'null');
+            return u?.name || u?.email?.split('@')[0] || 'there';
+        } catch (e) {
+            return 'there';
+        }
+    });
 
     useEffect(() => {
         fetchData();
@@ -53,14 +62,13 @@ export default function DashboardHome() {
             <div className="h-32 flex items-center justify-center text-gray-400 text-sm">No chart data</div>
         );
         const max = Math.max(...data.map(d => d.count), 5); // Minimum scale of 5
+        const span = data.length > 1 ? (data.length - 1) : 1;
+        const xOf = (i) => (data.length > 1 ? (i / span) * 100 : 50);
         const points = data.map((d, i) => {
-            const x = (i / (data.length - 1)) * 100;
+            const x = xOf(i);
             const y = 100 - (d.count / max) * 100;
             return `${x},${y}`;
         }).join(' ');
-
-        // If single point (shouldn't happen with 7 day loop but safety check)
-        if (data.length === 1) return null;
 
         const areaPath = `M0,100 L0,${100 - (data[0].count / max) * 100} ${points.split(' ').map((p, i) => `L${p}`).join(' ')} L100,100 Z`;
 
@@ -78,7 +86,7 @@ export default function DashboardHome() {
 
                     {/* Tooltip circles */}
                     {data.map((d, i) => {
-                        const x = (i / (data.length - 1)) * 100;
+                        const x = data.length > 1 ? (i / (data.length - 1)) * 100 : 50;
                         const y = 100 - (d.count / max) * 100;
                         return (
                             <circle key={i} cx={x} cy={y} r="2" fill="#fff" stroke="#6366f1" strokeWidth="1" className="opacity-0 group-hover:opacity-100 transition-opacity duration-200" />
@@ -122,7 +130,7 @@ export default function DashboardHome() {
             <div className="flex flex-col md:flex-row md:items-center justify-between mb-10 gap-4">
                 <div>
                     <h1 className="text-3xl font-extrabold text-gray-900 dark:text-white tracking-tight">
-                        Welcome back, Admin <span className="animate-wave inline-block">👋</span>
+                        Welcome back, {displayName} <span className="animate-wave inline-block">👋</span>
                     </h1>
                     <p className="text-gray-500 dark:text-gray-400 mt-2 font-medium">
                         Here's your performance overview for {new Date().toLocaleDateString(undefined, { weekday: 'long', month: 'long', day: 'numeric' })}.

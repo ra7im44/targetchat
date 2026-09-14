@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
 
-const API = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
+import { API_URL as API } from '../utils/apiConfig';
 
 export default function SettingsPanel({ isOpen, onClose }) {
     const router = useRouter();

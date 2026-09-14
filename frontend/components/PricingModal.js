@@ -3,7 +3,7 @@ import { useRouter } from 'next/router';
 import { toast } from 'react-hot-toast';
 import { useGlobalConfig } from '../context/GlobalConfig';
 
-const API = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
+import { API_URL as API } from '../utils/apiConfig';
 
 export default function PricingModal({ isOpen, onClose, currentWorkspace, onUpgrade }) {
     const router = useRouter();

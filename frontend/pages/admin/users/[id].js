@@ -1,8 +1,9 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
 import AdminLayout from '../../../components/admin/AdminLayout';
+import { countryName, countryFlag, parseDevice } from '../../../utils/deviceHelper';
 
-const API = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
+import { API_URL as API } from '../../../utils/apiConfig';
 
 export default function UserDetailsPage() {
     const router = useRouter();
@@ -108,11 +109,20 @@ export default function UserDetailsPage() {
                             </span>
                         </div>
                         <p className="text-lg text-gray-500 dark:text-gray-400 font-mono">{user.email}</p>
-                        <div className="flex items-center justify-center md:justify-start gap-6 pt-2 text-sm text-gray-500 dark:text-gray-400">
-                            <span title={new Date(user.createdAt).toLocaleString()}>
+                        <div className="flex flex-wrap items-center justify-center md:justify-start gap-3 pt-2 text-xs">
+                            <span className="inline-flex items-center gap-1 font-medium text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-800 px-2.5 py-1 rounded-lg">
+                                {countryName(user.country)} {user.city ? `· ${user.city}` : ''}
+                            </span>
+                            <span className="font-mono bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 px-2.5 py-1 rounded-lg border border-blue-200/50 dark:border-blue-800/50">
+                                🌐 <code>{user.lastIp || 'No IP'}</code>
+                            </span>
+                            <span className="bg-gray-100 dark:bg-gray-800 px-2.5 py-1 rounded-lg text-gray-600 dark:text-gray-300">
+                                📱 {parseDevice(user.deviceInfo)}
+                            </span>
+                            <span className="text-gray-500 dark:text-gray-400" title={new Date(user.createdAt).toLocaleString()}>
                                 📅 Joined {new Date(user.createdAt).toLocaleDateString()}
                             </span>
-                            <span>
+                            <span className="text-gray-500 dark:text-gray-400">
                                 🕒 Last Login: {user.lastLogin ? new Date(user.lastLogin).toLocaleDateString() : 'Never'}
                             </span>
                         </div>
@@ -150,7 +160,8 @@ export default function UserDetailsPage() {
                 {/* Tab Content */}
                 <div className="animate-fadeIn">
                     {activeTab === 'overview' && (
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <>
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                             {/* Stats */}
                             <div className="col-span-2 grid grid-cols-2 gap-6">
                                 <div className="glass-panel p-6 rounded-2xl border border-white/10 flex items-center gap-4">
@@ -190,6 +201,14 @@ export default function UserDetailsPage() {
                                         <span className="font-mono text-gray-900 dark:text-gray-200">{user.isActive ? 'Active' : 'Disabled'}</span>
                                     </div>
                                     <div className="flex justify-between">
+                                        <span className="text-gray-500">Location</span>
+                                        <span className="text-gray-900 dark:text-gray-200">{countryName(user.country)} {user.city ? `· ${user.city}` : ''}</span>
+                                    </div>
+                                    <div className="flex justify-between">
+                                        <span className="text-gray-500">Device</span>
+                                        <span className="text-gray-900 dark:text-gray-200">{parseDevice(user.deviceInfo)}</span>
+                                    </div>
+                                    <div className="flex justify-between">
                                         <span className="text-gray-500">Reg. IP</span>
                                         <span className="font-mono text-gray-900 dark:text-gray-200">{user.registrationIp || 'Unknown'}</span>
                                     </div>
@@ -200,6 +219,52 @@ export default function UserDetailsPage() {
                                 </div>
                             </div>
                         </div>
+
+                        {/* Recent Recorded Sessions */}
+                        {user.recentSessions && user.recentSessions.length > 0 && (
+                            <div className="mt-6 glass-panel p-6 rounded-2xl border border-white/10 space-y-4">
+                                <h3 className="font-bold text-gray-900 dark:text-white flex items-center gap-2">
+                                    <span>🌐</span> Recent User Sessions (سجلات الجلسات)
+                                </h3>
+                                <div className="overflow-x-auto">
+                                    <table className="w-full text-left text-sm">
+                                        <thead className="text-xs uppercase text-gray-500 border-b border-gray-100 dark:border-gray-700/50">
+                                            <tr>
+                                                <th className="py-2.5">Network IP</th>
+                                                <th className="py-2.5">Location</th>
+                                                <th className="py-2.5">Device & Browser</th>
+                                                <th className="py-2.5">Last Activity</th>
+                                                <th className="py-2.5">Status</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody className="divide-y divide-gray-100 dark:divide-gray-800">
+                                            {user.recentSessions.map(sess => (
+                                                <tr key={sess.id}>
+                                                    <td className="py-3 font-mono text-xs text-blue-600 dark:text-blue-400">
+                                                        <code>{sess.ipAddress || '127.0.0.1'}</code>
+                                                    </td>
+                                                    <td className="py-3">
+                                                        {countryName(sess.country)} {sess.city ? `· ${sess.city}` : ''}
+                                                    </td>
+                                                    <td className="py-3 text-gray-600 dark:text-gray-300">
+                                                        {parseDevice(sess.deviceInfo)}
+                                                    </td>
+                                                    <td className="py-3 text-xs text-gray-500">
+                                                        {new Date(sess.lastActivity || sess.created_at).toLocaleString()}
+                                                    </td>
+                                                    <td className="py-3">
+                                                        <span className={`px-2 py-0.5 text-xs font-bold rounded-full ${sess.isActive ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300' : 'bg-gray-100 text-gray-600'}`}>
+                                                            {sess.isActive ? 'Active' : 'Ended'}
+                                                        </span>
+                                                    </td>
+                                                </tr>
+                                            ))}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        )}
+                        </>
                     )}
 
                     {activeTab === 'activity' && (

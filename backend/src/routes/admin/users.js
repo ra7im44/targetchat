@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { User, Chat, Message, ActivityLog } = require('../../models');
+const { User, UserSession, Chat, Message, ActivityLog } = require('../../models');
 const { logActivity } = require('../../utils/logger');
 const { requireAuth } = require('../../middleware/auth');
 const { requireAdmin } = require('../../middleware/rbac');
@@ -22,11 +22,15 @@ router.get('/', async (req, res) => {
         // Build where clause
         const where = {};
 
-        // Search by name or email
+        // Search by name, email, country, IP, or device
         if (search) {
             where[Op.or] = [
                 { name: { [Op.like]: `%${search}%` } },
-                { email: { [Op.like]: `%${search}%` } }
+                { email: { [Op.like]: `%${search}%` } },
+                { country: { [Op.like]: `%${search}%` } },
+                { city: { [Op.like]: `%${search}%` } },
+                { lastIp: { [Op.like]: `%${search}%` } },
+                { deviceInfo: { [Op.like]: `%${search}%` } }
             ];
         }
 
@@ -49,7 +53,7 @@ router.get('/', async (req, res) => {
 
         const { count, rows } = await User.findAndCountAll({
             where,
-            attributes: ['id', 'name', 'email', 'role', 'isActive', 'lastLogin', 'lastIp', 'registrationIp', 'created_at'],
+            attributes: ['id', 'name', 'email', 'avatar', 'role', 'isActive', 'country', 'city', 'deviceInfo', 'lastLogin', 'lastIp', 'registrationIp', 'created_at'],
             order: [['created_at', 'DESC']],
             limit,
             offset
@@ -76,14 +80,24 @@ router.get('/:id', async (req, res) => {
         const { id } = req.params;
 
         const user = await User.findByPk(id, {
-            attributes: ['id', 'name', 'email', 'role', 'isActive', 'lastLogin', 'lastIp', 'registrationIp', 'created_at']
+            attributes: ['id', 'name', 'email', 'avatar', 'role', 'isActive', 'country', 'city', 'deviceInfo', 'lastLogin', 'lastIp', 'registrationIp', 'created_at']
         });
 
         if (!user) {
             return res.status(404).json({ message: 'User not found' });
         }
 
-        res.json(user);
+        // Get user's recent sessions
+        const recentSessions = await UserSession.findAll({
+            where: { userId: id },
+            order: [['last_activity', 'DESC']],
+            limit: 5
+        });
+
+        const userData = user.toJSON();
+        userData.recentSessions = recentSessions;
+
+        res.json(userData);
     } catch (err) {
         console.error('Error fetching user:', err);
         res.status(500).json({ message: 'Server error', error: err.message });

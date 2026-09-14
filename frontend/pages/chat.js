@@ -13,11 +13,10 @@ import CreateWorkspaceModal from '../components/CreateWorkspaceModal';
 import MembersModal from '../components/MembersModal';
 import { LocaleContext } from './_app';
 import { useTheme } from '../contexts/ThemeContext';
+import { API_URL as API, SOCKET_URL, getToken } from '../utils/apiConfig';
 
 // Dynamic import for emoji picker (client-side only)
 const EmojiPicker = dynamic(() => import('emoji-picker-react'), { ssr: false });
-
-const API = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
 
 const PERSONAS = [
   { id: 'default', name: 'Assistant', icon: '🤖', desc: 'Helpful and generic AI assistant.' },
@@ -101,7 +100,7 @@ export default function ChatPage() {
   // Load workflows function (outside useEffect so it can be reused)
   async function loadWorkflows(workspaceId = null) {
     try {
-      const token = localStorage.getItem('tc_token');
+      const token = getToken();
       if (!token) return;
 
       const url = workspaceId
@@ -135,7 +134,7 @@ export default function ChatPage() {
   }
 
   useEffect(() => {
-    const token = localStorage.getItem('tc_token');
+    const token = getToken();
     if (!token) {
       router.replace('/login');
       return; // Early return, no cleanup needed
@@ -234,7 +233,7 @@ export default function ChatPage() {
     if (currentWorkspace === undefined || currentWorkspace === null) return;
 
     async function reloadChats() {
-      const token = localStorage.getItem('tc_token');
+      const token = getToken();
       if (!token) return;
 
       try {
@@ -278,7 +277,7 @@ export default function ChatPage() {
     if (currentWorkspace === undefined || currentWorkspace === null) return;
 
     async function reloadWorkflows() {
-      const token = localStorage.getItem('tc_token');
+      const token = getToken();
       if (!token) return;
 
       try {
@@ -311,12 +310,14 @@ export default function ChatPage() {
     reloadWorkflows();
   }, [currentWorkspace]);
 
-  // Socket.io connection & event handling
+  // Socket.io connection & event handling — connect ONCE per session.
+  // Personal-chat contract (backend src/routes/chat.js): `message`, `ai:thinking`.
+  // Joining a different chat only emits `chat:join`, never reconnects.
   useEffect(() => {
-    const token = localStorage.getItem('tc_token');
+    const token = getToken();
     if (!token) return;
 
-    const socket = io(API.replace('/api', ''), {
+    const socket = io(SOCKET_URL, {
       auth: { token },
       transports: ['websocket', 'polling']
     });
@@ -373,7 +374,15 @@ export default function ChatPage() {
 
     return () => {
       socket.disconnect();
+      if (socketRef.current === socket) socketRef.current = null;
     };
+  }, []);
+
+  // Join the active personal-chat room without reconnecting the socket.
+  useEffect(() => {
+    if (socketRef.current && activeChatId) {
+      socketRef.current.emit('chat:join', activeChatId);
+    }
   }, [activeChatId]);
 
   useEffect(() => {
@@ -396,7 +405,7 @@ export default function ChatPage() {
   }
 
   async function createNewChat(firstMessageText = null) {
-    const token = localStorage.getItem('tc_token');
+    const token = getToken();
     if (!token) return router.replace('/login');
     try {
       let initialTitle = 'New Chat';
@@ -458,7 +467,7 @@ export default function ChatPage() {
 
     // fetch messages for this chat
     (async () => {
-      const token = localStorage.getItem('tc_token');
+      const token = getToken();
       if (!token) return router.replace('/login');
       try {
         const resp = await fetch(`${API}/api/chat/history?chat_id=${id}`, { headers: { Authorization: `Bearer ${token}` } });
@@ -489,7 +498,7 @@ export default function ChatPage() {
 
   function deleteChat(id) {
     (async () => {
-      const token = localStorage.getItem('tc_token');
+      const token = getToken();
       if (!token) return router.replace('/login');
       try {
         const resp = await fetch(`${API}/api/chat/${id}`, { method: 'DELETE', headers: { Authorization: `Bearer ${token}` } });
@@ -699,7 +708,7 @@ export default function ChatPage() {
 
         try {
           setLoading(true);
-          const token = localStorage.getItem('tc_token');
+          const token = getToken();
           const res = await fetch(`${API}/api/upload`, {
             method: 'POST',
             headers: { Authorization: `Bearer ${token}` },
@@ -789,7 +798,7 @@ export default function ChatPage() {
     // If we have an active chat, update its workflow immediately
     if (activeChatId) {
       try {
-        const token = localStorage.getItem('tc_token');
+        const token = getToken();
         if (!token) return;
 
         await fetch(`${API}/api/chat/${activeChatId}`, {
@@ -1154,7 +1163,7 @@ export default function ChatPage() {
 
                     try {
                       setLoading(true);
-                      const token = localStorage.getItem('tc_token');
+                      const token = getToken();
 
                       // Upload file
                       const res = await fetch(`${API}/api/upload`, {

@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { toast } from 'react-hot-toast';
 import { BarChart2, PieChart, TrendingUp, TrendingDown, Target, Clock, Eye } from 'lucide-react';
 
-const API = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
+import { API_URL as API } from '../../../utils/apiConfig';
 
 export default function EmailAnalyticsTab() {
     const [stats, setStats] = useState(null);

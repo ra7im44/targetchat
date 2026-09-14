@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { toast } from 'react-hot-toast';
 import { Mail, Edit, Trash2, Eye, Send, Plus, X } from 'lucide-react';
 
-const API = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
+import { API_URL as API } from '../../../utils/apiConfig';
 
 export default function EmailTemplatesTab() {
     const [templates, setTemplates] = useState([]);

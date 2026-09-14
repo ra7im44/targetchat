@@ -4,8 +4,7 @@ import { useRouter } from 'next/router';
 import Head from 'next/head';
 import io from 'socket.io-client';
 import PreChatForm from '../../components/PreChatForm';
-
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
+import { API_URL, SOCKET_URL } from '../../utils/apiConfig';
 
 export default function EmbedPage() {
     const router = useRouter();
@@ -17,6 +16,7 @@ export default function EmbedPage() {
     const [sessionId, setSessionId] = useState(null);
     const [showPreChat, setShowPreChat] = useState(false);
     const [leadId, setLeadId] = useState(null);
+    const [loadError, setLoadError] = useState(null);
     const messagesEndRef = useRef(null);
 
     useEffect(() => {
@@ -28,6 +28,7 @@ export default function EmbedPage() {
             const cryptoObj = typeof window !== 'undefined' ? (window.crypto || window.msCrypto) : null;
             if (!cryptoObj || !cryptoObj.getRandomValues) {
                 console.error('[Security] Web Crypto API is unavailable. Failing closed.');
+                setLoadError('This browser cannot open a secure chat session (WebCrypto unavailable). Please use a modern browser over HTTPS.');
                 return;
             }
             const buf = new Uint8Array(16);
@@ -39,7 +40,10 @@ export default function EmbedPage() {
 
         // Load config with bound sessionId query parameter
         fetch(`${API_URL}/widget/public/${slug}/config?sessionId=${encodeURIComponent(storedSession)}`)
-            .then(res => res.json())
+            .then(res => {
+                if (!res.ok) throw new Error(`HTTP ${res.status}`);
+                return res.json();
+            })
             .then(data => {
                 setConfig(data);
                 if (data.sessionToken) {
@@ -55,7 +59,10 @@ export default function EmbedPage() {
                     setShowPreChat(true);
                 }
             })
-            .catch(err => console.error('Failed to load widget config', err));
+            .catch(err => {
+                console.error('Failed to load widget config', err);
+                setLoadError('Could not load this chat widget. Check the link and try again.');
+            });
     }, [slug]);
 
     const handleLeadSubmit = (lead) => {
@@ -70,7 +77,7 @@ export default function EmbedPage() {
         if (!sessionCapability) return;
 
         // Connect to Socket.io with server-issued capability token
-        const newSocket = io(API_URL, {
+        const newSocket = io(SOCKET_URL, {
             auth: {
                 token: 'anonymous',
                 sessionToken: sessionCapability,
@@ -125,6 +132,22 @@ export default function EmbedPage() {
             console.error('Failed to send message', err);
         }
     };
+
+    if (loadError) return (
+        <div className="flex items-center justify-center h-screen bg-gray-50 p-6">
+            <div className="max-w-sm text-center bg-white rounded-2xl shadow-sm border border-gray-200 p-8">
+                <div className="text-4xl mb-3">⚠️</div>
+                <h1 className="font-bold text-gray-900 mb-2">Chat unavailable</h1>
+                <p className="text-sm text-gray-500 mb-4">{loadError}</p>
+                <button
+                    onClick={() => window.location.reload()}
+                    className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-bold rounded-xl transition-colors"
+                >
+                    Try again
+                </button>
+            </div>
+        </div>
+    );
 
     if (!config) return <div className="flex items-center justify-center h-screen">Loading...</div>;
 

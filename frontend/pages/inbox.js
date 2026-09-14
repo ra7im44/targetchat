@@ -6,7 +6,7 @@ import DashboardLayout from '../components/layouts/DashboardLayout';
 import { toast } from 'react-hot-toast';
 import { Facebook, Instagram, MessageCircle, Globe, Share2, User, Zap, Cpu } from 'lucide-react';
 
-import { API_URL as API } from '../utils/apiConfig';
+import { API_URL as API, SOCKET_URL, getToken, isAuthError, redirectToLogin } from '../utils/apiConfig';
 
 export default function InboxPage() {
     const router = useRouter();
@@ -25,6 +25,11 @@ export default function InboxPage() {
     const [activeTab, setActiveTab] = useState('details'); // details, notes
     const socketRef = useRef(null);
     const messagesEndRef = useRef(null);
+    const selectedChatRef = useRef(null);
+
+    useEffect(() => {
+        selectedChatRef.current = selectedChat;
+    }, [selectedChat]);
 
     const [typingChats, setTypingChats] = useState({}); // { chatId: true/false }
     const [deliveries, setDeliveries] = useState({}); // { chatId: watermark }
@@ -34,10 +39,10 @@ export default function InboxPage() {
         loadChats();
         loadStats();
 
-        // Connect to Socket.io
-        const token = localStorage.getItem('tc_token');
+        // Connect to Socket.io once (inbox contract: message:new / chat:updated).
+        const token = getToken();
         if (token) {
-            socketRef.current = io(API, {
+            socketRef.current = io(SOCKET_URL, {
                 auth: { token }
             });
 
@@ -55,12 +60,16 @@ export default function InboxPage() {
                 });
             });
 
+            // Single message:new listener: appends to open thread (via ref, no re-subscribe)
+            // and always refreshes the chat-list snippet.
             socketRef.current.on('message:new', ({ chatId, message }) => {
-                setMessages(prev => {
-                    // Use a functional update to check against current selectedChat if needed
-                    // But we want to update the messages list only if it's the current chat
-                    return prev; // This logic is handled better below by checking selectedChatRef
-                });
+                const openChat = selectedChatRef.current;
+                if (openChat && Number(openChat.id) === Number(chatId)) {
+                    setMessages(prev => {
+                        if (prev.find(m => m.id === message.id)) return prev;
+                        return [...prev, message];
+                    });
+                }
 
                 // Update chat list for snippet and timestamp
                 setChats(prevChats => prevChats.map(c => {
@@ -75,8 +84,11 @@ export default function InboxPage() {
                 }).sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt)));
             });
 
-            socketRef.current.on('chat:typing', ({ chatId, typing }) => {
-                setTypingChats(prev => ({ ...prev, [chatId]: typing }));
+            // Backend emits `isTyping` (client:/agent:typing flows) while older
+            // Meta-channel events use `typing` — accept both shapes.
+            socketRef.current.on('chat:typing', ({ chatId, typing, isTyping }) => {
+                const active = typeof isTyping !== 'undefined' ? !!isTyping : !!typing;
+                setTypingChats(prev => ({ ...prev, [chatId]: active }));
             });
 
             socketRef.current.on('chat:read', ({ chatId, watermark }) => {
@@ -93,29 +105,12 @@ export default function InboxPage() {
         };
     }, []); // Only on mount
 
-    // Separate effect for message handling to avoid socket re-init
-    useEffect(() => {
-        if (!socketRef.current) return;
-
-        const handleNewMessage = ({ chatId, message }) => {
-            if (selectedChat && Number(selectedChat.id) === Number(chatId)) {
-                setMessages(prev => {
-                    if (prev.find(m => m.id === message.id)) return prev;
-                    return [...prev, message];
-                });
-            }
-        };
-
-        socketRef.current.on('message:new', handleNewMessage);
-        return () => socketRef.current.off('message:new', handleNewMessage);
-    }, [selectedChat]);
-
     useEffect(() => {
         messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
     }, [messages]);
 
     async function loadChats() {
-        const token = localStorage.getItem('tc_token');
+        const token = getToken();
         if (!token) {
             router.replace('/login');
             return;
@@ -127,6 +122,10 @@ export default function InboxPage() {
                 headers: { Authorization: `Bearer ${token}` }
             });
 
+            if (isAuthError(res.status)) {
+                redirectToLogin(router);
+                return;
+            }
             if (res.ok) {
                 const data = await res.json();
                 setChats(data.chats || []);
@@ -351,7 +350,8 @@ export default function InboxPage() {
             'from-green-400 to-emerald-500',
             'from-orange-400 to-red-500'
         ];
-        return gradients[name.charCodeAt(0) % gradients.length] || gradients[0];
+        const key = String(name || 'A');
+        return gradients[key.charCodeAt(0) % gradients.length] || gradients[0];
     }
 
     const renderChannelIcon = (chat) => {

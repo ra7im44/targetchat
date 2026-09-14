@@ -8,10 +8,11 @@ import {
     Users, Zap, Key, Activity, CreditCard,
     FileText, Tag, MessageSquare, Mail,
     HardDrive, Shield, Folder, ArrowRight,
-    TrendingUp, AlertCircle
+    TrendingUp, AlertCircle, Globe, Navigation, Laptop, Smartphone
 } from 'lucide-react';
+import { countryName, countryFlag, parseDevice } from '../../utils/deviceHelper';
 
-const API = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
+import { API_URL as API } from '../../utils/apiConfig';
 
 export default function AdminDashboard() {
     const router = useRouter();
@@ -120,6 +121,7 @@ export default function AdminDashboard() {
         { icon: Mail, label: 'Email Logs', href: '/admin/emails', color: 'text-sky-500', bg: 'bg-sky-50 dark:bg-sky-900/20' },
         { icon: HardDrive, label: 'System', href: '/admin/system', color: 'text-gray-500', bg: 'bg-gray-100 dark:bg-gray-800' },
         { icon: Shield, label: 'Security', href: '/admin/security', color: 'text-red-500', bg: 'bg-red-50 dark:bg-red-900/20' },
+        { icon: Navigation, label: 'Session Tracking', href: '/admin/visitors', color: 'text-indigo-500', bg: 'bg-indigo-50 dark:bg-indigo-900/20' },
         { icon: Folder, label: 'Files', href: '/admin/files', color: 'text-teal-500', bg: 'bg-teal-50 dark:bg-teal-900/20' },
     ];
 
@@ -176,6 +178,122 @@ export default function AdminDashboard() {
                         subtext="All systems operational"
                         gradient="from-emerald-500 to-emerald-600"
                     />
+                </div>
+
+                {/* User Demographics & Session Analytics Section */}
+                <div className="bg-white dark:bg-gray-800 rounded-2xl p-6 border border-gray-100 dark:border-gray-700 shadow-sm space-y-6">
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-gray-100 dark:border-gray-700">
+                        <div>
+                            <h2 className="text-xl font-bold text-gray-900 dark:text-white flex items-center gap-2.5">
+                                <Globe className="text-blue-600" size={24} />
+                                User Demographics, Locations & Devices
+                            </h2>
+                            <p className="text-sm text-gray-500 dark:text-gray-400 mt-0.5">
+                                Real-time geographical distribution, operating systems, and active user sessions.
+                            </p>
+                        </div>
+                        <Link
+                            href="/admin/visitors"
+                            className="inline-flex items-center gap-2 px-4 py-2 bg-blue-50 dark:bg-blue-900/20 hover:bg-blue-100 dark:hover:bg-blue-900/40 text-blue-600 dark:text-blue-400 rounded-xl text-sm font-bold transition-all"
+                        >
+                            <Navigation size={16} />
+                            <span>Full Session Tracking</span>
+                            <ArrowRight size={14} />
+                        </Link>
+                    </div>
+
+                    {/* Mini Metric Counters (Active Sessions, Last 5min, Today) */}
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                        <div className="p-4 rounded-xl bg-gradient-to-br from-blue-50 to-indigo-50/30 dark:from-blue-900/10 dark:to-indigo-900/10 border border-blue-100 dark:border-blue-900/30">
+                            <span className="text-xs font-semibold text-blue-600 dark:text-blue-400 uppercase tracking-wider">Active Logged Users</span>
+                            <div className="text-2xl font-black text-gray-900 dark:text-white mt-1">
+                                {stats?.users?.activeLoggedUsers ?? stats?.users?.active ?? 0}
+                            </div>
+                            <p className="text-xs text-gray-500 mt-1">Users with live active session</p>
+                        </div>
+
+                        <div className="p-4 rounded-xl bg-gradient-to-br from-emerald-50 to-teal-50/30 dark:from-emerald-900/10 dark:to-teal-900/10 border border-emerald-100 dark:border-emerald-900/30">
+                            <span className="text-xs font-semibold text-emerald-600 dark:text-emerald-400 uppercase tracking-wider flex items-center gap-1.5">
+                                <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                                Active (Last 5 min)
+                            </span>
+                            <div className="text-2xl font-black text-gray-900 dark:text-white mt-1">
+                                {stats?.users?.activeLast5Minutes ?? 0}
+                            </div>
+                            <p className="text-xs text-gray-500 mt-1">Real-time online presence</p>
+                        </div>
+
+                        <div className="p-4 rounded-xl bg-gradient-to-br from-purple-50 to-pink-50/30 dark:from-purple-900/10 dark:to-pink-900/10 border border-purple-100 dark:border-purple-900/30">
+                            <span className="text-xs font-semibold text-purple-600 dark:text-purple-400 uppercase tracking-wider">Sessions Today</span>
+                            <div className="text-2xl font-black text-gray-900 dark:text-white mt-1">
+                                {stats?.users?.totalSessionsToday ?? 0}
+                            </div>
+                            <p className="text-xs text-gray-500 mt-1">Total user visits logged today</p>
+                        </div>
+                    </div>
+
+                    {/* Distribution Grid: Top Countries & Top Devices */}
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-2">
+                        {/* Top Countries */}
+                        <div className="space-y-4">
+                            <h3 className="text-sm font-bold text-gray-700 dark:text-gray-300 uppercase tracking-wider flex items-center gap-2">
+                                <span>🌍</span> Top User Locations (الدول والمواقع)
+                            </h3>
+                            <div className="space-y-3">
+                                {(stats?.demographics?.topCountries?.length > 0 ? stats.demographics.topCountries : [
+                                    { country: 'EG', count: 1, percentage: 100 }
+                                ]).map((item) => (
+                                    <div key={item.country} className="space-y-1">
+                                        <div className="flex justify-between items-center text-sm">
+                                            <span className="font-semibold text-gray-800 dark:text-gray-200 flex items-center gap-2">
+                                                <span>{countryFlag(item.country)}</span>
+                                                <span>{countryName(item.country)}</span>
+                                            </span>
+                                            <span className="font-bold text-gray-600 dark:text-gray-400">
+                                                {item.count} <span className="text-xs text-gray-400 font-normal">({item.percentage}%)</span>
+                                            </span>
+                                        </div>
+                                        <div className="w-full bg-gray-100 dark:bg-gray-700 h-2 rounded-full overflow-hidden">
+                                            <div
+                                                className="bg-gradient-to-r from-blue-500 to-indigo-600 h-full rounded-full transition-all duration-500"
+                                                style={{ width: `${Math.max(item.percentage, 5)}%` }}
+                                            ></div>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+
+                        {/* Top Devices */}
+                        <div className="space-y-4">
+                            <h3 className="text-sm font-bold text-gray-700 dark:text-gray-300 uppercase tracking-wider flex items-center gap-2">
+                                <span>📱</span> Top Devices & Platforms (الأجهزة والأنظمة)
+                            </h3>
+                            <div className="space-y-3">
+                                {(stats?.demographics?.topDevices?.length > 0 ? stats.demographics.topDevices : [
+                                    { device: 'Windows 10+', count: 1, percentage: 100 }
+                                ]).map((item) => (
+                                    <div key={item.device} className="space-y-1">
+                                        <div className="flex justify-between items-center text-sm">
+                                            <span className="font-semibold text-gray-800 dark:text-gray-200 flex items-center gap-2">
+                                                {item.device.toLowerCase().includes('windows') ? '💻' : item.device.toLowerCase().includes('mac') ? '🍏' : item.device.toLowerCase().includes('ios') || item.device.toLowerCase().includes('android') ? '📱' : '🖥️'}
+                                                <span>{item.device}</span>
+                                            </span>
+                                            <span className="font-bold text-gray-600 dark:text-gray-400">
+                                                {item.count} <span className="text-xs text-gray-400 font-normal">({item.percentage}%)</span>
+                                            </span>
+                                        </div>
+                                        <div className="w-full bg-gray-100 dark:bg-gray-700 h-2 rounded-full overflow-hidden">
+                                            <div
+                                                className="bg-gradient-to-r from-emerald-500 to-teal-600 h-full rounded-full transition-all duration-500"
+                                                style={{ width: `${Math.max(item.percentage, 5)}%` }}
+                                            ></div>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                    </div>
                 </div>
 
                 <div className="grid grid-cols-1 xl:grid-cols-3 gap-8">

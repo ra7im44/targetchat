@@ -7,7 +7,7 @@ import {
     AlertCircle, CheckCircle2, Clock, X, Loader2
 } from 'lucide-react';
 
-const API = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
+import { API_URL as API } from '../utils/apiConfig';
 // Backend origin — OAuth popup messages are only trusted from here.
 const API_ORIGIN = (() => {
     try { return new URL(API).origin; } catch { return API; }

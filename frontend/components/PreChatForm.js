@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { API_URL as API } from '../utils/apiConfig';
 
 export default function PreChatForm({ widgetId, formFields, welcomeMessage, onSubmit }) {
     // Default fields if none provided
@@ -15,7 +16,7 @@ export default function PreChatForm({ widgetId, formFields, welcomeMessage, onSu
     const [formData, setFormData] = useState({});
     const [loading, setLoading] = useState(false);
 
-    const API = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
+
 
     async function handleSubmit(e) {
         e.preventDefault();

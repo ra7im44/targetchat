@@ -7,7 +7,7 @@ import {
     CreditCard, Tag, FileText, Mail, Shield,
     HardDrive, Settings, LogOut, MessageSquare,
     ChevronLeft, ChevronRight, Moon, Sun, Share2,
-    Terminal
+    Terminal, Navigation
 } from 'lucide-react';
 
 export default function AdminSidebar({ collapsed, onToggleCollapse }) {
@@ -22,6 +22,7 @@ export default function AdminSidebar({ collapsed, onToggleCollapse }) {
     const navItems = [
         { href: '/admin', icon: LayoutDashboard, label: 'Dashboard' },
         { href: '/admin/users', icon: Users, label: 'Users' },
+        { href: '/admin/visitors', icon: Navigation, label: 'Session Tracking' },
         { href: '/admin/workflows', icon: Zap, label: 'Workflows' },
         { href: '/admin/channels', icon: Share2, label: 'Channels' },
         { href: '/admin/tokens', icon: Key, label: 'API Tokens' },

@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { toast } from 'react-hot-toast';
 
-const API = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
+import { API_URL as API } from '../utils/apiConfig';
 
 export default function CreateWorkspaceModal({ isOpen, onClose, onCreated }) {
     const [name, setName] = useState('');

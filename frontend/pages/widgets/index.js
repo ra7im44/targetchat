@@ -4,7 +4,7 @@ import { toast } from 'react-hot-toast';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 
-const API = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
+import { API_URL as API } from '../../utils/apiConfig';
 
 export default function WidgetsPage() {
     const router = useRouter();
@@ -97,8 +97,9 @@ export default function WidgetsPage() {
             'from-orange-400 to-red-500',
             'from-cyan-400 to-blue-500'
         ];
-        const code = str.charCodeAt(0) % gradients.length;
-        return gradients[code];
+        const key = String(str || 'W');
+        const code = key.charCodeAt(0) % gradients.length;
+        return gradients[code] || gradients[0];
     };
 
     return (

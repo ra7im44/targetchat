@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
-const { User, Subscription, SubscriptionPlan } = require('../models');
+const { User, UserSession, Subscription, SubscriptionPlan } = require('../models');
 const { validate, schemas } = require('../middleware/validation');
 const { logActivity } = require('../utils/logger');
 const { triggerEvent } = require('../triggers/emailTriggers');
@@ -11,6 +11,7 @@ const crypto = require('crypto');
 const { requireAuth } = require('../middleware/auth');
 const { getJwtSecret } = require('../config/secrets');
 const { getClientIp } = require('../utils/requestContext');
+const { parseUserAgent, detectGeo } = require('../utils/geoIp');
 
 router.post('/register', validate(schemas.register), async (req, res) => {
   try {
@@ -22,13 +23,22 @@ router.post('/register', validate(schemas.register), async (req, res) => {
     const hash = await bcrypt.hash(password, 10);
     const verificationToken = crypto.randomBytes(32).toString('hex');
 
+    const clientIp = getClientIp(req);
+    const { country, city } = detectGeo(req, clientIp);
+    const ua = req.get('User-Agent') || '';
+    const parsedDevice = parseUserAgent(ua);
+
     const user = await User.create({
       name,
       email,
       password: hash,
       isVerified: false,
       verificationToken,
-      registrationIp: getClientIp(req)
+      registrationIp: clientIp,
+      lastIp: clientIp,
+      country: country || 'EG',
+      city: city || 'Cairo',
+      deviceInfo: parsedDevice.formatted
     });
 
     // 2. Assign Free Plan
@@ -116,10 +126,38 @@ router.post('/login', validate(schemas.login), async (req, res) => {
       return res.status(400).json({ message: 'Invalid credentials' });
     }
 
-    // Update last login and IP
+    // Update last login, IP, location and device
+    const clientIp = getClientIp(req);
+    const ua = req.get('User-Agent') || '';
+    const parsedDevice = parseUserAgent(ua);
+    const geo = detectGeo(req, clientIp);
+
     user.lastLogin = new Date();
-    user.lastIp = getClientIp(req);
+    user.lastIp = clientIp;
+    user.deviceInfo = parsedDevice.formatted;
+    if (geo.country) user.country = geo.country;
+    if (geo.city) user.city = geo.city;
     await user.save();
+
+    // Create or update active session
+    try {
+      const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
+      await UserSession.create({
+        userId: user.id,
+        ipAddress: clientIp,
+        deviceInfo: ua || parsedDevice.formatted,
+        deviceType: parsedDevice.deviceType,
+        browser: parsedDevice.browser,
+        os: parsedDevice.os,
+        country: user.country || geo.country || 'EG',
+        city: user.city || geo.city || 'Cairo',
+        isActive: true,
+        lastActivity: new Date(),
+        expiresAt
+      });
+    } catch (sessionErr) {
+      console.warn('Failed to record UserSession:', sessionErr.message);
+    }
 
     await logActivity(user.id, 'LOGIN', {}, req);
 

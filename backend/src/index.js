@@ -445,6 +445,7 @@ app.use('/webhook/email', require('./routes/webhooks/emailWebhook')); // Email d
 app.use('/api/admin/workflows', require('./routes/admin/workflows'));
 app.use('/api/admin/stats', require('./routes/admin/stats'));
 app.use('/api/admin/users', require('./routes/admin/users'));
+app.use('/api/admin/visitors', require('./routes/admin/visitors'));
 app.use('/api/admin/activity', require('./routes/admin/activity'));
 app.use('/api/admin/activity-logs', require('./routes/admin/activity'));
 app.use('/api/admin/settings', require('./routes/admin/settings'));

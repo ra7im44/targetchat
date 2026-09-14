@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 
-const API = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
+import { API_URL as API } from '../utils/apiConfig';
 
 // Generate avatar from initials
 function generateInitialsAvatar(name) {

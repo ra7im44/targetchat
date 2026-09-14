@@ -4,10 +4,11 @@ import Head from 'next/head';
 import DashboardSidebar from './DashboardSidebar';
 import DashboardNavbar from './DashboardNavbar';
 import { toast } from 'react-hot-toast';
+import { API_URL as API, getToken, isAuthError, redirectToLogin } from '../../utils/apiConfig';
+import CreateWorkspaceModal from '../CreateWorkspaceModal';
+import MembersModal from '../MembersModal';
 
-const API = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
-
-function DashboardContent({ children, title, user, workspaces, currentWorkspace, setCurrentWorkspace, collapsed, setCollapsed }) {
+function DashboardContent({ children, title, user, workspaces, currentWorkspace, setCurrentWorkspace, collapsed, setCollapsed, onCreateWorkspace, onManageMembers }) {
     return (
         <div className="flex h-screen bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 overflow-hidden font-sans">
             <Head>
@@ -22,8 +23,8 @@ function DashboardContent({ children, title, user, workspaces, currentWorkspace,
                 currentWorkspace={currentWorkspace}
                 workspaces={workspaces}
                 onWorkspaceChange={setCurrentWorkspace}
-                onCreateWorkspace={() => { }} // TODO: Implement modal
-                onManageMembers={() => { }} // TODO: Implement modal
+                onCreateWorkspace={onCreateWorkspace}
+                onManageMembers={onManageMembers}
             />
 
             {/* Main Content */}
@@ -47,13 +48,15 @@ export default function DashboardLayout({ children, title = 'Dashboard' }) {
     const [user, setUser] = useState(null);
     const [workspaces, setWorkspaces] = useState([]);
     const [currentWorkspace, setCurrentWorkspace] = useState(null);
+    const [showCreateWorkspace, setShowCreateWorkspace] = useState(false);
+    const [showMembersModal, setShowMembersModal] = useState(false);
 
     useEffect(() => {
         checkAuth();
     }, []);
 
     async function checkAuth() {
-        const token = localStorage.getItem('tc_token');
+        const token = getToken();
 
         if (!token) {
             router.replace('/login');
@@ -66,6 +69,11 @@ export default function DashboardLayout({ children, title = 'Dashboard' }) {
                 headers: { Authorization: `Bearer ${token}` }
             });
 
+            if (isAuthError(userRes.status)) {
+                redirectToLogin(router);
+                toast.error('Session expired. Please login again.');
+                return;
+            }
             if (!userRes.ok) {
                 throw new Error(`Auth failed: ${userRes.status}`);
             }
@@ -114,17 +122,41 @@ export default function DashboardLayout({ children, title = 'Dashboard' }) {
         );
     }
 
+    function handleWorkspaceCreated(ws) {
+        if (ws) {
+            setWorkspaces(prev => prev.some(w => w.id === ws.id)
+                ? prev.map(w => (w.id === ws.id ? ws : w))
+                : [...prev, ws]);
+            setCurrentWorkspace(ws);
+            try { localStorage.setItem('current_workspace_id', ws.id); } catch (e) {}
+        }
+    }
+
     return (
-        <DashboardContent
-            title={title}
-            user={user}
-            workspaces={workspaces}
-            currentWorkspace={currentWorkspace}
-            setCurrentWorkspace={setCurrentWorkspace}
-            collapsed={collapsed}
-            setCollapsed={setCollapsed}
-        >
-            {children}
-        </DashboardContent>
+        <>
+            <DashboardContent
+                title={title}
+                user={user}
+                workspaces={workspaces}
+                currentWorkspace={currentWorkspace}
+                setCurrentWorkspace={setCurrentWorkspace}
+                collapsed={collapsed}
+                setCollapsed={setCollapsed}
+                onCreateWorkspace={() => setShowCreateWorkspace(true)}
+                onManageMembers={() => setShowMembersModal(true)}
+            >
+                {children}
+            </DashboardContent>
+            <CreateWorkspaceModal
+                isOpen={showCreateWorkspace}
+                onClose={() => setShowCreateWorkspace(false)}
+                onCreated={handleWorkspaceCreated}
+            />
+            <MembersModal
+                isOpen={showMembersModal}
+                onClose={() => setShowMembersModal(false)}
+                workspace={currentWorkspace}
+            />
+        </>
     );
 }

@@ -5,7 +5,7 @@ import Head from 'next/head';
 import Link from 'next/link';
 import { Check, X, CreditCard, Shield, Zap, Gift } from 'lucide-react';
 
-const API = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
+import { API_URL as API } from '../utils/apiConfig';
 
 export default function PricingPage() {
     const router = useRouter();
