@@ -190,7 +190,7 @@ export default function Sidebar({ chats, activeId, onSelect, onNew, onDelete, co
                                   ? 'text-amber-500 hover:bg-amber-50 dark:hover:bg-amber-950/30'
                                   : 'text-gray-400 hover:text-amber-500 hover:bg-gray-100 dark:hover:bg-gray-800'
                               }`}
-                              title={c.pinned ? "إلغاء التثبيت / Unpin" : "تثبيت / Pin"}
+                              title={c.pinned ? "Unpin" : "Pin"}
                             >
                               <Icon name="pin" filled={c.pinned} className="w-3.5 h-3.5" />
                             </button>
@@ -200,7 +200,7 @@ export default function Sidebar({ chats, activeId, onSelect, onNew, onDelete, co
                               type="button"
                               onClick={(e) => startRename(c, e)}
                               className="p-1 text-gray-400 hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-slate-800 rounded-md transition-all hover:scale-110"
-                              title="إعادة تسمية / Rename"
+                              title="Rename"
                             >
                               <Icon name="edit" className="w-3.5 h-3.5" />
                             </button>
@@ -213,7 +213,7 @@ export default function Sidebar({ chats, activeId, onSelect, onNew, onDelete, co
                                 setDeleteConfirm({ isOpen: true, chatId: c.id });
                               }}
                               className="p-1 text-gray-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/30 rounded-md transition-all hover:scale-110"
-                              title="حذف / Delete"
+                              title="Delete"
                             >
                               <Icon name="delete" className="w-3.5 h-3.5" />
                             </button>

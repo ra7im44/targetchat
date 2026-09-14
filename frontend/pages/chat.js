@@ -1067,7 +1067,7 @@ export default function ChatPage() {
                   <div
                     className="flex items-center gap-1.5 cursor-pointer"
                     onClick={() => { const t = chats.find((c) => c.id === activeChatId)?.title || ''; setTitleValue(t); setEditingTitle(true); }}
-                    title="تعديل اسم المحادثة / Rename"
+                    title="Rename chat"
                   >
                     <h1 className="font-bold text-lg text-gray-900 dark:text-white truncate max-w-[180px] sm:max-w-md">
                       {(chats.find((c) => c.id === activeChatId)?.title) || 'New Chat'}
@@ -1089,7 +1089,7 @@ export default function ChatPage() {
                           ? 'text-amber-500 hover:bg-amber-50 dark:hover:bg-amber-950/30'
                           : 'text-gray-400 hover:text-amber-500 hover:bg-gray-100 dark:hover:bg-gray-800'
                       }`}
-                      title={chats.find((c) => c.id === activeChatId)?.pinned ? "إلغاء التثبيت / Unpin" : "تثبيت المحادثة / Pin"}
+                      title={chats.find((c) => c.id === activeChatId)?.pinned ? "Unpin" : "Pin"}
                     >
                       <svg className="w-4 h-4" viewBox="0 0 24 24" fill={chats.find((c) => c.id === activeChatId)?.pinned ? "currentColor" : "none"} stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                         <line x1="12" y1="17" x2="12" y2="22" />
