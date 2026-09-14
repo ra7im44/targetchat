@@ -29,21 +29,28 @@ router.get('/', async (req, res) => {
 router.post('/', async (req, res) => {
     try {
         const {
-            name, priceMonthly, priceYearly,
+            name, description, priceMonthly, priceYearly,
             stripePriceIdMonthly, stripePriceIdYearly,
             paypalPlanIdMonthly, paypalPlanIdYearly,
+            trialDays,
             maxChats, maxMessagesPerMonth, maxWidgets, maxMembers,
             features, isActive
         } = req.body;
 
+        if (!name || String(name).trim() === '') {
+            return res.status(400).json({ message: 'Plan name is required' });
+        }
+
         const plan = await SubscriptionPlan.create({
-            name,
+            name: String(name).trim(),
+            description: description || null,
             priceMonthly,
             priceYearly,
             stripePriceIdMonthly,
             stripePriceIdYearly,
             paypalPlanIdMonthly,
             paypalPlanIdYearly,
+            trialDays: trialDays ?? 0,
             maxChats,
             maxMessagesPerMonth,
             maxWidgets,
