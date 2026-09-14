@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import DashboardLayout from '../../components/layouts/DashboardLayout';
 import Link from 'next/link';
 
-import { API_URL as API } from '../../utils/apiConfig';
+import { API_URL as API, getToken } from '../../utils/apiConfig';
 
 export default function DashboardHome() {
     const [stats, setStats] = useState({
@@ -18,23 +18,20 @@ export default function DashboardHome() {
     });
     const [activity, setActivity] = useState([]);
     const [loading, setLoading] = useState(true);
-    const [displayName] = useState(() => {
-        try {
-            if (typeof window === 'undefined') return 'there';
-            const u = JSON.parse(window.localStorage.getItem('tc_user') || 'null');
-            return u?.name || u?.email?.split('@')[0] || 'there';
-        } catch (e) {
-            return 'there';
-        }
-    });
+    const [displayName, setDisplayName] = useState('there');
 
     useEffect(() => {
+        // Hydrate after mount (SSR-safe: reading storage during render breaks hydration)
+        try {
+            const u = JSON.parse(window.localStorage.getItem('tc_user') || 'null');
+            setDisplayName(u?.name || u?.email?.split('@')[0] || 'there');
+        } catch (e) {}
         fetchData();
     }, []);
 
     async function fetchData() {
         try {
-            const token = localStorage.getItem('tc_token');
+            const token = getToken();
             const headers = { Authorization: `Bearer ${token}` };
 
             const [statsRes, listsRes, activityRes] = await Promise.all([

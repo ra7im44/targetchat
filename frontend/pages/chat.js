@@ -69,20 +69,12 @@ export default function ChatPage() {
   const [showPricing, setShowPricing] = useState(false);
   const [showProfileMenu, setShowProfileMenu] = useState(false);
   const [selectedPersona, setSelectedPersona] = useState('default');
-  const [selectedWorkflow, setSelectedWorkflow] = useState(() => {
-    if (typeof window !== 'undefined') {
-      return localStorage.getItem('tc_selected_workflow') || null;
-    }
-    return null;
-  });
+  // NOTE: static defaults on purpose — persisted values hydrate in the mount
+  // effect below. Reading localStorage here breaks SSR hydration.
+  const [selectedWorkflow, setSelectedWorkflow] = useState(null);
   const [workflows, setWorkflows] = useState([]);
   const [workflowsLoading, setWorkflowsLoading] = useState(true);
-  const [sidebarCollapsed, setSidebarCollapsed] = useState(() => {
-    if (typeof window !== 'undefined') {
-      return localStorage.getItem('sidebar_collapsed') === 'true';
-    }
-    return false;
-  });
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const [showAttachMenu, setShowAttachMenu] = useState(false);
   const imageInputRef = useRef(null);
@@ -143,6 +135,13 @@ export default function ChatPage() {
       router.replace('/login');
       return; // Early return, no cleanup needed
     }
+
+    // Hydrate persisted UI state after mount (SSR-safe: server renders defaults,
+    // client converges here — reading storage during render breaks hydration).
+    try {
+      setSelectedWorkflow(localStorage.getItem('tc_selected_workflow') || null);
+      setSidebarCollapsed(localStorage.getItem('sidebar_collapsed') === 'true');
+    } catch (e) {}
 
     // compact mode (denser UI)
     try {
