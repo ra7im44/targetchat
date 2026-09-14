@@ -123,6 +123,9 @@ router.post('/', async (req, res) => {
             return res.status(400).json({ message: 'Password must be at least 6 characters' });
         }
 
+        // Normalize isActive to a strict boolean (avoid truthy-string surprises; default true)
+        const activeFlag = typeof isActive === 'undefined' ? true : (isActive === true || isActive === 'true' || isActive === 1 || isActive === '1');
+
         // Check if email already exists
         const existingUser = await User.findOne({ where: { email } });
         if (existingUser) {
@@ -138,7 +141,7 @@ router.post('/', async (req, res) => {
             email,
             password: hashedPassword,
             role,
-            isActive
+            isActive: activeFlag
         });
 
         // Return user without password
