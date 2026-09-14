@@ -1144,53 +1144,76 @@ export default function ChatPage() {
             <div className="relative">
               <button
                 onClick={() => setShowProfileMenu(!showProfileMenu)}
-                className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 text-white flex items-center justify-center font-bold shadow-lg shadow-blue-500/30 hover:scale-110 hover:shadow-xl hover:shadow-blue-500/40 transition-all duration-200"
+                aria-haspopup="menu"
+                aria-expanded={showProfileMenu}
+                aria-label="Account menu"
+                className="w-10 h-10 rounded-full bg-indigo-600 text-white flex items-center justify-center font-bold hover:bg-indigo-500 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500/60"
               >
                 U
               </button>
 
               {/* Dropdown Menu */}
               {showProfileMenu && (
-                <div className="absolute right-0 mt-3 w-56 bg-white dark:bg-gray-800 rounded-2xl shadow-2xl border border-gray-200 dark:border-gray-700 py-2 z-50 animate-scaleIn">
-                  <button
-                    onClick={() => router.push('/dashboard')}
-                    className="w-full px-4 py-3 text-left text-gray-700 dark:text-gray-300 hover:bg-blue-50 dark:hover:bg-blue-900/20 flex items-center gap-3 transition-colors rounded-xl mx-1"
-                  >
-                    <span className="text-lg">📊</span>
-                    <span className="font-medium">Dashboard</span>
-                  </button>
-                  <button
-                    onClick={() => {
-                      setShowProfile(true);
-                      setShowProfileMenu(false);
-                    }}
-                    className="w-full px-4 py-3 text-left text-gray-700 dark:text-gray-300 hover:bg-blue-50 dark:hover:bg-blue-900/20 flex items-center gap-3 transition-colors rounded-xl mx-1"
-                  >
-                    <span className="text-lg">👤</span>
-                    <span className="font-medium">Profile</span>
-                  </button>
-                  <button
-                    onClick={() => {
-                      setShowSettings(true);
-                      setShowProfileMenu(false);
-                    }}
-                    className="w-full px-4 py-3 text-left text-gray-700 dark:text-gray-300 hover:bg-blue-50 dark:hover:bg-blue-900/20 flex items-center gap-3 transition-colors rounded-xl mx-1"
-                  >
-                    <span className="text-lg">⚙️</span>
-                    <span className="font-medium">Settings</span>
-                  </button>
-                  <hr className="my-2 border-gray-200 dark:border-gray-700" />
-                  <button
-                    onClick={() => {
-                      localStorage.removeItem('tc_token');
-                      router.replace('/login');
-                    }}
-                    className="w-full px-4 py-3 text-left text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 flex items-center gap-3 transition-colors rounded-xl mx-1 font-medium"
-                  >
-                    <span className="text-lg">🚪</span>
-                    <span>Sign Out</span>
-                  </button>
-                </div>
+                <>
+                  <div className="fixed inset-0 z-40" onClick={() => setShowProfileMenu(false)} />
+                  <div role="menu" className="absolute right-0 mt-2 w-60 bg-white dark:bg-zinc-900 shadow-xl shadow-black/10 dark:shadow-black/40 border border-gray-200 dark:border-white/10 rounded-lg py-1.5 z-50 animate-scaleIn">
+                    <button
+                      role="menuitem"
+                      onClick={() => router.push('/dashboard')}
+                      className="w-full px-4 py-2.5 text-left text-[14px] font-semibold text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-white/5 flex items-center gap-3 transition-colors focus-visible:outline-none focus-visible:bg-gray-100 dark:focus-visible:bg-white/5"
+                    >
+                      <svg className="w-[18px] h-[18px] text-gray-400 dark:text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="square" strokeLinejoin="miter" strokeWidth="1.75" d="M4 4h7v7H4zM13 4h7v4h-7zM13 11h7v9h-7zM4 14h7v6H4z" /></svg>
+                      <span>Dashboard</span>
+                    </button>
+                    <button
+                      role="menuitem"
+                      onClick={() => {
+                        setShowProfile(true);
+                        setShowProfileMenu(false);
+                      }}
+                      className="w-full px-4 py-2.5 text-left text-[14px] font-semibold text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-white/5 flex items-center gap-3 transition-colors focus-visible:outline-none focus-visible:bg-gray-100 dark:focus-visible:bg-white/5"
+                    >
+                      <svg className="w-[18px] h-[18px] text-gray-400 dark:text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="square" strokeLinejoin="miter" strokeWidth="1.75" d="M12 12a4 4 0 100-8 4 4 0 000 8zM4 20c1.5-3.5 4.5-5 8-5s6.5 1.5 8 5" /></svg>
+                      <span>Profile</span>
+                    </button>
+                    <button
+                      role="menuitem"
+                      onClick={() => {
+                        setShowSettings(true);
+                        setShowProfileMenu(false);
+                      }}
+                      className="w-full px-4 py-2.5 text-left text-[14px] font-semibold text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-white/5 flex items-center gap-3 transition-colors focus-visible:outline-none focus-visible:bg-gray-100 dark:focus-visible:bg-white/5"
+                    >
+                      <svg className="w-[18px] h-[18px] text-gray-400 dark:text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="square" strokeLinejoin="miter" strokeWidth="1.75" d="M12 15a3 3 0 100-6 3 3 0 000 6zM19 12a7 7 0 01-.1 1.2l2 1.6-2 3.4-2.4-1a7 7 0 01-2 1.2L14 20h-4l-.5-2.6a7 7 0 01-2-1.2l-2.4 1-2-3.4 2-1.6A7 7 0 015 12a7 7 0 01.1-1.2l-2-1.6 2-3.4 2.4 1a7 7 0 012-1.2L10 4h4l.5 2.6a7 7 0 012 1.2l2.4-1 2 3.4-2 1.6c.06.4.1.8.1 1.2z" /></svg>
+                      <span>Settings</span>
+                    </button>
+                    <hr className="my-1.5 border-gray-200 dark:border-white/10" />
+                    <button
+                      role="menuitem"
+                      onClick={async () => {
+                        setShowProfileMenu(false);
+                        try {
+                          const token = getToken();
+                          if (token) {
+                            await fetch(`${API}/api/auth/logout`, {
+                              method: 'POST',
+                              headers: { Authorization: `Bearer ${token}` },
+                            });
+                          }
+                        } catch (e) {}
+                        try {
+                          localStorage.removeItem('tc_token');
+                          localStorage.removeItem('tc_user');
+                        } catch (e) {}
+                        router.replace('/login');
+                      }}
+                      className="w-full px-4 py-2.5 text-left text-[14px] font-semibold text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-500/10 flex items-center gap-3 transition-colors focus-visible:outline-none focus-visible:bg-red-50 dark:focus-visible:bg-red-500/10"
+                    >
+                      <svg className="w-[18px] h-[18px]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="square" strokeLinejoin="miter" strokeWidth="1.75" d="M14 4H6v16h8M10 12h11M18 8l3 4-3 4" /></svg>
+                      <span>Sign Out</span>
+                    </button>
+                  </div>
+                </>
               )}
             </div>
           </div>
