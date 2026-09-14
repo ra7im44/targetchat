@@ -2,10 +2,26 @@ import React, { useState } from 'react';
 import ConfirmDialog from './ConfirmDialog';
 import WorkspaceSwitcher from './WorkspaceSwitcher';
 
-export default function Sidebar({ chats, activeId, onSelect, onNew, onDelete, collapsed, onToggleCollapse, currentWorkspace, onWorkspaceChange, onCreateWorkspace, onManageMembers }) {
+export default function Sidebar({ chats, activeId, onSelect, onNew, onDelete, collapsed, onToggleCollapse, currentWorkspace, onWorkspaceChange, onCreateWorkspace, onManageMembers, onRename, onTogglePin }) {
   const [deleteConfirm, setDeleteConfirm] = useState({ isOpen: false, chatId: null });
+  const [editingChatId, setEditingChatId] = useState(null);
+  const [editTitleValue, setEditTitleValue] = useState('');
 
-  const Icon = ({ name, className }) => {
+  const startRename = (chat, e) => {
+    e.stopPropagation();
+    setEditingChatId(chat.id);
+    setEditTitleValue(chat.title || '');
+  };
+
+  const saveRename = (chatId, e) => {
+    e.preventDefault();
+    if (editTitleValue.trim()) {
+      onRename?.(chatId, editTitleValue.trim());
+    }
+    setEditingChatId(null);
+  };
+
+  const Icon = ({ name, className, filled }) => {
     switch (name) {
       case 'new':
         return (
@@ -18,6 +34,19 @@ export default function Sidebar({ chats, activeId, onSelect, onNew, onDelete, co
       case 'chat':
         return (
           <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" /></svg>
+        );
+      case 'pin':
+        return (
+          <svg className={className} viewBox="0 0 24 24" fill={filled ? "currentColor" : "none"} stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <line x1="12" y1="17" x2="12" y2="22" />
+            <path d="M5 17h14v-1.76a2 2 0 0 0-1.11-1.79l-1.78-.9A2 2 0 0 1 15 10.76V6h1a2 2 0 0 0 0-4H8a2 2 0 0 0 0 4h1v4.76a2 2 0 0 1-1.11 1.79l-1.78.9A2 2 0 0 0 5 15.24Z" />
+          </svg>
+        );
+      case 'edit':
+        return (
+          <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z" />
+          </svg>
         );
       case 'collapse':
         return (
@@ -85,56 +114,119 @@ export default function Sidebar({ chats, activeId, onSelect, onNew, onDelete, co
             </div>
           )}
 
-          {chats
+          {[...chats]
             .filter(c => !currentWorkspace || c.workspace_id === currentWorkspace.id)
+            .sort((a, b) => {
+              if (Boolean(b.pinned) !== Boolean(a.pinned)) {
+                return b.pinned ? 1 : -1;
+              }
+              return new Date(b.updated_at || b.updatedAt || 0) - new Date(a.updated_at || a.updatedAt || 0);
+            })
             .map((c) => (
               <div
                 key={c.id}
                 onClick={() => onSelect(c.id)}
                 className={`
-                group relative p-3.5 rounded-xl cursor-pointer transition-all duration-200
+                group relative p-3 rounded-xl cursor-pointer transition-all duration-200
                 ${c.id === activeId
                     ? 'bg-gradient-to-r from-blue-50 to-purple-50 dark:from-blue-900/20 dark:to-purple-900/20 shadow-md border border-blue-200 dark:border-blue-800'
                     : 'hover:bg-gray-50 dark:hover:bg-gray-800/50 border border-transparent hover:border-gray-200 dark:hover:border-gray-700'
                   }
+                ${c.pinned ? 'ring-1 ring-amber-400/40 dark:ring-amber-500/30' : ''}
               `}
               >
-                <div className="flex items-start gap-3">
+                <div className="flex items-start gap-2.5">
                   {/* Avatar */}
                   <div className={`
-                  w-11 h-11 rounded-xl flex items-center justify-center text-sm font-bold shrink-0 transition-all duration-200
+                  w-10 h-10 rounded-xl flex items-center justify-center text-xs font-bold shrink-0 transition-all duration-200 relative
                   ${c.id === activeId
-                      ? 'bg-gradient-to-br from-blue-500 to-purple-600 text-white shadow-lg shadow-blue-500/30'
+                      ? 'bg-gradient-to-br from-blue-500 to-purple-600 text-white shadow-md shadow-blue-500/30'
                       : 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 group-hover:bg-gradient-to-br group-hover:from-gray-200 group-hover:to-gray-300 dark:group-hover:from-gray-700 dark:group-hover:to-gray-600'
                     }
                 `}>
                     {(c.title || 'C').charAt(0).toUpperCase()}
+                    {c.pinned && (
+                      <span className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-amber-500 text-white flex items-center justify-center shadow-xs">
+                        <Icon name="pin" filled className="w-2.5 h-2.5" />
+                      </span>
+                    )}
                   </div>
 
                   {/* Content */}
                   <div className="flex-1 min-w-0">
-                    <div className="flex items-center justify-between mb-1">
-                      <h3 className={`text-sm font-semibold truncate pr-2 ${c.id === activeId ? 'text-blue-900 dark:text-blue-100' : 'text-gray-800 dark:text-gray-200'}`}>
-                        {c.title || 'New Chat'}
-                      </h3>
-                      <button
-                        type="button"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          setDeleteConfirm({ isOpen: true, chatId: c.id });
-                        }}
-                        className="opacity-0 group-hover:opacity-100 p-1.5 hover:bg-red-100 dark:hover:bg-red-900/30 text-red-500 dark:text-red-400 rounded-lg transition-all hover:scale-110"
-                        title="Delete Chat"
-                      >
-                        <Icon name="delete" className="w-4 h-4" />
-                      </button>
+                    <div className="flex items-center justify-between gap-1 mb-0.5">
+                      {editingChatId === c.id ? (
+                        <form onSubmit={(e) => saveRename(c.id, e)} onClick={(e) => e.stopPropagation()} className="flex items-center gap-1 w-full">
+                          <input
+                            autoFocus
+                            type="text"
+                            value={editTitleValue}
+                            onChange={(e) => setEditTitleValue(e.target.value)}
+                            onKeyDown={(e) => { if (e.key === 'Escape') setEditingChatId(null); }}
+                            className="w-full px-2 py-0.5 text-xs rounded border border-indigo-300 dark:border-indigo-600 bg-white dark:bg-slate-800 text-gray-900 dark:text-white outline-none focus:ring-1 focus:ring-indigo-500"
+                          />
+                          <button type="submit" className="p-1 text-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-950/30 rounded" title="Save">
+                            <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M5 13l4 4L19 7" /></svg>
+                          </button>
+                          <button type="button" onClick={() => setEditingChatId(null)} className="p-1 text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-950/30 rounded" title="Cancel">
+                            <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M6 18L18 6M6 6l12 12" /></svg>
+                          </button>
+                        </form>
+                      ) : (
+                        <>
+                          <h3 className={`text-sm font-semibold truncate ${c.id === activeId ? 'text-blue-900 dark:text-blue-100' : 'text-gray-800 dark:text-gray-200'}`}>
+                            {c.title || 'New Chat'}
+                          </h3>
+                          <div className="opacity-0 group-hover:opacity-100 flex items-center gap-0.5 transition-opacity shrink-0">
+                            {/* Pin / Unpin Button */}
+                            <button
+                              type="button"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                onTogglePin?.(c.id, !c.pinned);
+                              }}
+                              className={`p-1 rounded-md transition-all hover:scale-110 ${
+                                c.pinned
+                                  ? 'text-amber-500 hover:bg-amber-50 dark:hover:bg-amber-950/30'
+                                  : 'text-gray-400 hover:text-amber-500 hover:bg-gray-100 dark:hover:bg-gray-800'
+                              }`}
+                              title={c.pinned ? "إلغاء التثبيت / Unpin" : "تثبيت / Pin"}
+                            >
+                              <Icon name="pin" filled={c.pinned} className="w-3.5 h-3.5" />
+                            </button>
+
+                            {/* Rename Button */}
+                            <button
+                              type="button"
+                              onClick={(e) => startRename(c, e)}
+                              className="p-1 text-gray-400 hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-slate-800 rounded-md transition-all hover:scale-110"
+                              title="إعادة تسمية / Rename"
+                            >
+                              <Icon name="edit" className="w-3.5 h-3.5" />
+                            </button>
+
+                            {/* Delete Button */}
+                            <button
+                              type="button"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setDeleteConfirm({ isOpen: true, chatId: c.id });
+                              }}
+                              className="p-1 text-gray-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/30 rounded-md transition-all hover:scale-110"
+                              title="حذف / Delete"
+                            >
+                              <Icon name="delete" className="w-3.5 h-3.5" />
+                            </button>
+                          </div>
+                        </>
+                      )}
                     </div>
                     <div className="flex items-center gap-2">
                       <p className={`text-xs truncate ${c.id === activeId ? 'text-indigo-600 dark:text-indigo-400 font-medium' : 'text-gray-500 dark:text-gray-400'}`}>
                         {c.messages?.length ? `${c.messages.length} messages` : 'New conversation'}
                       </p>
                       {c.id === activeId && (
-                        <div className="w-2 h-2 rounded-full bg-indigo-500 animate-pulse shrink-0"></div>
+                        <div className="w-1.5 h-1.5 rounded-full bg-indigo-500 animate-pulse shrink-0"></div>
                       )}
                     </div>
                   </div>

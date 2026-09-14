@@ -74,6 +74,10 @@ module.exports = (sequelize, DataTypes) => {
     tags: {
       type: DataTypes.JSON,
       defaultValue: []
+    },
+    pinned: {
+      type: DataTypes.BOOLEAN,
+      defaultValue: false
     }
   }, {
     tableName: 'chats',

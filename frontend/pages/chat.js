@@ -524,6 +524,54 @@ export default function ChatPage() {
     })();
   }
 
+  async function renameChat(id, newTitle) {
+    if (!newTitle || !newTitle.trim()) return;
+    try {
+      const token = getToken();
+      if (!token) return router.replace('/login');
+      const resp = await fetch(`${API}/api/chat/${id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+        body: JSON.stringify({ title: newTitle.trim() })
+      });
+      if (resp.status === 401 || resp.status === 403) return handleAuthError();
+      if (!resp.ok) throw new Error('Failed to rename chat');
+      const updatedTitle = newTitle.trim();
+      setChats((prev) => {
+        const next = prev.map((c) => (c.id === id ? { ...c, title: updatedTitle } : c));
+        saveChats(next, activeChatId);
+        return next;
+      });
+      toast.success(isRtl ? 'تمت إعادة تسمية المحادثة' : 'Chat renamed');
+    } catch (err) {
+      console.error('renameChat error', err);
+      toast.error(isRtl ? 'فشل تعديل الاسم' : 'Failed to rename chat');
+    }
+  }
+
+  async function togglePinChat(id, isPinned) {
+    try {
+      const token = getToken();
+      if (!token) return router.replace('/login');
+      const resp = await fetch(`${API}/api/chat/${id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+        body: JSON.stringify({ pinned: isPinned })
+      });
+      if (resp.status === 401 || resp.status === 403) return handleAuthError();
+      if (!resp.ok) throw new Error('Failed to update pin status');
+      setChats((prev) => {
+        const next = prev.map((c) => (c.id === id ? { ...c, pinned: isPinned } : c));
+        saveChats(next, activeChatId);
+        return next;
+      });
+      toast.success(isPinned ? (isRtl ? 'تم تثبيت المحادثة' : 'Chat pinned') : (isRtl ? 'تم إلغاء التثبيت' : 'Chat unpinned'));
+    } catch (err) {
+      console.error('togglePinChat error', err);
+      toast.error(isRtl ? 'فشل تحديث التثبيت' : 'Failed to update pin');
+    }
+  }
+
   async function sendMessage(e) {
     e && e.preventDefault();
     if (loading) return; // prevent double-sends
@@ -973,6 +1021,8 @@ export default function ChatPage() {
           onSelect={selectChat}
           onNew={handleStartNewChat}
           onDelete={deleteChat}
+          onRename={renameChat}
+          onTogglePin={togglePinChat}
           collapsed={sidebarCollapsed}
           onToggleCollapse={() => {
             const newState = !sidebarCollapsed;

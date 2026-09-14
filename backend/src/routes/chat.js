@@ -72,7 +72,10 @@ router.get('/list', requireAuth, async (req, res) => {
         as: 'workflow',
         attributes: ['id', 'name', 'icon']
       }],
-      order: [['updated_at', 'DESC']]
+      order: [
+        ['pinned', 'DESC'],
+        ['updated_at', 'DESC']
+      ]
     });
     return res.json(chats);
   } catch (err) {
@@ -191,6 +194,9 @@ router.patch('/:id', requireAuth, async (req, res) => {
     }
     if (workflowId) {
       chat.workflowId = workflowId;
+    }
+    if (typeof req.body.pinned === 'boolean') {
+      chat.pinned = req.body.pinned;
     }
 
     await chat.save();
