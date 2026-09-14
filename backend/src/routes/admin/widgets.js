@@ -16,7 +16,7 @@ router.get('/', async (req, res) => {
         const widgets = await Widget.findAndCountAll({
             limit: parseInt(limit),
             offset: parseInt(offset),
-            include: [{ model: User, attributes: ['name', 'email'] }],
+            include: [{ model: User, as: 'user', attributes: ['name', 'email'] }],
             order: [['createdAt', 'DESC']]
         });
         res.json(widgets);

@@ -39,6 +39,20 @@ async function migrate() {
             }).catch(e => console.log('Column device_info notice:', e.message));
         }
 
+        // 2b. Ensure chats.user_id column exists (Chat.userId attribute)
+        try {
+            const chatTable = await qi.describeTable('chats');
+            if (chatTable && !chatTable.user_id && !chatTable.userId) {
+                console.log('Adding column "user_id" to chats...');
+                await qi.addColumn('chats', 'user_id', {
+                    type: sequelize.Sequelize.INTEGER,
+                    allowNull: true
+                }).catch(e => console.log('Column user_id notice:', e.message));
+            }
+        } catch (e) {
+            console.log('Skipping chats.user_id check (chats table not present):', e.message);
+        }
+
         // 3. Ensure existing users have a default session / country / device if missing
         const users = await User.findAll();
         console.log(`Found ${users.length} users.`);

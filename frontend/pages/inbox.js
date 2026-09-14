@@ -81,7 +81,7 @@ export default function InboxPage() {
                         };
                     }
                     return c;
-                }).sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt)));
+                }).sort((a, b) => new Date(b.updated_at || b.updatedAt) - new Date(a.updated_at || a.updatedAt)));
             });
 
             // Backend emits `isTyping` (client:/agent:typing flows) while older
@@ -313,7 +313,7 @@ export default function InboxPage() {
                         };
                     }
                     return c;
-                }).sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt)));
+                }).sort((a, b) => new Date(b.updated_at || b.updatedAt) - new Date(a.updated_at || a.updatedAt)));
 
             } else {
                 const data = await res.json();
@@ -440,7 +440,7 @@ export default function InboxPage() {
                                             </div>
                                         </div>
                                         <span className="text-[10px] text-gray-400 font-medium whitespace-nowrap">
-                                            {new Date(chat.updatedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                            {new Date(chat.updated_at || chat.updatedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                                         </span>
                                     </div>
                                 </div>

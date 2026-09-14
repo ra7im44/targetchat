@@ -24,7 +24,7 @@ class MessagingService {
                 ownerUserId: channel.userId,
                 name: profile?.name || `Meta User ${senderId.slice(-4)}`,
                 metaId: senderId,
-                avatar_url: profile?.picture,
+                customData: { avatar: profile?.picture || null },
                 status: 'new'
             });
         }

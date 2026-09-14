@@ -34,21 +34,22 @@ router.get('/', async (req, res) => {
             ];
         }
 
-        // Filter by role or status
+        // Filter by role or status (combined with search via Op.and so both apply)
+        const filterClauses = [];
         if (filter === 'admin') {
-            where.role = 'admin';
+            filterClauses.push({ role: 'admin' });
         } else if (filter === 'user') {
-            where[Op.or] = [
-                { role: 'user' },
-                { role: null }
-            ];
+            filterClauses.push({ [Op.or]: [{ role: 'user' }, { role: null }] });
         } else if (filter === 'active') {
-            where[Op.or] = [
-                { isActive: true },
-                { isActive: null }
-            ];
+            filterClauses.push({ [Op.or]: [{ isActive: true }, { isActive: null }] });
         } else if (filter === 'inactive') {
-            where.isActive = false;
+            filterClauses.push({ isActive: false });
+        }
+        if (search && filterClauses.length > 0) {
+            where[Op.and] = [{ [Op.or]: where[Op.or] }, ...filterClauses];
+            delete where[Op.or];
+        } else if (filterClauses.length > 0) {
+            Object.assign(where, ...filterClauses);
         }
 
         const { count, rows } = await User.findAndCountAll({
@@ -112,6 +113,14 @@ router.post('/', async (req, res) => {
         // Validation
         if (!name || !email || !password) {
             return res.status(400).json({ message: 'Name, email, and password are required' });
+        }
+
+        if (!['admin', 'user'].includes(role)) {
+            return res.status(400).json({ message: 'Invalid role. Must be "admin" or "user"' });
+        }
+
+        if (password.length < 6) {
+            return res.status(400).json({ message: 'Password must be at least 6 characters' });
         }
 
         // Check if email already exists

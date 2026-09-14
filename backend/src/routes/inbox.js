@@ -90,7 +90,7 @@ router.get('/chats', requireAuth, async (req, res) => {
                 {
                     model: Lead,
                     as: 'lead',
-                    attributes: ['id', 'name', 'email', 'phone', 'company', 'meta_id', 'whatsapp_id']
+                    attributes: ['id', 'name', 'email', 'phone', 'company', 'metaId', 'whatsappId']
                 },
                 {
                     model: Widget,
@@ -100,7 +100,7 @@ router.get('/chats', requireAuth, async (req, res) => {
                 {
                     model: Channel,
                     as: 'channel',
-                    attributes: ['id', 'name', 'type', 'external_id', 'is_active', 'mode', 'last_active_at']
+                    attributes: ['id', 'name', 'type', 'externalId', 'isActive', 'mode', 'lastActiveAt']
                 },
                 {
                     model: Message,

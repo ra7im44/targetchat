@@ -170,7 +170,7 @@ export default function TokensPage() {
                                             <Calendar size={14} /> Created
                                         </span>
                                         <span className="text-gray-700 dark:text-gray-300">
-                                            {new Date(token.createdAt).toLocaleDateString()}
+                                            {new Date(token.created_at || token.createdAt).toLocaleDateString()}
                                         </span>
                                     </div>
                                     <div className="flex justify-between items-center">

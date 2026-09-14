@@ -31,7 +31,7 @@ function groupMessagesByDate(messages) {
   let currentGroup = null;
 
   messages.forEach((msg) => {
-    const msgDate = msg.createdAt ? new Date(msg.createdAt) : new Date();
+    const msgDate = (msg.created_at || msg.createdAt) ? new Date(msg.created_at || msg.createdAt) : new Date();
     const today = new Date();
     const yesterday = new Date(today);
     yesterday.setDate(yesterday.getDate() - 1);
@@ -188,7 +188,7 @@ export default function ChatPage() {
                 audio: m.type === 'audio' ? m.text : null,
                 video: m.type === 'video' ? m.text : null,
                 file: m.type === 'file' ? { url: m.text, name: m.metadata?.name || 'File' } : null,
-                time: m.createdAt ? new Date(m.createdAt).toLocaleTimeString() : ''
+                time: (m.created_at || m.createdAt) ? new Date(m.created_at || m.createdAt).toLocaleTimeString() : ''
               }));
               if (histData.chat) {
                 if (histData.chat.workflowId) setSelectedWorkflow(histData.chat.workflowId);
@@ -345,14 +345,14 @@ export default function ChatPage() {
               const optIndex = msgs.findIndex((m) => String(m.id).startsWith('u-') && m.text === message.text);
               if (optIndex !== -1) {
                 const updated = [...msgs];
-                updated[optIndex] = { ...message, time: new Date(message.createdAt || Date.now()).toLocaleTimeString() };
+                updated[optIndex] = { ...message, time: new Date(message.created_at || message.createdAt || Date.now()).toLocaleTimeString() };
                 return { ...c, messages: updated };
               }
             }
 
             return {
               ...c,
-              messages: [...msgs, { ...message, time: new Date(message.createdAt || Date.now()).toLocaleTimeString() }]
+              messages: [...msgs, { ...message, time: new Date(message.created_at || message.createdAt || Date.now()).toLocaleTimeString() }]
             };
           }
           return c;
@@ -483,7 +483,7 @@ export default function ChatPage() {
           audio: m.type === 'audio' ? m.text : null,
           video: m.type === 'video' ? m.text : null,
           file: m.type === 'file' ? { url: m.text, name: m.metadata?.name || 'File' } : null,
-          time: m.createdAt ? new Date(m.createdAt).toLocaleTimeString() : ''
+          time: (m.created_at || m.createdAt) ? new Date(m.created_at || m.createdAt).toLocaleTimeString() : ''
         }));
         if (data.chat) {
           if (data.chat.workflowId) setSelectedWorkflow(data.chat.workflowId);
@@ -590,7 +590,7 @@ export default function ChatPage() {
               sender: 'ai',
               type: respData.reply.type || 'text',
               text: respData.reply.text,
-              time: new Date(respData.reply.createdAt || Date.now()).toLocaleTimeString()
+              time: new Date(respData.reply.created_at || respData.reply.createdAt || Date.now()).toLocaleTimeString()
             };
             setChats((currentChats) =>
               currentChats.map((c) => {
@@ -646,7 +646,7 @@ export default function ChatPage() {
               audio: m.type === 'audio' ? m.text : null,
               video: m.type === 'video' ? m.text : null,
               file: m.type === 'file' ? { url: m.text, name: m.metadata?.name || 'File' } : null,
-              time: m.createdAt ? new Date(m.createdAt).toLocaleTimeString() : ''
+              time: (m.created_at || m.createdAt) ? new Date(m.created_at || m.createdAt).toLocaleTimeString() : ''
             }));
             setChats((currentChats) => currentChats.map((c) => (c.id === chatId ? { ...c, messages: msgs } : c)));
             if (msgs.some((m) => m.sender === 'ai')) {
@@ -755,7 +755,7 @@ export default function ChatPage() {
               audio: m.type === 'audio' ? m.text : null,
               video: m.type === 'video' ? m.text : null,
               file: m.type === 'file' ? { url: m.text, name: m.metadata?.name || 'File' } : null,
-              time: m.createdAt ? new Date(m.createdAt).toLocaleTimeString() : ''
+              time: (m.created_at || m.createdAt) ? new Date(m.created_at || m.createdAt).toLocaleTimeString() : ''
             }));
             setChats((currentChats) => currentChats.map((c) => (c.id === activeChatId ? { ...c, messages: msgs } : c)));
           }
@@ -1211,7 +1211,7 @@ export default function ChatPage() {
                           video: m.type === 'video' ? `${API}${m.text}` : null,
                           file: m.type === 'file' ? { url: `${API}${m.text}`, name: m.metadata?.name || 'File' } : null,
                           filename: m.text, // Store filename for URL refresh
-                          time: m.createdAt ? new Date(m.createdAt).toLocaleTimeString() : ''
+                          time: (m.created_at || m.createdAt) ? new Date(m.created_at || m.createdAt).toLocaleTimeString() : ''
                         }));
 
                         setChats((currentChats) =>

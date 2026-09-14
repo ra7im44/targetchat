@@ -199,9 +199,18 @@ router.patch('/me', requireAuth, async (req, res) => {
       if (existing) return res.status(400).json({ message: 'Email already in use' });
     }
     if (name) user.name = name;
-    if (email) user.email = email;
+    let requireVerification = false;
+    if (email && email !== user.email) {
+      user.email = email;
+      user.isVerified = false;
+      user.verificationToken = crypto.randomBytes(32).toString('hex');
+      requireVerification = true;
+    }
     await user.save();
-    return res.json({ user: { id: user.id, name: user.name, email: user.email } });
+    if (requireVerification) {
+      await triggerEvent('user.registered', user, user.verificationToken).catch(err => console.error('Failed to trigger re-verification email:', err));
+    }
+    return res.json({ user: { id: user.id, name: user.name, email: user.email }, ...(requireVerification ? { requireVerification: true, message: 'Please check your new email inbox to verify your account.' } : {}) });
   } catch (err) {
     console.error(err);
     return res.status(500).json({ message: 'Server error' });
@@ -214,6 +223,7 @@ router.post('/change-password', requireAuth, async (req, res) => {
     const userId = req.user.id;
     const { currentPassword, newPassword } = req.body;
     if (!currentPassword || !newPassword) return res.status(400).json({ message: 'Missing fields' });
+    if (newPassword.length < 6) return res.status(400).json({ message: 'New password must be at least 6 characters' });
     const user = await User.findByPk(userId);
     if (!user) return res.status(404).json({ message: 'Not found' });
     const ok = await bcrypt.compare(currentPassword, user.password);
@@ -278,6 +288,7 @@ router.post('/reset-password', async (req, res) => {
   try {
     const { token, newPassword } = req.body;
     if (!token || !newPassword) return res.status(400).json({ message: 'Missing fields' });
+    if (newPassword.length < 6) return res.status(400).json({ message: 'New password must be at least 6 characters' });
 
     const { Op } = require('sequelize');
     const user = await User.findOne({
@@ -298,6 +309,18 @@ router.post('/reset-password', async (req, res) => {
     await user.save();
 
     return res.json({ message: 'Password reset successfully' });
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({ message: 'Server error' });
+  }
+});
+
+// Logout (deactivate the user's active sessions so presence metrics stay accurate)
+router.post('/logout', requireAuth, async (req, res) => {
+  try {
+    await UserSession.update({ isActive: false }, { where: { userId: req.user.id, isActive: true } });
+    await logActivity(req.user.id, 'LOGOUT', {}, req).catch(() => {});
+    return res.json({ message: 'Logged out' });
   } catch (err) {
     console.error(err);
     return res.status(500).json({ message: 'Server error' });

@@ -138,6 +138,7 @@ router.get('/:id/stats', async (req, res) => {
         const messageCount = await Message.count({
             include: [{
                 model: Chat,
+                as: 'chat',
                 where: { workflowId: id },
                 attributes: []
             }]

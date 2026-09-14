@@ -224,6 +224,15 @@ io.on('connection', (socket) => {
       });
       if (!chat) return;
 
+      if (socket.isGuest) {
+        // Guest sockets may only signal typing for their own widget-bound session chat.
+        const sessionMatch = chat.title && chat.title.match(/Guest Session (.+)/);
+        const sameSession = !!(sessionMatch && sessionMatch[1] && sessionMatch[1].trim() === socket.sessionId);
+        if (String(chat.widgetId) !== String(socket.widgetId) || !sameSession) return;
+      } else if (!(await canAccessChat(socket.userId, chat))) {
+        return;
+      }
+
       const targetRooms = new Set();
       if (chat.widget && chat.widget.userId) targetRooms.add(`user_${chat.widget.userId}`);
       if (chat.assignedTo) targetRooms.add(`user_${chat.assignedTo}`);

@@ -119,8 +119,8 @@ export default function UserDetailsPage() {
                             <span className="bg-gray-100 dark:bg-gray-800 px-2.5 py-1 rounded-lg text-gray-600 dark:text-gray-300">
                                 📱 {parseDevice(user.deviceInfo)}
                             </span>
-                            <span className="text-gray-500 dark:text-gray-400" title={new Date(user.createdAt).toLocaleString()}>
-                                📅 Joined {new Date(user.createdAt).toLocaleDateString()}
+                            <span className="text-gray-500 dark:text-gray-400" title={new Date(user.created_at || user.createdAt).toLocaleString()}>
+                                📅 Joined {new Date(user.created_at || user.createdAt).toLocaleDateString()}
                             </span>
                             <span className="text-gray-500 dark:text-gray-400">
                                 🕒 Last Login: {user.lastLogin ? new Date(user.lastLogin).toLocaleDateString() : 'Never'}
