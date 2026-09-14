@@ -11,7 +11,7 @@ const btnBase =
     'disabled:opacity-50 disabled:cursor-not-allowed disabled:pointer-events-none';
 
 const btnVariants = {
-    primary: 'bg-accent text-white hover:bg-accent-hover active:bg-accent-active shadow-sm',
+    primary: 'bg-accent text-background hover:bg-accent-hover active:bg-accent-active shadow-sm font-semibold',
     secondary:
         'bg-white dark:bg-surface-elevated text-gray-800 dark:text-foreground ' +
         'border border-gray-300/80 dark:border-border hover:bg-gray-100 dark:hover:bg-surface-hover',

@@ -5,7 +5,7 @@ const THEMES = ['light', 'dark', 'professional'];
 
 function readSavedTheme() {
     try {
-        const savedTheme = localStorage.getItem('tc_theme');
+        const savedTheme = localStorage.getItem('tc_theme') || localStorage.getItem('theme');
         return THEMES.includes(savedTheme) ? savedTheme : 'light';
     } catch (e) {
         return 'light';
@@ -13,13 +13,16 @@ function readSavedTheme() {
 }
 
 function applyTheme(nextTheme) {
+    if (typeof document === 'undefined') return;
     const root = document.documentElement;
-    root.classList.toggle('dark', nextTheme !== 'light');
+    const isDark = nextTheme !== 'light';
+    root.classList.toggle('dark', isDark);
     root.classList.toggle('professional', nextTheme === 'professional');
     root.style.colorScheme = nextTheme === 'light' ? 'light' : 'dark';
 
     try {
         localStorage.setItem('tc_theme', nextTheme);
+        localStorage.setItem('theme', nextTheme);
     } catch (e) {
         // Storage may be unavailable; theme still applies for this session.
     }

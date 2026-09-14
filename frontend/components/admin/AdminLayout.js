@@ -6,7 +6,7 @@ function AdminLayoutContent({ children, title = 'Admin Dashboard' }) {
     const [collapsed, setCollapsed] = useState(false);
 
     return (
-        <div className="flex h-screen bg-gray-50 dark:bg-background text-gray-900 dark:text-foreground overflow-hidden font-sans">
+        <div className="flex h-screen bg-background text-foreground overflow-hidden font-sans">
             <Head>
                 <title>{title} | TargetChat Admin</title>
             </Head>
@@ -19,7 +19,7 @@ function AdminLayoutContent({ children, title = 'Admin Dashboard' }) {
 
             {/* Main Content */}
             <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
-                <main className="flex-1 overflow-y-auto p-6 bg-gray-50 dark:bg-background scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-700">
+                <main className="flex-1 overflow-y-auto p-6 bg-background scrollbar-thin">
                     <div className="max-w-7xl mx-auto animate-fadeIn">
                         {children}
                     </div>

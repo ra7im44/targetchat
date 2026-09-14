@@ -38,26 +38,26 @@ export default function AdminSidebar({ collapsed, onToggleCollapse }) {
     ];
 
     return (
-        <aside className={`h-full flex flex-col bg-white dark:bg-background border-r border-gray-200 dark:border-strong relative transition-all duration-300 ${collapsed ? 'w-20' : 'w-64'}`}>
+        <aside className={`h-full flex flex-col bg-surface border-r border-border relative transition-all duration-300 ${collapsed ? 'w-20' : 'w-64'}`}>
             {/* Collapse Button */}
             <button
                 onClick={onToggleCollapse}
                 aria-label={collapsed ? 'Expand admin sidebar' : 'Collapse admin sidebar'}
                 aria-expanded={!collapsed}
-                className="absolute -right-3 top-6 z-10 w-6 h-6 bg-white dark:bg-surface border border-gray-200 dark:border-border rounded-full flex items-center justify-center text-gray-600 dark:text-muted hover:text-accent dark:hover:text-accent hover:border-accent transition-all shadow-md"
+                className="absolute -right-3 top-6 z-10 w-6 h-6 bg-surface border border-border rounded-full flex items-center justify-center text-text-muted hover:text-primary hover:border-primary transition-all shadow-md"
             >
                 {collapsed ? <ChevronRight size={14} /> : <ChevronLeft size={14} />}
             </button>
 
             {/* Logo Area */}
             <div className={`p-6 flex items-center ${collapsed ? 'justify-center' : 'justify-start'}`}>
-                <div className="w-8 h-8 bg-accent rounded-lg flex items-center justify-center text-background font-bold text-lg shadow-lg">
+                <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center text-white font-bold text-lg shadow-sm">
                     T
                 </div>
                 {!collapsed && (
                     <div className="ml-3 animate-fadeIn">
-                        <h1 className="font-bold text-gray-900 dark:text-foreground text-lg leading-none">TargetChat</h1>
-                        <span className="text-xs text-primary-700 dark:text-accent font-semibold bg-accent/10 dark:bg-accent/10 px-2 py-0.5 rounded-full mt-1 inline-block">
+                        <h1 className="font-bold text-text-primary text-lg leading-none">TargetChat</h1>
+                        <span className="text-xs text-primary font-semibold bg-primary/10 px-2 py-0.5 rounded-full mt-1 inline-block">
                             ADMIN
                         </span>
                     </div>
@@ -65,7 +65,7 @@ export default function AdminSidebar({ collapsed, onToggleCollapse }) {
             </div>
 
             {/* Navigation */}
-            <nav className="flex-1 px-3 py-4 space-y-1 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-200 dark:scrollbar-thumb-gray-800">
+            <nav className="flex-1 px-3 py-4 space-y-1 overflow-y-auto scrollbar-thin">
                 {navItems.map((item) => {
                     const isActive = router.pathname === item.href;
                     const IconCallback = item.icon;
@@ -75,12 +75,12 @@ export default function AdminSidebar({ collapsed, onToggleCollapse }) {
                             key={item.href}
                             href={item.href}
                             className={`flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all group relative ${isActive
-                                ? 'bg-gray-100 dark:bg-surface-elevated text-primary-700 dark:text-accent font-medium shadow-sm'
-                                : 'text-gray-600 dark:text-muted hover:bg-gray-50 dark:hover:bg-surface-hover hover:text-gray-900 dark:hover:text-foreground'
+                                ? 'bg-primary/10 text-primary font-semibold'
+                                : 'text-text-secondary hover:bg-gray-100 dark:hover:bg-surface-hover hover:text-text-primary'
                                 }`}
                             title={collapsed ? item.label : ''}
                         >
-                            <IconCallback size={20} className={`${isActive ? 'text-primary-700 dark:text-accent' : 'text-gray-500 dark:text-muted group-hover:text-gray-700 dark:group-hover:text-secondary'}`} />
+                            <IconCallback size={20} className={`${isActive ? 'text-primary' : 'text-text-muted group-hover:text-text-primary'}`} />
 
                             {!collapsed && (
                                 <span className="font-medium truncate">{item.label}</span>
@@ -88,7 +88,7 @@ export default function AdminSidebar({ collapsed, onToggleCollapse }) {
 
                             {/* Active Indicator Strip */}
                             {isActive && !collapsed && (
-                                <div className="absolute right-2 w-1.5 h-1.5 bg-accent rounded-full opacity-50"></div>
+                                <div className="absolute right-2 w-1.5 h-1.5 bg-primary rounded-full"></div>
                             )}
                         </Link>
                     );
@@ -96,13 +96,13 @@ export default function AdminSidebar({ collapsed, onToggleCollapse }) {
             </nav>
 
             {/* Footer Actions */}
-            <div className="p-4 border-t border-gray-200 dark:border-strong bg-gray-50/50 dark:bg-black/20">
+            <div className="p-4 border-t border-border bg-surface">
                 {/* Theme Toggle */}
                 <button
                     onClick={toggleTheme}
-                    aria-label={`Switch to ${theme === 'light' ? 'dark' : 'light'} mode`}
-                    aria-pressed={theme !== 'light'}
-                    className={`flex items-center gap-3 w-full px-3 py-2.5 rounded-lg text-gray-600 dark:text-muted hover:bg-white dark:hover:bg-surface-hover transition-all ${collapsed ? 'justify-center' : ''}`}
+                    aria-label={`Switch to ${theme === 'dark' ? 'light' : 'dark'} mode`}
+                    aria-pressed={theme === 'dark'}
+                    className={`flex items-center gap-3 w-full px-3 py-2.5 rounded-lg text-text-secondary hover:bg-gray-100 dark:hover:bg-surface-hover hover:text-text-primary transition-all ${collapsed ? 'justify-center' : ''}`}
                     title="Toggle Theme"
                 >
                     {theme === 'dark' ? <Sun size={20} /> : <Moon size={20} />}
@@ -112,7 +112,7 @@ export default function AdminSidebar({ collapsed, onToggleCollapse }) {
                 {/* Back to Chat */}
                 <Link
                     href="/chat"
-                    className={`flex items-center gap-3 w-full px-3 py-2.5 rounded-lg text-primary-700 dark:text-accent hover:bg-surface-hover dark:hover:bg-surface-hover transition-all mt-1 ${collapsed ? 'justify-center' : ''}`}
+                    className={`flex items-center gap-3 w-full px-3 py-2.5 rounded-lg text-primary hover:bg-primary/10 transition-all mt-1 ${collapsed ? 'justify-center' : ''}`}
                     title="Back to Chat"
                 >
                     <MessageSquare size={20} />
@@ -122,7 +122,7 @@ export default function AdminSidebar({ collapsed, onToggleCollapse }) {
                 {/* Logout */}
                 <button
                     onClick={handleLogout}
-                    className={`flex items-center gap-3 w-full px-3 py-2.5 rounded-lg text-danger-ink dark:text-danger hover:bg-red-50 dark:hover:bg-red-900/20 transition-all mt-1 ${collapsed ? 'justify-center' : ''}`}
+                    className={`flex items-center gap-3 w-full px-3 py-2.5 rounded-lg text-danger hover:bg-danger/10 transition-all mt-1 ${collapsed ? 'justify-center' : ''}`}
                     title="Logout"
                 >
                     <LogOut size={20} />

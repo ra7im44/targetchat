@@ -54,7 +54,7 @@ export default function ConfirmationModal({
                             onClose();
                         }}
                         className={`px-5 py-2.5 rounded-xl font-bold text-white shadow-lg transition-all transform active:scale-95 flex items-center gap-2 ${isDangerous
-                                ? 'bg-red-600 hover:bg-red-700
+                                ? 'bg-red-600 hover:bg-red-700'
                                 : 'bg-accent hover:bg-accent-hover'
                             }`}
                     >

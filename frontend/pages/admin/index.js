@@ -131,16 +131,16 @@ export default function AdminDashboard() {
                 {/* Header */}
                 <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                     <div>
-                        <h1 className="text-3xl font-bold text-gray-900 dark:text-foreground flex items-center gap-3">
+                        <h1 className="text-3xl font-bold text-foreground flex items-center gap-3">
                             Dashboard <Zap size={18} />
                         </h1>
-                        <p className="text-gray-500 dark:text-muted mt-1">
+                        <p className="text-text-muted mt-1">
                             Welcome back! Here's what's happening today.
                         </p>
                     </div>
                     <Link
                         href="/admin/announcements"
-                        className="group flex items-center gap-2 px-5 py-2.5 bg-accent text-background rounded-xl font-bold shadow-lg transition-all"
+                        className="group flex items-center gap-2 px-5 py-2.5 bg-primary hover:bg-primary-hover text-white rounded-xl font-semibold shadow-sm transition-all"
                     >
                         <MessageSquare size={18} />
                         <span>Post Announcement</span>
@@ -181,20 +181,20 @@ export default function AdminDashboard() {
                 </div>
 
                 {/* User Demographics & Session Analytics Section */}
-                <div className="bg-white dark:bg-surface rounded-card p-6 border border-gray-100 dark:border-border shadow-sm space-y-6">
-                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-gray-100 dark:border-border">
+                <div className="bg-surface rounded-xl p-6 border border-border shadow-sm space-y-6">
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-border">
                         <div>
-                            <h2 className="text-xl font-bold text-gray-900 dark:text-foreground flex items-center gap-2.5">
-                                <Globe className="text-primary-700 dark:text-accent" size={18} />
+                            <h2 className="text-xl font-bold text-foreground flex items-center gap-2.5">
+                                <Globe className="text-primary" size={18} />
                                 User Demographics, Locations & Devices
                             </h2>
-                            <p className="text-sm text-gray-500 dark:text-muted mt-0.5">
+                            <p className="text-sm text-text-muted mt-0.5">
                                 Real-time geographical distribution, operating systems, and active user sessions.
                             </p>
                         </div>
                         <Link
                             href="/admin/visitors"
-                            className="inline-flex items-center gap-2 px-4 py-2 bg-accent/10 dark:bg-accent/20 hover:bg-accent/10 dark:hover:bg-accent/20 text-primary-700 dark:text-info rounded-xl text-sm font-bold transition-all"
+                            className="inline-flex items-center gap-2 px-4 py-2 bg-primary/10 hover:bg-primary/20 text-primary rounded-xl text-sm font-semibold transition-all"
                         >
                             <Navigation size={16} />
                             <span>Full Session Tracking</span>
@@ -204,31 +204,31 @@ export default function AdminDashboard() {
 
                     {/* Mini Metric Counters (Active Sessions, Last 5min, Today) */}
                     <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                        <div className="p-4 rounded-xl bg-white dark:bg-surface border border-accent/30 dark:border-accent/30">
-                            <span className="text-xs font-semibold text-primary-700 dark:text-info uppercase tracking-wider">Active Logged Users</span>
-                            <div className="text-2xl font-bold text-gray-900 dark:text-foreground mt-1">
+                        <div className="p-4 rounded-xl bg-surface-elevated border border-border">
+                            <span className="text-xs font-semibold text-primary uppercase tracking-wider">Active Logged Users</span>
+                            <div className="text-2xl font-bold text-foreground mt-1">
                                 {stats?.users?.activeLoggedUsers ?? stats?.users?.active ?? 0}
                             </div>
-                            <p className="text-xs text-gray-500 dark:text-muted mt-1">Users with live active session</p>
+                            <p className="text-xs text-text-muted mt-1">Users with live active session</p>
                         </div>
 
-                        <div className="p-4 rounded-xl bg-white dark:bg-surface border border-success/40 dark:border-success/30">
-                            <span className="text-xs font-semibold text-success-ink dark:text-success uppercase tracking-wider flex items-center gap-1.5">
+                        <div className="p-4 rounded-xl bg-surface-elevated border border-border">
+                            <span className="text-xs font-semibold text-success uppercase tracking-wider flex items-center gap-1.5">
                                 <span className="w-2 h-2 rounded-full bg-success animate-pulse"></span>
                                 Active (Last 5 min)
                             </span>
-                            <div className="text-2xl font-bold text-gray-900 dark:text-foreground mt-1">
+                            <div className="text-2xl font-bold text-foreground mt-1">
                                 {stats?.users?.activeLast5Minutes ?? 0}
                             </div>
-                            <p className="text-xs text-gray-500 dark:text-muted mt-1">Real-time online presence</p>
+                            <p className="text-xs text-text-muted mt-1">Real-time online presence</p>
                         </div>
 
-                        <div className="p-4 rounded-xl bg-white dark:bg-surface border border-primary-200 dark:border-primary-900/30">
-                            <span className="text-xs font-semibold text-primary-700 dark:text-primary-400 uppercase tracking-wider">Sessions Today</span>
-                            <div className="text-2xl font-bold text-gray-900 dark:text-foreground mt-1">
+                        <div className="p-4 rounded-xl bg-surface-elevated border border-border">
+                            <span className="text-xs font-semibold text-text-secondary uppercase tracking-wider">Sessions Today</span>
+                            <div className="text-2xl font-bold text-foreground mt-1">
                                 {stats?.users?.totalSessionsToday ?? 0}
                             </div>
-                            <p className="text-xs text-gray-500 dark:text-muted mt-1">Total user visits logged today</p>
+                            <p className="text-xs text-text-muted mt-1">Total user visits logged today</p>
                         </div>
                     </div>
 
@@ -300,8 +300,8 @@ export default function AdminDashboard() {
                     {/* Main Content Area (Quick Actions & Chart) */}
                     <div className="xl:col-span-2 space-y-8">
                         {/* Quick Actions Grid */}
-                        <div className="bg-white dark:bg-surface rounded-card p-6 border border-gray-100 dark:border-border shadow-sm">
-                            <h3 className="text-lg font-bold text-gray-900 dark:text-foreground mb-4 flex items-center gap-2">
+                        <div className="bg-surface rounded-xl p-6 border border-border shadow-sm">
+                            <h3 className="text-lg font-bold text-foreground mb-4 flex items-center gap-2">
                                 <Zap size={18} />
                                 Quick Actions
                             </h3>
@@ -310,12 +310,12 @@ export default function AdminDashboard() {
                                     <Link
                                         key={action.label}
                                         href={action.href}
-                                        className="flex flex-col items-center justify-center p-4 rounded-xl hover:bg-gray-50 dark:hover:bg-surface-hover border border-transparent hover:border-gray-100 dark:hover:border-gray-600 transition-all group text-center"
+                                        className="flex flex-col items-center justify-center p-4 rounded-xl hover:bg-surface-hover border border-transparent hover:border-border transition-all group text-center"
                                     >
                                         <div className={`w-12 h-12 rounded-xl ${action.bg} ${action.color} flex items-center justify-center mb-3 group-hover:scale-110 transition-transform`}>
                                             <action.icon size={18} />
                                         </div>
-                                        <span className="text-sm font-semibold text-gray-700 dark:text-secondary group-hover:text-gray-900 dark:group-hover:text-white">
+                                        <span className="text-sm font-semibold text-text-secondary group-hover:text-foreground">
                                             {action.label}
                                         </span>
                                     </Link>
@@ -324,49 +324,49 @@ export default function AdminDashboard() {
                         </div>
 
                         {/* Chart Section */}
-                        <div className="bg-white dark:bg-surface rounded-card p-6 border border-gray-100 dark:border-border shadow-sm">
+                        <div className="bg-surface rounded-xl p-6 border border-border shadow-sm">
                             <div className="flex justify-between items-center mb-6">
                                 <div>
-                                    <h3 className="text-lg font-bold text-gray-900 dark:text-foreground">Traffic Overview</h3>
-                                    <p className="text-sm text-gray-500 dark:text-muted">Message volume over the last 7 days</p>
+                                    <h3 className="text-lg font-bold text-foreground">Traffic Overview</h3>
+                                    <p className="text-sm text-text-muted">Message volume over the last 7 days</p>
                                 </div>
-                                <select className="bg-gray-50 dark:bg-surface-elevated border border-gray-200 dark:border-border rounded-lg text-sm px-3 py-1 outline-none text-gray-700 dark:text-secondary">
+                                <select className="bg-surface-elevated border border-border rounded-lg text-sm px-3 py-1 outline-none text-foreground cursor-pointer">
                                     <option>Last 7 Days</option>
                                     <option>Last 30 Days</option>
                                 </select>
                             </div>
-                            <AdminChart data={chartData} color="#6875F5" />
+                            <AdminChart data={chartData} color="var(--primary)" />
                         </div>
                     </div>
 
                     {/* Right Sidebar (Recent Activity) */}
                     <div className="space-y-6">
-                        <div className="bg-white dark:bg-surface rounded-card p-6 border border-gray-100 dark:border-border shadow-sm h-full">
+                        <div className="bg-surface rounded-xl p-6 border border-border shadow-sm h-full">
                             <div className="flex justify-between items-center mb-6">
-                                <h3 className="text-lg font-bold text-gray-900 dark:text-foreground flex items-center gap-2">
+                                <h3 className="text-lg font-bold text-foreground flex items-center gap-2">
                                     <Activity size={18} />
                                     Recent Activity
                                 </h3>
-                                <Link href="/admin/activity" className="text-xs font-bold text-primary-700 dark:text-accent hover:text-accent bg-accent/10 dark:bg-accent/20 px-2 py-1 rounded-lg transition-colors">
+                                <Link href="/admin/activity" className="text-xs font-semibold text-primary hover:bg-primary/20 bg-primary/10 px-2.5 py-1 rounded-lg transition-colors">
                                     View All
                                 </Link>
                             </div>
 
-                            <div className="relative pl-4 space-y-6 before:absolute before:left-1.5 before:top-2 before:bottom-2 before:w-0.5 before:bg-gray-100 dark:before:bg-gray-700">
+                            <div className="relative pl-4 space-y-6 before:absolute before:left-1.5 before:top-2 before:bottom-2 before:w-0.5 before:bg-border">
                                 {recentActivity.length > 0 ? (
                                     recentActivity.map((log) => (
                                         <div key={log.id} className="relative pl-6">
-                                            <div className="absolute left-0 top-1.5 w-3.5 h-3.5 bg-white dark:bg-surface border-2 border-accent rounded-full z-10"></div>
+                                            <div className="absolute left-0 top-1.5 w-3.5 h-3.5 bg-surface border-2 border-primary rounded-full z-10"></div>
                                             <div>
-                                                <p className="text-sm font-medium text-gray-900 dark:text-foreground leading-snug">
+                                                <p className="text-sm font-medium text-foreground leading-snug">
                                                     {log.action}
                                                 </p>
                                                 <div className="flex justify-between items-center mt-1">
-                                                    <span className="text-xs text-gray-500 dark:text-muted">
+                                                    <span className="text-xs text-text-muted">
                                                         {new Date(log.created_at || log.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                                                     </span>
                                                     {log.user && (
-                                                        <span className="text-[10px] bg-gray-100 dark:bg-surface-elevated px-1.5 py-0.5 rounded text-gray-600 dark:text-secondary">
+                                                        <span className="text-[10px] bg-surface-elevated border border-border px-1.5 py-0.5 rounded text-text-secondary">
                                                             {log.user.email?.split('@')[0]}
                                                         </span>
                                                     )}
@@ -375,26 +375,26 @@ export default function AdminDashboard() {
                                         </div>
                                     ))
                                 ) : (
-                                    <div className="text-center text-gray-500 py-8">
+                                    <div className="text-center text-text-muted py-8 text-sm">
                                         No recent activity
                                     </div>
                                 )}
                             </div>
 
-                            <div className="mt-8 pt-6 border-t border-gray-100 dark:border-border">
-                                <h4 className="text-sm font-bold text-gray-900 dark:text-foreground mb-3">System Status</h4>
+                            <div className="mt-8 pt-6 border-t border-border">
+                                <h4 className="text-sm font-bold text-foreground mb-3">System Status</h4>
                                 <div className="space-y-3">
                                     <div className="flex justify-between items-center text-sm">
-                                        <span className="text-gray-500 dark:text-muted">Database</span>
-                                        <span className="text-success-ink dark:text-success bg-success dark:bg-success/20 px-2 py-0.5 rounded text-xs font-bold">Operational</span>
+                                        <span className="text-text-muted">Database</span>
+                                        <span className="text-success bg-success/10 border border-success/20 px-2 py-0.5 rounded text-xs font-semibold">Operational</span>
                                     </div>
                                     <div className="flex justify-between items-center text-sm">
-                                        <span className="text-gray-500 dark:text-muted">API Gateway</span>
-                                        <span className="text-success-ink dark:text-success bg-success dark:bg-success/20 px-2 py-0.5 rounded text-xs font-bold">Operational</span>
+                                        <span className="text-text-muted">API Gateway</span>
+                                        <span className="text-success bg-success/10 border border-success/20 px-2 py-0.5 rounded text-xs font-semibold">Operational</span>
                                     </div>
                                     <div className="flex justify-between items-center text-sm">
-                                        <span className="text-gray-500 dark:text-muted">Email Service</span>
-                                        <span className="text-success-ink dark:text-success bg-success dark:bg-success/20 px-2 py-0.5 rounded text-xs font-bold">Operational</span>
+                                        <span className="text-text-muted">Email Service</span>
+                                        <span className="text-success bg-success/10 border border-success/20 px-2 py-0.5 rounded text-xs font-semibold">Operational</span>
                                     </div>
                                 </div>
                             </div>

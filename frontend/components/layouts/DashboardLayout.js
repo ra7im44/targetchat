@@ -10,7 +10,7 @@ import MembersModal from '../MembersModal';
 
 function DashboardContent({ children, title, user, workspaces, currentWorkspace, setCurrentWorkspace, collapsed, setCollapsed, onCreateWorkspace, onManageMembers }) {
     return (
-        <div className="flex h-screen bg-gray-50 dark:bg-background text-gray-900 dark:text-foreground overflow-hidden font-sans">
+        <div className="flex h-screen bg-background text-foreground overflow-hidden font-sans">
             <Head>
                 <title>{title} | TargetChat</title>
             </Head>
@@ -29,10 +29,10 @@ function DashboardContent({ children, title, user, workspaces, currentWorkspace,
 
             {/* Main Content */}
             <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
-                <DashboardNavbar user={user} />
+                <DashboardNavbar user={user} onToggleSidebar={() => setCollapsed(!collapsed)} />
 
-                <main className="flex-1 overflow-y-auto p-6 bg-gray-50 dark:bg-background scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-700">
-                    <div className="max-w-7xl mx-auto">
+                <main className="flex-1 overflow-y-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 bg-background scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-border">
+                    <div className="max-w-[1240px] mx-auto w-full">
                         {children}
                     </div>
                 </main>
@@ -53,6 +53,9 @@ export default function DashboardLayout({ children, title = 'Dashboard' }) {
 
     useEffect(() => {
         checkAuth();
+        if (typeof window !== 'undefined' && window.innerWidth < 768) {
+            setCollapsed(true);
+        }
     }, []);
 
     async function checkAuth() {

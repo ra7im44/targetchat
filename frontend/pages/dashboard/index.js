@@ -74,27 +74,27 @@ export default function DashboardHome() {
                 <svg viewBox="0 0 100 100" className="w-full h-full overflow-visible preserve-3d">
                     <defs>
                         <linearGradient id="msgVolume" x1="0" x2="0" y1="0" y2="1">
-                            <stop offset="0%" stopColor="#6875F5" stopOpacity="0.25" />
-                            <stop offset="100%" stopColor="#6875F5" stopOpacity="0" />
+                            <stop offset="0%" stopColor="var(--primary)" stopOpacity="0.25" />
+                            <stop offset="100%" stopColor="var(--primary)" stopOpacity="0" />
                         </linearGradient>
                     </defs>
                     {[25, 50, 75].map((y) => (
-                        <line key={y} x1="0" x2="100" y1={y} y2={y} stroke="currentColor" strokeWidth="0.3" className="text-gray-200 dark:text-white/5" />
+                        <line key={y} x1="0" x2="100" y1={y} y2={y} stroke="currentColor" strokeWidth="0.3" className="text-border" />
                     ))}
                     <path d={areaPath} fill="url(#msgVolume)" />
-                    <polyline fill="none" stroke="#6875F5" strokeWidth="1.5" points={points} vectorEffect="non-scaling-stroke" />
+                    <polyline fill="none" stroke="var(--primary)" strokeWidth="1.5" points={points} vectorEffect="non-scaling-stroke" />
 
                     {/* Tooltip circles */}
                     {data.map((d, i) => {
                         const x = data.length > 1 ? (i / (data.length - 1)) * 100 : 50;
                         const y = 100 - (d.count / max) * 100;
                         return (
-                            <circle key={i} cx={x} cy={y} r="1.5" fill="#0F1117" stroke="#6875F5" strokeWidth="1" className="opacity-0 group-hover:opacity-100 transition-opacity duration-200" />
+                            <circle key={i} cx={x} cy={y} r="1.5" fill="var(--bg-surface)" stroke="var(--primary)" strokeWidth="1" className="opacity-0 group-hover:opacity-100 transition-opacity duration-200" />
                         );
                     })}
                 </svg>
                 {/* X-Axis Labels */}
-                <div className="flex justify-between mt-2 text-[10px] text-gray-500 dark:text-muted">
+                <div className="flex justify-between mt-2 text-[10px] text-text-muted">
                     {data.map((d, i) => (
                         <span key={i}>{d.date}</span>
                     ))}
@@ -105,8 +105,8 @@ export default function DashboardHome() {
 
     const Stat = ({ value, label }) => (
         <div className="flex items-baseline gap-2.5">
-            <span className="text-[2rem] leading-none font-semibold tracking-tight tabular-nums text-gray-900 dark:text-foreground">{value ?? 0}</span>
-            <span className="text-[13px] text-gray-500 dark:text-muted">{label}</span>
+            <span className="text-[2rem] leading-none font-semibold tracking-tight tabular-nums text-foreground">{value ?? 0}</span>
+            <span className="text-[13px] text-text-muted">{label}</span>
         </div>
     );
 
@@ -117,25 +117,25 @@ export default function DashboardHome() {
             {/* Header Section */}
             <div className="flex flex-col md:flex-row md:items-center justify-between mb-8 gap-4">
                 <div>
-                    <h1 className="text-2xl font-semibold tracking-tight text-gray-900 dark:text-foreground">
+                    <h1 className="text-2xl font-semibold tracking-tight text-foreground">
                         Welcome back, {displayName}
                     </h1>
-                    <p className="text-sm text-gray-500 dark:text-muted mt-1.5">
+                    <p className="text-sm text-text-muted mt-1.5">
                         Here is what needs your attention for {new Date().toLocaleDateString(undefined, { weekday: 'long', month: 'long', day: 'numeric' })}.
                     </p>
                 </div>
                 <div className="flex gap-2.5">
-                    <Link href="/widgets/new" className="px-4 py-2.5 bg-accent hover:bg-accent-hover text-background rounded-lg font-semibold text-sm transition-colors">
+                    <Link href="/widgets/new" className="px-4 py-2.5 bg-primary hover:bg-primary-hover text-white rounded-lg font-semibold text-sm transition-colors shadow-sm">
                         + New Widget
                     </Link>
-                    <Link href="/leads" className="px-4 py-2.5 bg-white dark:bg-surface text-gray-700 dark:text-foreground border border-gray-300/80 dark:border-border rounded-lg font-semibold text-sm hover:bg-gray-100 dark:hover:bg-surface-hover transition-colors">
+                    <Link href="/leads" className="px-4 py-2.5 bg-surface text-foreground border border-border rounded-lg font-semibold text-sm hover:bg-surface-hover transition-colors">
                         View Leads
                     </Link>
                 </div>
             </div>
 
             {/* Status strip */}
-            <div className="border-y border-gray-200 dark:border-border mb-10 py-5 flex flex-wrap items-baseline gap-x-10 gap-y-4">
+            <div className="border-y border-border mb-10 py-5 flex flex-wrap items-baseline gap-x-10 gap-y-4">
                 <Stat value={stats.activeChats} label="Active chats" />
                 <Stat value={stats.messagesThisMonth} label="Messages this month" />
                 <Stat value={stats.widgets} label="Widgets" />
@@ -152,10 +152,10 @@ export default function DashboardHome() {
                     <section>
                         <div className="flex items-baseline justify-between mb-4">
                             <div>
-                                <h2 className="text-base font-semibold text-gray-900 dark:text-foreground">Message volume</h2>
-                                <p className="text-[13px] text-gray-500 dark:text-muted mt-0.5">Last 7 days</p>
+                                <h2 className="text-base font-semibold text-foreground">Message volume</h2>
+                                <p className="text-[13px] text-text-muted mt-0.5">Last 7 days</p>
                             </div>
-                            <span className="text-xs text-gray-500 dark:text-muted tabular-nums">
+                            <span className="text-xs text-text-muted tabular-nums">
                                 {(stats.dailyStats || []).reduce((s, d) => s + (d.count || 0), 0)} total
                             </span>
                         </div>
@@ -166,47 +166,47 @@ export default function DashboardHome() {
                     <section>
                         <div className="flex items-baseline justify-between mb-2">
                             <div>
-                                <h2 className="text-base font-semibold text-gray-900 dark:text-foreground">Recent leads</h2>
-                                <p className="text-[13px] text-gray-500 dark:text-muted mt-0.5">Latest potential customers</p>
+                                <h2 className="text-base font-semibold text-foreground">Recent leads</h2>
+                                <p className="text-[13px] text-text-muted mt-0.5">Latest potential customers</p>
                             </div>
-                            <Link href="/leads" className="text-[13px] font-semibold text-info-ink dark:text-info hover:underline">View all →</Link>
+                            <Link href="/leads" className="text-[13px] font-semibold text-primary hover:underline">View all →</Link>
                         </div>
                         <div className="overflow-x-auto -mx-1 px-1">
                             <table className="w-full">
                                 <thead>
-                                    <tr className="border-b border-gray-200 dark:border-border">
-                                        <th className="py-3 pr-6 text-left text-[11px] font-semibold uppercase tracking-wider text-gray-500 dark:text-muted">User</th>
-                                        <th className="py-3 pr-6 text-left text-[11px] font-semibold uppercase tracking-wider text-gray-500 dark:text-muted">Source</th>
-                                        <th className="py-3 pr-6 text-left text-[11px] font-semibold uppercase tracking-wider text-gray-500 dark:text-muted">Status</th>
-                                        <th className="py-3 text-right text-[11px] font-semibold uppercase tracking-wider text-gray-500 dark:text-muted">Date</th>
+                                    <tr className="border-b border-border">
+                                        <th className="py-3 pr-6 text-left text-[11px] font-semibold uppercase tracking-wider text-text-muted">User</th>
+                                        <th className="py-3 pr-6 text-left text-[11px] font-semibold uppercase tracking-wider text-text-muted">Source</th>
+                                        <th className="py-3 pr-6 text-left text-[11px] font-semibold uppercase tracking-wider text-text-muted">Status</th>
+                                        <th className="py-3 text-right text-[11px] font-semibold uppercase tracking-wider text-text-muted">Date</th>
                                     </tr>
                                 </thead>
-                                <tbody className="divide-y divide-gray-100 dark:divide-white/5">
+                                <tbody className="divide-y divide-border">
                                     {lists.recentLeads.length === 0 ? (
                                         <tr>
-                                            <td colSpan="4" className="py-10 text-center text-sm text-gray-500 dark:text-muted">No leads found yet.</td>
+                                            <td colSpan="4" className="py-10 text-center text-sm text-text-muted">No leads found yet.</td>
                                         </tr>
                                     ) : (
                                         lists.recentLeads.map(lead => (
-                                            <tr key={lead.id} className="hover:bg-gray-50 dark:hover:bg-surface-hover transition-colors">
+                                            <tr key={lead.id} className="hover:bg-surface-hover transition-colors">
                                                 <td className="py-4 pr-6 whitespace-nowrap">
                                                     <div className="flex items-center gap-3">
-                                                        <div className="h-9 w-9 flex-shrink-0 rounded-full bg-gray-100 dark:bg-surface-elevated flex items-center justify-center text-gray-500 dark:text-secondary font-semibold text-xs">
+                                                        <div className="h-9 w-9 flex-shrink-0 rounded-full bg-surface-elevated flex items-center justify-center text-text-secondary font-semibold text-xs border border-border">
                                                             {getInitials(lead.name)}
                                                         </div>
                                                         <div className="min-w-0">
-                                                            <div className="text-sm font-semibold text-gray-900 dark:text-foreground truncate">{lead.name || 'Anonymous'}</div>
-                                                            <div className="text-[13px] text-gray-500 dark:text-muted truncate">{lead.email || 'No email'}</div>
+                                                            <div className="text-sm font-semibold text-foreground truncate">{lead.name || 'Anonymous'}</div>
+                                                            <div className="text-[13px] text-text-muted truncate">{lead.email || 'No email'}</div>
                                                         </div>
                                                     </div>
                                                 </td>
-                                                <td className="py-4 pr-6 whitespace-nowrap text-sm text-gray-600 dark:text-secondary">
+                                                <td className="py-4 pr-6 whitespace-nowrap text-sm text-text-secondary">
                                                     TargetChat Widget
                                                 </td>
-                                                <td className="py-4 pr-6 whitespace-nowrap text-[13px] font-medium text-gray-500 dark:text-muted">
+                                                <td className="py-4 pr-6 whitespace-nowrap text-[13px] font-medium text-text-muted">
                                                     New
                                                 </td>
-                                                <td className="py-4 whitespace-nowrap text-right text-[13px] text-gray-500 dark:text-muted tabular-nums">
+                                                <td className="py-4 whitespace-nowrap text-right text-[13px] text-text-muted tabular-nums">
                                                     {new Date(lead.createdAt || lead.created_at).toLocaleDateString()}
                                                 </td>
                                             </tr>
@@ -223,17 +223,17 @@ export default function DashboardHome() {
 
                     {/* Live Activity Feed */}
                     <section>
-                        <h2 className="text-base font-semibold text-gray-900 dark:text-foreground mb-5">Live activity</h2>
-                        <div className="relative border-l border-gray-200 dark:border-border ml-1.5 space-y-6 pl-6">
+                        <h2 className="text-base font-semibold text-foreground mb-5">Live activity</h2>
+                        <div className="relative border-l border-border ml-1.5 space-y-6 pl-6">
                             {activity.length === 0 ? (
-                                <p className="text-sm text-gray-500 dark:text-muted">No recent activity.</p>
+                                <p className="text-sm text-text-muted">No recent activity.</p>
                             ) : (
                                 activity.slice(0, 5).map((log, idx) => (
                                     <div key={log.id} className="relative">
-                                        <div className={`absolute -left-[31px] top-1 h-2.5 w-2.5 rounded-full ${idx === 0 ? 'bg-accent' : 'bg-gray-300 dark:bg-surface-elevated border border-white dark:border-strong'}`}></div>
+                                        <div className={`absolute -left-[31px] top-1 h-2.5 w-2.5 rounded-full ${idx === 0 ? 'bg-primary' : 'bg-surface-elevated border border-border'}`}></div>
                                         <div>
-                                            <p className="text-sm font-medium text-gray-900 dark:text-foreground leading-snug">{log.action}</p>
-                                            <p className="text-xs text-gray-500 dark:text-muted mt-0.5 tabular-nums">
+                                            <p className="text-sm font-medium text-foreground leading-snug">{log.action}</p>
+                                            <p className="text-xs text-text-muted mt-0.5 tabular-nums">
                                                 {new Date(log.createdAt || log.created_at).toLocaleString()}
                                             </p>
                                         </div>
@@ -246,25 +246,25 @@ export default function DashboardHome() {
                     {/* Widget Status List */}
                     <section>
                         <div className="flex items-baseline justify-between mb-4">
-                            <h2 className="text-base font-semibold text-gray-900 dark:text-foreground">Your widgets</h2>
-                            <Link href="/widgets" className="text-[13px] font-semibold text-info-ink dark:text-info hover:underline">Manage all</Link>
+                            <h2 className="text-base font-semibold text-foreground">Your widgets</h2>
+                            <Link href="/widgets" className="text-[13px] font-semibold text-primary hover:underline">Manage all</Link>
                         </div>
-                        <div className="divide-y divide-gray-100 dark:divide-white/5 border-y border-gray-200 dark:border-border">
+                        <div className="divide-y divide-border border-y border-border">
                             {lists.widgets.length === 0 ? (
-                                <p className="text-sm text-gray-500 dark:text-muted py-6">No widgets.</p>
+                                <p className="text-sm text-text-muted py-6">No widgets.</p>
                             ) : (
                                 lists.widgets.map(w => (
-                                    <div key={w.id} className="flex items-center justify-between gap-3 py-3.5 cursor-pointer group">
+                                    <div key={w.id} className="flex items-center justify-between gap-3 py-3.5 cursor-pointer group hover:bg-surface-hover px-2 rounded-lg transition-colors">
                                         <div className="flex items-center gap-3 overflow-hidden min-w-0">
-                                            <div className="w-9 h-9 rounded-lg bg-gray-100 dark:bg-surface-elevated flex items-center justify-center text-gray-500 dark:text-secondary text-[11px] font-bold shrink-0">
+                                            <div className="w-9 h-9 rounded-lg bg-surface-elevated flex items-center justify-center text-text-secondary text-[11px] font-bold shrink-0 border border-border">
                                                 {w.slug.substring(0, 2).toUpperCase()}
                                             </div>
                                             <div className="truncate min-w-0">
-                                                <div className="font-semibold text-sm text-gray-900 dark:text-foreground truncate group-hover:text-accent-active dark:group-hover:text-accent transition-colors">{w.name}</div>
-                                                <div className="text-xs text-gray-500 dark:text-muted truncate font-mono">{w.slug}.targetchat.ai</div>
+                                                <div className="font-semibold text-sm text-foreground truncate group-hover:text-primary transition-colors">{w.name}</div>
+                                                <div className="text-xs text-text-muted truncate font-mono">{w.slug}.targetchat.ai</div>
                                             </div>
                                         </div>
-                                        <span className={`text-[11px] font-semibold uppercase tracking-wider shrink-0 ${w.status === 'active' || !w.status ? 'text-success-ink' : 'text-gray-500 dark:text-muted'}`}>
+                                        <span className={`text-[11px] font-semibold uppercase tracking-wider shrink-0 ${w.status === 'active' || !w.status ? 'text-success' : 'text-text-muted'}`}>
                                             {w.status || 'Active'}
                                         </span>
                                     </div>

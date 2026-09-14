@@ -114,18 +114,18 @@ export default function AdminAnnouncements() {
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
                     {/* Composer */}
                     <div className="lg:col-span-2">
-                        <div className="glass-panel p-8 rounded-card">
-                            <h2 className="text-xl font-bold text-gray-900 dark:text-foreground mb-6 flex items-center gap-2">
+                        <div className="bg-surface border border-border p-8 rounded-xl shadow-sm">
+                            <h2 className="text-xl font-bold text-foreground mb-6 flex items-center gap-2">
                                 <Send size={18} />
                                 Compose Email
                             </h2>
 
                             <div className="space-y-6">
                                 <div>
-                                    <label className="block text-sm font-medium text-gray-700 dark:text-secondary mb-2">Subject Line</label>
+                                    <label className="block text-sm font-medium text-text-secondary mb-2">Subject Line</label>
                                     <input
                                         type="text"
-                                        className="w-full p-4 bg-gray-50 dark:bg-surface border border-gray-200 dark:border-border rounded-xl focus:ring-2 focus:ring-accent/60 outline-none transition-all dark:text-foreground font-medium shadow-sm"
+                                        className="w-full p-3.5 bg-surface-elevated border border-border rounded-xl focus:ring-2 focus:ring-primary/40 focus:border-primary outline-none transition-all text-foreground font-medium shadow-sm placeholder:text-text-muted"
                                         placeholder="e.g. Big Update: New Features Added!"
                                         value={formData.subject}
                                         onChange={e => setFormData({ ...formData, subject: e.target.value })}
@@ -133,24 +133,24 @@ export default function AdminAnnouncements() {
                                 </div>
 
                                 <div>
-                                    <label className="block text-sm font-medium text-gray-700 dark:text-secondary mb-2">Message (HTML Supported)</label>
+                                    <label className="block text-sm font-medium text-text-secondary mb-2">Message (HTML Supported)</label>
                                     <textarea
-                                        className="w-full p-4 h-64 bg-gray-50 dark:bg-surface border border-gray-200 dark:border-border rounded-xl focus:ring-2 focus:ring-accent/60 outline-none transition-all dark:text-foreground font-mono text-sm shadow-sm"
+                                        className="w-full p-4 h-64 bg-surface-elevated border border-border rounded-xl focus:ring-2 focus:ring-primary/40 focus:border-primary outline-none transition-all text-foreground font-mono text-sm shadow-sm placeholder:text-text-muted"
                                         placeholder="<h1>Hello!</h1><p>We have some news...</p>"
                                         value={formData.message}
                                         onChange={e => setFormData({ ...formData, message: e.target.value })}
                                     />
-                                    <p className="text-xs text-gray-500 mt-2 flex items-center gap-1">
-                                        <span className="font-bold bg-gray-100 dark:bg-surface-elevated px-1 rounded text-gray-700 dark:text-secondary">Tip:</span>
-                                        Basic HTML tags allowed. Use <code className="bg-blue-50 dark:bg-blue-900/30 text-primary-700 dark:text-info px-1 rounded text-xs">{`{{name}}`}</code> to insert user's name.
+                                    <p className="text-xs text-text-muted mt-2 flex items-center gap-1.5">
+                                        <span className="font-semibold bg-surface-elevated border border-border px-1.5 py-0.5 rounded text-text-secondary">Tip:</span>
+                                        Basic HTML tags allowed. Use <code className="bg-primary/10 text-primary px-1.5 py-0.5 rounded text-xs font-mono">{`{{name}}`}</code> to insert user's name.
                                     </p>
                                 </div>
 
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 bg-gray-50 dark:bg-surface p-6 rounded-xl border border-gray-100 dark:border-border">
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 bg-surface-elevated p-6 rounded-xl border border-border">
                                     <div>
-                                        <label className="block text-sm font-bold text-gray-700 dark:text-secondary mb-2">Audience</label>
+                                        <label className="block text-sm font-semibold text-text-secondary mb-2">Audience</label>
                                         <select
-                                            className="w-full p-3 bg-white dark:bg-surface-elevated border border-gray-200 dark:border-border rounded-xl outline-none dark:text-foreground cursor-pointer"
+                                            className="w-full p-3 bg-surface border border-border rounded-xl outline-none text-foreground cursor-pointer focus:border-primary"
                                             value={formData.audience}
                                             onChange={e => setFormData({ ...formData, audience: e.target.value })}
                                         >
@@ -160,11 +160,11 @@ export default function AdminAnnouncements() {
                                         </select>
                                     </div>
                                     <div>
-                                        <label className="block text-sm font-bold text-gray-700 dark:text-secondary mb-2">Send Test To</label>
+                                        <label className="block text-sm font-semibold text-text-secondary mb-2">Send Test To</label>
                                         <div className="flex gap-2">
                                             <input
                                                 type="email"
-                                                className="w-full p-3 bg-white dark:bg-surface-elevated border border-gray-200 dark:border-border rounded-xl outline-none dark:text-foreground"
+                                                className="w-full p-3 bg-surface border border-border rounded-xl outline-none text-foreground placeholder:text-text-muted focus:border-primary"
                                                 placeholder="me@example.com"
                                                 value={formData.testEmail}
                                                 onChange={e => setFormData({ ...formData, testEmail: e.target.value })}
@@ -172,7 +172,7 @@ export default function AdminAnnouncements() {
                                             <button
                                                 onClick={() => handleSendClick(true)}
                                                 disabled={sending}
-                                                className="px-4 py-2 bg-gray-200 dark:bg-surface-elevated text-gray-700 dark:text-foreground rounded-xl hover:bg-gray-300 dark:hover:bg-gray-500 transition-colors font-medium whitespace-nowrap disabled:opacity-50"
+                                                className="px-4 py-2 bg-surface hover:bg-surface-hover text-foreground border border-border rounded-xl transition-colors font-medium whitespace-nowrap disabled:opacity-50"
                                             >
                                                 Test
                                             </button>
@@ -184,7 +184,7 @@ export default function AdminAnnouncements() {
                                     <button
                                         onClick={() => handleSendClick(false)}
                                         disabled={sending}
-                                        className={`w-full py-4 bg-accent hover:bg-accent-hover text-background rounded-xl font-bold text-lg shadow-lg  transition-all transform hover:scale-[1.01] active:scale-95 flex items-center justify-center gap-3 ${sending ? 'opacity-70 cursor-not-allowed' : ''}`}
+                                        className={`w-full py-3.5 bg-primary hover:bg-primary-hover text-white rounded-xl font-semibold text-base shadow-sm transition-all flex items-center justify-center gap-2.5 ${sending ? 'opacity-70 cursor-not-allowed' : ''}`}
                                     >
                                         {sending ? (
                                             <>
@@ -203,41 +203,41 @@ export default function AdminAnnouncements() {
 
                     {/* Sidebar / History */}
                     <div className="space-y-6">
-                        <div className="glass-panel p-6 rounded-card h-full max-h-[800px] flex flex-col">
-                            <h3 className="text-lg font-bold text-gray-900 dark:text-foreground mb-4 flex items-center gap-2">
+                        <div className="bg-surface border border-border p-6 rounded-xl shadow-sm h-full max-h-[800px] flex flex-col">
+                            <h3 className="text-lg font-bold text-foreground mb-4 flex items-center gap-2">
                                 <Clock size={18} />
                                 Recent History
                             </h3>
                             <div className="space-y-4 overflow-y-auto pr-2 custom-scrollbar flex-1">
                                 {loading ? (
-                                    <div className="flex flex-col items-center justify-center h-40 text-gray-500">
+                                    <div className="flex flex-col items-center justify-center h-40 text-text-muted">
                                         <RefreshCw className="animate-spin mb-2" />
                                         <span className="text-sm">Loading history...</span>
                                     </div>
                                 ) : history.length === 0 ? (
-                                    <div className="flex flex-col items-center justify-center h-40 text-gray-500 text-center">
+                                    <div className="flex flex-col items-center justify-center h-40 text-text-muted text-center">
                                         <Mail size={18} className="mb-2 opacity-30" />
                                         <span className="text-sm">No announcements sent yet.</span>
                                     </div>
                                 ) : (
                                     history.map(log => (
-                                        <div key={log.id} className="p-4 bg-gray-50 dark:bg-surface rounded-xl border border-gray-100 dark:border-border hover:bg-white dark:hover:bg-surface-hover transition-colors shadow-sm text-left">
+                                        <div key={log.id} className="p-4 bg-surface-elevated rounded-xl border border-border hover:bg-surface-hover transition-colors shadow-sm text-left">
                                             <div className="flex justify-between items-center mb-2">
                                                 <span className={`px-2 py-0.5 text-[10px] font-bold uppercase rounded-full flex items-center gap-1 ${log.status === 'sent' || log.status === 'delivered'
-                                                    ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400'
+                                                    ? 'bg-success/10 text-success'
                                                     : log.status === 'failed'
-                                                        ? 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400'
-                                                        : 'bg-blue-100 text-info-ink dark:bg-blue-900/30 dark:text-info'
+                                                        ? 'bg-danger/10 text-danger'
+                                                        : 'bg-primary/10 text-primary'
                                                     }`}>
                                                     {log.status === 'sent' && <CheckCircle size={10} />}
                                                     {log.status === 'failed' && <AlertCircle size={10} />}
                                                     {log.status}
                                                 </span>
-                                                <span className="text-xs text-gray-500 dark:text-muted">{new Date(log.createdAt || log.created_at).toLocaleDateString()}</span>
+                                                <span className="text-xs text-text-muted">{new Date(log.createdAt || log.created_at).toLocaleDateString()}</span>
                                             </div>
-                                            <p className="font-semibold text-gray-900 dark:text-foreground text-sm mb-1 line-clamp-2">{log.subject}</p>
-                                            <p className="text-xs text-gray-500 truncate mt-1">
-                                                <span className="font-medium text-gray-500 dark:text-muted">To:</span> {log.recipientEmail}
+                                            <p className="font-semibold text-foreground text-sm mb-1 line-clamp-2">{log.subject}</p>
+                                            <p className="text-xs text-text-muted truncate mt-1">
+                                                <span className="font-medium text-text-secondary">To:</span> {log.recipientEmail}
                                             </p>
                                         </div>
                                     ))

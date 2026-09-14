@@ -2,9 +2,9 @@ import React, { useState, useRef, useEffect } from 'react';
 import { useRouter } from 'next/router';
 import Link from 'next/link';
 import { useTheme } from '../../contexts/ThemeContext';
-import { MessageCircle, ShieldCheck, Settings, LogOut } from 'lucide-react';
+import { MessageCircle, ShieldCheck, Settings, LogOut, Sun, Moon, ChevronDown, ChevronRight, Menu } from 'lucide-react';
 
-export default function DashboardNavbar({ user }) {
+export default function DashboardNavbar({ user, onToggleSidebar }) {
     const router = useRouter();
     const [dropdownOpen, setDropdownOpen] = useState(false);
     const dropdownRef = useRef(null);
@@ -34,88 +34,119 @@ export default function DashboardNavbar({ user }) {
     };
 
     return (
-        <header className="h-16 bg-white dark:bg-background border-b border-gray-200 dark:border-strong flex items-center justify-between px-6 z-20 relative">
-            {/* Breadcrumbs */}
-            <div className="flex items-center gap-2 text-sm text-gray-500 dark:text-muted">
-                <span className="font-medium text-gray-900 dark:text-foreground">TargetChat</span>
-                {breadcrumbs.map((crumb, index) => (
-                    <React.Fragment key={crumb.href}>
-                        <span>/</span>
-                        <span className={index === breadcrumbs.length - 1 ? 'text-gray-900 dark:text-foreground font-medium' : ''}>
-                            {crumb.name}
-                        </span>
-                    </React.Fragment>
-                ))}
-            </div>
-
-            {/* Right Side */}
-            <div className="flex items-center gap-4">
-                {/* Theme Toggle */}
-                <button
-                    onClick={toggleTheme}
-                    aria-label={`Switch to ${theme === 'light' ? 'dark' : 'light'} mode`}
-                    aria-pressed={theme !== 'light'}
-                    className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-surface-hover transition-colors"
-                    title={`Switch to ${theme === 'light' ? 'dark' : 'light'} mode`}
-                >
-                    {theme === 'light' ? (
-                        <svg className="w-5 h-5 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
-                        </svg>
-                    ) : (
-                        <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
-                        </svg>
+        <header className="h-14 bg-surface border-b border-border z-20 relative">
+            <div className="max-w-[1240px] mx-auto w-full h-full px-4 sm:px-6 lg:px-8 flex items-center justify-between">
+                {/* Left Side: Mobile toggle + Breadcrumbs */}
+                <div className="flex items-center gap-2.5">
+                    {onToggleSidebar && (
+                        <button
+                            onClick={onToggleSidebar}
+                            aria-label="Toggle navigation"
+                            className="md:hidden w-8 h-8 rounded-md flex items-center justify-center text-text-muted hover:text-text-primary hover:bg-surface-hover border border-transparent hover:border-border transition-colors"
+                        >
+                            <Menu size={16} />
+                        </button>
                     )}
-                </button>
 
-                {/* User Dropdown */}
-                <div className="relative" ref={dropdownRef}>
+                    <nav aria-label="Breadcrumbs" className="flex items-center gap-1.5 text-xs">
+                        <Link href="/dashboard" className="text-text-muted hover:text-text-primary transition-colors">
+                            TargetChat
+                        </Link>
+                        {breadcrumbs.map((crumb, index) => (
+                            <React.Fragment key={crumb.href}>
+                                <ChevronRight size={12} className="text-text-muted opacity-60" />
+                                <span className={index === breadcrumbs.length - 1 ? 'text-text-primary font-semibold' : 'text-text-muted hover:text-text-primary transition-colors'}>
+                                    {crumb.name}
+                                </span>
+                            </React.Fragment>
+                        ))}
+                    </nav>
+                </div>
+
+                {/* Right Side: Theme control + User account */}
+                <div className="flex items-center gap-2">
+                    {/* Theme Toggle Button */}
                     <button
-                        onClick={() => setDropdownOpen(!dropdownOpen)}
-                        className="flex items-center gap-3 hover:bg-gray-50 dark:hover:bg-surface-hover p-1 pr-3 rounded-full transition-colors focus:outline-none"
+                        onClick={toggleTheme}
+                        aria-label={`Switch to ${theme === 'light' ? 'dark' : 'light'} mode`}
+                        aria-pressed={theme !== 'light'}
+                        className="w-8 h-8 rounded-md flex items-center justify-center text-text-muted hover:text-text-primary hover:bg-gray-100 dark:hover:bg-surface-hover border border-transparent hover:border-border transition-colors focus-visible:ring-2 focus-visible:ring-primary/60"
+                        title={`Switch to ${theme === 'light' ? 'dark' : 'light'} mode`}
                     >
-                        <div className="text-right hidden sm:block">
-                            <div className="text-sm font-medium text-gray-900 dark:text-foreground">{user?.name || 'User'}</div>
-                            <div className="text-xs text-gray-500 dark:text-muted">{user?.email}</div>
-                        </div>
-                        <div className="w-9 h-9 rounded-full bg-accent flex items-center justify-center text-background font-bold shadow-md ring-2 ring-white dark:ring-background">
-                            {(user?.name || 'U').charAt(0).toUpperCase()}
-                        </div>
+                        {theme === 'light' ? (
+                            <Moon size={15} />
+                        ) : (
+                            <Sun size={15} />
+                        )}
                     </button>
 
-                    {/* Dropdown Menu */}
-                    {dropdownOpen && (
-                        <div className="absolute right-0 mt-2 w-56 bg-white dark:bg-surface rounded-xl shadow-lg border border-gray-100 dark:border-border py-2 animate-scaleIn origin-top-right">
-                            <div className="px-4 py-2 border-b border-gray-100 dark:border-border mb-2">
-                                <p className="text-sm font-bold text-gray-900 dark:text-foreground">Signed in as</p>
-                                <p className="text-xs text-gray-500 dark:text-muted truncate">{user?.email}</p>
+                    {/* User Dropdown */}
+                    <div className="relative" ref={dropdownRef}>
+                        <button
+                            onClick={() => setDropdownOpen(!dropdownOpen)}
+                            aria-expanded={dropdownOpen}
+                            aria-haspopup="true"
+                            className="flex items-center gap-2 py-1 px-2 rounded-md hover:bg-gray-100 dark:hover:bg-surface-hover border border-transparent hover:border-border transition-colors focus-visible:ring-2 focus-visible:ring-primary/60 group text-left"
+                        >
+                            <div className="w-7 h-7 rounded-md bg-surface-elevated border border-border flex items-center justify-center text-text-primary font-semibold text-xs shrink-0 shadow-xs">
+                                {(user?.name || 'U').charAt(0).toUpperCase()}
                             </div>
+                            <div className="hidden sm:flex flex-col text-left">
+                                <span className="text-xs font-medium text-text-primary leading-tight">
+                                    {user?.name || 'Admin User'}
+                                </span>
+                                <span className="text-[11px] text-text-muted leading-tight truncate max-w-[140px]">
+                                    {user?.email || 'admin@targetchat.com'}
+                                </span>
+                            </div>
+                            <ChevronDown size={13} className={`text-text-muted group-hover:text-text-secondary transition-transform shrink-0 ${dropdownOpen ? 'rotate-180' : ''}`} />
+                        </button>
 
-                            <Link href="/chat" className="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 dark:text-secondary hover:bg-surface-hover dark:hover:bg-surface-hover hover:text-accent dark:hover:text-accent font-medium transition-colors">
-                                <MessageCircle size={16} /> Back to Chat
-                            </Link>
+                        {/* Dropdown Menu */}
+                        {dropdownOpen && (
+                            <div className="absolute right-0 mt-1.5 w-56 bg-surface rounded-lg shadow-xl border border-border py-1.5 z-50 animate-scaleIn origin-top-right">
+                                <div className="px-3.5 py-2 border-b border-border mb-1">
+                                    <p className="text-xs font-semibold text-text-primary truncate">{user?.name || 'Admin User'}</p>
+                                    <p className="text-[11px] text-text-muted truncate">{user?.email}</p>
+                                </div>
 
-                            {user?.role === 'admin' && (
-                                <Link href="/admin" className="flex items-center gap-2 px-4 py-2 text-sm text-primary-700 dark:text-accent hover:bg-surface-hover dark:hover:bg-surface-hover font-medium transition-colors">
-                                    <ShieldCheck size={16} /> Admin Panel
+                                <Link
+                                    href="/chat"
+                                    onClick={() => setDropdownOpen(false)}
+                                    className="flex items-center gap-2 px-3.5 py-2 text-xs text-text-secondary hover:bg-gray-100 dark:hover:bg-surface-hover hover:text-text-primary transition-colors"
+                                >
+                                    <MessageCircle size={14} /> Back to Chat
                                 </Link>
-                            )}
 
-                            <Link href="/settings" className="flex items-center gap-2 px-4 py-2 text-sm text-gray-700 dark:text-secondary hover:bg-gray-50 dark:hover:bg-surface-hover transition-colors">
-                                <Settings size={16} /> Settings
-                            </Link>
+                                {user?.role === 'admin' && (
+                                    <Link
+                                        href="/admin"
+                                        onClick={() => setDropdownOpen(false)}
+                                        className="flex items-center gap-2 px-3.5 py-2 text-xs text-text-secondary hover:bg-gray-100 dark:hover:bg-surface-hover hover:text-primary transition-colors"
+                                    >
+                                        <ShieldCheck size={14} /> Admin Panel
+                                    </Link>
+                                )}
 
-                            <div className="h-px bg-gray-100 dark:bg-surface-elevated my-2"></div>
+                                <Link
+                                    href="/settings"
+                                    onClick={() => setDropdownOpen(false)}
+                                    className="flex items-center gap-2 px-3.5 py-2 text-xs text-text-secondary hover:bg-gray-100 dark:hover:bg-surface-hover hover:text-text-primary transition-colors"
+                                >
+                                    <Settings size={14} /> Settings
+                                </Link>
 
-                            <button
-                                onClick={handleLogout}
-                                className="w-full flex items-center gap-2 px-4 py-2 text-sm text-danger-ink dark:text-danger hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors font-medium"
-                            >
-                                <LogOut size={16} /> Log Out
-                            </button>
-                        </div>
-                    )}
+                                <div className="h-px bg-border my-1"></div>
+
+                                <button
+                                    onClick={handleLogout}
+                                    className="w-full flex items-center gap-2 px-3.5 py-2 text-xs text-danger hover:bg-danger/10 transition-colors text-left"
+                                >
+                                    <LogOut size={14} /> Log Out
+                                </button>
+                            </div>
+                        )}
+                    </div>
                 </div>
             </div>
         </header>

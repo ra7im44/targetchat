@@ -983,7 +983,7 @@ export default function AdminFiles() {
                                     type="button"
                                     onClick={confirmDelete}
                                     disabled={isDeleting}
-                                    className="px-5 py-2 bg-red-600 hover:bg-red-700 disabled:opacity-50 text-white text-xs font-bold rounded-xl transition-all shadow-md
+                                    className="px-5 py-2 bg-red-600 hover:bg-red-700 disabled:opacity-50 text-white text-xs font-bold rounded-xl transition-all shadow-md"
                                 >
                                     {isDeleting ? 'Deleting...' : 'Confirm Delete'}
                                 </button>

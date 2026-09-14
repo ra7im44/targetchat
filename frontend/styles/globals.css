@@ -4,45 +4,87 @@
 @tailwind components;
 @tailwind utilities;
 
-/* ============ U-Axis design tokens ============ */
+/* ============ TargetChat design tokens ============ */
 :root {
-    /* U-Axis Dark Semantic Tokens */
-    --background: #0F1117;
-    --surface: #1A1D27;
-    --surface-elevated: #242938;
-    --surface-hover: #222634;
-    --border: #25293A;
-    --border-strong: #33394D;
-    --text-primary: #F3F4F8;
-    --text-secondary: #9DA4B7;
-    --text-muted: #6D758B;
-    --accent: #545FDB;
-    --accent-hover: #454FB8;
-    --accent-active: #39429E;
-    --danger: #DC2626;
-    --danger-hover: #B91C1C;
-    --warning: #D97706;
-    --success: #059669;
-    --info: #545FDB;
+    /* Base surfaces */
+    --bg-base: #F8FAFC;
+    --bg-surface: #FFFFFF;
+    --bg-elevated: #F1F5F9;
+    --bg-hover: #E2E8F0;
+    --border: #E2E8F0;
+    --border-subtle: #F1F5F9;
+    --border-strong: #CBD5E1;
 
-    /* U-Axis Light-mode surfaces */
-    --lm-bg: #F7F8FA;
-    --lm-surface: #FFFFFF;
-    --lm-border: #E2E5EC;
-    --lm-text: #111625;
-    --lm-text-secondary: #4E5569;
-    --lm-text-muted: #697287;
+    /* Semantic typography */
+    --text-primary: #0F172A;
+    --text-secondary: #475569;
+    --text-muted: #64748B;
+
+    /* Brand & Accent: Professional Indigo */
+    --primary: #4F46E5;
+    --primary-hover: #4338CA;
+    --primary-active: #3730A3;
+    --primary-foreground: #FFFFFF;
+    --primary-subtle: #EEF2FF;
+    --accent: #4F46E5;
+    --accent-hover: #4338CA;
+    --accent-active: #3730A3;
+
+    /* Status Colors */
+    --danger: #EF4444;
+    --warning: #F59E0B;
+    --success: #10B981;
+    --info: #3B82F6;
+
+    /* Semantic aliases */
+    --background: var(--bg-base);
+    --surface: var(--bg-surface);
+    --surface-elevated: var(--bg-elevated);
+    --surface-hover: var(--bg-hover);
+    --lm-bg: var(--bg-base);
+    --lm-surface: var(--bg-surface);
+    --lm-border: var(--border);
+    --lm-text: var(--text-primary);
+    --lm-text-secondary: var(--text-secondary);
+    --lm-text-muted: var(--text-muted);
 }
 
 html.dark {
-    --accent: #6875F5;
-    --accent-hover: #7B85F8;
-    --accent-active: #5863D8;
-    --danger: #EF4444;
-    --danger-hover: #DC2626;
-    --warning: #F59E0B;
-    --success: #10B981;
-    --info: #6875F5;
+    /* Base surfaces */
+    --bg-base: #0B0F17;
+    --bg-surface: #131926;
+    --bg-elevated: #1A2234;
+    --bg-hover: #222C40;
+    --border: rgba(255, 255, 255, 0.08);
+    --border-subtle: rgba(255, 255, 255, 0.04);
+    --border-strong: rgba(255, 255, 255, 0.16);
+
+    /* Semantic typography */
+    --text-primary: #F8FAFC;
+    --text-secondary: #94A3B8;
+    --text-muted: #64748B;
+
+    /* Brand & Accent: Luminous Indigo in dark mode */
+    --primary: #6366F1;
+    --primary-hover: #818CF8;
+    --primary-active: #4F46E5;
+    --primary-foreground: #FFFFFF;
+    --primary-subtle: rgba(99, 102, 241, 0.15);
+    --accent: #6366F1;
+    --accent-hover: #818CF8;
+    --accent-active: #4F46E5;
+
+    /* Status Colors */
+    --danger: #F87171;
+    --warning: #FBBF24;
+    --success: #34D399;
+    --info: #60A5FA;
+
+    /* Semantic aliases */
+    --background: var(--bg-base);
+    --surface: var(--bg-surface);
+    --surface-elevated: var(--bg-elevated);
+    --surface-hover: var(--bg-hover);
 }
 
 html,
@@ -202,12 +244,13 @@ html.dark .bubble.ai {
     border-color: var(--border);
 }
 
-/* Ensure button text on primary/accent is crisp white like in U-Axis */
-.bg-accent.text-background,
-.text-background.bg-accent,
-[class*="bg-accent"][class*="text-background"],
+/* Ensure button text on primary/accent is crisp high-contrast white */
 button.bg-accent,
-a.bg-accent {
+a.bg-accent,
+button.bg-primary,
+a.bg-primary,
+.bg-accent.text-white,
+.bg-primary.text-white {
     color: #FFFFFF !important;
 }
 
