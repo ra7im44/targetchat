@@ -1110,16 +1110,16 @@ export default function ChatPage() {
           {/* Input Area - Floating Capsule Design */}
           <div className="p-4 sm:p-6">
             <div className="max-w-3xl mx-auto">
-              <form onSubmit={sendMessage} className="relative flex items-end gap-1.5 p-2.5 rounded-[20px] bg-white dark:bg-white/[0.03] border border-gray-300/80 dark:border-white/10 shadow-[0_8px_30px_-12px_rgba(0,0,0,0.18)] transition-colors focus-within:border-indigo-500/60 dark:focus-within:border-indigo-400/60 focus-within:ring-1 focus-within:ring-indigo-500/30">
+              <form onSubmit={sendMessage} className="relative flex items-end gap-2 p-2 sm:p-2.5 rounded-2xl sm:rounded-[22px] bg-white/95 dark:bg-slate-900/90 backdrop-blur-xl border border-slate-200/90 dark:border-white/15 shadow-[0_12px_36px_-10px_rgba(15,23,42,0.12),0_4px_12px_-2px_rgba(15,23,42,0.06)] dark:shadow-[0_16px_48px_-12px_rgba(0,0,0,0.7),0_0_0_1px_rgba(255,255,255,0.06)] transition-all duration-300 ease-out focus-within:border-indigo-500/80 dark:focus-within:border-indigo-400/80 focus-within:ring-4 focus-within:ring-indigo-500/15 dark:focus-within:ring-indigo-400/20 focus-within:shadow-[0_16px_48px_-8px_rgba(99,102,241,0.25)]">
 
                 {/* File Upload */}
                 <button
                   type="button"
                   onClick={() => document.getElementById('file-upload').click()}
-                  className="p-3 text-gray-400 hover:text-primary-600 dark:hover:text-primary-400 transition-colors rounded-full hover:bg-gray-100 dark:hover:bg-white/5"
+                  className="w-10 h-10 flex items-center justify-center text-slate-400 dark:text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-300 rounded-xl hover:bg-indigo-50/80 dark:hover:bg-white/10 active:scale-95 transition-all duration-200 shrink-0"
                   title="Upload File"
                 >
-                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13" /></svg>
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.8" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13" /></svg>
                 </button>
                 <input
                   type="file"
@@ -1262,10 +1262,14 @@ export default function ChatPage() {
                   <button
                     type="button"
                     onClick={() => setShowEmojiPicker(!showEmojiPicker)}
-                    className="p-3 text-gray-400 hover:text-yellow-500 dark:hover:text-yellow-400 transition-colors rounded-full hover:bg-gray-100 dark:hover:bg-white/5"
+                    className={`w-10 h-10 flex items-center justify-center rounded-xl active:scale-95 transition-all duration-200 shrink-0 ${
+                      showEmojiPicker
+                        ? 'text-amber-500 bg-amber-50 dark:bg-amber-950/40 ring-1 ring-amber-400/40'
+                        : 'text-slate-400 dark:text-slate-400 hover:text-amber-500 dark:hover:text-amber-400 hover:bg-amber-50/60 dark:hover:bg-white/10'
+                    }`}
                     title="Add Emoji"
                   >
-                    <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M14.828 14.828a4 4 0 01-5.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.8" d="M14.828 14.828a4 4 0 01-5.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
                   </button>
 
                   {showEmojiPicker && (
@@ -1297,7 +1301,7 @@ export default function ChatPage() {
                       ? (activeChatId ? "اكتب رسالتك هنا..." : "اختر النموذج المناسب واكتب رسالتك لبدء المحادثة...")
                       : (activeChatId ? "Type a message..." : "Select a model & type a message to start...")
                   }
-                  className="flex-1 bg-transparent border-none focus:ring-0 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 resize-none py-3 max-h-32 min-h-[44px]"
+                  className="flex-1 bg-transparent border-none focus:outline-none focus:ring-0 text-slate-900 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 text-[15px] sm:text-base leading-relaxed resize-none py-2.5 max-h-32 min-h-[44px]"
                   rows="1"
                   style={{ height: 'auto', minHeight: '44px' }}
                 />
@@ -1306,28 +1310,33 @@ export default function ChatPage() {
                 <button
                   type="button"
                   onClick={isRecording ? stopRecording : startRecording}
-                  className={`p-3 transition-colors rounded-full ${isRecording ? 'bg-red-500 text-white animate-pulse' : 'text-gray-400 hover:text-red-500 hover:bg-gray-100 dark:hover:bg-white/5'}`}
+                  className={`w-10 h-10 flex items-center justify-center rounded-xl active:scale-95 transition-all duration-200 shrink-0 ${
+                    isRecording
+                      ? 'bg-rose-500 text-white shadow-lg shadow-rose-500/40 ring-4 ring-rose-500/20 animate-pulse'
+                      : 'text-slate-400 dark:text-slate-400 hover:text-rose-600 dark:hover:text-rose-400 hover:bg-rose-50/80 dark:hover:bg-rose-950/30'
+                  }`}
                   title={isRecording ? "Stop Recording" : "Voice Message"}
                 >
                   {isRecording ? (
-                    <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 10a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1h-4a1 1 0 01-1-1v-4z" /></svg>
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 10a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1h-4a1 1 0 01-1-1v-4z" /></svg>
                   ) : (
-                    <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" /></svg>
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.8" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" /></svg>
                   )}
                 </button>
 
-                <span aria-hidden="true" className="w-px h-6 bg-gray-200 dark:bg-white/10 mx-0.5 self-center" />
+                <span aria-hidden="true" className="w-px h-6 bg-slate-200 dark:bg-white/15 mx-0.5 self-center rounded-full shrink-0" />
 
                 <button
                   type="submit"
                   disabled={!text.trim() || loading}
                   className={`
-                    p-3 rounded-full transition-colors duration-200 flex items-center justify-center
+                    w-10 h-10 sm:w-11 sm:h-11 rounded-xl sm:rounded-2xl flex items-center justify-center transition-all duration-200 shrink-0
                     ${!text.trim() || loading
-                      ? 'bg-gray-200 dark:bg-white/10 text-gray-400 dark:text-gray-500 cursor-not-allowed'
-                      : 'bg-indigo-600 hover:bg-indigo-500 text-white shadow-md shadow-indigo-600/25'
+                      ? 'bg-slate-100 dark:bg-white/5 text-slate-300 dark:text-slate-600 border border-slate-200/50 dark:border-white/5 cursor-not-allowed'
+                      : 'bg-gradient-to-r from-indigo-600 via-indigo-600 to-violet-600 hover:from-indigo-500 hover:to-violet-500 text-white shadow-lg shadow-indigo-600/35 hover:shadow-indigo-600/50 hover:scale-[1.04] active:scale-[0.98] ring-1 ring-white/20'
                     }
                   `}
+                  title="Send Message"
                 >
                   {loading ? (
                     <svg className="w-5 h-5 animate-spin" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
@@ -1336,9 +1345,10 @@ export default function ChatPage() {
                   )}
                 </button>
               </form>
-              <div className="text-center mt-2">
-                <p className="text-xs text-gray-400 dark:text-gray-500">
-                  TargetChat AI can make mistakes. Consider checking important information.
+              <div className="flex items-center justify-center mt-2.5 text-center">
+                <p className="inline-flex items-center gap-1.5 text-[11px] sm:text-xs text-slate-400 dark:text-slate-500">
+                  <svg className="w-3.5 h-3.5 opacity-60 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                  <span>TargetChat AI can make mistakes. Consider checking important information.</span>
                 </p>
               </div>
             </div>
