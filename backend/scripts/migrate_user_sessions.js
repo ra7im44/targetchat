@@ -39,18 +39,18 @@ async function migrate() {
             }).catch(e => console.log('Column device_info notice:', e.message));
         }
 
-        // 2b. Ensure chats.user_id column exists (Chat.userId attribute)
+        // 2b. Ensure chats userId column exists (matches legacy association-built schema)
         try {
             const chatTable = await qi.describeTable('chats');
             if (chatTable && !chatTable.user_id && !chatTable.userId) {
-                console.log('Adding column "user_id" to chats...');
-                await qi.addColumn('chats', 'user_id', {
+                console.log('Adding column "userId" to chats...');
+                await qi.addColumn('chats', 'userId', {
                     type: sequelize.Sequelize.INTEGER,
                     allowNull: true
-                }).catch(e => console.log('Column user_id notice:', e.message));
+                }).catch(e => console.log('Column userId notice:', e.message));
             }
         } catch (e) {
-            console.log('Skipping chats.user_id check (chats table not present):', e.message);
+            console.log('Skipping chats userId check (chats table not present):', e.message);
         }
 
         // 3. Ensure existing users have a default session / country / device if missing
