@@ -7,23 +7,61 @@ module.exports = {
         sans: ['Inter', 'ui-sans-serif', 'system-ui', 'sans-serif'],
       },
       colors: {
+        /* Brand accent scale (teal). Replaces the old indigo `primary` scale so
+           existing primary-* classes migrate automatically. */
         primary: {
-          50: '#eef2ff',
-          100: '#e0e7ff',
-          200: '#c7d2fe',
-          300: '#a5b4fc',
-          400: '#818cf8',
-          500: '#6366f1',
-          600: '#4f46e5',
-          700: '#4338ca',
-          800: '#3730a3',
-          900: '#312e81',
-          950: '#1e1b4b',
+          50: '#effdfa',
+          100: '#ccfbf1',
+          200: '#99f6e4',
+          300: '#5eead4',
+          400: '#2dd4bf',
+          500: '#14b8a6',
+          600: '#0d9488',
+          700: '#0f766e',
+          800: '#115e59',
+          900: '#134e4a',
+          950: '#042f2e',
+          DEFAULT: '#2dd4bf',
         },
+        /* Semantic surfaces (dark UI) */
+        background: '#0B1114',
+        surface: {
+          DEFAULT: '#111A1F',
+          elevated: '#172329',
+          hover: '#1C2A31',
+        },
+        /* Semantic borders */
+        border: {
+          DEFAULT: '#293940',
+          strong: '#344750',
+        },
+        default: '#293940',
+        /* Semantic text (dark UI) */
+        foreground: '#F2F6F7',
+        secondary: '#B0BDC2',
+        muted: '#7F9097',
+        /* Semantic accent + states */
+        accent: {
+          DEFAULT: '#2DD4BF',
+          hover: '#20BFAA',
+          active: '#149D8C',
+        },
+        danger: {
+          DEFAULT: '#EF6464',
+          hover: '#DC5050',
+        },
+        warning: '#EAB85C',
+        success: '#58C98D',
+        info: '#63A7D8',
+        /* Legacy slate-850 alias kept for unmigrated files (do not use in new code) */
         slate: {
-          850: '#1e293b', // Custom dark shade
+          850: '#1e293b',
           900: '#0f172a',
-        }
+        },
+      },
+      borderRadius: {
+        card: '10px',
+        modal: '12px',
       },
       animation: {
         'fade-in-up': 'fadeInUp 0.3s ease-out forwards',
@@ -33,9 +71,9 @@ module.exports = {
         fadeInUp: {
           '0%': { opacity: '0', transform: 'translateY(10px)' },
           '100%': { opacity: '1', transform: 'translateY(0)' },
-        }
-      }
-    }
+        },
+      },
+    },
   },
   plugins: [
     require('@tailwindcss/typography'),
