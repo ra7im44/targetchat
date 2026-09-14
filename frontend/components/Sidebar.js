@@ -177,7 +177,7 @@ export default function Sidebar({ chats, activeId, onSelect, onNew, onDelete, co
                           <h3 className={`text-sm font-semibold truncate ${c.id === activeId ? 'text-blue-900 dark:text-blue-100' : 'text-gray-800 dark:text-gray-200'}`}>
                             {c.title || 'New Chat'}
                           </h3>
-                          <div className="opacity-0 group-hover:opacity-100 flex items-center gap-0.5 transition-opacity shrink-0">
+                          <div className="flex items-center gap-0.5 shrink-0">
                             {/* Pin / Unpin Button */}
                             <button
                               type="button"

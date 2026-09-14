@@ -136,7 +136,7 @@ export default function ChatBubble({ sender, message }) {
                   <div className="relative group">
                     <button
                       onClick={handleCopy}
-                      className="absolute top-2 right-2 px-3 py-1.5 bg-gray-700 hover:bg-gray-600 text-white text-xs font-medium rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex items-center gap-1.5"
+                      className="absolute top-2 right-2 px-2.5 py-1 bg-gray-700/80 hover:bg-gray-600 text-white text-xs font-medium rounded-lg transition-colors flex items-center gap-1.5 z-10"
                     >
                       {copied ? (
                         <>
@@ -216,7 +216,7 @@ export default function ChatBubble({ sender, message }) {
           </div>
 
           {/* Action Row: Timestamp & Copy Button */}
-          <div className={`flex items-center gap-2 px-1 text-[11px] font-medium opacity-0 group-hover:opacity-100 transition-opacity duration-150 ${isUser ? 'justify-end' : 'justify-start'}`}>
+          <div className={`flex items-center gap-2 px-1 text-[11px] font-medium ${isUser ? 'justify-end' : 'justify-start'}`}>
             {time && <span className="text-gray-400 dark:text-gray-500">{time}</span>}
             <button
               type="button"

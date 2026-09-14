@@ -1061,13 +1061,42 @@ export default function ChatPage() {
             />
 
             {/* Chat Title */}
-            <div className="flex flex-col">
+            <div className="flex items-center gap-2">
               {!editingTitle ? (
-                <div className="flex items-center gap-2 group cursor-pointer" onClick={() => { const t = chats.find((c) => c.id === activeChatId)?.title || ''; setTitleValue(t); setEditingTitle(true); }}>
-                  <h1 className="font-bold text-lg text-gray-900 dark:text-white truncate max-w-[200px] sm:max-w-md">
-                    {(chats.find((c) => c.id === activeChatId)?.title) || 'New Chat'}
-                  </h1>
-                  <svg className="w-4 h-4 text-gray-400 opacity-0 group-hover:opacity-100 transition-opacity" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" /></svg>
+                <div className="flex items-center gap-2">
+                  <div
+                    className="flex items-center gap-1.5 cursor-pointer"
+                    onClick={() => { const t = chats.find((c) => c.id === activeChatId)?.title || ''; setTitleValue(t); setEditingTitle(true); }}
+                    title="تعديل اسم المحادثة / Rename"
+                  >
+                    <h1 className="font-bold text-lg text-gray-900 dark:text-white truncate max-w-[180px] sm:max-w-md">
+                      {(chats.find((c) => c.id === activeChatId)?.title) || 'New Chat'}
+                    </h1>
+                    <svg className="w-4 h-4 text-gray-400 hover:text-indigo-600 transition-colors shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+                    </svg>
+                  </div>
+
+                  {activeChatId && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const activeChat = chats.find((c) => c.id === activeChatId);
+                        if (activeChat) togglePinChat(activeChat.id, !activeChat.pinned);
+                      }}
+                      className={`p-1.5 rounded-lg transition-all ${
+                        chats.find((c) => c.id === activeChatId)?.pinned
+                          ? 'text-amber-500 hover:bg-amber-50 dark:hover:bg-amber-950/30'
+                          : 'text-gray-400 hover:text-amber-500 hover:bg-gray-100 dark:hover:bg-gray-800'
+                      }`}
+                      title={chats.find((c) => c.id === activeChatId)?.pinned ? "إلغاء التثبيت / Unpin" : "تثبيت المحادثة / Pin"}
+                    >
+                      <svg className="w-4 h-4" viewBox="0 0 24 24" fill={chats.find((c) => c.id === activeChatId)?.pinned ? "currentColor" : "none"} stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <line x1="12" y1="17" x2="12" y2="22" />
+                        <path d="M5 17h14v-1.76a2 2 0 0 0-1.11-1.79l-1.78-.9A2 2 0 0 1 15 10.76V6h1a2 2 0 0 0 0-4H8a2 2 0 0 0 0 4h1v4.76a2 2 0 0 1-1.11 1.79l-1.78.9A2 2 0 0 0 5 15.24Z" />
+                      </svg>
+                    </button>
+                  )}
                 </div>
               ) : (
                 <form onSubmit={async (e) => { e.preventDefault(); try { const token = localStorage.getItem('tc_token'); if (!token) return router.replace('/login'); await fetch(`${API}/api/chat/${activeChatId}`, { method: 'PATCH', headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` }, body: JSON.stringify({ title: titleValue }) }); setChats((prev) => prev.map((c) => c.id === activeChatId ? { ...c, title: titleValue } : c)); } catch (err) { console.error('title save', err); } finally { setEditingTitle(false); } }} className="flex items-center gap-2">
