@@ -84,6 +84,10 @@ export default function ChatPage() {
     return false;
   });
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
+  const [showAttachMenu, setShowAttachMenu] = useState(false);
+  const imageInputRef = useRef(null);
+  const videoInputRef = useRef(null);
+  const docInputRef = useRef(null);
   const [isTyping, setIsTyping] = useState(false);
   const [currentWorkspace, setCurrentWorkspace] = useState(null);
   const [showCreateWorkspace, setShowCreateWorkspace] = useState(false);
@@ -785,6 +789,131 @@ export default function ChatPage() {
     }
   }
 
+  async function handleFileUpload(file) {
+    if (!file) return;
+
+    let chatId = activeChatId;
+    if (!chatId) {
+      chatId = await createNewChat(file.name || 'Attachment');
+      if (!chatId) return;
+    }
+
+    // Determine type based on file MIME type
+    let type = 'file';
+    if (file.type.startsWith('image/')) type = 'image';
+    else if (file.type.startsWith('audio/')) type = 'audio';
+    else if (file.type.startsWith('video/')) type = 'video';
+
+    // Create optimistic message with local file preview
+    const tempId = `temp-${Date.now()}`;
+    const localUrl = URL.createObjectURL(file);
+
+    const optimisticMsg = {
+      id: tempId,
+      sender: 'user',
+      type,
+      text: null,
+      image: type === 'image' ? localUrl : null,
+      audio: type === 'audio' ? localUrl : null,
+      video: type === 'video' ? localUrl : null,
+      file: type === 'file' ? { url: localUrl, name: file.name } : null,
+      filename: file.name,
+      time: new Date().toLocaleTimeString(),
+      uploading: true
+    };
+
+    // Show immediately (optimistic UI)
+    setChats((currentChats) => {
+      return currentChats.map((c) =>
+        c.id === chatId
+          ? { ...c, messages: [...(c.messages || []), optimisticMsg] }
+          : c
+      );
+    });
+
+    const formData = new FormData();
+    formData.append('file', file);
+
+    try {
+      setLoading(true);
+      const token = getToken();
+
+      // Upload file
+      const res = await fetch(`${API}/api/upload`, {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${token}` },
+        body: formData
+      });
+
+      if (!res.ok) throw new Error('Upload failed');
+      const data = await res.json();
+
+      // Send file URL as message
+      const fileUrl = `${API}${data.url}`;
+
+      const unifiedMsg = {
+        type,
+        text: null,
+        audio: type === 'audio' ? fileUrl : null,
+        image: type === 'image' ? fileUrl : null,
+        video: type === 'video' ? fileUrl : null,
+        file: type === 'file' ? { url: fileUrl, name: file.name } : null
+      };
+
+      // Send message with file URL and type
+      await fetch(`${API}/api/chat/send`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+        body: JSON.stringify({ chat_id: chatId, message: unifiedMsg })
+      });
+
+      // Reload messages to get server version
+      const r = await fetch(`${API}/api/chat/history?chat_id=${chatId}`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+
+      if (r.ok) {
+        const d = await r.json();
+        const msgs = (d.messages || []).map((m) => ({
+          id: m.id,
+          sender: m.sender,
+          type: m.type,
+          text: m.type === 'text' ? m.text : null,
+          image: m.type === 'image' ? `${API}${m.text}` : null,
+          audio: m.type === 'audio' ? `${API}${m.text}` : null,
+          video: m.type === 'video' ? `${API}${m.text}` : null,
+          file: m.type === 'file' ? { url: `${API}${m.text}`, name: m.metadata?.name || 'File' } : null,
+          filename: m.text,
+          time: (m.created_at || m.createdAt) ? new Date(m.created_at || m.createdAt).toLocaleTimeString() : ''
+        }));
+
+        setChats((currentChats) =>
+          currentChats.map((c) =>
+            c.id === chatId ? { ...c, messages: msgs } : c
+          )
+        );
+      }
+
+      URL.revokeObjectURL(localUrl);
+
+    } catch (err) {
+      console.error(err);
+      toast.error(isRtl ? 'فشل رفع الملف' : 'Upload failed');
+
+      setChats((currentChats) => {
+        return currentChats.map((c) =>
+          c.id === chatId
+            ? { ...c, messages: c.messages.filter(m => m.id !== tempId) }
+            : c
+        );
+      });
+
+      URL.revokeObjectURL(localUrl);
+    } finally {
+      setLoading(false);
+    }
+  }
+
   function toggleCompact() {
     try {
       const isCompact = document.documentElement.classList.toggle('compact');
@@ -1112,150 +1241,135 @@ export default function ChatPage() {
             <div className="max-w-3xl mx-auto">
               <form onSubmit={sendMessage} className="relative flex items-end gap-2 p-2.5 sm:p-3 rounded-2xl sm:rounded-[24px] bg-white dark:bg-slate-900 border-2 border-indigo-100 dark:border-slate-800 shadow-[0_12px_32px_-4px_rgba(79,70,229,0.12),0_4px_16px_-2px_rgba(15,23,42,0.06)] dark:shadow-[0_16px_40px_-8px_rgba(0,0,0,0.6)] transition-all duration-300 focus-within:border-indigo-500 dark:focus-within:border-indigo-400 focus-within:ring-4 focus-within:ring-indigo-500/15 focus-within:shadow-[0_16px_40px_-6px_rgba(79,70,229,0.22)]">
 
-                {/* File Upload */}
-                <button
-                  type="button"
-                  onClick={() => document.getElementById('file-upload').click()}
-                  className="w-10 h-10 flex items-center justify-center rounded-xl bg-slate-100/90 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-slate-700/80 border border-slate-200 dark:border-slate-700 active:scale-95 transition-all duration-200 shrink-0 shadow-xs"
-                  title="Upload File"
-                >
-                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.8" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13" /></svg>
-                </button>
+                {/* Hidden File Inputs for Categories */}
                 <input
                   type="file"
-                  id="file-upload"
+                  ref={imageInputRef}
                   className="hidden"
-                  accept=".pdf,.doc,.docx,.txt,.rtf,.odt,.xls,.xlsx,.ppt,.pptx,.csv,.jpg,.jpeg,.png,.gif,.webp,.svg,.mp3,.wav,.ogg,.m4a,.mp4,.webm,.avi,.mov"
-                  onChange={async (e) => {
+                  accept="image/*"
+                  onChange={(e) => {
                     const file = e.target.files[0];
-                    if (!file) return;
-
-                    const chatId = activeChatId;
-                    if (!chatId) {
-                      alert("Please start a chat with a text message first before uploading.");
-                      e.target.value = ''; // Reset input
-                      return;
-                    }
-
-                    // Determine type based on file MIME type
-                    let type = 'file';
-                    if (file.type.startsWith('image/')) type = 'image';
-                    else if (file.type.startsWith('audio/')) type = 'audio';
-                    else if (file.type.startsWith('video/')) type = 'video';
-
-                    // Create optimistic message with local file preview
-                    const tempId = `temp-${Date.now()}`;
-                    const localUrl = URL.createObjectURL(file);
-
-                    const optimisticMsg = {
-                      id: tempId,
-                      sender: 'user',
-                      type,
-                      text: null,
-                      image: type === 'image' ? localUrl : null,
-                      audio: type === 'audio' ? localUrl : null,
-                      video: type === 'video' ? localUrl : null,
-                      file: type === 'file' ? { url: localUrl, name: file.name } : null,
-                      filename: file.name,
-                      time: new Date().toLocaleTimeString(),
-                      uploading: true // Mark as uploading
-                    };
-
-                    // Show immediately (optimistic UI)
-                    setChats((currentChats) => {
-                      return currentChats.map((c) =>
-                        c.id === chatId
-                          ? { ...c, messages: [...(c.messages || []), optimisticMsg] }
-                          : c
-                      );
-                    });
-
-                    const formData = new FormData();
-                    formData.append('file', file);
-
-                    try {
-                      setLoading(true);
-                      const token = getToken();
-
-                      // Upload file
-                      const res = await fetch(`${API}/api/upload`, {
-                        method: 'POST',
-                        headers: { Authorization: `Bearer ${token}` },
-                        body: formData
-                      });
-
-                      if (!res.ok) throw new Error('Upload failed');
-                      const data = await res.json();
-
-                      // Send file URL as message
-                      const fileUrl = `${API}${data.url}`;
-
-                      const unifiedMsg = {
-                        type,
-                        text: null,
-                        audio: type === 'audio' ? fileUrl : null,
-                        image: type === 'image' ? fileUrl : null,
-                        video: type === 'video' ? fileUrl : null,
-                        file: type === 'file' ? { url: fileUrl, name: file.name } : null
-                      };
-
-                      // Send message with file URL and type
-                      await fetch(`${API}/api/chat/send`, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
-                        body: JSON.stringify({ chat_id: chatId, message: unifiedMsg })
-                      });
-
-                      // Reload messages to get server version
-                      const r = await fetch(`${API}/api/chat/history?chat_id=${chatId}`, {
-                        headers: { Authorization: `Bearer ${token}` }
-                      });
-
-                      if (r.ok) {
-                        const d = await r.json();
-                        const msgs = (d.messages || []).map((m) => ({
-                          id: m.id,
-                          sender: m.sender,
-                          type: m.type,
-                          text: m.type === 'text' ? m.text : null,
-                          image: m.type === 'image' ? `${API}${m.text}` : null,
-                          audio: m.type === 'audio' ? `${API}${m.text}` : null,
-                          video: m.type === 'video' ? `${API}${m.text}` : null,
-                          file: m.type === 'file' ? { url: `${API}${m.text}`, name: m.metadata?.name || 'File' } : null,
-                          filename: m.text, // Store filename for URL refresh
-                          time: (m.created_at || m.createdAt) ? new Date(m.created_at || m.createdAt).toLocaleTimeString() : ''
-                        }));
-
-                        setChats((currentChats) =>
-                          currentChats.map((c) =>
-                            c.id === chatId ? { ...c, messages: msgs } : c
-                          )
-                        );
-                      }
-
-                      // Clean up local URL
-                      URL.revokeObjectURL(localUrl);
-
-                    } catch (err) {
-                      console.error(err);
-                      alert('Upload failed');
-
-                      // Remove optimistic message on error
-                      setChats((currentChats) => {
-                        return currentChats.map((c) =>
-                          c.id === chatId
-                            ? { ...c, messages: c.messages.filter(m => m.id !== tempId) }
-                            : c
-                        );
-                      });
-
-                      URL.revokeObjectURL(localUrl);
-                    } finally {
-                      setLoading(false);
-                      e.target.value = ''; // Reset file input so same file can be uploaded again
-                    }
+                    if (file) handleFileUpload(file);
+                    e.target.value = '';
                   }}
                 />
+                <input
+                  type="file"
+                  ref={videoInputRef}
+                  className="hidden"
+                  accept="video/*"
+                  onChange={(e) => {
+                    const file = e.target.files[0];
+                    if (file) handleFileUpload(file);
+                    e.target.value = '';
+                  }}
+                />
+                <input
+                  type="file"
+                  ref={docInputRef}
+                  className="hidden"
+                  accept=".pdf,.doc,.docx,.txt,.rtf,.odt,.xls,.xlsx,.ppt,.pptx,.csv,.zip,.rar,.tar,.gz"
+                  onChange={(e) => {
+                    const file = e.target.files[0];
+                    if (file) handleFileUpload(file);
+                    e.target.value = '';
+                  }}
+                />
+
+                {/* File Upload / Attach Menu */}
+                <div className="relative">
+                  <button
+                    type="button"
+                    onClick={() => setShowAttachMenu(!showAttachMenu)}
+                    className={`w-10 h-10 flex items-center justify-center rounded-xl border active:scale-95 transition-all duration-200 shrink-0 shadow-xs ${
+                      showAttachMenu
+                        ? 'text-indigo-600 bg-indigo-50 dark:bg-indigo-950/60 border-indigo-400 dark:border-indigo-600 ring-2 ring-indigo-500/20'
+                        : 'bg-slate-100/90 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-slate-700/80 border-slate-200 dark:border-slate-700'
+                    }`}
+                    title={isRtl ? "إرفاق وسائط أو ملفات" : "Attach media or files"}
+                  >
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.8" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13" />
+                    </svg>
+                  </button>
+
+                  {/* Attach Popover Menu */}
+                  {showAttachMenu && (
+                    <>
+                      <div
+                        className="fixed inset-0 z-40"
+                        onClick={() => setShowAttachMenu(false)}
+                      />
+                      <div className={`absolute bottom-full ${isRtl ? 'right-0' : 'left-0'} mb-3 z-50 w-48 sm:w-52 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-xl p-1.5 flex flex-col gap-1 animate-scaleIn backdrop-blur-xl ring-1 ring-black/5`}>
+                        {/* Option 1: Image / صورة */}
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setShowAttachMenu(false);
+                            imageInputRef.current?.click();
+                          }}
+                          className="flex items-center gap-3 w-full px-3 py-2.5 rounded-xl text-start text-sm font-medium text-slate-700 dark:text-slate-200 hover:bg-emerald-50 dark:hover:bg-emerald-950/30 hover:text-emerald-700 dark:hover:text-emerald-300 transition-colors group"
+                        >
+                          <span className="w-8 h-8 rounded-lg bg-emerald-100/80 dark:bg-emerald-950/50 text-emerald-600 dark:text-emerald-400 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
+                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                            </svg>
+                          </span>
+                          <div className="flex flex-col min-w-0">
+                            <span className="font-semibold text-[13px] leading-tight text-slate-800 dark:text-slate-100">
+                              {isRtl ? "إرفاق صورة" : "Attach Image"}
+                            </span>
+                            <span className="text-[11px] text-slate-400 dark:text-slate-500">JPG, PNG, WebP</span>
+                          </div>
+                        </button>
+
+                        {/* Option 2: Video / فيديو */}
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setShowAttachMenu(false);
+                            videoInputRef.current?.click();
+                          }}
+                          className="flex items-center gap-3 w-full px-3 py-2.5 rounded-xl text-start text-sm font-medium text-slate-700 dark:text-slate-200 hover:bg-purple-50 dark:hover:bg-purple-950/30 hover:text-purple-700 dark:hover:text-purple-300 transition-colors group"
+                        >
+                          <span className="w-8 h-8 rounded-lg bg-purple-100/80 dark:bg-purple-950/50 text-purple-600 dark:text-purple-400 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
+                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                            </svg>
+                          </span>
+                          <div className="flex flex-col min-w-0">
+                            <span className="font-semibold text-[13px] leading-tight text-slate-800 dark:text-slate-100">
+                              {isRtl ? "إرفاق فيديو" : "Attach Video"}
+                            </span>
+                            <span className="text-[11px] text-slate-400 dark:text-slate-500">MP4, WebM, MOV</span>
+                          </div>
+                        </button>
+
+                        {/* Option 3: Document / File / ملف */}
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setShowAttachMenu(false);
+                            docInputRef.current?.click();
+                          }}
+                          className="flex items-center gap-3 w-full px-3 py-2.5 rounded-xl text-start text-sm font-medium text-slate-700 dark:text-slate-200 hover:bg-blue-50 dark:hover:bg-blue-950/30 hover:text-blue-700 dark:hover:text-blue-300 transition-colors group"
+                        >
+                          <span className="w-8 h-8 rounded-lg bg-blue-100/80 dark:bg-blue-950/50 text-blue-600 dark:text-blue-400 flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
+                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                            </svg>
+                          </span>
+                          <div className="flex flex-col min-w-0">
+                            <span className="font-semibold text-[13px] leading-tight text-slate-800 dark:text-slate-100">
+                              {isRtl ? "إرفاق ملف" : "Attach File"}
+                            </span>
+                            <span className="text-[11px] text-slate-400 dark:text-slate-500">PDF, DOC, XLS, ZIP</span>
+                          </div>
+                        </button>
+                      </div>
+                    </>
+                  )}
+                </div>
 
                 {/* Emoji Picker */}
                 <div className="relative">
