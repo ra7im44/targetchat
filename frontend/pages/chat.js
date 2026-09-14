@@ -1110,13 +1110,13 @@ export default function ChatPage() {
           {/* Input Area - Floating Capsule Design */}
           <div className="p-4 sm:p-6">
             <div className="max-w-3xl mx-auto">
-              <form onSubmit={sendMessage} className="relative flex items-end gap-2 p-2 sm:p-2.5 rounded-2xl sm:rounded-[22px] bg-white/95 dark:bg-slate-900/90 backdrop-blur-xl border border-slate-200/90 dark:border-white/15 shadow-[0_12px_36px_-10px_rgba(15,23,42,0.12),0_4px_12px_-2px_rgba(15,23,42,0.06)] dark:shadow-[0_16px_48px_-12px_rgba(0,0,0,0.7),0_0_0_1px_rgba(255,255,255,0.06)] transition-all duration-300 ease-out focus-within:border-indigo-500/80 dark:focus-within:border-indigo-400/80 focus-within:ring-4 focus-within:ring-indigo-500/15 dark:focus-within:ring-indigo-400/20 focus-within:shadow-[0_16px_48px_-8px_rgba(99,102,241,0.25)]">
+              <form onSubmit={sendMessage} className="relative flex items-end gap-2 p-2.5 sm:p-3 rounded-2xl sm:rounded-[24px] bg-white dark:bg-slate-900 border-2 border-indigo-100 dark:border-slate-800 shadow-[0_12px_32px_-4px_rgba(79,70,229,0.12),0_4px_16px_-2px_rgba(15,23,42,0.06)] dark:shadow-[0_16px_40px_-8px_rgba(0,0,0,0.6)] transition-all duration-300 focus-within:border-indigo-500 dark:focus-within:border-indigo-400 focus-within:ring-4 focus-within:ring-indigo-500/15 focus-within:shadow-[0_16px_40px_-6px_rgba(79,70,229,0.22)]">
 
                 {/* File Upload */}
                 <button
                   type="button"
                   onClick={() => document.getElementById('file-upload').click()}
-                  className="w-10 h-10 flex items-center justify-center text-slate-400 dark:text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-300 rounded-xl hover:bg-indigo-50/80 dark:hover:bg-white/10 active:scale-95 transition-all duration-200 shrink-0"
+                  className="w-10 h-10 flex items-center justify-center rounded-xl bg-slate-100/90 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:text-indigo-600 dark:hover:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-slate-700/80 border border-slate-200 dark:border-slate-700 active:scale-95 transition-all duration-200 shrink-0 shadow-xs"
                   title="Upload File"
                 >
                   <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.8" d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13" /></svg>
@@ -1262,10 +1262,10 @@ export default function ChatPage() {
                   <button
                     type="button"
                     onClick={() => setShowEmojiPicker(!showEmojiPicker)}
-                    className={`w-10 h-10 flex items-center justify-center rounded-xl active:scale-95 transition-all duration-200 shrink-0 ${
+                    className={`w-10 h-10 flex items-center justify-center rounded-xl border active:scale-95 transition-all duration-200 shrink-0 shadow-xs ${
                       showEmojiPicker
-                        ? 'text-amber-500 bg-amber-50 dark:bg-amber-950/40 ring-1 ring-amber-400/40'
-                        : 'text-slate-400 dark:text-slate-400 hover:text-amber-500 dark:hover:text-amber-400 hover:bg-amber-50/60 dark:hover:bg-white/10'
+                        ? 'text-amber-600 bg-amber-50 dark:bg-amber-950/50 border-amber-300 dark:border-amber-700'
+                        : 'bg-slate-100/90 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:text-amber-500 dark:hover:text-amber-400 hover:bg-amber-50/80 dark:hover:bg-slate-700/80 border-slate-200 dark:border-slate-700'
                     }`}
                     title="Add Emoji"
                   >
@@ -1301,7 +1301,7 @@ export default function ChatPage() {
                       ? (activeChatId ? "اكتب رسالتك هنا..." : "اختر النموذج المناسب واكتب رسالتك لبدء المحادثة...")
                       : (activeChatId ? "Type a message..." : "Select a model & type a message to start...")
                   }
-                  className="flex-1 bg-transparent border-none focus:outline-none focus:ring-0 text-slate-900 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 text-[15px] sm:text-base leading-relaxed resize-none py-2.5 max-h-32 min-h-[44px]"
+                  className="flex-1 bg-transparent border-none focus:outline-none focus:ring-0 text-slate-900 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 text-[15px] sm:text-base font-medium leading-relaxed resize-none py-2 px-1 max-h-32 min-h-[44px]"
                   rows="1"
                   style={{ height: 'auto', minHeight: '44px' }}
                 />
@@ -1310,10 +1310,10 @@ export default function ChatPage() {
                 <button
                   type="button"
                   onClick={isRecording ? stopRecording : startRecording}
-                  className={`w-10 h-10 flex items-center justify-center rounded-xl active:scale-95 transition-all duration-200 shrink-0 ${
+                  className={`w-10 h-10 flex items-center justify-center rounded-xl active:scale-95 transition-all duration-200 shrink-0 shadow-xs ${
                     isRecording
-                      ? 'bg-rose-500 text-white shadow-lg shadow-rose-500/40 ring-4 ring-rose-500/20 animate-pulse'
-                      : 'text-slate-400 dark:text-slate-400 hover:text-rose-600 dark:hover:text-rose-400 hover:bg-rose-50/80 dark:hover:bg-rose-950/30'
+                      ? 'bg-rose-500 text-white shadow-lg shadow-rose-500/40 ring-4 ring-rose-500/20 animate-pulse border border-rose-600'
+                      : 'bg-slate-100/90 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:text-rose-600 dark:hover:text-rose-400 hover:bg-rose-50/80 dark:hover:bg-slate-700/80 border border-slate-200 dark:border-slate-700'
                   }`}
                   title={isRecording ? "Stop Recording" : "Voice Message"}
                 >
@@ -1324,7 +1324,7 @@ export default function ChatPage() {
                   )}
                 </button>
 
-                <span aria-hidden="true" className="w-px h-6 bg-slate-200 dark:bg-white/15 mx-0.5 self-center rounded-full shrink-0" />
+                <span aria-hidden="true" className="w-px h-7 bg-slate-200 dark:bg-slate-700 mx-1 self-center rounded-full shrink-0" />
 
                 <button
                   type="submit"
@@ -1332,7 +1332,7 @@ export default function ChatPage() {
                   className={`
                     w-10 h-10 sm:w-11 sm:h-11 rounded-xl sm:rounded-2xl flex items-center justify-center transition-all duration-200 shrink-0
                     ${!text.trim() || loading
-                      ? 'bg-slate-100 dark:bg-white/5 text-slate-300 dark:text-slate-600 border border-slate-200/50 dark:border-white/5 cursor-not-allowed'
+                      ? 'bg-indigo-50 dark:bg-indigo-950/40 text-indigo-400 dark:text-indigo-400/70 border border-indigo-200/80 dark:border-indigo-900/60 cursor-not-allowed'
                       : 'bg-gradient-to-r from-indigo-600 via-indigo-600 to-violet-600 hover:from-indigo-500 hover:to-violet-500 text-white shadow-lg shadow-indigo-600/35 hover:shadow-indigo-600/50 hover:scale-[1.04] active:scale-[0.98] ring-1 ring-white/20'
                     }
                   `}
