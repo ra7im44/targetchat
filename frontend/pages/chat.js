@@ -1027,33 +1027,45 @@ export default function ChatPage() {
           <div ref={listRef} className="flex-1 overflow-y-auto p-4 sm:p-6 scrollbar-thin scrollbar-thumb-gray-200 dark:scrollbar-thumb-gray-800">
             <div className="max-w-3xl mx-auto space-y-6">
               {!activeChatId && (
-                <div className="h-full flex flex-col items-center justify-center text-center p-4">
-                  <div className="w-20 h-20 bg-gradient-to-br from-primary-500 to-purple-600 rounded-2xl flex items-center justify-center mb-6 shadow-lg shadow-primary-500/20 animate-pulse-slow">
+                <div className="h-full flex flex-col items-center justify-center text-center p-4 py-10">
+                  <div className="w-20 h-20 bg-gradient-to-br from-primary-500 to-purple-600 rounded-3xl flex items-center justify-center mb-6 shadow-xl shadow-primary-500/25 ring-1 ring-white/20">
                     <svg className="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" /></svg>
                   </div>
-                  <h3 className="text-2xl font-bold text-gray-800 dark:text-white mb-2">
+                  <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-primary-500 dark:text-primary-400 mb-3">
+                    {isRtl ? 'شخصيات الذكاء الاصطناعي' : 'AI Personas'}
+                  </p>
+                  <h3 className="text-3xl font-semibold tracking-tight text-gray-900 dark:text-white mb-2">
                     {isRtl ? 'مرحباً بك في TargetChat' : 'Welcome to TargetChat'}
                   </h3>
-                  <p className="text-gray-500 dark:text-gray-400 max-w-md mb-8">
+                  <p className="text-[15px] text-gray-500 dark:text-gray-400 max-w-md mb-8">
                     {isRtl ? 'اختر شخصية الذكاء الاصطناعي المناسبة للبدء.' : 'Select a persona to start your conversation.'}
                   </p>
 
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 w-full max-w-2xl">
-                    {PERSONAS.map((p) => (
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 w-full max-w-2xl">
+                    {PERSONAS.map((p) => {
+                      const selected = selectedPersona === p.id;
+                      return (
                       <button
                         key={p.id}
                         type="button"
                         onClick={() => setSelectedPersona(p.id)}
-                        className={`p-4 rounded-xl border text-start transition-all duration-200 hover:shadow-md ${selectedPersona === p.id
-                          ? 'border-indigo-500 bg-indigo-50/80 dark:bg-indigo-950/40 dark:border-indigo-500 ring-2 ring-indigo-500/30'
-                          : 'border-gray-200 dark:border-gray-700/80 bg-white/80 dark:bg-slate-800/80 hover:border-indigo-300 dark:hover:border-indigo-500/50'
+                        aria-pressed={selected}
+                        className={`group relative p-4 rounded-2xl border text-start cursor-pointer transition-all duration-200 hover:-translate-y-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500/60 ${selected
+                          ? 'border-indigo-500 bg-indigo-50/80 dark:bg-indigo-950/40 shadow-md shadow-indigo-500/10 ring-1 ring-indigo-500/40'
+                          : 'border-gray-200 dark:border-white/10 bg-white/80 dark:bg-white/[0.03] hover:border-indigo-300 dark:hover:border-indigo-500/50 hover:shadow-md'
                           }`}
                       >
-                        <div className="text-2xl mb-2">{p.icon}</div>
-                        <div className="font-semibold text-gray-900 dark:text-white">{p.name}</div>
-                        <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">{p.desc}</div>
+                        {selected && (
+                          <span className="absolute top-3 end-3 w-5 h-5 rounded-full bg-indigo-500 flex items-center justify-center">
+                            <svg className="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M5 13l4 4L19 7" /></svg>
+                          </span>
+                        )}
+                        <div className={`w-10 h-10 rounded-xl flex items-center justify-center text-xl mb-3 transition-colors ${selected ? 'bg-indigo-500/15 dark:bg-indigo-400/15' : 'bg-gray-100 dark:bg-white/[0.06] group-hover:bg-indigo-500/10'}`}>{p.icon}</div>
+                        <div className="font-semibold text-[15px] text-gray-900 dark:text-white tracking-tight">{p.name}</div>
+                        <div className="text-[13px] leading-relaxed text-gray-500 dark:text-gray-400 mt-1 pe-6">{p.desc}</div>
                       </button>
-                    ))}
+                      );
+                    })}
                   </div>
                 </div>
               )}
