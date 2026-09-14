@@ -3,6 +3,7 @@ import { useRouter } from 'next/router';
 import Head from 'next/head';
 import { toast } from 'react-hot-toast';
 
+import { Check, X } from 'lucide-react';
 import { API_URL as API } from '../utils/apiConfig';
 
 export default function VerifyEmail() {
@@ -57,16 +58,16 @@ export default function VerifyEmail() {
                 <title>Verify Email - TargetChat</title>
             </Head>
             <div className="min-h-screen flex flex-col items-center justify-center bg-gray-900 text-white p-4">
-                <div className="bg-gray-800 p-8 rounded-2xl shadow-xl max-w-md w-full text-center">
+                <div className="bg-gray-800 p-8 rounded-card shadow-lg max-w-md w-full text-center">
                     <div className="mb-6 flex justify-center">
                         {status === 'processing' && (
-                            <div className="w-16 h-16 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+                            <div className="w-16 h-16 border-4 border-accent border-t-transparent rounded-full animate-spin"></div>
                         )}
                         {status === 'success' && (
-                            <div className="w-16 h-16 bg-green-500 rounded-full flex items-center justify-center text-3xl">✓</div>
+                            <div className="w-16 h-16 bg-success rounded-full flex items-center justify-center text-white"><Check size={18} /></div>
                         )}
                         {status === 'error' && (
-                            <div className="w-16 h-16 bg-red-500 rounded-full flex items-center justify-center text-3xl">✕</div>
+                            <div className="w-16 h-16 bg-danger rounded-full flex items-center justify-center text-white"><X size={18} /></div>
                         )}
                     </div>
 
@@ -79,7 +80,7 @@ export default function VerifyEmail() {
                     {status === 'error' && (
                         <button
                             onClick={() => router.push('/login')}
-                            className="px-6 py-2 bg-blue-600 hover:bg-blue-700 rounded-lg transition"
+                            className="px-6 py-2 bg-accent hover:bg-accent-hover rounded-lg transition"
                         >
                             Back to Login
                         </button>

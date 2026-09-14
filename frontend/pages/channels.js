@@ -235,9 +235,9 @@ export default function UserChannels() {
 
     const getChannelIcon = (type) => {
         switch (type) {
-            case 'facebook': return <Facebook className="text-blue-600" />;
+            case 'facebook': return <Facebook className="text-accent-active" />;
             case 'instagram': return <Instagram className="text-pink-600" />;
-            case 'whatsapp': return <MessageCircle className="text-green-600" />;
+            case 'whatsapp': return <MessageCircle className="text-success" />;
             default: return <Share2 />;
         }
     };
@@ -337,17 +337,17 @@ export default function UserChannels() {
                 {/* Header */}
                 <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
                     <div>
-                        <h1 className="text-3xl font-extrabold text-gray-900 dark:text-white flex items-center gap-3">
-                            <Share2 className="text-blue-600" size={32} />
+                        <h1 className="text-3xl font-bold text-gray-900 dark:text-foreground flex items-center gap-3">
+                            <Share2 className="text-accent" size={32} />
                             Channel Control
                         </h1>
-                        <p className="text-gray-500 dark:text-gray-400 mt-1">
+                        <p className="text-gray-500 dark:text-muted mt-1">
                             Connect your social accounts to sync conversations into your Inbox.
                         </p>
                     </div>
                     <button
                         onClick={() => handleOpenModal()}
-                        className="flex items-center gap-2 px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl transition-all shadow-lg hover:shadow-blue-500/30 font-sans"
+                        className="flex items-center gap-2 px-6 py-3 bg-accent hover:bg-accent-hover text-background font-bold rounded-xl transition-all shadow-lg font-sans"
                     >
                         <Plus size={20} />
                         Connect New Channel
@@ -355,9 +355,9 @@ export default function UserChannels() {
                 </div>
 
                 {/* Info Alert */}
-                <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-100 dark:border-blue-800 p-4 rounded-2xl flex items-start gap-3">
-                    <AlertCircle className="text-blue-600 mt-0.5" size={20} />
-                    <div className="text-sm text-blue-800 dark:text-blue-300">
+                <div className="bg-accent/10 dark:bg-accent/20 border border-accent/30 dark:border-accent/30 p-4 rounded-card flex items-start gap-3">
+                    <AlertCircle className="text-accent mt-0.5" size={20} />
+                    <div className="text-sm text-info dark:text-info">
                         <p className="font-semibold">Automated Routing</p>
                         <p>Incoming messages from these channels will follow your workflow settings or appear directly in your Inbox.</p>
                     </div>
@@ -365,12 +365,12 @@ export default function UserChannels() {
 
                 {/* Channels Grid */}
                 {channels.length === 0 ? (
-                    <div className="bg-white dark:bg-gray-800 rounded-3xl p-12 text-center border-2 border-dashed border-gray-200 dark:border-gray-700 shadow-sm">
-                        <div className="w-16 h-16 bg-gray-50 dark:bg-gray-900 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                    <div className="bg-white dark:bg-surface rounded-card p-12 text-center border-2 border-dashed border-gray-200 dark:border-border shadow-sm">
+                        <div className="w-16 h-16 bg-gray-50 dark:bg-background rounded-card flex items-center justify-center mx-auto mb-4">
                             <Share2 className="text-gray-400" size={32} />
                         </div>
-                        <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">No Channels Connected</h3>
-                        <p className="text-gray-500 dark:text-gray-400 max-w-md mx-auto mb-8">
+                        <h3 className="text-xl font-bold text-gray-900 dark:text-foreground mb-2">No Channels Connected</h3>
+                        <p className="text-gray-500 dark:text-muted max-w-md mx-auto mb-8">
                             Select a platform below to start receiving messages on TargetChat.
                         </p>
                         <div className="flex flex-wrap justify-center gap-4">
@@ -388,44 +388,44 @@ export default function UserChannels() {
                 ) : (
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                         {channels.map(channel => (
-                            <div key={channel.id} className="bg-white dark:bg-gray-800 rounded-3xl p-6 shadow-sm border border-gray-100 dark:border-gray-700 hover:shadow-md transition-all group relative overflow-hidden">
+                            <div key={channel.id} className="bg-white dark:bg-surface rounded-card p-6 shadow-sm border border-gray-100 dark:border-border hover:shadow-md transition-all group relative overflow-hidden">
                                 {/* Platform Branding Bar */}
                                 <div className={`h-1.5 absolute top-0 left-0 right-0 ${channel.type === 'facebook' ? 'bg-blue-600' :
                                     channel.type === 'instagram' ? 'bg-pink-600' :
-                                        channel.type === 'whatsapp' ? 'bg-green-600' : 'bg-gray-400'
+                                        channel.type === 'whatsapp' ? 'bg-success' : 'bg-gray-400'
                                     }`} />
 
                                 <div className="flex items-start justify-between mb-4">
-                                    <div className="w-12 h-12 bg-gray-50 dark:bg-gray-900 rounded-2xl flex items-center justify-center shadow-inner group-hover:scale-110 transition-transform">
+                                    <div className="w-12 h-12 bg-gray-50 dark:bg-background rounded-card flex items-center justify-center shadow-inner group-hover:scale-110 transition-transform">
                                         {getChannelIcon(channel.type)}
                                     </div>
-                                    <div className={`px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider ${channel.isActive ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400' : 'bg-gray-100 text-gray-700'}`}>
+                                    <div className={`px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider ${channel.isActive ? 'bg-success text-success dark:bg-success/30 dark:text-success' : 'bg-gray-100 text-gray-700'}`}>
                                         {channel.isActive ? 'Active' : 'Paused'}
                                     </div>
                                 </div>
 
                                 <div className="mb-6">
-                                    <h3 className="text-lg font-bold text-gray-900 dark:text-white capitalize">{channel.name}</h3>
+                                    <h3 className="text-lg font-bold text-gray-900 dark:text-foreground capitalize">{channel.name}</h3>
                                     <p className="text-xs text-gray-500 font-mono mt-0.5 truncate">{channel.externalId}</p>
                                 </div>
 
                                 <div className="grid grid-cols-2 gap-4 mb-6">
-                                    <div className="p-3 bg-gray-50 dark:bg-gray-900/50 rounded-2xl border border-gray-100 dark:border-gray-800">
+                                    <div className="p-3 bg-gray-50 dark:bg-background/50 rounded-card border border-gray-100 dark:border-border">
                                         <p className="text-[10px] uppercase font-bold text-gray-400 mb-1 font-sans">Routing</p>
-                                        <div className="flex items-center gap-1.5 font-bold text-sm text-blue-600">
+                                        <div className="flex items-center gap-1.5 font-bold text-sm text-accent">
                                             {channel.mode === 'workflow' ? <Zap size={14} /> : <User size={14} />}
                                             <span className="capitalize">{channel.mode}</span>
                                         </div>
                                     </div>
-                                    <div className="p-3 bg-gray-50 dark:bg-gray-900/50 rounded-2xl border border-gray-100 dark:border-gray-800">
+                                    <div className="p-3 bg-gray-50 dark:bg-background/50 rounded-card border border-gray-100 dark:border-border">
                                         <p className="text-[10px] uppercase font-bold text-gray-400 mb-1 font-sans">Token</p>
                                         {channel.hasToken ? (
-                                            <div className="flex items-center gap-1.5 font-bold text-sm text-green-600">
+                                            <div className="flex items-center gap-1.5 font-bold text-sm text-success">
                                                 <CheckCircle2 size={14} />
                                                 <span>Configured</span>
                                             </div>
                                         ) : (
-                                            <div className="flex items-center gap-1.5 font-bold text-sm text-amber-600">
+                                            <div className="flex items-center gap-1.5 font-bold text-sm text-warning">
                                                 <AlertCircle size={14} />
                                                 <span>Missing</span>
                                             </div>
@@ -436,13 +436,13 @@ export default function UserChannels() {
                                 <div className="flex items-center gap-2">
                                     <button
                                         onClick={() => handleOpenModal(channel)}
-                                        className="flex-1 px-4 py-2 bg-gray-100 dark:bg-gray-700 hover:bg-blue-600 dark:hover:bg-blue-600 hover:text-white rounded-xl text-sm font-bold transition-all flex items-center justify-center gap-2 outline-none"
+                                        className="flex-1 px-4 py-2 bg-gray-100 dark:bg-surface-elevated hover:bg-accent-hover dark:hover:bg-accent-hover hover:text-background rounded-xl text-sm font-bold transition-all flex items-center justify-center gap-2 outline-none"
                                     >
                                         <Settings size={14} /> Configure
                                     </button>
                                     <button
                                         onClick={() => handleDelete(channel.id)}
-                                        className="w-10 h-10 flex items-center justify-center bg-gray-100 dark:bg-gray-700 hover:bg-red-500 dark:hover:bg-red-500 hover:text-white rounded-xl transition-all outline-none"
+                                        className="w-10 h-10 flex items-center justify-center bg-gray-100 dark:bg-surface-elevated hover:bg-red-500 dark:hover:bg-red-500 hover:text-white rounded-xl transition-all outline-none"
                                     >
                                         <Trash2 size={16} />
                                     </button>
@@ -459,15 +459,15 @@ export default function UserChannels() {
                         onClick={() => { if (!isSaving) setIsModalOpen(false); }}
                     >
                         <div
-                            className="bg-white dark:bg-gray-800 w-full max-w-lg rounded-3xl shadow-2xl overflow-hidden animate-in fade-in zoom-in duration-200"
+                            className="bg-white dark:bg-surface w-full max-w-lg rounded-card shadow-lg overflow-hidden animate-in fade-in zoom-in duration-200"
                             onClick={(e) => e.stopPropagation()}
                         >
-                            <div className="p-6 border-b border-gray-100 dark:border-gray-700 flex justify-between items-center bg-gray-50/50 dark:bg-gray-900/50">
+                            <div className="p-6 border-b border-gray-100 dark:border-border flex justify-between items-center bg-gray-50/50 dark:bg-background/50">
                                 <div className="flex items-center gap-3">
-                                    <div className="w-10 h-10 bg-white dark:bg-gray-800 rounded-xl flex items-center justify-center shadow-sm">
+                                    <div className="w-10 h-10 bg-white dark:bg-surface rounded-xl flex items-center justify-center shadow-sm">
                                         {getChannelIcon(formData.type)}
                                     </div>
-                                    <h2 className="text-xl font-bold text-gray-900 dark:text-white">
+                                    <h2 className="text-xl font-bold text-gray-900 dark:text-foreground">
                                         {isEditing ? 'Channel Settings' :
                                             wizardStep === 1 ? 'Select Platform' :
                                                 wizardStep === 2 ? 'Choose Account' : 'Configuration'}
@@ -477,7 +477,7 @@ export default function UserChannels() {
                                     type="button"
                                     disabled={isSaving}
                                     onClick={() => { if (!isSaving) setIsModalOpen(false); }}
-                                    className={`p-2 text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full transition-colors ${isSaving ? 'opacity-50 cursor-not-allowed' : ''}`}
+                                    className={`p-2 text-gray-400 hover:bg-gray-100 dark:hover:bg-surface-hover rounded-full transition-colors ${isSaving ? 'opacity-50 cursor-not-allowed' : ''}`}
                                     aria-label="Close"
                                 >
                                     <X size={24} />
@@ -489,17 +489,17 @@ export default function UserChannels() {
                                     <div className="space-y-6">
                                         <div className="grid grid-cols-3 gap-3">
                                             {[
-                                                { id: 'facebook', icon: <Facebook size={18} />, label: 'Facebook', color: 'hover:bg-blue-600 hover:text-white' },
+                                                { id: 'facebook', icon: <Facebook size={18} />, label: 'Facebook', color: 'hover:bg-accent-hover hover:text-white' },
                                                 { id: 'instagram', icon: <Instagram size={18} />, label: 'Instagram', color: 'hover:bg-pink-600 hover:text-white' },
-                                                { id: 'whatsapp', icon: <MessageCircle size={18} />, label: 'WhatsApp', color: 'hover:bg-green-600 hover:text-white' }
+                                                { id: 'whatsapp', icon: <MessageCircle size={18} />, label: 'WhatsApp', color: 'hover:bg-success hover:text-white' }
                                             ].map(plat => (
                                                 <button
                                                     key={plat.id}
                                                     type="button"
                                                     onClick={() => setFormData({ ...formData, type: plat.id })}
-                                                    className={`flex flex-col items-center justify-center p-4 rounded-2xl border-2 transition-all gap-2 ${formData.type === plat.id
-                                                        ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20 text-blue-600'
-                                                        : 'border-gray-100 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 text-gray-400 ' + plat.color
+                                                    className={`flex flex-col items-center justify-center p-4 rounded-card border-2 transition-all gap-2 ${formData.type === plat.id
+                                                        ? 'border-accent bg-accent/10 dark:bg-accent/20 text-accent'
+                                                        : 'border-gray-100 dark:border-border bg-gray-50 dark:bg-background text-gray-400 ' + plat.color
                                                         }`}
                                                 >
                                                     {plat.icon}
@@ -509,8 +509,8 @@ export default function UserChannels() {
                                         </div>
 
                                         {formData.type === 'whatsapp' ? (
-                                            <div className="p-4 bg-gray-50 dark:bg-gray-900 rounded-2xl border border-gray-100 dark:border-gray-800">
-                                                <p className="text-sm text-gray-600 dark:text-gray-400 mb-4 text-center">Enter your WhatsApp Cloud API details to continue.</p>
+                                            <div className="p-4 bg-gray-50 dark:bg-background rounded-card border border-gray-100 dark:border-border">
+                                                <p className="text-sm text-gray-600 dark:text-muted mb-4 text-center">Enter your WhatsApp Cloud API details to continue.</p>
                                                 <div className="space-y-4">
                                                     <div>
                                                         <label className="block text-xs font-bold text-gray-500 uppercase mb-2">Phone Number ID</label>
@@ -518,7 +518,7 @@ export default function UserChannels() {
                                                             type="text"
                                                             value={formData.externalId}
                                                             onChange={(e) => setFormData({ ...formData, externalId: e.target.value })}
-                                                            className="w-full px-4 py-3 bg-white dark:bg-gray-800 border-none rounded-xl focus:ring-2 focus:ring-blue-500 font-mono text-sm"
+                                                            className="w-full px-4 py-3 bg-white dark:bg-surface border-none rounded-xl focus:ring-2 focus:ring-accent/60 font-mono text-sm"
                                                             placeholder="e.g. 1092837465"
                                                         />
                                                     </div>
@@ -528,14 +528,14 @@ export default function UserChannels() {
                                                             type="password"
                                                             value={formData.accessToken}
                                                             onChange={(e) => setFormData({ ...formData, accessToken: e.target.value })}
-                                                            className="w-full px-4 py-3 bg-white dark:bg-gray-800 border-none rounded-xl focus:ring-2 focus:ring-blue-500 font-mono text-sm"
+                                                            className="w-full px-4 py-3 bg-white dark:bg-surface border-none rounded-xl focus:ring-2 focus:ring-accent/60 font-mono text-sm"
                                                             placeholder="EAAG...."
                                                         />
                                                     </div>
                                                     <button
                                                         onClick={() => setWizardStep(3)}
                                                         disabled={!formData.externalId || !formData.accessToken}
-                                                        className="w-full py-3 bg-blue-600 text-white font-bold rounded-xl hover:bg-blue-700 disabled:opacity-50"
+                                                        className="w-full py-3 bg-accent text-background font-bold rounded-xl hover:bg-accent-hover disabled:opacity-50"
                                                     >
                                                         Continue
                                                     </button>
@@ -547,7 +547,7 @@ export default function UserChannels() {
                                                 <button
                                                     onClick={handleMetaLogin}
                                                     disabled={isConnecting}
-                                                    className="w-full py-4 bg-[#1877F2] text-white font-bold rounded-2xl hover:opacity-90 disabled:opacity-60 flex items-center justify-center gap-3 shadow-lg shadow-blue-500/20"
+                                                    className="w-full py-4 bg-[#1877F2] text-white font-bold rounded-card hover:opacity-90 disabled:opacity-60 flex items-center justify-center gap-3 shadow-lg"
                                                 >
                                                     {isConnecting ? (
                                                         <><Loader2 size={24} className="animate-spin" /> Waiting for Meta…</>
@@ -571,7 +571,7 @@ export default function UserChannels() {
                                                 <button
                                                     key={page.id}
                                                     onClick={() => handleSelectMetaAccount(page)}
-                                                    className="w-full flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-900 hover:bg-blue-50 dark:hover:bg-blue-900/40 rounded-2xl transition-all border border-transparent hover:border-blue-200 dark:hover:border-blue-800"
+                                                    className="w-full flex items-center justify-between p-4 bg-gray-50 dark:bg-background hover:bg-accent/10 dark:hover:bg-accent/20 rounded-card transition-all border border-transparent hover:border-accent/30 dark:hover:border-accent"
                                                 >
                                                     <div className="flex items-center gap-3 text-left">
                                                         <img
@@ -580,7 +580,7 @@ export default function UserChannels() {
                                                             alt={page.name}
                                                         />
                                                         <div>
-                                                            <p className="font-bold text-sm text-gray-900 dark:text-white">
+                                                            <p className="font-bold text-sm text-gray-900 dark:text-foreground">
                                                                 {formData.type === 'instagram' ? (page.instagram_business_account?.name || page.instagram_business_account?.username) : page.name}
                                                             </p>
                                                             <p className="text-[10px] text-gray-500 uppercase tracking-tighter">
@@ -588,7 +588,7 @@ export default function UserChannels() {
                                                             </p>
                                                         </div>
                                                     </div>
-                                                    <CheckCircle2 className="text-blue-500 opacity-0 group-hover:opacity-100" size={18} />
+                                                    <CheckCircle2 className="text-accent opacity-0 group-hover:opacity-100" size={18} />
                                                 </button>
                                             ))}
                                             {availablePages.length === 0 && (
@@ -599,8 +599,8 @@ export default function UserChannels() {
                                             )}
                                         </div>
                                         <div className="flex items-center justify-between gap-3">
-                                            <button onClick={() => setWizardStep(1)} className="text-xs font-bold text-blue-600 uppercase hover:underline">← Change Platform</button>
-                                            <button onClick={handleMetaLogin} disabled={isConnecting} className="text-xs font-bold text-gray-500 uppercase hover:text-blue-600 hover:underline disabled:opacity-50 flex items-center gap-1">
+                                            <button onClick={() => setWizardStep(1)} className="text-xs font-bold text-accent uppercase hover:underline">← Change Platform</button>
+                                            <button onClick={handleMetaLogin} disabled={isConnecting} className="text-xs font-bold text-gray-500 uppercase hover:text-accent hover:underline disabled:opacity-50 flex items-center gap-1">
                                                 {isConnecting ? <Loader2 size={12} className="animate-spin" /> : null}
                                                 Resync Accounts
                                             </button>
@@ -610,13 +610,13 @@ export default function UserChannels() {
 
                                 {wizardStep === 3 && (
                                     <form onSubmit={handleSubmit} className="space-y-5">
-                                        <div className="p-4 bg-blue-50 dark:bg-blue-900/20 rounded-2xl border border-blue-100 dark:border-blue-800 flex items-center gap-4">
-                                            <div className="w-12 h-12 bg-white dark:bg-gray-800 rounded-xl flex items-center justify-center shadow-sm">
+                                        <div className="p-4 bg-accent/10 dark:bg-accent/20 rounded-card border border-accent/30 dark:border-accent/30 flex items-center gap-4">
+                                            <div className="w-12 h-12 bg-white dark:bg-surface rounded-xl flex items-center justify-center shadow-sm">
                                                 {getChannelIcon(formData.type)}
                                             </div>
                                             <div>
-                                                <p className="text-xs text-blue-600 dark:text-blue-400 font-bold uppercase">Linked Account</p>
-                                                <h4 className="font-bold text-gray-900 dark:text-white">{formData.name}</h4>
+                                                <p className="text-xs text-accent dark:text-info font-bold uppercase">Linked Account</p>
+                                                <h4 className="font-bold text-gray-900 dark:text-foreground">{formData.name}</h4>
                                             </div>
                                         </div>
 
@@ -628,7 +628,7 @@ export default function UserChannels() {
                                                     required
                                                     value={formData.name}
                                                     onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                                                    className="w-full px-4 py-3 bg-gray-50 dark:bg-gray-900 border-none rounded-xl focus:ring-2 focus:ring-blue-500 text-gray-900 dark:text-white font-sans"
+                                                    className="w-full px-4 py-3 bg-gray-50 dark:bg-background border-none rounded-xl focus:ring-2 focus:ring-accent/60 text-gray-900 dark:text-foreground font-sans"
                                                 />
                                             </div>
 
@@ -638,7 +638,7 @@ export default function UserChannels() {
                                                     <select
                                                         value={formData.mode}
                                                         onChange={(e) => setFormData({ ...formData, mode: e.target.value })}
-                                                        className="w-full px-4 py-3 bg-gray-50 dark:bg-gray-900 border-none rounded-xl focus:ring-2 focus:ring-blue-500 text-gray-900 dark:text-white"
+                                                        className="w-full px-4 py-3 bg-gray-50 dark:bg-background border-none rounded-xl focus:ring-2 focus:ring-accent/60 text-gray-900 dark:text-foreground"
                                                     >
                                                         <option value="workflow">AI Workflow</option>
                                                         <option value="human">Human Only</option>
@@ -649,10 +649,10 @@ export default function UserChannels() {
                                                     <select
                                                         value={formData.isActive ? 'true' : 'false'}
                                                         onChange={(e) => setFormData({ ...formData, isActive: e.target.value === 'true' })}
-                                                        className="w-full px-4 py-3 bg-gray-50 dark:bg-gray-900 border-none rounded-xl focus:ring-2 focus:ring-blue-500 text-gray-900 dark:text-white"
+                                                        className="w-full px-4 py-3 bg-gray-50 dark:bg-background border-none rounded-xl focus:ring-2 focus:ring-accent/60 text-gray-900 dark:text-foreground"
                                                     >
-                                                        <option value="true">Live ON ✅</option>
-                                                        <option value="false">Live OFF ❌</option>
+                                                        <option value="true">Live ON</option>
+                                                        <option value="false">Live OFF</option>
                                                     </select>
                                                 </div>
                                             </div>
@@ -665,7 +665,7 @@ export default function UserChannels() {
                                                         value={formData.workflowUrl}
                                                         onChange={(e) => setFormData({ ...formData, workflowUrl: e.target.value })}
                                                         placeholder="https://n8n.yourdomain.com/webhook/..."
-                                                        className="w-full px-4 py-3 bg-gray-50 dark:bg-gray-900 border-none rounded-xl focus:ring-2 focus:ring-blue-500 text-gray-900 dark:text-white"
+                                                        className="w-full px-4 py-3 bg-gray-50 dark:bg-background border-none rounded-xl focus:ring-2 focus:ring-accent/60 text-gray-900 dark:text-foreground"
                                                     />
                                                 </div>
                                             )}
@@ -681,7 +681,7 @@ export default function UserChannels() {
                                                     required={!isEditing}
                                                     placeholder={isEditing ? '•••••••• (unchanged)' : 'Paste the access token'}
                                                     autoComplete="off"
-                                                    className="w-full px-4 py-3 bg-gray-50 dark:bg-gray-900 border-none rounded-xl focus:ring-2 focus:ring-blue-500 text-gray-900 dark:text-white font-mono text-sm"
+                                                    className="w-full px-4 py-3 bg-gray-50 dark:bg-background border-none rounded-xl focus:ring-2 focus:ring-accent/60 text-gray-900 dark:text-foreground font-mono text-sm"
                                                 />
                                                 {isEditing && !formData.accessToken && (
                                                     <p className="text-xs text-gray-400 mt-1.5">
@@ -696,14 +696,14 @@ export default function UserChannels() {
                                                 type="button"
                                                 onClick={() => setIsModalOpen(false)}
                                                 disabled={isSaving}
-                                                className="flex-1 px-6 py-4 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-white font-bold rounded-2xl hover:bg-gray-200 dark:hover:bg-gray-600 transition-all font-sans disabled:opacity-50"
+                                                className="flex-1 px-6 py-4 bg-gray-100 dark:bg-surface-elevated text-gray-700 dark:text-foreground font-bold rounded-card hover:bg-gray-200 dark:hover:bg-surface-hover transition-all font-sans disabled:opacity-50"
                                             >
                                                 Cancel
                                             </button>
                                             <button
                                                 type="submit"
                                                 disabled={isSaving}
-                                                className="flex-2 px-8 py-4 bg-blue-600 text-white font-bold rounded-2xl hover:bg-blue-700 transition-all shadow-lg shadow-blue-500/30 disabled:opacity-60 flex items-center justify-center gap-2"
+                                                className="flex-2 px-8 py-4 bg-accent text-background font-bold rounded-card hover:bg-accent-hover transition-all shadow-lg disabled:opacity-60 flex items-center justify-center gap-2"
                                             >
                                                 {isSaving && <Loader2 size={18} className="animate-spin" />}
                                                 {isEditing ? 'Save Changes' : 'Finish Setup'}

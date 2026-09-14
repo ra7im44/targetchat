@@ -128,38 +128,38 @@ export default function WorkspaceMembersPage() {
 
     if (loading) {
         return (
-            <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex items-center justify-center">
-                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+            <div className="min-h-screen bg-gray-50 dark:bg-background flex items-center justify-center">
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-accent"></div>
             </div>
         );
     }
 
     return (
-        <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+        <div className="min-h-screen bg-gray-50 dark:bg-background">
             {/* Header */}
-            <header className="bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
+            <header className="bg-white dark:bg-surface border-b border-gray-200 dark:border-border">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
                     <div className="flex items-center justify-between">
                         <div>
                             <button
                                 onClick={() => router.back()}
-                                className="text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white mb-2 flex items-center gap-2"
+                                className="text-gray-600 dark:text-muted hover:text-gray-900 dark:hover:text-foreground mb-2 flex items-center gap-2"
                             >
                                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 19l-7-7 7-7" />
                                 </svg>
                                 Back to Chat
                             </button>
-                            <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
+                            <h1 className="text-3xl font-bold text-gray-900 dark:text-foreground">
                                 {workspace?.name} - Team Members
                             </h1>
-                            <p className="text-gray-600 dark:text-gray-400 mt-1">
+                            <p className="text-gray-600 dark:text-muted mt-1">
                                 Manage your workspace members and permissions
                             </p>
                         </div>
                         <button
                             onClick={() => setShowInviteModal(true)}
-                            className="px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-xl font-medium hover:from-blue-700 hover:to-purple-700 transition-all shadow-lg shadow-blue-500/30"
+                            className="px-6 py-3 bg-accent text-white rounded-xl font-medium transition-all shadow-lg"
                         >
                             + Invite Member
                         </button>
@@ -169,23 +169,23 @@ export default function WorkspaceMembersPage() {
 
             {/* Members List */}
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-                <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl overflow-hidden">
-                    <div className="divide-y divide-gray-200 dark:divide-gray-700">
+                <div className="bg-white dark:bg-surface rounded-card shadow-lg overflow-hidden">
+                    <div className="divide-y divide-gray-200 dark:divide-border">
                         {members.map((member) => (
-                            <div key={member.id} className="p-6 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
+                            <div key={member.id} className="p-6 hover:bg-gray-50 dark:hover:bg-surface-hover/50 transition-colors">
                                 <div className="flex items-center justify-between">
                                     <div className="flex items-center gap-4">
                                         {/* Avatar */}
-                                        <div className="w-12 h-12 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white font-bold text-lg">
+                                        <div className="w-12 h-12 rounded-full bg-accent flex items-center justify-center text-white font-bold text-lg">
                                             {member.user?.name?.charAt(0)?.toUpperCase() || 'U'}
                                         </div>
 
                                         {/* Info */}
                                         <div>
-                                            <h3 className="font-semibold text-gray-900 dark:text-white">
+                                            <h3 className="font-semibold text-gray-900 dark:text-foreground">
                                                 {member.user?.name || 'Unknown'}
                                             </h3>
-                                            <p className="text-sm text-gray-600 dark:text-gray-400">
+                                            <p className="text-sm text-gray-600 dark:text-muted">
                                                 {member.user?.email}
                                             </p>
                                         </div>
@@ -196,8 +196,8 @@ export default function WorkspaceMembersPage() {
                                         <span className={`px-4 py-2 rounded-full text-sm font-medium ${member.role === 'owner'
                                                 ? 'bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300'
                                                 : member.role === 'manager'
-                                                    ? 'bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300'
-                                                    : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300'
+                                                    ? 'bg-accent/10 dark:bg-accent/20 text-info dark:text-info'
+                                                    : 'bg-gray-100 dark:bg-surface-elevated text-gray-700 dark:text-secondary'
                                             }`}>
                                             {member.role.charAt(0).toUpperCase() + member.role.slice(1)}
                                         </span>
@@ -206,7 +206,7 @@ export default function WorkspaceMembersPage() {
                                         {member.role !== 'owner' && (
                                             <button
                                                 onClick={() => handleRemoveMember(member.user_id)}
-                                                className="p-2 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors"
+                                                className="p-2 text-danger dark:text-danger hover:bg-danger/10 dark:hover:bg-red-900/20 rounded-lg transition-colors"
                                                 title="Remove member"
                                             >
                                                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -225,14 +225,14 @@ export default function WorkspaceMembersPage() {
             {/* Invite Modal */}
             {showInviteModal && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
-                    <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl max-w-md w-full p-6">
-                        <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">
+                    <div className="bg-white dark:bg-surface rounded-card shadow-lg max-w-md w-full p-6">
+                        <h2 className="text-2xl font-bold text-gray-900 dark:text-foreground mb-6">
                             Invite Team Member
                         </h2>
 
                         <form onSubmit={handleInvite} className="space-y-4">
                             <div>
-                                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                                <label className="block text-sm font-medium text-gray-700 dark:text-secondary mb-2">
                                     Email Address
                                 </label>
                                 <input
@@ -240,19 +240,19 @@ export default function WorkspaceMembersPage() {
                                     value={inviteEmail}
                                     onChange={(e) => setInviteEmail(e.target.value)}
                                     placeholder="colleague@company.com"
-                                    className="w-full px-4 py-3 rounded-xl border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                    className="w-full px-4 py-3 rounded-xl border border-gray-300 dark:border-strong bg-white dark:bg-surface-elevated text-gray-900 dark:text-foreground focus:ring-2 focus:ring-accent/60 focus:border-transparent"
                                     required
                                 />
                             </div>
 
                             <div>
-                                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                                <label className="block text-sm font-medium text-gray-700 dark:text-secondary mb-2">
                                     Role
                                 </label>
                                 <select
                                     value={inviteRole}
                                     onChange={(e) => setInviteRole(e.target.value)}
-                                    className="w-full px-4 py-3 rounded-xl border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                    className="w-full px-4 py-3 rounded-xl border border-gray-300 dark:border-strong bg-white dark:bg-surface-elevated text-gray-900 dark:text-foreground focus:ring-2 focus:ring-accent/60 focus:border-transparent"
                                 >
                                     <option value="member">Member</option>
                                     <option value="manager">Manager</option>
@@ -263,14 +263,14 @@ export default function WorkspaceMembersPage() {
                                 <button
                                     type="button"
                                     onClick={() => setShowInviteModal(false)}
-                                    className="flex-1 px-4 py-3 rounded-xl border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 font-medium hover:bg-gray-50 dark:hover:bg-gray-700"
+                                    className="flex-1 px-4 py-3 rounded-xl border border-gray-300 dark:border-strong text-gray-700 dark:text-secondary font-medium hover:bg-gray-50 dark:hover:bg-surface-hover"
                                 >
                                     Cancel
                                 </button>
                                 <button
                                     type="submit"
                                     disabled={inviting}
-                                    className="flex-1 px-4 py-3 rounded-xl bg-gradient-to-r from-blue-600 to-purple-600 text-white font-medium hover:from-blue-700 hover:to-purple-700 disabled:opacity-50 shadow-lg shadow-blue-500/30"
+                                    className="flex-1 px-4 py-3 rounded-xl bg-accent text-white font-medium disabled:opacity-50 shadow-lg"
                                 >
                                     {inviting ? 'Sending...' : 'Send Invite'}
                                 </button>

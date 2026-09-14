@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { X } from 'lucide-react';
 
 const KNOWN_FEATURES = [
     { key: 'removeBranding', label: 'Remove Branding' },
@@ -16,10 +17,10 @@ const intOr = (v, fb) => {
     return Number.isFinite(n) ? n : fb;
 };
 
-const inputCls = 'w-full px-4 py-2.5 rounded-xl border border-gray-300/80 dark:border-white/10 bg-white dark:bg-white/5 dark:text-white placeholder:text-gray-400 dark:placeholder:text-gray-500 focus:border-blue-500 focus:ring-1 focus:ring-blue-500/40 outline-none transition-colors';
+const inputCls = 'w-full px-4 py-2.5 rounded-xl border border-gray-300/80 dark:border-border bg-white dark:bg-white/5 dark:text-foreground placeholder:text-gray-400 dark:placeholder:text-muted focus:border-accent focus:ring-1 focus:ring-accent/40 outline-none transition-colors';
 const monoCls = `${inputCls} text-xs font-mono`;
-const labelCls = 'block text-sm font-semibold mb-1.5 text-gray-700 dark:text-gray-300';
-const miniLabelCls = 'block text-[11px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider mb-1.5';
+const labelCls = 'block text-sm font-semibold mb-1.5 text-gray-700 dark:text-secondary';
+const miniLabelCls = 'block text-[11px] font-bold text-gray-400 dark:text-muted uppercase tracking-wider mb-1.5';
 
 export default function PlanModal({ plan, onClose, onSave }) {
     const [formData, setFormData] = useState({
@@ -104,21 +105,21 @@ export default function PlanModal({ plan, onClose, onSave }) {
 
     return (
         <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4 animate-fadeIn overflow-y-auto">
-            <div className="w-full max-w-2xl my-auto rounded-2xl shadow-2xl overflow-hidden animate-scaleIn bg-white dark:bg-gray-900 border border-gray-200 dark:border-white/10">
-                <div className="px-6 py-5 border-b border-gray-100 dark:border-white/10 flex items-center justify-between bg-white/90 dark:bg-gray-900/90 backdrop-blur-md sticky top-0 z-10">
+            <div className="w-full max-w-2xl my-auto rounded-card shadow-lg overflow-hidden animate-scaleIn bg-white dark:bg-background border border-gray-200 dark:border-border">
+                <div className="px-6 py-5 border-b border-gray-100 dark:border-border flex items-center justify-between bg-white/90 dark:bg-background/90 backdrop-blur-md sticky top-0 z-10">
                     <div>
-                        <h2 className="text-xl font-bold tracking-tight text-gray-900 dark:text-white">
+                        <h2 className="text-xl font-bold tracking-tight text-gray-900 dark:text-foreground">
                             {plan ? 'Edit Plan' : 'Create New Plan'}
                         </h2>
-                        <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">Pricing, limits and feature flags</p>
+                        <p className="text-xs text-gray-500 dark:text-muted mt-0.5">Pricing, limits and feature flags</p>
                     </div>
-                    <button onClick={onClose} aria-label="Close" className="p-2 text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-white/10 rounded-full transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/60">✕</button>
+                    <button onClick={onClose} aria-label="Close" className="p-2 text-gray-400 hover:text-gray-700 dark:hover:text-secondary hover:bg-gray-100 dark:hover:bg-white/10 rounded-full transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/60"><X size={18} /></button>
                 </div>
 
                 <form onSubmit={handleSubmit} className="p-6 space-y-7 max-h-[80vh] overflow-y-auto custom-scrollbar">
                     {/* Basic Info */}
                     <section className="space-y-4">
-                        <h3 className="text-xs font-bold text-blue-600 dark:text-blue-400 uppercase tracking-[0.15em]">General Information</h3>
+                        <h3 className="text-xs font-bold text-info dark:text-info uppercase tracking-[0.15em]">General Information</h3>
                         <div className="grid sm:grid-cols-2 gap-4">
                             <div className="sm:col-span-2">
                                 <label className={labelCls}>Plan Name</label>
@@ -175,20 +176,20 @@ export default function PlanModal({ plan, onClose, onSave }) {
                                     className={`${inputCls} font-mono`}
                                 />
                             </div>
-                            <label className="flex items-center gap-2.5 cursor-pointer pt-7 text-sm font-semibold text-gray-700 dark:text-gray-200">
+                            <label className="flex items-center gap-2.5 cursor-pointer pt-7 text-sm font-semibold text-gray-700 dark:text-secondary">
                                 <input
                                     type="checkbox"
                                     checked={formData.isActive}
                                     onChange={(e) => set({ isActive: e.target.checked })}
-                                    className="w-4 h-4 accent-blue-600"
+                                    className="w-4 h-4 accent-accent"
                                 />
                                 Visible to users
                             </label>
                         </div>
                     </section>
 
-                    <section className="border-t border-gray-100 dark:border-white/10 pt-6 space-y-4">
-                        <h3 className="text-xs font-bold text-indigo-600 dark:text-indigo-400 uppercase tracking-[0.15em]">Gateway IDs (PRO)</h3>
+                    <section className="border-t border-gray-100 dark:border-border pt-6 space-y-4">
+                        <h3 className="text-xs font-bold text-accent dark:text-accent uppercase tracking-[0.15em]">Gateway IDs (PRO)</h3>
                         <div className="grid grid-cols-2 gap-4">
                             <div className="space-y-4">
                                 <div>
@@ -237,8 +238,8 @@ export default function PlanModal({ plan, onClose, onSave }) {
                         </div>
                     </section>
 
-                    <section className="border-t border-gray-100 dark:border-white/10 pt-6 space-y-4">
-                        <h3 className="text-xs font-bold text-emerald-600 dark:text-emerald-400 uppercase tracking-[0.15em]">Resource Limits <span className="normal-case font-medium text-gray-400">(−1 = unlimited)</span></h3>
+                    <section className="border-t border-gray-100 dark:border-border pt-6 space-y-4">
+                        <h3 className="text-xs font-bold text-success dark:text-success uppercase tracking-[0.15em]">Resource Limits <span className="normal-case font-medium text-gray-400">(−1 = unlimited)</span></h3>
                         <div className="grid grid-cols-2 gap-4">
                             {[
                                 ['maxChats', 'Max Chats'],
@@ -261,13 +262,13 @@ export default function PlanModal({ plan, onClose, onSave }) {
                         </div>
                     </section>
 
-                    <section className="border-t border-gray-100 dark:border-white/10 pt-6">
+                    <section className="border-t border-gray-100 dark:border-border pt-6">
                         <div className="flex items-center justify-between mb-3">
-                            <span className="text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-[0.15em]">Feature Toggles</span>
+                            <span className="text-xs font-bold text-gray-500 dark:text-muted uppercase tracking-[0.15em]">Feature Toggles</span>
                             <button
                                 type="button"
                                 onClick={() => setFormData((f) => ({ ...f, customFeatures: [...f.customFeatures, { key: '', value: true }] }))}
-                                className="text-xs font-bold text-blue-600 dark:text-blue-400 hover:underline"
+                                className="text-xs font-bold text-accent dark:text-accent hover:underline"
                             >
                                 + Custom flag
                             </button>
@@ -279,9 +280,9 @@ export default function PlanModal({ plan, onClose, onSave }) {
                                         type="checkbox"
                                         checked={!!formData.features[key]}
                                         onChange={(e) => setFeature(key, e.target.checked)}
-                                        className="w-5 h-5 accent-blue-600 rounded"
+                                        className="w-5 h-5 accent-accent rounded"
                                     />
-                                    <span className="text-sm font-medium text-gray-700 dark:text-gray-300 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">{label}</span>
+                                    <span className="text-sm font-medium text-gray-700 dark:text-secondary group-hover:text-accent dark:group-hover:text-accent transition-colors">{label}</span>
                                 </label>
                             ))}
                         </div>
@@ -298,7 +299,7 @@ export default function PlanModal({ plan, onClose, onSave }) {
                                             placeholder="feature_key"
                                             className={`${inputCls} font-mono text-sm flex-1`}
                                         />
-                                        <label className="flex items-center gap-1.5 text-xs font-semibold text-gray-600 dark:text-gray-300 cursor-pointer">
+                                        <label className="flex items-center gap-1.5 text-xs font-semibold text-gray-600 dark:text-secondary cursor-pointer">
                                             <input
                                                 type="checkbox"
                                                 checked={!!row.value}
@@ -306,17 +307,17 @@ export default function PlanModal({ plan, onClose, onSave }) {
                                                     ...f,
                                                     customFeatures: f.customFeatures.map((r, idx) => (idx === i ? { ...r, value: e.target.checked } : r)),
                                                 }))}
-                                                className="w-4 h-4 accent-emerald-500"
+                                                className="w-4 h-4 accent-success"
                                             />
                                             On
                                         </label>
                                         <button
                                             type="button"
                                             onClick={() => setFormData((f) => ({ ...f, customFeatures: f.customFeatures.filter((_, idx) => idx !== i) }))}
-                                            className="p-2 text-gray-400 hover:text-red-500 transition-colors"
+                                            className="p-2 text-gray-400 hover:text-danger transition-colors"
                                             title="Remove"
                                         >
-                                            ✕
+                                            <X size={16} />
                                         </button>
                                     </div>
                                 ))}
@@ -324,11 +325,11 @@ export default function PlanModal({ plan, onClose, onSave }) {
                         )}
                     </section>
 
-                    <div className="pt-2 border-t border-gray-100 dark:border-white/10 flex justify-end gap-3 sticky bottom-0 bg-white dark:bg-gray-900 py-4 -mb-6 -mx-6 px-6">
-                        <button type="button" onClick={onClose} className="px-6 py-2.5 rounded-xl text-sm font-bold text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-white/10 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/60">
+                    <div className="pt-2 border-t border-gray-100 dark:border-border flex justify-end gap-3 sticky bottom-0 bg-white dark:bg-background py-4 -mb-6 -mx-6 px-6">
+                        <button type="button" onClick={onClose} className="px-6 py-2.5 rounded-xl text-sm font-bold text-gray-600 dark:text-secondary hover:bg-gray-100 dark:hover:bg-white/10 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/60">
                             Cancel
                         </button>
-                        <button type="submit" className="px-8 py-2.5 text-sm bg-blue-600 text-white rounded-xl hover:bg-blue-500 font-bold shadow-md shadow-blue-600/25 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/60">
+                        <button type="submit" className="px-8 py-2.5 text-sm bg-accent text-background rounded-xl hover:bg-accent-hover font-bold shadow-md transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/60">
                             {plan ? 'Save Changes' : 'Create Plan'}
                         </button>
                     </div>

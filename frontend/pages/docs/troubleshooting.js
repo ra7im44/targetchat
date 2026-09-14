@@ -15,7 +15,7 @@ export default function Troubleshooting() {
             </p>
 
             <Callout type="tip">
-                Can't find a solution? Contact support at <a href="mailto:support@targetchat.ai" className="text-blue-600 dark:text-blue-400 hover:underline">support@targetchat.ai</a>
+                Can't find a solution? Contact support at <a href="mailto:support@targetchat.ai" className="text-info dark:text-info hover:underline">support@targetchat.ai</a>
             </Callout>
 
             <h2 id="widget-issues">Widget Issues</h2>
@@ -89,7 +89,7 @@ console.log(window.TargetChat);
                 <li>Refresh the page</li>
                 <li>Shorten message if very long</li>
                 <li>Wait 30 seconds and try again</li>
-                <li>Check <a href="https://status.targetchat.ai" target="_blank" rel="noopener noreferrer" className="text-blue-600 dark:text-blue-400 hover:underline">status page</a></li>
+                <li>Check <a href="https://status.targetchat.ai" target="_blank" rel="noopener noreferrer" className="text-info dark:text-info hover:underline">status page</a></li>
             </ol>
 
             <h3 id="ai-not-responding">AI Not Responding</h3>
@@ -287,7 +287,7 @@ console.log(window.TargetChat);
                     <li>Take a screenshot of the error</li>
                     <li>Note what you were trying to do</li>
                     <li>Check browser console for errors (F12)</li>
-                    <li>Email all details to <a href="mailto:support@targetchat.ai" className="text-blue-600 dark:text-blue-400 hover:underline">support@targetchat.ai</a></li>
+                    <li>Email all details to <a href="mailto:support@targetchat.ai" className="text-info dark:text-info hover:underline">support@targetchat.ai</a></li>
                 </ol>
                 <p>Our support team typically responds within 24 hours!</p>
             </Callout>

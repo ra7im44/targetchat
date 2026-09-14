@@ -80,11 +80,11 @@ export default function DeveloperTools() {
             <div className="space-y-6">
                 <div className="flex items-center justify-between">
                     <div>
-                        <h1 className="text-3xl font-extrabold text-gray-900 dark:text-white flex items-center gap-3">
-                            <Terminal className="text-indigo-600" size={32} />
+                        <h1 className="text-3xl font-bold text-gray-900 dark:text-foreground flex items-center gap-3">
+                            <Terminal className="text-accent" size={18} />
                             Developer Tools
                         </h1>
-                        <p className="text-gray-500 dark:text-gray-400 mt-1">
+                        <p className="text-gray-500 dark:text-muted mt-1">
                             Debug incoming webhooks and simulate events for local testing.
                         </p>
                     </div>
@@ -95,22 +95,22 @@ export default function DeveloperTools() {
                     <div className="lg:col-span-2 space-y-4">
                         <div className="flex items-center justify-between">
                             <h2 className="text-xl font-bold flex items-center gap-2">
-                                <Info size={20} className="text-blue-500" />
+                                <Info size={18} />
                                 Recent Webhook Payloads
                             </h2>
                             <button
                                 onClick={clearLogs}
-                                className="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-all"
+                                className="p-2 text-gray-400 hover:text-danger hover:bg-danger/10 dark:hover:bg-red-900/20 rounded-lg transition-all"
                                 title="Clear Logs"
                             >
                                 <Trash2 size={18} />
                             </button>
                         </div>
 
-                        <div className="bg-gray-900 rounded-2xl overflow-hidden border border-gray-800 shadow-xl min-h-[500px] flex flex-col">
+                        <div className="bg-gray-900 rounded-card overflow-hidden border border-gray-800 shadow-lg min-h-[500px] flex flex-col">
                             {logs.length === 0 ? (
                                 <div className="flex-1 flex flex-col items-center justify-center text-gray-500 p-8 text-center">
-                                    <Terminal size={48} className="mb-4 opacity-20" />
+                                    <Terminal size={18} className="mb-4 opacity-20" />
                                     <p>No webhooks received yet.</p>
                                     <p className="text-sm">Trigger a real message or use the mock tool.</p>
                                 </div>
@@ -125,8 +125,8 @@ export default function DeveloperTools() {
                                         return (
                                         <div key={log.id} className="bg-gray-800/50 rounded-xl border border-gray-700/50 p-4 transition-all hover:border-gray-600">
                                             <div className="flex justify-between items-start mb-2">
-                                                <span className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase ${isWA ? 'bg-green-900/30 text-green-400' :
-                                                        isMeta ? 'bg-blue-900/30 text-blue-400' : 'bg-gray-700 text-gray-300'
+                                                <span className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase ${isWA ? 'bg-success/30 text-success' :
+                                                        isMeta ? 'bg-accent/20 text-info' : 'bg-surface-elevated text-secondary'
                                                     }`}>
                                                     {platformLabel}
                                                 </span>
@@ -134,7 +134,7 @@ export default function DeveloperTools() {
                                                     {timeValid ? new Date(log.timestamp).toLocaleTimeString() : '—'}
                                                 </span>
                                             </div>
-                                            <pre className="text-[11px] text-indigo-300 overflow-x-auto p-2 bg-gray-900/50 rounded-lg">
+                                            <pre className="text-[11px] text-info overflow-x-auto p-2 bg-gray-900/50 rounded-lg">
                                                 {JSON.stringify(log.body, null, 2)}
                                             </pre>
                                         </div>
@@ -147,16 +147,16 @@ export default function DeveloperTools() {
 
                     {/* Mock Tools */}
                     <div className="space-y-6">
-                        <div className="bg-white dark:bg-gray-800 p-6 rounded-3xl border border-gray-100 dark:border-gray-700 shadow-sm">
+                        <div className="bg-white dark:bg-surface p-6 rounded-card border border-gray-100 dark:border-border shadow-sm">
                             <h2 className="text-xl font-bold mb-4 flex items-center gap-2">
-                                <Send size={20} className="text-emerald-500" />
+                                <Send size={18} />
                                 Mock Tester
                             </h2>
                             <div className="space-y-4">
                                 <div>
                                     <label className="text-xs font-bold text-gray-400 block mb-1.5 uppercase">Platform</label>
                                     <select
-                                        className="w-full bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-indigo-500 transition-all"
+                                        className="w-full bg-gray-50 dark:bg-background border border-gray-200 dark:border-border rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-accent/60 transition-all"
                                         value={mockData.platform}
                                         onChange={(e) => setMockData({ ...mockData, platform: e.target.value })}
                                     >
@@ -168,7 +168,7 @@ export default function DeveloperTools() {
                                     <label className="text-xs font-bold text-gray-400 block mb-1.5 uppercase">Sender ID / Phone</label>
                                     <input
                                         type="text"
-                                        className="w-full bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-indigo-500 transition-all font-mono"
+                                        className="w-full bg-gray-50 dark:bg-background border border-gray-200 dark:border-border rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-accent/60 transition-all font-mono"
                                         value={mockData.sender}
                                         onChange={(e) => setMockData({ ...mockData, sender: e.target.value })}
                                     />
@@ -176,7 +176,7 @@ export default function DeveloperTools() {
                                 <div>
                                     <label className="text-xs font-bold text-gray-400 block mb-1.5 uppercase">Message Text</label>
                                     <textarea
-                                        className="w-full bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-indigo-500 transition-all"
+                                        className="w-full bg-gray-50 dark:bg-background border border-gray-200 dark:border-border rounded-xl px-4 py-3 outline-none focus:ring-2 focus:ring-accent/60 transition-all"
                                         rows={3}
                                         value={mockData.text}
                                         onChange={(e) => setMockData({ ...mockData, text: e.target.value })}
@@ -184,7 +184,7 @@ export default function DeveloperTools() {
                                 </div>
                                 <button
                                     onClick={sendMock}
-                                    className="w-full py-4 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-2xl transition-all shadow-lg shadow-emerald-200 dark:shadow-none flex items-center justify-center gap-2"
+                                    className="w-full py-4 bg-success hover:bg-success text-white font-bold rounded-card transition-all shadow-lg dark:shadow-none flex items-center justify-center gap-2"
                                 >
                                     <MessageSquare size={18} />
                                     Trigger Mock Event
@@ -195,12 +195,12 @@ export default function DeveloperTools() {
                             </div>
                         </div>
 
-                        <div className="bg-indigo-50 dark:bg-indigo-900/10 p-6 rounded-3xl border border-indigo-100 dark:border-indigo-900/30">
-                            <h3 className="font-bold text-indigo-900 dark:text-indigo-300 flex items-center gap-2 mb-2">
+                        <div className="bg-accent/10 dark:bg-accent/20 p-6 rounded-card border border-accent/30 dark:border-accent/30">
+                            <h3 className="font-bold text-accent-active dark:text-info flex items-center gap-2 mb-2">
                                 <AlertCircle size={18} />
                                 Dev Tip
                             </h3>
-                            <p className="text-sm text-indigo-700 dark:text-indigo-400">
+                            <p className="text-sm text-accent-active dark:text-info">
                                 Use <code>localtunnel</code> or <code>ngrok</code> to expose your local port 3001 to the internet for real Meta webhook testing.
                             </p>
                         </div>

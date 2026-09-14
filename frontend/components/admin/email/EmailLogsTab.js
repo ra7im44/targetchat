@@ -77,11 +77,11 @@ export default function EmailLogsTab() {
 
     const getStatusBadge = (status) => {
         const colors = {
-            queued: 'bg-gray-100 text-gray-700 dark:bg-gray-700/50 dark:text-gray-300',
-            sent: 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400',
-            delivered: 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400',
-            opened: 'bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-400',
-            failed: 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400'
+            queued: 'bg-gray-100 text-gray-700 dark:bg-surface-elevated/50 dark:text-secondary',
+            sent: 'bg-blue-100 text-info dark:bg-surface-elevated dark:text-info',
+            delivered: 'bg-green-100 text-success dark:bg-green-900/30 dark:text-success',
+            opened: 'bg-purple-100 text-info dark:bg-purple-900/30 dark:text-info',
+            failed: 'bg-red-100 text-danger dark:bg-red-900/30 dark:text-danger'
         };
         return colors[status] || 'bg-gray-100 text-gray-600';
     };
@@ -92,13 +92,13 @@ export default function EmailLogsTab() {
         <div className="space-y-6">
             <div className="flex justify-between items-center">
                 <div>
-                    <h2 className="text-xl font-bold text-gray-900 dark:text-white">Email Logs</h2>
+                    <h2 className="text-xl font-bold text-gray-900 dark:text-foreground">Email Logs</h2>
                     <p className="text-sm text-gray-500">Monitor and track every email sent by the system</p>
                 </div>
             </div>
 
             {/* Filters */}
-            <div className="bg-white dark:bg-gray-800 rounded-xl p-4 border border-gray-100 dark:border-gray-700">
+            <div className="bg-white dark:bg-surface rounded-xl p-4 border border-gray-100 dark:border-border">
                 <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
                     <div className="relative">
                         <Search className="absolute left-3 top-2.5 text-gray-400" size={18} />
@@ -107,13 +107,13 @@ export default function EmailLogsTab() {
                             placeholder="Recipient email..."
                             value={filters.recipient}
                             onChange={(e) => setFilters({ ...filters, recipient: e.target.value })}
-                            className="w-full pl-10 pr-4 py-2 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900"
+                            className="w-full pl-10 pr-4 py-2 rounded-lg border border-gray-200 dark:border-border bg-white dark:bg-background"
                         />
                     </div>
                     <select
                         value={filters.status}
                         onChange={(e) => setFilters({ ...filters, status: e.target.value })}
-                        className="px-4 py-2 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900"
+                        className="px-4 py-2 rounded-lg border border-gray-200 dark:border-border bg-white dark:bg-background"
                     >
                         <option value="">All Statuses</option>
                         <option value="queued">Queued</option>
@@ -124,14 +124,14 @@ export default function EmailLogsTab() {
                     </select>
                     <button
                         onClick={loadLogs}
-                        className="flex items-center justify-center gap-2 px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg font-medium transition-all"
+                        className="flex items-center justify-center gap-2 px-4 py-2 bg-accent hover:bg-accent-hover text-background rounded-lg font-medium transition-all"
                     >
                         <RefreshCw size={18} />
                         Refresh
                     </button>
                     <button
                         onClick={() => setFilters({ status: '', recipient: '', templateId: '' })}
-                        className="px-4 py-2 bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 rounded-lg font-medium"
+                        className="px-4 py-2 bg-gray-100 dark:bg-surface-elevated text-gray-600 dark:text-secondary rounded-lg font-medium"
                     >
                         Reset
                     </button>
@@ -139,9 +139,9 @@ export default function EmailLogsTab() {
             </div>
 
             {/* Table */}
-            <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 overflow-hidden">
+            <div className="bg-white dark:bg-surface rounded-card shadow-sm border border-gray-100 dark:border-border overflow-hidden">
                 <table className="w-full border-collapse">
-                    <thead className="bg-gray-50 dark:bg-gray-900/50 text-left border-b border-gray-100 dark:border-gray-700">
+                    <thead className="bg-gray-50 dark:bg-background/50 text-left border-b border-gray-100 dark:border-border">
                         <tr>
                             <th className="px-6 py-4 text-xs font-bold text-gray-500 uppercase">Status</th>
                             <th className="px-6 py-4 text-xs font-bold text-gray-500 uppercase">Recipient</th>
@@ -153,23 +153,23 @@ export default function EmailLogsTab() {
                     </thead>
                     <tbody className="divide-y divide-gray-100 dark:divide-gray-700">
                         {logs.map((log) => (
-                            <tr key={log.id} className="hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-all">
+                            <tr key={log.id} className="hover:bg-gray-50 dark:hover:bg-surface-hover/50 transition-all">
                                 <td className="px-6 py-4">
-                                    <span className={`px-2 py-1 rounded-md text-[10px] font-black uppercase ${getStatusBadge(log.status)}`}>
+                                    <span className={`px-2 py-1 rounded-md text-[10px] font-bold uppercase ${getStatusBadge(log.status)}`}>
                                         {log.status}
                                     </span>
                                 </td>
-                                <td className="px-6 py-4 text-sm font-medium text-gray-900 dark:text-white font-mono">{log.recipientEmail}</td>
-                                <td className="px-6 py-4 text-sm text-gray-600 dark:text-gray-400 max-w-[200px] truncate">{log.subject}</td>
+                                <td className="px-6 py-4 text-sm font-medium text-gray-900 dark:text-foreground font-mono">{log.recipientEmail}</td>
+                                <td className="px-6 py-4 text-sm text-gray-600 dark:text-muted max-w-[200px] truncate">{log.subject}</td>
                                 <td className="px-6 py-4 text-sm text-gray-500">{log.template?.name || 'Manual'}</td>
                                 <td className="px-6 py-4 text-xs text-gray-500">{new Date(log.createdAt || log.created_at).toLocaleString()}</td>
                                 <td className="px-6 py-4">
                                     <div className="flex gap-2">
-                                        <button onClick={() => viewDetails(log)} className="p-1.5 text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-md shadow-sm">
+                                        <button onClick={() => viewDetails(log)} className="p-1.5 text-info hover:bg-surface-hover dark:hover:bg-surface-hover rounded-md shadow-sm">
                                             <Eye size={16} />
                                         </button>
                                         {log.status === 'failed' && (
-                                            <button onClick={() => handleRetry(log.id)} className="p-1.5 text-orange-600 hover:bg-orange-50 dark:hover:bg-orange-900/20 rounded-md shadow-sm">
+                                            <button onClick={() => handleRetry(log.id)} className="p-1.5 text-warning hover:bg-orange-50 dark:hover:bg-orange-900/20 rounded-md shadow-sm">
                                                 <RotateCcw size={16} />
                                             </button>
                                         )}
@@ -187,7 +187,7 @@ export default function EmailLogsTab() {
                     <button
                         disabled={pagination.page === 1}
                         onClick={() => setPagination(p => ({ ...p, page: p.page - 1 }))}
-                        className="px-3 py-1 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg text-sm disabled:opacity-50"
+                        className="px-3 py-1 bg-white dark:bg-surface border border-gray-200 dark:border-border rounded-lg text-sm disabled:opacity-50"
                     >
                         Prev
                     </button>
@@ -195,7 +195,7 @@ export default function EmailLogsTab() {
                     <button
                         disabled={pagination.page === pagination.pages}
                         onClick={() => setPagination(p => ({ ...p, page: p.page + 1 }))}
-                        className="px-3 py-1 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg text-sm disabled:opacity-50"
+                        className="px-3 py-1 bg-white dark:bg-surface border border-gray-200 dark:border-border rounded-lg text-sm disabled:opacity-50"
                     >
                         Next
                     </button>
@@ -215,14 +215,14 @@ export default function EmailLogsTab() {
 
 function EmailLogDetailModal({ log, onClose, onRetry }) {
     return (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-fadeIn text-left">
-            <div className="bg-white dark:bg-gray-800 w-full max-w-4xl rounded-3xl shadow-2xl border border-gray-100 dark:border-gray-700 overflow-hidden flex flex-col max-h-[90vh]">
-                <div className="p-6 border-b border-gray-100 dark:border-gray-700 flex justify-between items-center bg-gray-50/50 dark:bg-gray-900/50">
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-background/60 backdrop-blur-sm animate-fadeIn text-left">
+            <div className="bg-white dark:bg-surface w-full max-w-4xl rounded-modal shadow-lg border border-gray-100 dark:border-border overflow-hidden flex flex-col max-h-[90vh]">
+                <div className="p-6 border-b border-gray-100 dark:border-border flex justify-between items-center bg-gray-50/50 dark:bg-background/50">
                     <div>
-                        <h2 className="text-xl font-black text-gray-900 dark:text-white uppercase tracking-tight">Email Delivery Details</h2>
+                        <h2 className="text-xl font-bold text-gray-900 dark:text-foreground uppercase tracking-tight">Email Delivery Details</h2>
                         <p className="text-xs text-gray-400 font-mono mt-1">{log.id}</p>
                     </div>
-                    <button onClick={onClose} className="p-2 hover:bg-gray-200 dark:hover:bg-gray-700 rounded-xl transition-all">
+                    <button onClick={onClose} className="p-2 hover:bg-gray-200 dark:hover:bg-surface-hover rounded-xl transition-all">
                         <X size={24} className="text-gray-400" />
                     </button>
                 </div>
@@ -230,34 +230,34 @@ function EmailLogDetailModal({ log, onClose, onRetry }) {
                 <div className="flex-1 overflow-y-auto p-8 space-y-8">
                     {/* Header Info */}
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                        <div className="p-4 bg-gray-50 dark:bg-gray-900 rounded-2xl border border-gray-100 dark:border-gray-700">
-                            <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest block mb-1">Recipient</label>
-                            <p className="text-sm font-bold text-gray-900 dark:text-white truncate" title={log.recipientEmail}>{log.recipientEmail}</p>
+                        <div className="p-4 bg-gray-50 dark:bg-background rounded-card border border-gray-100 dark:border-border">
+                            <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest block mb-1">Recipient</label>
+                            <p className="text-sm font-bold text-gray-900 dark:text-foreground truncate" title={log.recipientEmail}>{log.recipientEmail}</p>
                         </div>
-                        <div className="p-4 bg-gray-50 dark:bg-gray-900 rounded-2xl border border-gray-100 dark:border-gray-700">
-                            <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest block mb-1">Status</label>
-                            <span className={`px-2 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider ${log.status === 'delivered' ? 'bg-green-100 text-green-700' :
-                                log.status === 'failed' ? 'bg-red-100 text-red-700' : 'bg-blue-100 text-blue-700'
+                        <div className="p-4 bg-gray-50 dark:bg-background rounded-card border border-gray-100 dark:border-border">
+                            <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest block mb-1">Status</label>
+                            <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider ${log.status === 'delivered' ? 'bg-green-100 text-success' :
+                                log.status === 'failed' ? 'bg-red-100 text-danger' : 'bg-blue-100 text-info'
                                 }`}>
                                 {log.status}
                             </span>
                         </div>
-                        <div className="p-4 bg-gray-50 dark:bg-gray-900 rounded-2xl border border-gray-100 dark:border-gray-700">
-                            <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest block mb-1">Sent Date</label>
-                            <p className="text-sm font-bold text-gray-900 dark:text-white">{new Date(log.createdAt || log.created_at).toLocaleString()}</p>
+                        <div className="p-4 bg-gray-50 dark:bg-background rounded-card border border-gray-100 dark:border-border">
+                            <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest block mb-1">Sent Date</label>
+                            <p className="text-sm font-bold text-gray-900 dark:text-foreground">{new Date(log.createdAt || log.created_at).toLocaleString()}</p>
                         </div>
                     </div>
 
                     {/* Subject */}
-                    <div className="p-4 bg-gray-50 dark:bg-gray-900 rounded-2xl border border-gray-100 dark:border-gray-700">
-                        <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest block mb-1">Subject</label>
-                        <p className="text-sm font-bold text-gray-900 dark:text-white">{log.subject}</p>
+                    <div className="p-4 bg-gray-50 dark:bg-background rounded-card border border-gray-100 dark:border-border">
+                        <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest block mb-1">Subject</label>
+                        <p className="text-sm font-bold text-gray-900 dark:text-foreground">{log.subject}</p>
                     </div>
 
                     {/* Rendered Content */}
                     <div className="space-y-4">
-                        <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Rendered Content</label>
-                        <div className="border border-gray-100 dark:border-gray-700 rounded-2xl overflow-hidden bg-white">
+                        <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Rendered Content</label>
+                        <div className="border border-gray-100 dark:border-border rounded-card overflow-hidden bg-white">
                             <iframe
                                 srcDoc={log.htmlBody || `<div style="padding: 20px; font-family: sans-serif;">${log.textContent || 'No content found'}</div>`}
                                 title="Email Preview"
@@ -269,12 +269,12 @@ function EmailLogDetailModal({ log, onClose, onRetry }) {
                     {/* Metadata / Variables */}
                     {log.variables && Object.keys(log.variables).length > 0 && (
                         <div className="space-y-4">
-                            <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Used Variables</label>
+                            <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Used Variables</label>
                             <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-left">
                                 {Object.entries(log.variables).map(([key, val]) => (
-                                    <div key={key} className="p-3 bg-gray-50/50 dark:bg-gray-900/50 rounded-xl border border-gray-100 dark:border-gray-700">
+                                    <div key={key} className="p-3 bg-gray-50/50 dark:bg-background/50 rounded-xl border border-gray-100 dark:border-border">
                                         <p className="text-[9px] font-bold text-gray-400 uppercase tracking-tighter mb-1">{key}</p>
-                                        <p className="text-xs font-mono text-gray-600 dark:text-gray-300 truncate" title={String(val)}>{String(val)}</p>
+                                        <p className="text-xs font-mono text-gray-600 dark:text-secondary truncate" title={String(val)}>{String(val)}</p>
                                     </div>
                                 ))}
                             </div>
@@ -283,15 +283,15 @@ function EmailLogDetailModal({ log, onClose, onRetry }) {
 
                     {/* Error Info */}
                     {log.errorMessage && (
-                        <div className="p-4 bg-red-50 dark:bg-red-900/20 border border-red-100 dark:border-red-900/50 rounded-2xl">
-                            <label className="text-[10px] font-black text-red-500 uppercase tracking-widest block mb-1">Delivery Error</label>
-                            <p className="text-sm text-red-600 dark:text-red-400 font-medium">{log.errorMessage}</p>
+                        <div className="p-4 bg-red-50 dark:bg-red-900/20 border border-red-100 dark:border-red-900/50 rounded-card">
+                            <label className="text-[10px] font-bold text-danger uppercase tracking-widest block mb-1">Delivery Error</label>
+                            <p className="text-sm text-danger dark:text-danger font-medium">{log.errorMessage}</p>
                         </div>
                     )}
                 </div>
 
-                <div className="p-6 bg-gray-50 dark:bg-gray-900/50 border-t border-gray-100 dark:border-gray-700 flex justify-end gap-3">
-                    <button onClick={onClose} className="px-6 py-2.5 text-gray-600 dark:text-gray-400 font-bold text-sm">Close</button>
+                <div className="p-6 bg-gray-50 dark:bg-background/50 border-t border-gray-100 dark:border-border flex justify-end gap-3">
+                    <button onClick={onClose} className="px-6 py-2.5 text-gray-600 dark:text-muted font-bold text-sm">Close</button>
                     {log.status === 'failed' && (
                         <button
                             onClick={() => { onClose(); onRetry(); }}

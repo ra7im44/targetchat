@@ -5,10 +5,10 @@ export default function CyberRobot() {
         <div className="relative w-80 h-80 flex items-center justify-center animate-float">
             {/* Holographic Rings */}
             <div className="absolute w-full h-full border-2 border-cyan-500/20 rounded-full animate-spin-slow"></div>
-            <div className="absolute w-[90%] h-[90%] border border-blue-500/30 rounded-full animate-reverse-spin border-dashed"></div>
+            <div className="absolute w-[90%] h-[90%] border border-accent/30 rounded-full animate-reverse-spin border-dashed"></div>
 
             {/* Glow Core */}
-            <div className="absolute w-48 h-48 bg-blue-500/10 blur-3xl rounded-full animate-pulse-slow"></div>
+            <div className="absolute w-48 h-48 bg-accent/10 blur-3xl rounded-full animate-pulse-slow"></div>
 
             {/* Robot Container */}
             <div className="relative z-10 w-40 h-48 flex flex-col items-center">
@@ -19,7 +19,7 @@ export default function CyberRobot() {
                 </div>
 
                 {/* Head */}
-                <div className="w-32 h-24 bg-slate-800 rounded-2xl border border-cyan-500/30 flex items-center justify-center relative overflow-hidden shadow-[0_0_30px_rgba(6,182,212,0.15)] bg-gradient-to-b from-slate-700 to-slate-900">
+                <div className="w-32 h-24 bg-surface-elevated rounded-card border border-accent/30 flex items-center justify-center relative overflow-hidden shadow-[0_0_30px_rgba(6,182,212,0.15)] bg-accent">
                     {/* Screen Scanline */}
                     <div className="absolute w-full h-1 bg-cyan-400/30 top-0 animate-scan"></div>
 
@@ -40,10 +40,10 @@ export default function CyberRobot() {
                 </div>
 
                 {/* Neck */}
-                <div className="w-8 h-4 bg-slate-700 mt-[-2px] z-0 border-x border-slate-600"></div>
+                <div className="w-8 h-4 bg-surface-elevated mt-[-2px] z-0 border-x border-strong"></div>
 
                 {/* Body */}
-                <div className="w-20 h-16 bg-gradient-to-br from-slate-700 to-slate-900 rounded-xl rounded-b-3xl border border-slate-600 shadow-xl flex items-center justify-center relative">
+                <div className="w-20 h-16 bg-accent rounded-xl rounded-b-3xl border border-strong shadow-lg flex items-center justify-center relative">
                     {/* Chest Arc Reactor (Iron Man style but simpler) */}
                     <div className="w-8 h-8 rounded-full border-2 border-cyan-500/50 bg-cyan-900/50 flex items-center justify-center shadow-[0_0_20px_rgba(6,182,212,0.3)]">
                         <div className="w-4 h-4 bg-white rounded-full animate-pulse shadow-[0_0_10px_#fff]"></div>

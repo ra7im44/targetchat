@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { X, TriangleAlert, Copy, PartyPopper } from 'lucide-react';
 
 // API base URL
 import { API_URL as API } from '../../utils/apiConfig';
@@ -79,18 +80,18 @@ export default function TokenModal({ onClose, onSuccess }) {
 
     return (
         <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4 animate-fadeIn">
-            <div className="glass-panel w-full max-w-md rounded-2xl shadow-2xl overflow-hidden animate-scaleIn border border-white/20">
+            <div className="glass-panel w-full max-w-md rounded-card shadow-lg overflow-hidden animate-scaleIn border border-white/20">
                 {/* Header */}
-                <div className="p-6 border-b border-gray-100 dark:border-gray-700/50 flex items-center justify-between bg-white/50 dark:bg-white/5 backdrop-blur-md">
-                    <h2 className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-gray-900 to-gray-600 dark:from-white dark:to-gray-400">
-                        {step === 'create' ? 'Create API Token' : 'Token Created 🎉'}
+                <div className="p-6 border-b border-gray-100 dark:border-border/50 flex items-center justify-between bg-white/50 dark:bg-white/5 backdrop-blur-md">
+                    <h2 className="text-2xl font-bold text-gray-900 dark:text-foreground">
+                        {step === 'create' ? 'Create API Token' : (<span className="flex items-center gap-2"><PartyPopper size={18} /> Token Created</span>)}
                     </h2>
                     {step === 'create' && (
                         <button
                             onClick={onClose}
-                            className="p-2 rounded-xl hover:bg-gray-100 dark:hover:bg-gray-700/50 text-gray-500 dark:text-gray-400 transition-all"
+                            className="p-2 rounded-xl hover:bg-gray-100 dark:hover:bg-surface-hover text-gray-500 dark:text-muted transition-all"
                         >
-                            ✕
+                            <X size={18} />
                         </button>
                     )}
                 </div>
@@ -99,7 +100,7 @@ export default function TokenModal({ onClose, onSuccess }) {
                     <form onSubmit={handleSubmit} className="p-6 space-y-5">
                         {/* Name */}
                         <div className="space-y-1.5">
-                            <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 ml-1">
+                            <label className="block text-sm font-semibold text-gray-700 dark:text-secondary ml-1">
                                 Token Name *
                             </label>
                             <input
@@ -107,21 +108,21 @@ export default function TokenModal({ onClose, onSuccess }) {
                                 required
                                 value={formData.name}
                                 onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                                className="w-full px-4 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-white/50 dark:bg-slate-900/50 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500/50 outline-none transition-all placeholder:text-gray-400"
+                                className="w-full px-4 py-2.5 rounded-xl border border-gray-200 dark:border-border bg-white/50 dark:bg-background/50 text-gray-900 dark:text-foreground focus:ring-2 focus:ring-accent/50 outline-none transition-all placeholder:text-gray-400"
                                 placeholder="e.g. n8n Integration"
                             />
                         </div>
 
                         {/* User */}
                         <div className="space-y-1.5">
-                            <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 ml-1">
+                            <label className="block text-sm font-semibold text-gray-700 dark:text-secondary ml-1">
                                 User *
                             </label>
                             <div className="relative">
                                 <select
                                     value={formData.userId}
                                     onChange={(e) => setFormData({ ...formData, userId: e.target.value })}
-                                    className="w-full px-4 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-white/50 dark:bg-slate-900/50 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500/50 outline-none transition-all appearance-none"
+                                    className="w-full px-4 py-2.5 rounded-xl border border-gray-200 dark:border-border bg-white/50 dark:bg-background/50 text-gray-900 dark:text-foreground focus:ring-2 focus:ring-accent/50 outline-none transition-all appearance-none"
                                 >
                                     {users.map(u => (
                                         <option key={u.id} value={u.id}>{u.name} ({u.email})</option>
@@ -135,14 +136,14 @@ export default function TokenModal({ onClose, onSuccess }) {
 
                         {/* Expiration */}
                         <div className="space-y-1.5">
-                            <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 ml-1">
+                            <label className="block text-sm font-semibold text-gray-700 dark:text-secondary ml-1">
                                 Expiration
                             </label>
                             <div className="relative">
                                 <select
                                     value={formData.expiresInDays}
                                     onChange={(e) => setFormData({ ...formData, expiresInDays: parseInt(e.target.value) })}
-                                    className="w-full px-4 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 bg-white/50 dark:bg-slate-900/50 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500/50 outline-none transition-all appearance-none"
+                                    className="w-full px-4 py-2.5 rounded-xl border border-gray-200 dark:border-border bg-white/50 dark:bg-background/50 text-gray-900 dark:text-foreground focus:ring-2 focus:ring-accent/50 outline-none transition-all appearance-none"
                                 >
                                     <option value={0}>Never</option>
                                     <option value={7}>7 Days</option>
@@ -161,14 +162,14 @@ export default function TokenModal({ onClose, onSuccess }) {
                             <button
                                 type="button"
                                 onClick={onClose}
-                                className="flex-1 px-4 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 transition-all font-medium"
+                                className="flex-1 px-4 py-2.5 rounded-xl border border-gray-200 dark:border-border text-gray-600 dark:text-secondary hover:bg-gray-50 dark:hover:bg-surface-hover transition-all font-medium"
                             >
                                 Cancel
                             </button>
                             <button
                                 type="submit"
                                 disabled={loading}
-                                className="flex-1 px-4 py-2.5 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-medium hover:shadow-lg hover:shadow-blue-500/25 active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+                                className="flex-1 px-4 py-2.5 rounded-xl bg-accent text-background font-medium hover:bg-accent-hover active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed transition-all"
                             >
                                 {loading ? 'Generating...' : 'Generate Token'}
                             </button>
@@ -177,12 +178,12 @@ export default function TokenModal({ onClose, onSuccess }) {
                 ) : (
                     <div className="p-8 space-y-6">
                         <div className="p-4 bg-yellow-500/10 border border-yellow-500/20 rounded-xl flex gap-3 items-start">
-                            <span className="text-2xl">⚠️</span>
+                            <span className="mt-0.5"><TriangleAlert size={18} /></span>
                             <div>
-                                <p className="text-sm font-bold text-yellow-700 dark:text-yellow-400 mb-1">
+                                <p className="text-sm font-bold text-warning dark:text-warning mb-1">
                                     Copy this token now!
                                 </p>
-                                <p className="text-sm text-yellow-600/90 dark:text-yellow-400/80">
+                                <p className="text-sm text-warning/90 dark:text-warning/80">
                                     This is the only time you will see the full token. Make sure to copy it and store it safely.
                                 </p>
                             </div>
@@ -193,20 +194,20 @@ export default function TokenModal({ onClose, onSuccess }) {
                                 type="text"
                                 readOnly
                                 value={createdToken?.token}
-                                className="w-full px-4 py-4 rounded-xl border border-emerald-500/30 bg-emerald-50/50 dark:bg-emerald-900/10 text-emerald-700 dark:text-emerald-400 font-mono text-sm break-all pr-12 focus:ring-2 focus:ring-emerald-500/50 outline-none"
+                                className="w-full px-4 py-4 rounded-xl border border-emerald-500/30 bg-emerald-50/50 dark:bg-emerald-900/10 text-success dark:text-success font-mono text-sm break-all pr-12 focus:ring-2 focus:ring-success/50 outline-none"
                             />
                             <button
                                 onClick={handleCopy}
-                                className="absolute right-2 top-2 bottom-2 aspect-square flex items-center justify-center rounded-lg hover:bg-emerald-100 dark:hover:bg-emerald-900/30 text-emerald-600 dark:text-emerald-400 transition-all font-medium"
+                                className="absolute right-2 top-2 bottom-2 aspect-square flex items-center justify-center rounded-lg hover:bg-emerald-100 dark:hover:bg-emerald-900/30 text-success dark:text-success transition-all font-medium"
                                 title="Copy to clipboard"
                             >
-                                📋
+                                <Copy size={16} />
                             </button>
                         </div>
 
                         <button
                             onClick={onClose}
-                            className="w-full px-4 py-3 rounded-xl bg-gray-900 dark:bg-white text-white dark:text-gray-900 font-bold hover:shadow-lg hover:scale-[1.02] active:scale-[0.98] transition-all"
+                            className="w-full px-4 py-3 rounded-xl bg-accent text-background font-bold hover:bg-accent-hover hover:scale-[1.02] active:scale-[0.98] transition-all"
                         >
                             Done, I've copied it
                         </button>

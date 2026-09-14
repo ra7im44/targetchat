@@ -4,6 +4,7 @@ import remarkGfm from 'remark-gfm';
 import rehypeHighlight from 'rehype-highlight';
 import 'highlight.js/styles/github-dark.css';
 
+import { Sparkles } from 'lucide-react';
 import { API_URL as API, getToken } from '../utils/apiConfig';
 
 export default function ChatBubble({ sender, message }) {
@@ -95,7 +96,7 @@ export default function ChatBubble({ sender, message }) {
           href={currentUrl}
           target="_blank"
           rel="noopener noreferrer"
-          className="flex items-center gap-2 text-blue-500 hover:underline font-medium"
+          className="flex items-center gap-2 text-accent hover:underline font-medium"
         >
           <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
           {file?.name || 'Download File'}
@@ -116,7 +117,7 @@ export default function ChatBubble({ sender, message }) {
               code: ({ node, inline, className, children, ...props }) => {
                 if (inline) {
                   return (
-                    <code className="px-1.5 py-0.5 rounded bg-gray-100 dark:bg-gray-800 text-sm font-mono text-pink-600 dark:text-pink-400" {...props}>
+                    <code className="px-1.5 py-0.5 rounded bg-gray-100 dark:bg-surface text-sm font-mono text-pink-600 dark:text-pink-400" {...props}>
                       {children}
                     </code>
                   );
@@ -163,13 +164,13 @@ export default function ChatBubble({ sender, message }) {
               h1: ({ node, ...props }) => <h1 className="text-2xl font-bold mb-3 mt-4" {...props} />,
               h2: ({ node, ...props }) => <h2 className="text-xl font-bold mb-2 mt-3" {...props} />,
               h3: ({ node, ...props }) => <h3 className="text-lg font-bold mb-2 mt-3" {...props} />,
-              strong: ({ node, ...props }) => <strong className="font-bold text-gray-900 dark:text-white" {...props} />,
+              strong: ({ node, ...props }) => <strong className="font-bold text-gray-900 dark:text-foreground" {...props} />,
               em: ({ node, ...props }) => <em className="italic" {...props} />,
               blockquote: ({ node, ...props }) => (
-                <blockquote className="border-l-4 border-gray-300 dark:border-gray-600 pl-4 my-3 italic text-gray-600 dark:text-gray-400" {...props} />
+                <blockquote className="border-l-4 border-gray-300 dark:border-strong pl-4 my-3 italic text-gray-600 dark:text-muted" {...props} />
               ),
               a: ({ node, ...props }) => (
-                <a className="text-blue-600 dark:text-blue-400 hover:underline" target="_blank" rel="noopener noreferrer" {...props} />
+                <a className="text-accent-active dark:text-info hover:underline" target="_blank" rel="noopener noreferrer" {...props} />
               ),
             }}
           >
@@ -195,11 +196,11 @@ export default function ChatBubble({ sender, message }) {
         <div className={`
           w-9 h-9 rounded-full flex items-center justify-center shrink-0 text-xs font-bold
           ${isUser
-            ? 'bg-blue-600 text-white'
-            : 'bg-violet-600 text-white'
+            ? 'bg-accent text-background'
+            : 'bg-surface-elevated text-secondary border border-border'
           }
         `}>
-          {isUser ? 'Y' : '✨'}
+          {isUser ? 'Y' : <Sparkles size={16} />}
         </div>
 
         {/* Message Container */}
@@ -208,8 +209,8 @@ export default function ChatBubble({ sender, message }) {
           <div className={`
             relative px-5 py-3.5
             ${isUser
-              ? 'bg-blue-600 text-white rounded-2xl rounded-tr-md shadow-sm'
-              : 'bg-white dark:bg-white/[0.04] text-gray-800 dark:text-gray-100 border border-gray-200 dark:border-white/10 rounded-2xl rounded-tl-md shadow-sm'
+              ? 'bg-accent text-background rounded-card rounded-tr-md shadow-sm'
+              : 'bg-white dark:bg-surface text-gray-800 dark:text-gray-100 border border-gray-200 dark:border-border rounded-card rounded-tl-md shadow-sm'
             }
           `}>
             {renderContent()}
@@ -217,17 +218,17 @@ export default function ChatBubble({ sender, message }) {
 
           {/* Action Row: Timestamp & Copy Button */}
           <div className={`flex items-center gap-2 px-1 text-[11px] font-medium ${isUser ? 'justify-end' : 'justify-start'}`}>
-            {time && <span className="text-gray-400 dark:text-gray-500">{time}</span>}
+            {time && <span className="text-gray-400 dark:text-muted">{time}</span>}
             <button
               type="button"
               onClick={handleCopyMessage}
-              className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-md hover:bg-gray-100 dark:hover:bg-slate-800 text-gray-400 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors"
+              className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-md hover:bg-gray-100 dark:hover:bg-surface-elevated text-gray-400 hover:text-accent dark:hover:text-info transition-colors"
               title="Copy message"
             >
               {copiedMessage ? (
                 <>
-                  <svg className="w-3.5 h-3.5 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" /></svg>
-                  <span className="text-[10px] text-emerald-600 dark:text-emerald-400 font-medium">Copied!</span>
+                  <svg className="w-3.5 h-3.5 text-success" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" /></svg>
+                  <span className="text-[10px] text-success dark:text-success font-medium">Copied!</span>
                 </>
               ) : (
                 <>

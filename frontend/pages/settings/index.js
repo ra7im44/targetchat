@@ -24,8 +24,8 @@ export default function SettingsPage() {
         <DashboardLayout title="Settings">
             <div className="max-w-5xl mx-auto">
                 <div className="mb-10">
-                    <h1 className="text-3xl font-extrabold text-gray-900 dark:text-white tracking-tight">Settings</h1>
-                    <p className="text-gray-500 dark:text-gray-400 mt-2 font-medium">Manage your account preferences.</p>
+                    <h1 className="text-3xl font-bold text-gray-900 dark:text-foreground tracking-tight">Settings</h1>
+                    <p className="text-gray-500 dark:text-muted mt-2 font-medium">Manage your account preferences.</p>
                 </div>
 
                 <div className="flex flex-col lg:flex-row gap-8">
@@ -37,8 +37,8 @@ export default function SettingsPage() {
                                     key={tab.id}
                                     onClick={() => setActiveTab(tab.id)}
                                     className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl font-medium transition-all duration-200 ${activeTab === tab.id
-                                        ? 'bg-blue-600 text-white shadow-lg shadow-blue-200 dark:shadow-none'
-                                        : 'text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800'
+                                        ? 'bg-accent text-background shadow-lg dark:shadow-none'
+                                        : 'text-gray-600 dark:text-muted hover:bg-gray-50 dark:hover:bg-surface-hover'
                                         }`}
                                 >
                                     {tab.icon}
@@ -52,10 +52,10 @@ export default function SettingsPage() {
                     <div className="flex-1">
                         {/* Profile Tab */}
                         {activeTab === 'profile' && (
-                            <div className="bg-white dark:bg-gray-800 rounded-3xl shadow-sm border border-gray-100 dark:border-gray-700 p-8 animate-in fade-in slide-in-from-bottom-4 duration-300">
-                                <div className="flex items-center gap-6 mb-8 border-b border-gray-100 dark:border-gray-700 pb-8">
+                            <div className="bg-white dark:bg-surface rounded-card shadow-sm border border-gray-100 dark:border-border p-8 animate-in fade-in slide-in- duration-300">
+                                <div className="flex items-center gap-6 mb-8 border-b border-gray-100 dark:border-border pb-8">
                                     <div className="relative group cursor-pointer">
-                                        <div className="w-24 h-24 rounded-full bg-gradient-to-br from-blue-400 to-indigo-600 flex items-center justify-center text-white text-3xl font-bold shadow-lg">
+                                        <div className="w-24 h-24 rounded-full bg-accent flex items-center justify-center text-white text-3xl font-bold shadow-lg">
                                             {user.name.substring(0, 2).toUpperCase()}
                                         </div>
                                         <div className="absolute inset-0 bg-black/40 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
@@ -63,7 +63,7 @@ export default function SettingsPage() {
                                         </div>
                                     </div>
                                     <div>
-                                        <h3 className="text-xl font-bold text-gray-900 dark:text-white">Profile Picture</h3>
+                                        <h3 className="text-xl font-bold text-gray-900 dark:text-foreground">Profile Picture</h3>
                                         <p className="text-gray-500 text-sm mt-1">PNG, JPG up to 5MB</p>
                                     </div>
                                 </div>
@@ -71,22 +71,22 @@ export default function SettingsPage() {
                                 <form className="space-y-6">
                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                         <div>
-                                            <label className="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-2">Full Name</label>
-                                            <input type="text" defaultValue={user.name} className="w-full px-5 py-3 rounded-xl border border-gray-200 dark:border-gray-600 bg-gray-50 dark:bg-gray-900/50 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all outline-none" placeholder="Your Name" />
+                                            <label className="block text-sm font-bold text-gray-700 dark:text-secondary mb-2">Full Name</label>
+                                            <input type="text" defaultValue={user.name} className="w-full px-5 py-3 rounded-xl border border-gray-200 dark:border-strong bg-gray-50 dark:bg-surface text-gray-900 dark:text-foreground focus:ring-2 focus:ring-accent/60 focus:border-transparent transition-all outline-none" placeholder="Your Name" />
                                         </div>
                                         <div>
-                                            <label className="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-2">Email Address</label>
-                                            <input type="email" defaultValue={user.email} className="w-full px-5 py-3 rounded-xl border border-gray-200 dark:border-gray-600 bg-gray-100 dark:bg-gray-700 text-gray-500 cursor-not-allowed" disabled />
+                                            <label className="block text-sm font-bold text-gray-700 dark:text-secondary mb-2">Email Address</label>
+                                            <input type="email" defaultValue={user.email} className="w-full px-5 py-3 rounded-xl border border-gray-200 dark:border-strong bg-gray-100 dark:bg-surface-elevated text-gray-500 cursor-not-allowed" disabled />
                                         </div>
                                     </div>
 
                                     <div>
-                                        <label className="block text-sm font-bold text-gray-700 dark:text-gray-300 mb-2">Company Name</label>
-                                        <input type="text" className="w-full px-5 py-3 rounded-xl border border-gray-200 dark:border-gray-600 bg-gray-50 dark:bg-gray-900/50 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all outline-none" placeholder="Your Company" />
+                                        <label className="block text-sm font-bold text-gray-700 dark:text-secondary mb-2">Company Name</label>
+                                        <input type="text" className="w-full px-5 py-3 rounded-xl border border-gray-200 dark:border-strong bg-gray-50 dark:bg-surface text-gray-900 dark:text-foreground focus:ring-2 focus:ring-accent/60 focus:border-transparent transition-all outline-none" placeholder="Your Company" />
                                     </div>
 
-                                    <div className="pt-4 border-t border-gray-100 dark:border-gray-700 flex justify-end">
-                                        <button type="button" className="px-8 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-bold shadow-lg shadow-blue-200 dark:shadow-none transition-all hover:-translate-y-0.5" onClick={() => toast.success('Profile updated!')}>
+                                    <div className="pt-4 border-t border-gray-100 dark:border-border flex justify-end">
+                                        <button type="button" className="px-8 py-3 bg-accent hover:bg-accent-hover text-background rounded-lg font-bold shadow-lg dark:shadow-none transition-all" onClick={() => toast.success('Profile updated!')}>
                                             Save Changes
                                         </button>
                                     </div>
@@ -96,15 +96,15 @@ export default function SettingsPage() {
 
                         {/* Notifications Tab Placeholder */}
                         {activeTab === 'notifications' && (
-                            <div className="bg-white dark:bg-gray-800 rounded-3xl shadow-sm border border-gray-100 dark:border-gray-700 p-8 animate-in fade-in slide-in-from-bottom-4 duration-300">
-                                <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-6">Notification Preferences</h2>
+                            <div className="bg-white dark:bg-surface rounded-card shadow-sm border border-gray-100 dark:border-border p-8 animate-in fade-in slide-in- duration-300">
+                                <h2 className="text-xl font-bold text-gray-900 dark:text-foreground mb-6">Notification Preferences</h2>
                                 <div className="space-y-4">
                                     {['Email Notifications', 'Desktop Push Notifications', 'Marketing Updates'].map((item) => (
-                                        <div key={item} className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-900/50 rounded-xl border border-gray-100 dark:border-gray-700">
-                                            <span className="font-bold text-gray-700 dark:text-gray-200">{item}</span>
+                                        <div key={item} className="flex items-center justify-between p-4 bg-gray-50 dark:bg-surface rounded-xl border border-gray-100 dark:border-border">
+                                            <span className="font-bold text-gray-700 dark:text-secondary">{item}</span>
                                             <div className="relative inline-block w-12 mr-2 align-middle select-none transition duration-200 ease-in">
-                                                <input type="checkbox" name="toggle" id={item} className="toggle-checkbox absolute block w-6 h-6 rounded-full bg-white border-4 appearance-none cursor-pointer checked:right-0 checked:border-blue-600" defaultChecked />
-                                                <label htmlFor={item} className="toggle-label block overflow-hidden h-6 rounded-full bg-gray-300 cursor-pointer checked:bg-blue-600"></label>
+                                                <input type="checkbox" name="toggle" id={item} className="toggle-checkbox absolute block w-6 h-6 rounded-full bg-white border-4 appearance-none cursor-pointer checked:right-0 checked:border-accent" defaultChecked />
+                                                <label htmlFor={item} className="toggle-label block overflow-hidden h-6 rounded-full bg-gray-300 cursor-pointer checked:bg-accent"></label>
                                             </div>
                                         </div>
                                     ))}

@@ -1,10 +1,11 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { Bot } from 'lucide-react';
 
 export default function WorkflowDropdown({ workflows, selected, onSelect, loading }) {
     const [isOpen, setIsOpen] = useState(false);
     const dropdownRef = useRef(null);
 
-    console.log('🔍 WorkflowDropdown props:', {
+    console.log('WorkflowDropdown props:', {
         workflows,
         workflowsLength: workflows?.length,
         selected,
@@ -26,9 +27,9 @@ export default function WorkflowDropdown({ workflows, selected, onSelect, loadin
 
     if (loading) {
         return (
-            <div className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-gray-100/80 dark:bg-slate-800/80 border border-gray-200/60 dark:border-gray-700/60 animate-pulse">
-                <div className="w-3.5 h-3.5 border-2 border-indigo-500 border-t-transparent rounded-full animate-spin"></div>
-                <span className="text-xs font-medium text-gray-500 dark:text-gray-400">Loading...</span>
+            <div className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-gray-100/80 dark:bg-surface/80 border border-gray-200/60 dark:border-border/60 animate-pulse">
+                <div className="w-3.5 h-3.5 border-2 border-accent border-t-transparent rounded-full animate-spin"></div>
+                <span className="text-xs font-medium text-gray-500 dark:text-muted">Loading...</span>
             </div>
         );
     }
@@ -41,11 +42,11 @@ export default function WorkflowDropdown({ workflows, selected, onSelect, loadin
             <button
                 type="button"
                 onClick={() => setIsOpen(!isOpen)}
-                className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-gray-100/90 dark:bg-slate-800/90 hover:bg-gray-200/80 dark:hover:bg-slate-700/80 transition-all duration-200 border border-gray-200/70 dark:border-gray-700/70 shadow-sm"
+                className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-gray-100/90 dark:bg-surface/90 hover:bg-gray-200/80 dark:hover:bg-surface-hover/80 transition-all duration-200 border border-gray-200/70 dark:border-border/70 shadow-sm"
                 title={selectedWorkflow?.description || 'Select AI Model'}
             >
-                <span className="text-base">{selectedWorkflow?.icon || '🤖'}</span>
-                <span className="font-semibold text-xs sm:text-sm text-gray-800 dark:text-gray-100 max-w-[120px] sm:max-w-[160px] truncate">
+                <span className="text-base flex items-center">{selectedWorkflow?.icon || <Bot size={18} />}</span>
+                <span className="font-semibold text-xs sm:text-sm text-gray-800 dark:text-secondary max-w-[120px] sm:max-w-[160px] truncate">
                     {selectedWorkflow?.name || 'Select Model'}
                 </span>
                 <svg
@@ -60,16 +61,16 @@ export default function WorkflowDropdown({ workflows, selected, onSelect, loadin
 
             {/* Dropdown Menu */}
             {isOpen && (
-                <div className="absolute top-full ltr:left-0 rtl:right-0 mt-2 w-80 bg-white dark:bg-slate-800 rounded-2xl shadow-2xl border border-gray-200 dark:border-gray-700/80 overflow-hidden z-50 animate-scaleIn">
-                    <div className="px-3 py-2 border-b border-gray-100 dark:border-gray-700/60 bg-gray-50/50 dark:bg-slate-900/30">
-                        <p className="text-[11px] font-semibold uppercase tracking-wider text-gray-400 dark:text-gray-500">
+                <div className="absolute top-full ltr:left-0 rtl:right-0 mt-2 w-80 bg-white dark:bg-surface rounded-card shadow-lg border border-gray-200 dark:border-border/80 overflow-hidden z-50">
+                    <div className="px-3 py-2 border-b border-gray-100 dark:border-border/60 bg-gray-50/50 dark:bg-background/30">
+                        <p className="text-[11px] font-semibold uppercase tracking-wider text-gray-400 dark:text-muted">
                             Available Models
                         </p>
                     </div>
 
                     <div className="p-1.5 max-h-80 overflow-y-auto space-y-1 scrollbar-thin">
                         {availableWorkflows.length === 0 ? (
-                            <div className="p-4 text-center text-xs text-gray-400 dark:text-gray-500">
+                            <div className="p-4 text-center text-xs text-gray-400 dark:text-muted">
                                 No models configured
                             </div>
                         ) : (
@@ -84,22 +85,22 @@ export default function WorkflowDropdown({ workflows, selected, onSelect, loadin
                                             setIsOpen(false);
                                         }}
                                         className={`w-full flex items-start gap-3 p-2.5 rounded-xl text-start transition-all duration-150 ${isSelected
-                                            ? 'bg-indigo-50/80 dark:bg-indigo-950/40 border border-indigo-200 dark:border-indigo-800/80'
-                                            : 'hover:bg-gray-100/70 dark:hover:bg-slate-700/50 border border-transparent'
+                                            ? 'bg-accent/10 dark:bg-accent/20 border border-accent/30 dark:border-accent/30'
+                                            : 'hover:bg-gray-100/70 dark:hover:bg-surface-hover/50 border border-transparent'
                                             }`}
                                     >
-                                        <span className="text-xl p-1.5 rounded-lg bg-gray-100 dark:bg-slate-700/60 shrink-0">
-                                            {workflow.icon || '🤖'}
+                                        <span className="text-xl p-1.5 rounded-lg bg-gray-100 dark:bg-surface-elevated/60 shrink-0">
+                                            {workflow.icon || <Bot size={18} />}
                                         </span>
                                         <div className="flex-1 min-w-0">
-                                            <div className="font-semibold text-xs sm:text-sm text-gray-900 dark:text-white flex items-center justify-between gap-1">
+                                            <div className="font-semibold text-xs sm:text-sm text-gray-900 dark:text-foreground flex items-center justify-between gap-1">
                                                 <span className="truncate">{workflow.name}</span>
                                                 {isSelected && (
-                                                    <span className="w-1.5 h-1.5 rounded-full bg-indigo-500 shrink-0"></span>
+                                                    <span className="w-1.5 h-1.5 rounded-full bg-accent shrink-0"></span>
                                                 )}
                                             </div>
                                             {workflow.description && (
-                                                <div className="text-[11px] text-gray-500 dark:text-gray-400 line-clamp-2 mt-0.5">
+                                                <div className="text-[11px] text-gray-500 dark:text-muted line-clamp-2 mt-0.5">
                                                     {workflow.description}
                                                 </div>
                                             )}

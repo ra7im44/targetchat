@@ -54,26 +54,26 @@ export default function AuthForm() {
     };
 
     return (
-        <div className="w-full max-w-md bg-slate-900/60 backdrop-blur-xl rounded-3xl shadow-2xl border border-white/10 overflow-hidden relative group">
-            <div className="absolute -inset-1 bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg blur opacity-10 group-hover:opacity-20 transition duration-1000 group-hover:duration-200"></div>
+        <div className="w-full max-w-md bg-background/80 backdrop-blur-xl rounded-card shadow-lg border border-white/10 overflow-hidden relative group">
+            <div className="absolute -inset-1 bg-accent rounded-lg blur opacity-10 group-hover:opacity-20 transition duration-1000 group-hover:duration-200"></div>
 
             <div className="relative">
                 {/* Tabs */}
-                <div className="flex p-1.5 gap-1.5 bg-slate-800/50 border-b border-white/5">
+                <div className="flex p-1.5 gap-1.5 bg-surface/80 border-b border-white/5">
                     <button
                         onClick={() => setMode('login')}
                         className={`flex-1 py-3 text-sm font-bold rounded-xl transition-all duration-300 ${mode === 'login'
-                            ? 'bg-blue-600 text-white shadow-lg shadow-blue-500/20'
-                            : 'text-slate-400 hover:bg-white/5 hover:text-white'
+                            ? 'bg-accent text-background shadow-lg'
+                            : 'text-muted hover:bg-white/5 hover:text-white'
                             }`}
                     >
                         Login
                     </button>
                     <button
                         onClick={() => setMode('register')}
-                        className={`flex-1 py-3 text-sm font-bold rounded-xl transition-all duration-300 ${mode === 'register'
-                            ? 'bg-purple-600 text-white shadow-lg shadow-purple-500/20'
-                            : 'text-slate-400 hover:bg-white/5 hover:text-white'
+                        className={`flex-1 py-3 text-sm font-bold rounded-lg transition-colors ${mode === 'register'
+                            ? 'bg-accent text-background shadow-sm'
+                            : 'text-muted hover:bg-white/5 hover:text-foreground'
                             }`}
                     >
                         Sign Up
@@ -86,7 +86,7 @@ export default function AuthForm() {
                         <h3 className="text-2xl font-bold text-white tracking-tight">
                             {mode === 'login' ? 'Welcome Back' : 'Start Free Trial'}
                         </h3>
-                        <p className="text-sm text-slate-400 mt-2 font-medium">
+                        <p className="text-sm text-muted mt-2 font-medium">
                             {mode === 'login'
                                 ? 'Command center access'
                                 : 'Deploy your AI agent in seconds'}
@@ -95,15 +95,15 @@ export default function AuthForm() {
 
                     {mode === 'register' && (
                         <div className="space-y-2 animate-slideIn">
-                            <label className="text-xs font-bold text-slate-400 uppercase tracking-wider ml-1">Full Name</label>
+                            <label className="text-xs font-bold text-muted uppercase tracking-wider ml-1">Full Name</label>
                             <div className="relative group/input">
-                                <div className="absolute -inset-0.5 bg-gradient-to-r from-blue-500 to-purple-500 rounded-xl blur opacity-0 group-hover/input:opacity-50 transition duration-500"></div>
+                                <div className="absolute -inset-0.5 bg-accent rounded-xl blur opacity-0 group-hover/input:opacity-50 transition duration-500"></div>
                                 <input
                                     type="text"
                                     value={name}
                                     onChange={(e) => setName(e.target.value)}
                                     placeholder="John Doe"
-                                    className="relative w-full px-5 py-3.5 bg-slate-900 border border-slate-700/50 rounded-xl focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition-all text-white placeholder-slate-600"
+                                    className="relative w-full px-5 py-3.5 bg-background border border-strong rounded-xl focus:border-accent focus:ring-1 focus:ring-accent/60 outline-none transition-all text-white placeholder-slate-600"
                                     required
                                 />
                             </div>
@@ -111,15 +111,15 @@ export default function AuthForm() {
                     )}
 
                     <div className="space-y-2">
-                        <label className="text-xs font-bold text-slate-400 uppercase tracking-wider ml-1">Email Access</label>
+                        <label className="text-xs font-bold text-muted uppercase tracking-wider ml-1">Email Access</label>
                         <div className="relative group/input">
-                            <div className="absolute -inset-0.5 bg-gradient-to-r from-blue-500 to-purple-500 rounded-xl blur opacity-0 group-hover/input:opacity-50 transition duration-500"></div>
+                            <div className="absolute -inset-0.5 bg-accent rounded-xl blur opacity-0 group-hover/input:opacity-50 transition duration-500"></div>
                             <input
                                 type="email"
                                 value={email}
                                 onChange={(e) => setEmail(e.target.value)}
                                 placeholder="name@company.com"
-                                className="relative w-full px-5 py-3.5 bg-slate-900 border border-slate-700/50 rounded-xl focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition-all text-white placeholder-slate-600"
+                                className="relative w-full px-5 py-3.5 bg-background border border-strong rounded-xl focus:border-accent focus:ring-1 focus:ring-accent/60 outline-none transition-all text-white placeholder-slate-600"
                                 required
                             />
                         </div>
@@ -127,19 +127,19 @@ export default function AuthForm() {
 
                     <div className="space-y-2">
                         <div className="flex justify-between items-center ml-1">
-                            <label className="text-xs font-bold text-slate-400 uppercase tracking-wider">Passcode</label>
+                            <label className="text-xs font-bold text-muted uppercase tracking-wider">Passcode</label>
                             {mode === 'login' && (
-                                <a href="/forgot-password" className="text-xs text-blue-400 hover:text-blue-300 font-medium transition-colors">Recover?</a>
+                                <a href="/forgot-password" className="text-xs text-info hover:text-info font-medium transition-colors">Recover?</a>
                             )}
                         </div>
                         <div className="relative group/input">
-                            <div className="absolute -inset-0.5 bg-gradient-to-r from-blue-500 to-purple-500 rounded-xl blur opacity-0 group-hover/input:opacity-50 transition duration-500"></div>
+                            <div className="absolute -inset-0.5 bg-accent rounded-xl blur opacity-0 group-hover/input:opacity-50 transition duration-500"></div>
                             <input
                                 type="password"
                                 value={password}
                                 onChange={(e) => setPassword(e.target.value)}
                                 placeholder="••••••••"
-                                className="relative w-full px-5 py-3.5 bg-slate-900 border border-slate-700/50 rounded-xl focus:border-blue-500 focus:ring-1 focus:ring-blue-500 outline-none transition-all text-white placeholder-slate-600"
+                                className="relative w-full px-5 py-3.5 bg-background border border-strong rounded-xl focus:border-accent focus:ring-1 focus:ring-accent/60 outline-none transition-all text-white placeholder-slate-600"
                                 required
                             />
                         </div>
@@ -150,7 +150,7 @@ export default function AuthForm() {
                         disabled={loading}
                         className="relative w-full py-4 group overflow-hidden rounded-xl disabled:opacity-50 disabled:cursor-not-allowed"
                     >
-                        <span className="absolute inset-0 bg-gradient-to-r from-blue-600 to-purple-600 transition-all duration-300 group-hover:scale-105"></span>
+                        <span className="absolute inset-0 bg-accent transition-all duration-300 group-hover:scale-105"></span>
                         <span className="absolute inset-0 bg-white/0 group-hover:bg-white/10 transition-colors"></span>
                         <span className="relative flex items-center justify-center gap-2 text-white font-bold tracking-wide">
                             {loading ? (

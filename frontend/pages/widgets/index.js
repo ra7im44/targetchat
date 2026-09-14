@@ -91,11 +91,11 @@ export default function WidgetsPage() {
     // Function generates color based on string char code
     const getGradient = (str) => {
         const gradients = [
-            'from-blue-400 to-indigo-500',
-            'from-purple-400 to-pink-500',
-            'from-green-400 to-emerald-500',
-            'from-orange-400 to-red-500',
-            'from-cyan-400 to-blue-500'
+            '',
+            '',
+            '',
+            '',
+            ''
         ];
         const key = String(str || 'W');
         const code = key.charCodeAt(0) % gradients.length;
@@ -107,14 +107,14 @@ export default function WidgetsPage() {
             {/* Header */}
             <div className="flex flex-col md:flex-row md:items-center justify-between mb-8 gap-4">
                 <div>
-                    <h1 className="text-3xl font-extrabold text-gray-900 dark:text-white tracking-tight">My Widgets</h1>
-                    <p className="text-gray-500 dark:text-gray-400 mt-2 font-medium">
+                    <h1 className="text-3xl font-bold text-gray-900 dark:text-foreground tracking-tight">My Widgets</h1>
+                    <p className="text-gray-500 dark:text-muted mt-2 font-medium">
                         Create, customize, and deploy your chat widgets.
                     </p>
                 </div>
                 <button
                     onClick={handleCreate}
-                    className="flex items-center gap-2 px-5 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-bold shadow-lg shadow-blue-200 dark:shadow-none hover:scale-105 transition-transform"
+                    className="flex items-center gap-2 px-5 py-3 bg-accent hover:bg-accent-hover text-background rounded-xl font-bold shadow-lg dark:shadow-none hover:scale-105 transition-transform"
                 >
                     <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" /></svg>
                     Create New Widget
@@ -125,21 +125,21 @@ export default function WidgetsPage() {
             {loading ? (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                     {[1, 2, 3].map(i => (
-                        <div key={i} className="h-64 bg-gray-100 dark:bg-gray-800 rounded-3xl animate-pulse"></div>
+                        <div key={i} className="h-64 bg-gray-100 dark:bg-surface rounded-card animate-pulse"></div>
                     ))}
                 </div>
             ) : widgets.length === 0 ? (
-                <div className="text-center py-20 bg-white dark:bg-gray-800 rounded-3xl border-2 border-dashed border-gray-200 dark:border-gray-700">
-                    <div className="w-20 h-20 bg-blue-50 dark:bg-blue-900/20 rounded-full flex items-center justify-center mx-auto mb-6">
-                        <svg className="w-10 h-10 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" /></svg>
+                <div className="text-center py-20 bg-white dark:bg-surface rounded-card border-2 border-dashed border-gray-200 dark:border-border">
+                    <div className="w-20 h-20 bg-accent/10 dark:bg-accent/20 rounded-full flex items-center justify-center mx-auto mb-6">
+                        <svg className="w-10 h-10 text-accent" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" /></svg>
                     </div>
-                    <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">No widgets created</h2>
-                    <p className="text-gray-500 dark:text-gray-400 mb-8 max-w-md mx-auto">
+                    <h2 className="text-2xl font-bold text-gray-900 dark:text-foreground mb-2">No widgets created</h2>
+                    <p className="text-gray-500 dark:text-muted mb-8 max-w-md mx-auto">
                         Get started by creating your first chat widget. Customize it and add it to your website in minutes.
                     </p>
                     <button
                         onClick={handleCreate}
-                        className="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-bold"
+                        className="px-6 py-3 bg-accent hover:bg-accent-hover text-background rounded-xl font-bold"
                     >
                         Create Your First Widget
                     </button>
@@ -147,22 +147,22 @@ export default function WidgetsPage() {
             ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                     {widgets.map((widget) => (
-                        <Link href={`/widgets/${widget.id}`} key={widget.id} className="group relative bg-white dark:bg-gray-800 rounded-3xl p-6 shadow-sm border border-gray-100 dark:border-gray-700 hover:shadow-xl hover:-translate-y-1 transition-all duration-300">
+                        <Link href={`/widgets/${widget.id}`} key={widget.id} className="group relative bg-white dark:bg-surface rounded-card p-6 shadow-sm border border-gray-100 dark:border-border hover:shadow-lg transition-all duration-300">
                             {/* Header */}
                             <div className="flex justify-between items-start mb-6">
-                                <div className={`w-14 h-14 rounded-2xl bg-gradient-to-br ${getGradient(widget.name || 'W')} flex items-center justify-center text-white text-xl font-bold shadow-lg`}>
+                                <div className={`w-14 h-14 rounded-card bg-accent ${getGradient(widget.name || 'W')} flex items-center justify-center text-white text-xl font-bold shadow-lg`}>
                                     {(widget.name || 'W').substring(0, 2).toUpperCase()}
                                 </div>
                                 <div className="flex items-center gap-2">
                                     <span className={`px-3 py-1 text-xs font-bold uppercase tracking-wider rounded-full border ${widget.status === 'active'
-                                        ? 'bg-emerald-50 text-emerald-600 border-emerald-100 dark:bg-emerald-900/30 dark:text-emerald-400'
-                                        : 'bg-gray-50 text-gray-600 border-gray-100 dark:bg-gray-700 dark:text-gray-400'}`}>
+                                        ? 'bg-success text-success border-success dark:bg-success/30 dark:text-success'
+                                        : 'bg-gray-50 text-gray-600 border-gray-100 dark:bg-surface-elevated dark:text-muted'}`}>
                                         {widget.status || 'Active'}
                                     </span>
                                     <button
                                         type="button"
                                         onClick={(e) => handleDelete(e, widget.id, widget.name)}
-                                        className="p-1.5 text-gray-400 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-900/30 rounded-lg transition-colors"
+                                        className="p-1.5 text-gray-400 hover:text-danger hover:bg-danger/10 dark:hover:bg-red-900/30 rounded-lg transition-colors"
                                         title="Delete Widget"
                                     >
                                         <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -174,21 +174,21 @@ export default function WidgetsPage() {
 
                             {/* Info */}
                             <div className="mb-6">
-                                <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-1 group-hover:text-blue-600 transition-colors">
+                                <h3 className="text-xl font-bold text-gray-900 dark:text-foreground mb-1 group-hover:text-accent transition-colors">
                                     {widget.name || 'Untitled Widget'}
                                 </h3>
-                                <div className="flex items-center text-sm text-gray-500 dark:text-gray-400 font-mono bg-gray-50 dark:bg-gray-700/50 px-2 py-1 rounded-lg w-fit mt-2">
+                                <div className="flex items-center text-sm text-gray-500 dark:text-muted font-mono bg-gray-50 dark:bg-surface-elevated/50 px-2 py-1 rounded-lg w-fit mt-2">
                                     <svg className="w-3 h-3 mr-1.5 opacity-70" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" /></svg>
                                     {widget.slug}
                                 </div>
                             </div>
 
                             {/* Footer / Actions */}
-                            <div className="flex items-center justify-between pt-6 border-t border-gray-100 dark:border-gray-700">
+                            <div className="flex items-center justify-between pt-6 border-t border-gray-100 dark:border-border">
                                 <span className="text-xs font-medium text-gray-400">
                                     Created {new Date(widget.createdAt || widget.created_at || Date.now()).toLocaleDateString()}
                                 </span>
-                                <span className="text-sm font-bold text-blue-600 group-hover:underline">
+                                <span className="text-sm font-bold text-accent group-hover:underline">
                                     Manage →
                                 </span>
                             </div>
@@ -196,8 +196,8 @@ export default function WidgetsPage() {
                     ))}
 
                     {/* 'Add New' Card */}
-                    <button onClick={handleCreate} className="flex flex-col items-center justify-center h-full min-h-[280px] rounded-3xl border-2 border-dashed border-gray-200 dark:border-gray-700 hover:border-blue-500 hover:bg-blue-50 dark:hover:bg-blue-900/10 transition-all group text-gray-400 hover:text-blue-600">
-                        <div className="w-14 h-14 rounded-full bg-gray-100 dark:bg-gray-700 group-hover:bg-blue-200 dark:group-hover:bg-blue-800 flex items-center justify-center mb-4 transition-colors">
+                    <button onClick={handleCreate} className="flex flex-col items-center justify-center h-full min-h-[280px] rounded-card border-2 border-dashed border-gray-200 dark:border-border hover:border-accent hover:bg-accent/10 dark:hover:bg-accent/20 transition-all group text-gray-400 hover:text-accent">
+                        <div className="w-14 h-14 rounded-full bg-gray-100 dark:bg-surface-elevated group-hover:bg-accent/10 dark:group-hover:bg-accent/20 flex items-center justify-center mb-4 transition-colors">
                             <svg className="w-8 h-8" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" /></svg>
                         </div>
                         <span className="font-bold">Create New Widget</span>

@@ -6,7 +6,7 @@ import DeleteUserModal from '../../components/admin/DeleteUserModal';
 import {
     Users, Shield, Activity, Search, Trash2,
     Edit, Ban, CheckCircle, X, ChevronLeft, ChevronRight,
-    Crown, User, Globe
+    Crown, User, Globe, Smartphone
 } from 'lucide-react';
 import { countryName, countryFlag, parseDevice } from '../../utils/deviceHelper';
 
@@ -217,7 +217,7 @@ export default function UsersPage() {
         return (
             <AdminLayout>
                 <div className="flex items-center justify-center h-full">
-                    <div className="w-16 h-16 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+                    <div className="w-16 h-16 border-4 border-accent border-t-transparent rounded-full animate-spin"></div>
                 </div>
             </AdminLayout>
         );
@@ -229,11 +229,11 @@ export default function UsersPage() {
                 {/* Header */}
                 <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                     <div>
-                        <h1 className="text-3xl font-extrabold text-gray-900 dark:text-white flex items-center gap-3">
-                            <Users size={32} className="text-blue-600" />
+                        <h1 className="text-3xl font-bold text-gray-900 dark:text-foreground flex items-center gap-3">
+                            <Users size={18} className="text-accent" />
                             User Management
                         </h1>
-                        <p className="text-gray-500 dark:text-gray-400 mt-1">
+                        <p className="text-gray-500 dark:text-muted mt-1">
                             Control user access, roles, and account status.
                         </p>
                     </div>
@@ -243,48 +243,48 @@ export default function UsersPage() {
 
                 {/* Stats Cards */}
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                    <div className="bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 relative overflow-hidden group">
+                    <div className="bg-white dark:bg-surface p-6 rounded-card shadow-sm border border-gray-100 dark:border-border relative overflow-hidden group">
                         <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-10 transition-opacity transform scale-150 duration-500 text-blue-500">
-                            <Users size={64} />
+                            <Users size={18} />
                         </div>
                         <div className="relative z-10">
-                            <div className="p-3 bg-blue-50 dark:bg-blue-900/20 rounded-xl w-fit mb-4 text-blue-600 dark:text-blue-400">
-                                <Users size={24} />
+                            <div className="p-3 bg-blue-50 dark:bg-blue-900/20 rounded-xl w-fit mb-4 text-accent dark:text-info">
+                                <Users size={18} />
                             </div>
-                            <h3 className="text-3xl font-bold text-gray-900 dark:text-white mb-1">
+                            <h3 className="text-3xl font-bold text-gray-900 dark:text-foreground mb-1">
                                 {stats.total}
                             </h3>
-                            <p className="text-sm font-medium text-gray-500 dark:text-gray-400">Total Users</p>
+                            <p className="text-sm font-medium text-gray-500 dark:text-muted">Total Users</p>
                         </div>
                     </div>
 
-                    <div className="bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 relative overflow-hidden group">
+                    <div className="bg-white dark:bg-surface p-6 rounded-card shadow-sm border border-gray-100 dark:border-border relative overflow-hidden group">
                         <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-10 transition-opacity transform scale-150 duration-500 text-purple-500">
-                            <Shield size={64} />
+                            <Shield size={18} />
                         </div>
                         <div className="relative z-10">
                             <div className="p-3 bg-purple-50 dark:bg-purple-900/20 rounded-xl w-fit mb-4 text-purple-600 dark:text-purple-400">
-                                <Crown size={24} />
+                                <Crown size={18} />
                             </div>
-                            <h3 className="text-3xl font-bold text-gray-900 dark:text-white mb-1">
+                            <h3 className="text-3xl font-bold text-gray-900 dark:text-foreground mb-1">
                                 {stats.admins}
                             </h3>
-                            <p className="text-sm font-medium text-gray-500 dark:text-gray-400">Administrators</p>
+                            <p className="text-sm font-medium text-gray-500 dark:text-muted">Administrators</p>
                         </div>
                     </div>
 
-                    <div className="bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 relative overflow-hidden group">
+                    <div className="bg-white dark:bg-surface p-6 rounded-card shadow-sm border border-gray-100 dark:border-border relative overflow-hidden group">
                         <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-10 transition-opacity transform scale-150 duration-500 text-emerald-500">
-                            <Activity size={64} />
+                            <Activity size={18} />
                         </div>
                         <div className="relative z-10">
                             <div className="p-3 bg-emerald-50 dark:bg-emerald-900/20 rounded-xl w-fit mb-4 text-emerald-600 dark:text-emerald-400">
-                                <Activity size={24} />
+                                <Activity size={18} />
                             </div>
-                            <h3 className="text-3xl font-bold text-gray-900 dark:text-white mb-1">
+                            <h3 className="text-3xl font-bold text-gray-900 dark:text-foreground mb-1">
                                 {stats.active}
                             </h3>
-                            <p className="text-sm font-medium text-gray-500 dark:text-gray-400">Active Users</p>
+                            <p className="text-sm font-medium text-gray-500 dark:text-muted">Active Users</p>
                         </div>
                     </div>
                 </div>
@@ -292,14 +292,14 @@ export default function UsersPage() {
                 {/* Bulk Actions Floating Bar */}
                 {selectedUsers.length > 0 && (
                     <div className="fixed bottom-6 left-1/2 transform -translate-x-1/2 z-50 animate-scaleIn w-max max-w-[calc(100vw-2rem)]">
-                        <div className="bg-white dark:bg-gray-800 px-6 py-3 rounded-2xl shadow-xl flex flex-wrap items-center justify-center gap-x-6 gap-y-3 border border-blue-500 ring-4 ring-blue-500/10">
-                            <span className="font-bold text-gray-900 dark:text-white flex items-center gap-2">
-                                <span className="bg-blue-600 text-white w-6 h-6 rounded-full flex items-center justify-center text-xs">
+                        <div className="bg-white dark:bg-surface px-6 py-3 rounded-card shadow-lg flex flex-wrap items-center justify-center gap-x-6 gap-y-3 border border-accent ring-4 ring-accent/10">
+                            <span className="font-bold text-gray-900 dark:text-foreground flex items-center gap-2">
+                                <span className="bg-accent text-white w-6 h-6 rounded-full flex items-center justify-center text-xs">
                                     {selectedUsers.length}
                                 </span>
                                 Selected
                             </span>
-                            <div className="h-6 w-px bg-gray-200 dark:bg-gray-600"></div>
+                            <div className="h-6 w-px bg-gray-200 dark:bg-surface-elevated"></div>
                             <div className="flex gap-2">
                                 <button
                                     onClick={() => handleBulkAction('activate')}
@@ -324,30 +324,30 @@ export default function UsersPage() {
                                 onClick={() => setSelectedUsers([])}
                                 className="ml-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200"
                             >
-                                <X size={20} />
+                                <X size={18} />
                             </button>
                         </div>
                     </div>
                 )}
 
                 {/* Search & Filter */}
-                <div className="bg-white dark:bg-gray-800 p-4 rounded-2xl flex flex-col md:flex-row gap-4 items-center shadow-sm border border-gray-100 dark:border-gray-700">
+                <div className="bg-white dark:bg-surface p-4 rounded-card flex flex-col md:flex-row gap-4 items-center shadow-sm border border-gray-100 dark:border-border">
                     <div className="flex-1 w-full relative">
-                        <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" size={20} />
+                        <Search className="absolute left-4 top-1/2 -translate-y-1/2" size={18} />
                         <input
                             type="text"
                             placeholder="Search by name, email, country, IP, or device..."
                             aria-label="Search users by name, email, country, IP, or device"
                             value={search}
                             onChange={(e) => setSearch(e.target.value)}
-                            className="w-full pl-11 pr-4 py-3 rounded-xl bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 focus:ring-2 focus:ring-blue-500/50 outline-none transition-all placeholder:text-gray-400"
+                            className="w-full pl-11 pr-4 py-3 rounded-xl bg-gray-50 dark:bg-background border border-gray-200 dark:border-border focus:ring-2 focus:ring-accent/50 outline-none transition-all placeholder:text-gray-400"
                         />
                     </div>
                     <select
                         value={filter}
                         aria-label="Filter users"
                         onChange={(e) => setFilter(e.target.value)}
-                        className="w-full md:w-auto px-6 py-3 rounded-xl bg-gray-50 dark:bg-gray-900 border border-gray-200 dark:border-gray-700 focus:ring-2 focus:ring-blue-500/50 outline-none cursor-pointer"
+                        className="w-full md:w-auto px-6 py-3 rounded-xl bg-gray-50 dark:bg-background border border-gray-200 dark:border-border focus:ring-2 focus:ring-accent/50 outline-none cursor-pointer"
                     >
                         <option value="all">All Users</option>
                         <option value="admin">Admins Only</option>
@@ -358,10 +358,10 @@ export default function UsersPage() {
                 </div>
 
                 {/* Users Table */}
-                <div className="bg-white dark:bg-gray-800 rounded-2xl overflow-hidden shadow-sm border border-gray-100 dark:border-gray-700">
+                <div className="bg-white dark:bg-surface rounded-card overflow-hidden shadow-sm border border-gray-100 dark:border-border">
                     <div className="overflow-x-auto">
                         <table className="w-full">
-                            <thead className="bg-gray-50/50 dark:bg-gray-700/50 border-b border-gray-100 dark:border-gray-700">
+                            <thead className="bg-gray-50/50 dark:bg-surface-elevated border-b border-gray-100 dark:border-border">
                                 <tr>
                                     <th className="px-6 py-4 w-12 text-center">
                                         <input
@@ -369,14 +369,14 @@ export default function UsersPage() {
                                             onChange={handleSelectAll}
                                             checked={users.length > 0 && selectedUsers.length === users.length}
                                             aria-label="Select all users"
-                                            className="w-4 h-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                                            className="w-4 h-4 rounded border-gray-300 text-blue-600 focus:ring-accent/60"
                                         />
                                     </th>
-                                    <th className="px-6 py-4 text-left text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">User</th>
-                                    <th className="px-6 py-4 text-left text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Role</th>
-                                    <th className="px-6 py-4 text-left text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Status</th>
-                                    <th className="px-6 py-4 text-left text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Last Login</th>
-                                    <th className="px-6 py-4 text-right text-xs font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Actions</th>
+                                    <th className="px-6 py-4 text-left text-xs font-bold text-gray-500 dark:text-muted uppercase tracking-wider">User</th>
+                                    <th className="px-6 py-4 text-left text-xs font-bold text-gray-500 dark:text-muted uppercase tracking-wider">Role</th>
+                                    <th className="px-6 py-4 text-left text-xs font-bold text-gray-500 dark:text-muted uppercase tracking-wider">Status</th>
+                                    <th className="px-6 py-4 text-left text-xs font-bold text-gray-500 dark:text-muted uppercase tracking-wider">Last Login</th>
+                                    <th className="px-6 py-4 text-right text-xs font-bold text-gray-500 dark:text-muted uppercase tracking-wider">Actions</th>
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-gray-100 dark:divide-gray-700">
@@ -385,7 +385,7 @@ export default function UsersPage() {
                                         key={user.id}
                                         className={`group transition-colors duration-150 ${selectedUsers.includes(user.id)
                                             ? 'bg-blue-50/60 dark:bg-blue-900/40'
-                                            : 'hover:bg-gray-50 dark:hover:bg-gray-700/30'
+                                            : 'hover:bg-gray-50 dark:hover:bg-surface-hover/30'
                                             }`}
                                     >
                                         <td className="px-6 py-4 text-center">
@@ -394,7 +394,7 @@ export default function UsersPage() {
                                                 checked={selectedUsers.includes(user.id)}
                                                 onChange={() => handleSelectUser(user.id)}
                                                 aria-label={`Select user ${user.name}`}
-                                                className="w-4 h-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                                                className="w-4 h-4 rounded border-gray-300 text-blue-600 focus:ring-accent/60"
                                             />
                                         </td>
                                         <td className="px-6 py-4">
@@ -411,27 +411,27 @@ export default function UsersPage() {
                                                     }
                                                 }}
                                             >
-                                                <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white font-bold shadow-md flex-shrink-0 mt-0.5">
+                                                <div className="w-10 h-10 rounded-full bg-accent flex items-center justify-center text-white font-bold shadow-md flex-shrink-0 mt-0.5">
                                                     {user.avatar ? <img src={user.avatar} className="w-full h-full rounded-full object-cover" alt="" /> : user.name.charAt(0).toUpperCase()}
                                                 </div>
                                                 <div className="min-w-0">
-                                                    <div className="font-semibold text-gray-900 dark:text-white hover:text-blue-600 transition-colors flex items-center gap-2">
+                                                    <div className="font-semibold text-gray-900 dark:text-foreground hover:text-accent transition-colors flex items-center gap-2">
                                                         <span>{user.name}</span>
                                                         <span className="text-[11px] font-mono text-gray-400 font-normal">#{user.id}</span>
                                                     </div>
-                                                    <div className="text-sm text-gray-500 dark:text-gray-400 truncate">{user.email}</div>
+                                                    <div className="text-sm text-gray-500 dark:text-muted truncate">{user.email}</div>
                                                     {/* Geo, IP and Device Sub-row (Like U-Axis SPA) */}
                                                     <div className="flex flex-wrap items-center gap-2 mt-1.5 text-xs">
-                                                        <span className="inline-flex items-center gap-1 font-medium text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-700/60 px-2 py-0.5 rounded-md" title={`Location: ${user.city || ''} ${user.country || ''}`}>
+                                                        <span className="inline-flex items-center gap-1 font-medium text-gray-700 dark:text-secondary bg-gray-100 dark:bg-surface-elevated/60 px-2 py-0.5 rounded-md" title={`Location: ${user.city || ''} ${user.country || ''}`}>
                                                             {countryName(user.country)} {user.city ? `· ${user.city}` : ''}
                                                         </span>
                                                         <span className="text-gray-300 dark:text-gray-600">•</span>
-                                                        <span className="font-mono text-[11px] bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 px-1.5 py-0.5 rounded border border-blue-200/50 dark:border-blue-800/50" title="Last IP Address">
-                                                            🌐 <code>{user.lastIp || 'No IP'}</code>
+                                                        <span className="font-mono text-[11px] bg-blue-50 dark:bg-blue-900/30 text-info dark:text-info px-1.5 py-0.5 rounded border border-blue-200/50 dark:border-blue-800/50" title="Last IP Address">
+                                                            <Globe size={16} /> <code>{user.lastIp || 'No IP'}</code>
                                                         </span>
                                                         <span className="text-gray-300 dark:text-gray-600">•</span>
-                                                        <span className="text-gray-500 dark:text-gray-400" title="Device & OS">
-                                                            📱 {parseDevice(user.deviceInfo)}
+                                                        <span className="text-gray-500 dark:text-muted" title="Device & OS">
+                                                            <Smartphone size={16} /> {parseDevice(user.deviceInfo)}
                                                         </span>
                                                     </div>
                                                 </div>
@@ -440,7 +440,7 @@ export default function UsersPage() {
                                         <td className="px-6 py-4">
                                             <span className={`inline-flex items-center gap-1.5 px-3 py-1 text-xs font-bold rounded-full border ${user.role === 'admin'
                                                 ? 'bg-purple-100 text-purple-700 border-purple-200 dark:bg-purple-900/30 dark:border-purple-800 dark:text-purple-300'
-                                                : 'bg-gray-100 text-gray-600 border-gray-200 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400'
+                                                : 'bg-gray-100 text-gray-600 border-gray-200 dark:bg-surface dark:border-border dark:text-muted'
                                                 }`}>
                                                 {user.role === 'admin' ? <Crown size={12} /> : <User size={12} />}
                                                 {user.role === 'admin' ? 'Admin' : 'User'}
@@ -455,14 +455,14 @@ export default function UsersPage() {
                                                 {user.isActive || user.isActive === null ? 'Active' : 'Inactive'}
                                             </span>
                                         </td>
-                                        <td className="px-6 py-4 text-sm font-medium text-gray-500 dark:text-gray-400">
+                                        <td className="px-6 py-4 text-sm font-medium text-gray-500 dark:text-muted">
                                             {getRelativeTime(user.lastLogin)}
                                         </td>
                                         <td className="px-6 py-4 text-right">
                                             <div className="flex gap-2 justify-end opacity-100 lg:opacity-0 lg:group-hover:opacity-100 lg:focus-within:opacity-100 transition-opacity">
                                                 <button
                                                     onClick={() => setEditingUser(user)}
-                                                    className="p-2 rounded-lg text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-all"
+                                                    className="p-2 rounded-lg text-accent hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-all"
                                                     title="Edit User"
                                                     aria-label={`Edit ${user.name}`}
                                                 >
@@ -497,18 +497,18 @@ export default function UsersPage() {
 
                     {users.length === 0 && (
                         <div className="text-center py-16">
-                            <div className="w-20 h-20 bg-gray-100 dark:bg-gray-800 rounded-full flex items-center justify-center mx-auto mb-4 text-gray-400">
-                                <Users size={32} />
+                            <div className="w-20 h-20 bg-gray-100 dark:bg-surface rounded-full flex items-center justify-center mx-auto mb-4 text-gray-400">
+                                <Users size={18} />
                             </div>
-                            <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">No users found</h3>
-                            <p className="text-gray-500 dark:text-gray-400">
+                            <h3 className="text-xl font-bold text-gray-900 dark:text-foreground mb-2">No users found</h3>
+                            <p className="text-gray-500 dark:text-muted">
                                 {search || filter !== 'all' ? 'Try adjusting your filters' : 'Get started by inviting users'}
                             </p>
                         </div>
                     )}
                 </div>
 
-                <div className="mt-6 text-sm text-gray-500 dark:text-gray-400 text-center">
+                <div className="mt-6 text-sm text-gray-500 dark:text-muted text-center">
                     Showing {users.length} user{users.length !== 1 ? 's' : ''}
                 </div>
 

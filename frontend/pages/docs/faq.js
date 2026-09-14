@@ -196,13 +196,13 @@ export default function FAQ() {
 
             <h3 id="contact-support">How do I contact support?</h3>
             <p>
-                Email: <a href="mailto:support@targetchat.ai" className="text-blue-600 dark:text-blue-400 hover:underline">support@targetchat.ai</a><br />
+                Email: <a href="mailto:support@targetchat.ai" className="text-info dark:text-info hover:underline">support@targetchat.ai</a><br />
                 Live chat: Click the chat icon in your dashboard<br />
-                Help center: <a href="/docs" className="text-blue-600 dark:text-blue-400 hover:underline">docs.targetchat.ai</a>
+                Help center: <a href="/docs" className="text-info dark:text-info hover:underline">docs.targetchat.ai</a>
             </p>
 
             <Callout type="tip">
-                Can't find your answer? <a href="mailto:support@targetchat.ai" className="text-blue-600 dark:text-blue-400 hover:underline">Contact our support team</a> - we're here to help!
+                Can't find your answer? <a href="mailto:support@targetchat.ai" className="text-info dark:text-info hover:underline">Contact our support team</a> - we're here to help!
             </Callout>
         </DocsLayout>
     );

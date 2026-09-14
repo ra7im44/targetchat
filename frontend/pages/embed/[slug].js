@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import ReactMarkdown from 'react-markdown';
 import { useRouter } from 'next/router';
 import Head from 'next/head';
+import { TriangleAlert } from 'lucide-react';
 import io from 'socket.io-client';
 import PreChatForm from '../../components/PreChatForm';
 import { API_URL, SOCKET_URL } from '../../utils/apiConfig';
@@ -135,13 +136,13 @@ export default function EmbedPage() {
 
     if (loadError) return (
         <div className="flex items-center justify-center h-screen bg-gray-50 p-6">
-            <div className="max-w-sm text-center bg-white rounded-2xl shadow-sm border border-gray-200 p-8">
-                <div className="text-4xl mb-3">⚠️</div>
+            <div className="max-w-sm text-center bg-white rounded-card shadow-sm border border-gray-200 p-8">
+                <div className="flex justify-center mb-3 text-warning"><TriangleAlert size={18} /></div>
                 <h1 className="font-bold text-gray-900 mb-2">Chat unavailable</h1>
                 <p className="text-sm text-gray-500 mb-4">{loadError}</p>
                 <button
                     onClick={() => window.location.reload()}
-                    className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-bold rounded-xl transition-colors"
+                    className="px-4 py-2 bg-accent hover:bg-accent-hover text-background text-sm font-bold rounded-xl transition-colors"
                 >
                     Try again
                 </button>
@@ -182,7 +183,7 @@ export default function EmbedPage() {
                     <div>
                         <h1 className="font-bold text-lg">{config.name}</h1>
                         <div className="flex items-center gap-1.5 opacity-90">
-                            <span className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></span>
+                            <span className="w-2 h-2 bg-success rounded-full animate-pulse"></span>
                             <span className="text-xs">Online</span>
                         </div>
                     </div>
@@ -194,7 +195,7 @@ export default function EmbedPage() {
                 {messages.map((msg, i) => (
                     <div key={i} className={`flex ${msg.sender === 'user' ? 'justify-end' : 'justify-start'}`}>
                         <div
-                            className={`max-w-[85%] p-3 rounded-2xl shadow-sm text-sm ${msg.sender === 'user'
+                            className={`max-w-[85%] p-3 rounded-card shadow-sm text-sm ${msg.sender === 'user'
                                 ? 'text-white rounded-tr-none'
                                 : 'bg-white text-gray-800 rounded-tl-none'
                                 }`}
@@ -222,7 +223,7 @@ export default function EmbedPage() {
                         value={input}
                         onChange={(e) => setInput(e.target.value)}
                         placeholder={config.settings.placeholder || "Type a message..."}
-                        className="flex-1 px-4 py-2 bg-gray-50 rounded-full border border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all"
+                        className="flex-1 px-4 py-2 bg-gray-50 rounded-full border border-gray-200 focus:outline-none focus:ring-2 focus:ring-accent/20 focus:border-accent transition-all"
                     />
                     <button
                         type="submit"

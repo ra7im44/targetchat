@@ -97,14 +97,14 @@ export default function MembersModal({ isOpen, onClose, workspace }) {
 
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
-            <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl w-full max-w-2xl overflow-hidden flex flex-col max-h-[80vh]">
+            <div className="bg-white dark:bg-surface rounded-card shadow-lg w-full max-w-2xl overflow-hidden flex flex-col max-h-[80vh]">
                 {/* Header */}
-                <div className="p-6 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between">
+                <div className="p-6 border-b border-gray-200 dark:border-border flex items-center justify-between">
                     <div>
-                        <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Team Members</h2>
-                        <p className="text-sm text-gray-500 dark:text-gray-400">{workspace?.name}</p>
+                        <h2 className="text-2xl font-bold text-gray-900 dark:text-foreground">Team Members</h2>
+                        <p className="text-sm text-gray-500 dark:text-muted">{workspace?.name}</p>
                     </div>
-                    <button onClick={onClose} className="text-gray-500 hover:text-gray-700 dark:hover:text-gray-300">
+                    <button onClick={onClose} className="text-gray-500 hover:text-gray-700 dark:hover:text-secondary">
                         <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
                         </svg>
@@ -112,12 +112,12 @@ export default function MembersModal({ isOpen, onClose, workspace }) {
                 </div>
 
                 {/* Tabs */}
-                <div className="flex border-b border-gray-200 dark:border-gray-700">
+                <div className="flex border-b border-gray-200 dark:border-border">
                     <button
                         onClick={() => setActiveTab('members')}
                         className={`flex-1 py-3 text-sm font-medium transition-colors ${activeTab === 'members'
-                                ? 'text-blue-600 border-b-2 border-blue-600 bg-blue-50 dark:bg-blue-900/20'
-                                : 'text-gray-500 hover:text-gray-700 dark:hover:text-gray-300'
+                                ? 'text-accent border-b-2 border-accent bg-accent/10 dark:bg-accent/20'
+                                : 'text-gray-500 hover:text-gray-700 dark:hover:text-secondary'
                             }`}
                     >
                         Members ({members.length})
@@ -125,8 +125,8 @@ export default function MembersModal({ isOpen, onClose, workspace }) {
                     <button
                         onClick={() => setActiveTab('invite')}
                         className={`flex-1 py-3 text-sm font-medium transition-colors ${activeTab === 'invite'
-                                ? 'text-blue-600 border-b-2 border-blue-600 bg-blue-50 dark:bg-blue-900/20'
-                                : 'text-gray-500 hover:text-gray-700 dark:hover:text-gray-300'
+                                ? 'text-accent border-b-2 border-accent bg-accent/10 dark:bg-accent/20'
+                                : 'text-gray-500 hover:text-gray-700 dark:hover:text-secondary'
                             }`}
                     >
                         Invite New Member
@@ -139,29 +139,29 @@ export default function MembersModal({ isOpen, onClose, workspace }) {
                         <div className="space-y-4">
                             {loading ? (
                                 <div className="flex justify-center py-8">
-                                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+                                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-accent"></div>
                                 </div>
                             ) : members.length === 0 ? (
                                 <p className="text-center text-gray-500 py-8">No members found.</p>
                             ) : (
                                 members.map((member) => (
-                                    <div key={member.id} className="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-700/50 rounded-xl">
+                                    <div key={member.id} className="flex items-center justify-between p-4 bg-gray-50 dark:bg-surface-elevated/50 rounded-xl">
                                         <div className="flex items-center gap-3">
-                                            <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white font-bold">
+                                            <div className="w-10 h-10 rounded-full bg-accent flex items-center justify-center text-white font-bold">
                                                 {member.user?.name?.charAt(0)?.toUpperCase() || 'U'}
                                             </div>
                                             <div>
-                                                <div className="font-medium text-gray-900 dark:text-white">
+                                                <div className="font-medium text-gray-900 dark:text-foreground">
                                                     {member.user?.name || 'Unknown User'}
                                                 </div>
-                                                <div className="text-xs text-gray-500 dark:text-gray-400">
+                                                <div className="text-xs text-gray-500 dark:text-muted">
                                                     {member.user?.email}
                                                 </div>
                                             </div>
                                         </div>
                                         <div className="flex items-center gap-3">
                                             <span className={`px-3 py-1 rounded-full text-xs font-medium capitalize ${member.role === 'owner' ? 'bg-purple-100 text-purple-700' :
-                                                    member.role === 'manager' ? 'bg-blue-100 text-blue-700' :
+                                                    member.role === 'manager' ? 'bg-accent/10 text-info' :
                                                         'bg-gray-200 text-gray-700'
                                                 }`}>
                                                 {member.role}
@@ -169,7 +169,7 @@ export default function MembersModal({ isOpen, onClose, workspace }) {
                                             {member.role !== 'owner' && (
                                                 <button
                                                     onClick={() => handleRemoveMember(member.user_id)}
-                                                    className="text-red-500 hover:text-red-700 p-1"
+                                                    className="text-danger hover:text-danger p-1"
                                                     title="Remove member"
                                                 >
                                                     <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -185,7 +185,7 @@ export default function MembersModal({ isOpen, onClose, workspace }) {
                     ) : (
                         <form onSubmit={handleInvite} className="space-y-6">
                             <div>
-                                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                                <label className="block text-sm font-medium text-gray-700 dark:text-secondary mb-2">
                                     Email Address
                                 </label>
                                 <input
@@ -193,18 +193,18 @@ export default function MembersModal({ isOpen, onClose, workspace }) {
                                     value={inviteEmail}
                                     onChange={(e) => setInviteEmail(e.target.value)}
                                     placeholder="colleague@company.com"
-                                    className="w-full px-4 py-3 rounded-xl border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500"
+                                    className="w-full px-4 py-3 rounded-xl border border-gray-300 dark:border-strong bg-white dark:bg-surface-elevated text-gray-900 dark:text-foreground focus:ring-2 focus:ring-accent/60"
                                     required
                                 />
                             </div>
                             <div>
-                                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                                <label className="block text-sm font-medium text-gray-700 dark:text-secondary mb-2">
                                     Role
                                 </label>
                                 <select
                                     value={inviteRole}
                                     onChange={(e) => setInviteRole(e.target.value)}
-                                    className="w-full px-4 py-3 rounded-xl border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500"
+                                    className="w-full px-4 py-3 rounded-xl border border-gray-300 dark:border-strong bg-white dark:bg-surface-elevated text-gray-900 dark:text-foreground focus:ring-2 focus:ring-accent/60"
                                 >
                                     <option value="member">Member</option>
                                     <option value="manager">Manager</option>
@@ -213,7 +213,7 @@ export default function MembersModal({ isOpen, onClose, workspace }) {
                             <button
                                 type="submit"
                                 disabled={inviting}
-                                className="w-full py-3 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-xl font-medium hover:from-blue-700 hover:to-purple-700 disabled:opacity-50 transition-all shadow-lg shadow-blue-500/30"
+                                className="w-full py-3 bg-accent text-white rounded-xl font-medium disabled:opacity-50 transition-all shadow-lg"
                             >
                                 {inviting ? 'Sending Invitation...' : 'Send Invitation'}
                             </button>

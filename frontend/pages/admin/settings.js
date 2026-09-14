@@ -168,11 +168,11 @@ export default function AdminSettings() {
                 {/* Header */}
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                     <div>
-                        <h1 className="text-3xl font-extrabold text-gray-900 dark:text-white flex items-center gap-3">
-                            <Settings className="text-blue-600" size={32} />
+                        <h1 className="text-3xl font-bold text-gray-900 dark:text-foreground flex items-center gap-3">
+                            <Settings className="text-accent-active" size={32} />
                             System Settings
                         </h1>
-                        <p className="text-gray-500 dark:text-gray-400 mt-1">
+                        <p className="text-gray-500 dark:text-muted mt-1">
                             Configure global application preferences, intelligence routing, and API connections.
                         </p>
                     </div>
@@ -182,7 +182,7 @@ export default function AdminSettings() {
                             type="button"
                             onClick={handleSeedDefaults}
                             disabled={isSeeding || loading}
-                            className="flex items-center gap-2 px-4 py-2.5 bg-gray-100 hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-200 font-medium rounded-xl transition-all text-sm"
+                            className="flex items-center gap-2 px-4 py-2.5 bg-gray-100 hover:bg-gray-200 dark:bg-surface dark:hover:bg-surface-hover text-gray-700 dark:text-secondary font-medium rounded-xl transition-all text-sm"
                             title="Reload or reset defaults"
                         >
                             <RefreshCw size={16} className={isSeeding ? 'animate-spin' : ''} />
@@ -193,7 +193,7 @@ export default function AdminSettings() {
                             form="settings-form"
                             type="submit"
                             disabled={isSaving || loading || sortedSections.length === 0}
-                            className="flex items-center gap-2 px-6 py-2.5 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white font-bold rounded-xl transition-all shadow-lg hover:shadow-blue-500/30 text-sm"
+                            className="flex items-center gap-2 px-6 py-2.5 bg-accent hover:bg-accent-hover disabled:opacity-50 text-background font-bold rounded-lg transition-all shadow-lg text-sm"
                         >
                             {isSaving ? (
                                 <RefreshCw size={18} className="animate-spin" />
@@ -206,23 +206,23 @@ export default function AdminSettings() {
                 </div>
 
                 {loading ? (
-                    <div className="flex flex-col items-center justify-center min-h-[350px] bg-white dark:bg-gray-800 rounded-3xl border border-gray-100 dark:border-gray-700">
-                        <div className="w-10 h-10 border-4 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
-                        <p className="text-gray-500 dark:text-gray-400 mt-4 text-sm font-medium">Loading system settings...</p>
+                    <div className="flex flex-col items-center justify-center min-h-[350px] bg-white dark:bg-surface rounded-card border border-gray-100 dark:border-border">
+                        <div className="w-10 h-10 border-4 border-accent border-t-transparent rounded-full animate-spin"></div>
+                        <p className="text-gray-500 dark:text-muted mt-4 text-sm font-medium">Loading system settings...</p>
                     </div>
                 ) : sortedSections.length === 0 ? (
-                    <div className="text-center py-16 px-6 bg-white dark:bg-gray-800 rounded-3xl border border-gray-100 dark:border-gray-700 shadow-sm">
-                        <div className="w-16 h-16 bg-blue-50 dark:bg-blue-900/30 text-blue-600 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                    <div className="text-center py-16 px-6 bg-white dark:bg-surface rounded-card border border-gray-100 dark:border-border shadow-sm">
+                        <div className="w-16 h-16 bg-accent/10 dark:bg-accent/20 text-accent-active rounded-card flex items-center justify-center mx-auto mb-4">
                             <Settings size={32} />
                         </div>
-                        <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">No System Settings Configured</h3>
-                        <p className="text-gray-500 dark:text-gray-400 max-w-md mx-auto mb-6 text-sm">
+                        <h3 className="text-xl font-bold text-gray-900 dark:text-foreground mb-2">No System Settings Configured</h3>
+                        <p className="text-gray-500 dark:text-muted max-w-md mx-auto mb-6 text-sm">
                             The database settings table is currently empty. Click below to initialize all standard platform settings.
                         </p>
                         <button
                             onClick={handleSeedDefaults}
                             disabled={isSeeding}
-                            className="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-xl transition-all shadow-md inline-flex items-center gap-2 text-sm"
+                            className="px-6 py-3 bg-accent hover:bg-accent-hover text-background font-semibold rounded-lg transition-all shadow-md inline-flex items-center gap-2 text-sm"
                         >
                             <RefreshCw size={18} className={isSeeding ? 'animate-spin' : ''} />
                             {isSeeding ? 'Initializing...' : 'Initialize Default Settings'}
@@ -240,18 +240,18 @@ export default function AdminSettings() {
                                         key={section}
                                         type="button"
                                         onClick={() => setActiveSection(section)}
-                                        className={`w-full flex items-center justify-between px-4 py-3 rounded-2xl transition-all font-medium text-left ${isCurrent
-                                            ? 'bg-blue-600 text-white shadow-md shadow-blue-500/20'
-                                            : 'text-gray-600 dark:text-gray-400 hover:bg-white dark:hover:bg-gray-800'
+                                        className={`w-full flex items-center justify-between px-4 py-3 rounded-card transition-all font-medium text-left ${isCurrent
+                                            ? 'bg-accent text-background shadow-md'
+                                            : 'text-gray-600 dark:text-muted hover:bg-white dark:hover:bg-surface-hover'
                                             }`}
                                     >
                                         <div className="flex items-center gap-3">
-                                            <Icon size={18} className={isCurrent ? 'text-white' : 'text-gray-400 dark:text-gray-500'} />
+                                            <Icon size={18} className={isCurrent ? 'text-white' : 'text-gray-400 dark:text-muted'} />
                                             <span className="capitalize text-sm font-semibold">{section}</span>
                                         </div>
                                         <span className={`text-xs px-2 py-0.5 rounded-full font-mono ${isCurrent
-                                            ? 'bg-blue-700/60 text-white'
-                                            : 'bg-gray-100 dark:bg-gray-700 text-gray-500 dark:text-gray-400'
+                                            ? 'bg-accent/60 text-background'
+                                            : 'bg-gray-100 dark:bg-surface-elevated text-gray-500 dark:text-muted'
                                             }`}>
                                             {items.length}
                                         </span>
@@ -265,18 +265,18 @@ export default function AdminSettings() {
                             <form
                                 id="settings-form"
                                 onSubmit={handleUpdate}
-                                className="bg-white dark:bg-gray-800 rounded-3xl p-8 shadow-sm border border-gray-100 dark:border-gray-700"
+                                className="bg-white dark:bg-surface rounded-card p-8 shadow-sm border border-gray-100 dark:border-border"
                             >
-                                <div className="mb-8 border-b border-gray-100 dark:border-gray-700 pb-5">
+                                <div className="mb-8 border-b border-gray-100 dark:border-border pb-5">
                                     <div className="flex items-center gap-3">
-                                        <div className="p-2.5 bg-blue-50 dark:bg-blue-900/30 text-blue-600 rounded-xl">
+                                        <div className="p-2.5 bg-accent/10 dark:bg-accent/20 text-accent-active rounded-xl">
                                             {React.createElement(getSectionIcon(activeSection), { size: 22 })}
                                         </div>
                                         <div>
-                                            <h2 className="text-xl font-bold text-gray-900 dark:text-white capitalize">
+                                            <h2 className="text-xl font-bold text-gray-900 dark:text-foreground capitalize">
                                                 {activeSection} Settings
                                             </h2>
-                                            <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
+                                            <p className="text-xs text-gray-500 dark:text-muted mt-0.5">
                                                 {sectionDescriptions[activeSection] || 'Configure section properties and operational settings.'}
                                             </p>
                                         </div>
@@ -287,22 +287,22 @@ export default function AdminSettings() {
                                     {settings[activeSection]?.map((setting) => (
                                         <div
                                             key={setting.key}
-                                            className="p-4 rounded-2xl bg-gray-50/50 dark:bg-gray-900/40 border border-gray-100 dark:border-gray-800/80 transition-all hover:border-gray-200 dark:hover:border-gray-700"
+                                            className="p-4 rounded-card bg-gray-50/50 dark:bg-background/40 border border-gray-100 dark:border-border/80 transition-all hover:border-gray-200 dark:hover:border-gray-700"
                                         >
                                             <div className="flex items-center justify-between mb-2">
-                                                <label className="block text-sm font-semibold text-gray-800 dark:text-gray-200">
+                                                <label className="block text-sm font-semibold text-gray-800 dark:text-secondary">
                                                     {formatSettingLabel(setting.key)}
                                                 </label>
                                                 <span className={`text-[11px] px-2 py-0.5 rounded-md font-medium ${setting.isPublic
-                                                    ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400'
-                                                    : 'bg-gray-200 text-gray-600 dark:bg-gray-700 dark:text-gray-300'
+                                                    ? 'bg-success text-success dark:bg-success/30 dark:text-success'
+                                                    : 'bg-gray-200 text-gray-600 dark:bg-surface-elevated dark:text-secondary'
                                                     }`}>
                                                     {setting.isPublic ? 'Public' : 'Server Only'}
                                                 </span>
                                             </div>
 
                                             {setting.description && (
-                                                <p className="text-xs text-gray-500 dark:text-gray-400 mb-3">
+                                                <p className="text-xs text-gray-500 dark:text-muted mb-3">
                                                     {setting.description}
                                                 </p>
                                             )}
@@ -317,9 +317,9 @@ export default function AdminSettings() {
                                                             value="true"
                                                             className="sr-only peer"
                                                         />
-                                                        <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600"></div>
+                                                        <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-accent/30 dark:peer-focus:ring-accent/60 rounded-full peer dark:bg-surface-elevated peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-strong peer-checked:bg-accent"></div>
                                                     </label>
-                                                    <span className="text-xs font-medium text-gray-600 dark:text-gray-300">
+                                                    <span className="text-xs font-medium text-gray-600 dark:text-secondary">
                                                         Enabled
                                                     </span>
                                                 </div>
@@ -327,7 +327,7 @@ export default function AdminSettings() {
                                                 <textarea
                                                     name={setting.key}
                                                     defaultValue={setting.value || ''}
-                                                    className="w-full px-4 py-3 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none transition-all text-sm font-mono text-gray-800 dark:text-gray-200"
+                                                    className="w-full px-4 py-3 bg-white dark:bg-background border border-gray-200 dark:border-border rounded-xl focus:ring-2 focus:ring-accent/60 outline-none transition-all text-sm font-mono text-gray-800 dark:text-secondary"
                                                     rows={4}
                                                 />
                                             ) : setting.type === 'password' || setting.key.toLowerCase().includes('secret') || setting.key.toLowerCase().includes('pass') ? (
@@ -337,12 +337,12 @@ export default function AdminSettings() {
                                                         name={setting.key}
                                                         defaultValue={setting.value || ''}
                                                         placeholder={`Enter ${setting.key.toLowerCase().replace(/_/g, ' ')}...`}
-                                                        className="w-full pl-4 pr-11 py-2.5 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none transition-all text-sm text-gray-800 dark:text-gray-200"
+                                                        className="w-full pl-4 pr-11 py-2.5 bg-white dark:bg-background border border-gray-200 dark:border-border rounded-xl focus:ring-2 focus:ring-accent/60 outline-none transition-all text-sm text-gray-800 dark:text-secondary"
                                                     />
                                                     <button
                                                         type="button"
                                                         onClick={() => togglePasswordVisibility(setting.key)}
-                                                        className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
+                                                        className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 dark:hover:text-secondary"
                                                     >
                                                         {showPasswords[setting.key] ? <EyeOff size={16} /> : <Eye size={16} />}
                                                     </button>
@@ -353,7 +353,7 @@ export default function AdminSettings() {
                                                     name={setting.key}
                                                     defaultValue={setting.value || ''}
                                                     placeholder={`Enter ${setting.key.toLowerCase().replace(/_/g, ' ')}...`}
-                                                    className="w-full px-4 py-2.5 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none transition-all text-sm text-gray-800 dark:text-gray-200"
+                                                    className="w-full px-4 py-2.5 bg-white dark:bg-background border border-gray-200 dark:border-border rounded-xl focus:ring-2 focus:ring-accent/60 outline-none transition-all text-sm text-gray-800 dark:text-secondary"
                                                 />
                                             )}
                                         </div>

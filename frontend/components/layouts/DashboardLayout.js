@@ -10,7 +10,7 @@ import MembersModal from '../MembersModal';
 
 function DashboardContent({ children, title, user, workspaces, currentWorkspace, setCurrentWorkspace, collapsed, setCollapsed, onCreateWorkspace, onManageMembers }) {
     return (
-        <div className="flex h-screen bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 overflow-hidden font-sans">
+        <div className="flex h-screen bg-gray-50 dark:bg-background text-gray-900 dark:text-foreground overflow-hidden font-sans">
             <Head>
                 <title>{title} | TargetChat</title>
             </Head>
@@ -31,7 +31,7 @@ function DashboardContent({ children, title, user, workspaces, currentWorkspace,
             <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
                 <DashboardNavbar user={user} />
 
-                <main className="flex-1 overflow-y-auto p-6 bg-gray-50 dark:bg-gray-900 scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-700">
+                <main className="flex-1 overflow-y-auto p-6 bg-gray-50 dark:bg-background scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-700">
                     <div className="max-w-7xl mx-auto">
                         {children}
                     </div>
@@ -116,8 +116,8 @@ export default function DashboardLayout({ children, title = 'Dashboard' }) {
 
     if (loading) {
         return (
-            <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-900">
-                <div className="w-12 h-12 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+            <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-background">
+                <div className="w-12 h-12 border-4 border-accent border-t-transparent rounded-full animate-spin"></div>
             </div>
         );
     }

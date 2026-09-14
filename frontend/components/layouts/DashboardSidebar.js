@@ -57,13 +57,13 @@ export default function DashboardSidebar({
     };
 
     return (
-        <aside className={`h-full flex flex-col bg-white dark:bg-gray-900 border-r border-gray-200 dark:border-gray-800 relative transition-all duration-300 ${collapsed ? 'w-20' : 'w-64'}`}>
+        <aside className={`h-full flex flex-col bg-white dark:bg-background border-r border-gray-200 dark:border-strong relative transition-all duration-300 ${collapsed ? 'w-20' : 'w-64'}`}>
             {/* Collapse Button */}
             <button
                 onClick={onToggleCollapse}
                 aria-label={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
                 aria-expanded={!collapsed}
-                className="absolute -right-3 top-6 z-10 w-6 h-6 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-full flex items-center justify-center text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 hover:border-blue-500 transition-all shadow-md"
+                className="absolute -right-3 top-6 z-10 w-6 h-6 bg-white dark:bg-surface border border-gray-200 dark:border-border rounded-full flex items-center justify-center text-gray-600 dark:text-muted hover:text-accent dark:hover:text-accent hover:border-accent transition-all shadow-md"
             >
                 <Icon name={collapsed ? 'expand' : 'collapse'} className="w-3 h-3" />
             </button>
@@ -90,12 +90,12 @@ export default function DashboardSidebar({
                             key={item.name}
                             href={item.href}
                             className={`flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors ${isActive
-                                ? 'bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 font-medium'
-                                : 'text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800'
+                                ? 'bg-gray-100 dark:bg-surface-elevated text-accent dark:text-accent font-medium'
+                                : 'text-gray-600 dark:text-muted hover:bg-gray-50 dark:hover:bg-surface-hover'
                                 }`}
                             title={collapsed ? item.name : ''}
                         >
-                            <Icon name={item.icon} className={`w-5 h-5 ${isActive ? 'text-blue-600 dark:text-blue-400' : 'text-gray-500 dark:text-gray-400'}`} />
+                            <Icon name={item.icon} className={`w-5 h-5 ${isActive ? 'text-accent dark:text-accent' : 'text-gray-500 dark:text-muted'}`} />
                             {!collapsed && <span>{item.name}</span>}
                         </Link>
                     );

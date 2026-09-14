@@ -82,7 +82,7 @@ export default function SystemPage() {
     if (loading && !stats) return (
         <AdminLayout>
             <div className="flex items-center justify-center h-full">
-                <div className="w-16 h-16 border-4 border-blue-500 border-t-transparent rounded-full animate-spin"></div>
+                <div className="w-16 h-16 border-4 border-accent border-t-transparent rounded-full animate-spin"></div>
             </div>
         </AdminLayout>
     );
@@ -91,31 +91,31 @@ export default function SystemPage() {
         <AdminLayout title="System Health">
             <div className="max-w-7xl mx-auto space-y-8 animate-fadeIn">
                 <div className="mb-10">
-                    <h1 className="text-3xl font-extrabold text-gray-900 dark:text-white flex items-center gap-3">
-                        <Activity size={32} className="text-red-500" />
+                    <h1 className="text-3xl font-bold text-gray-900 dark:text-foreground flex items-center gap-3">
+                        <Activity size={18} className="text-danger" />
                         System Health
                     </h1>
-                    <p className="text-gray-500 dark:text-gray-400 mt-1">
+                    <p className="text-gray-500 dark:text-muted mt-1">
                         Monitor server vitals and verify system integrity.
                     </p>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
                     {/* Memory Card */}
-                    <div className="bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 relative overflow-hidden group">
+                    <div className="bg-white dark:bg-surface p-6 rounded-card shadow-sm border border-gray-100 dark:border-border relative overflow-hidden group">
                         <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-10 transition-opacity transform scale-150 duration-500 text-blue-500">
-                            <HardDrive size={80} />
+                            <HardDrive size={18} />
                         </div>
                         <div className="relative z-10">
-                            <h3 className="text-lg font-bold text-gray-700 dark:text-gray-200 mb-4 flex items-center gap-2">
-                                <HardDrive size={20} className="text-blue-500" />
+                            <h3 className="text-lg font-bold text-gray-700 dark:text-secondary mb-4 flex items-center gap-2">
+                                <HardDrive size={18} />
                                 Memory Usage
                             </h3>
                             <div className="flex items-end gap-2 mb-2">
-                                <span className="text-4xl font-extrabold text-gray-900 dark:text-white">{stats?.memory?.percentage}%</span>
+                                <span className="text-4xl font-bold text-gray-900 dark:text-foreground">{stats?.memory?.percentage}%</span>
                                 <span className="text-sm text-gray-500 mb-1">{stats?.memory?.used} / {stats?.memory?.total}</span>
                             </div>
-                            <div className="w-full bg-gray-100 dark:bg-gray-700 rounded-full h-3">
+                            <div className="w-full bg-gray-100 dark:bg-surface-elevated rounded-full h-3">
                                 <div
                                     className={`h-3 rounded-full transition-all duration-1000 shadow-sm ${getStatusColor(stats?.memory?.percentage)}`}
                                     style={{ width: `${stats?.memory?.percentage}%` }}
@@ -125,41 +125,41 @@ export default function SystemPage() {
                     </div>
 
                     {/* CPU Card */}
-                    <div className="bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 relative overflow-hidden group">
+                    <div className="bg-white dark:bg-surface p-6 rounded-card shadow-sm border border-gray-100 dark:border-border relative overflow-hidden group">
                         <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-10 transition-opacity transform scale-150 duration-500 text-purple-500">
-                            <Cpu size={80} />
+                            <Cpu size={18} />
                         </div>
                         <div className="relative z-10">
-                            <h3 className="text-lg font-bold text-gray-700 dark:text-gray-200 mb-4 flex items-center gap-2">
-                                <Cpu size={20} className="text-purple-500" />
+                            <h3 className="text-lg font-bold text-gray-700 dark:text-secondary mb-4 flex items-center gap-2">
+                                <Cpu size={18} />
                                 CPU Info
                             </h3>
                             <div className="mb-4">
                                 <div className="text-sm text-gray-500">Model</div>
-                                <div className="font-medium text-gray-900 dark:text-white truncate text-sm" title={stats?.cpu?.model}>{stats?.cpu?.model}</div>
+                                <div className="font-medium text-gray-900 dark:text-foreground truncate text-sm" title={stats?.cpu?.model}>{stats?.cpu?.model}</div>
                             </div>
                             <div className="flex justify-between items-center">
                                 <div className="text-sm text-gray-500">Cores</div>
-                                <div className="font-bold text-xl dark:text-white">{stats?.cpu?.cores}</div>
+                                <div className="font-bold text-xl dark:text-foreground">{stats?.cpu?.cores}</div>
                             </div>
                         </div>
                     </div>
 
                     {/* Uptime Card */}
-                    <div className="bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-700 relative overflow-hidden group">
+                    <div className="bg-white dark:bg-surface p-6 rounded-card shadow-sm border border-gray-100 dark:border-border relative overflow-hidden group">
                         <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-10 transition-opacity transform scale-150 duration-500 text-emerald-500">
-                            <Clock size={80} />
+                            <Clock size={18} />
                         </div>
                         <div className="relative z-10">
-                            <h3 className="text-lg font-bold text-gray-700 dark:text-gray-200 mb-4 flex items-center gap-2">
-                                <Clock size={20} className="text-emerald-500" />
+                            <h3 className="text-lg font-bold text-gray-700 dark:text-secondary mb-4 flex items-center gap-2">
+                                <Clock size={18} />
                                 Server Uptime
                             </h3>
-                            <div className="text-4xl font-extrabold text-gray-900 dark:text-white">
+                            <div className="text-4xl font-bold text-gray-900 dark:text-foreground">
                                 {Math.floor(stats?.uptime / 3600)}h {Math.floor((stats?.uptime % 3600) / 60)}m
                             </div>
                             <div className="text-sm text-gray-500 mt-2 flex items-center gap-2">
-                                <Server size={14} />
+                                <Server size={16} />
                                 <span className="font-medium capitalize">{stats?.platform} ({stats?.arch})</span>
                             </div>
                         </div>
@@ -167,11 +167,11 @@ export default function SystemPage() {
                 </div>
 
                 {/* Actions Area */}
-                <div className="bg-white dark:bg-gray-800 p-8 rounded-2xl border border-red-100 dark:border-red-900/30 shadow-sm relative overflow-hidden">
-                    <div className="absolute top-0 left-0 w-2 h-full bg-gradient-to-b from-red-500 to-orange-500"></div>
+                <div className="bg-white dark:bg-surface p-8 rounded-card border border-red-100 dark:border-red-900/30 shadow-sm relative overflow-hidden">
+                    <div className="absolute top-0 left-0 w-2 h-full bg-danger"></div>
 
-                    <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-6 flex items-center gap-2">
-                        <AlertTriangle className="text-orange-500" size={24} />
+                    <h2 className="text-xl font-bold text-gray-900 dark:text-foreground mb-6 flex items-center gap-2">
+                        <AlertTriangle size={18} />
                         Danger Zone & Data Recovery
                     </h2>
 
@@ -181,17 +181,17 @@ export default function SystemPage() {
                             disabled={backupLoading}
                             className={`px-8 py-4 rounded-xl flex items-center gap-4 font-bold text-lg shadow-lg transition-all w-full md:w-auto
                                 ${backupLoading
-                                    ? 'bg-gray-300 dark:bg-gray-700 cursor-not-allowed'
-                                    : 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white hover:shadow-blue-500/30 hover:-translate-y-1 active:scale-95'
+                                    ? 'bg-gray-300 dark:bg-surface-elevated cursor-not-allowed'
+                                    : 'bg-accent text-background hover:bg-accent-hover'
                                 }`}
                         >
-                            <Download size={24} />
+                            <Download size={18} />
                             {backupLoading ? 'Backing up...' : 'Download Database Backup'}
                         </button>
 
-                        <div className="flex-1 text-sm text-gray-600 dark:text-gray-300 bg-gray-50 dark:bg-gray-700/30 p-4 rounded-xl border border-gray-100 dark:border-gray-700">
-                            <p className="font-bold mb-2 flex items-center gap-2 text-gray-900 dark:text-white">
-                                <Info size={16} className="text-blue-500" />
+                        <div className="flex-1 text-sm text-gray-600 dark:text-secondary bg-gray-50 dark:bg-surface-elevated/30 p-4 rounded-xl border border-gray-100 dark:border-border">
+                            <p className="font-bold mb-2 flex items-center gap-2 text-gray-900 dark:text-foreground">
+                                <Info size={16} />
                                 About Backups
                             </p>
                             <p className="leading-relaxed">

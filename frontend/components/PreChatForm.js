@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { Hand } from 'lucide-react';
 import { API_URL as API } from '../utils/apiConfig';
 
 export default function PreChatForm({ widgetId, formFields, welcomeMessage, onSubmit }) {
@@ -65,18 +66,18 @@ export default function PreChatForm({ widgetId, formFields, welcomeMessage, onSu
     }
 
     return (
-        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-4 max-w-sm mx-auto">
-            <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-2">
-                👋 Welcome!
+        <div className="bg-white dark:bg-surface rounded-lg shadow-lg p-4 max-w-sm mx-auto">
+            <h2 className="text-xl font-bold text-gray-900 dark:text-foreground mb-2">
+                <span className="flex items-center gap-2"><Hand size={18} /> Welcome!</span>
             </h2>
-            <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
+            <p className="text-sm text-gray-600 dark:text-muted mb-4">
                 {welcomeMessage || "Please fill out this form to start chatting."}
             </p>
 
             <form onSubmit={handleSubmit} className="space-y-3">
                 {fieldsToRender.map((field, index) => (
                     <div key={index}>
-                        <label className="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">
+                        <label className="block text-xs font-medium text-gray-700 dark:text-secondary mb-1">
                             {field.label} {field.required && '*'}
                         </label>
                         {field.type === 'textarea' ? (
@@ -85,7 +86,7 @@ export default function PreChatForm({ widgetId, formFields, welcomeMessage, onSu
                                 value={formData[field.label] || ''}
                                 onChange={(e) => setFormData({ ...formData, [field.label]: e.target.value })}
                                 rows={2}
-                                className="w-full px-3 py-1.5 text-sm border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500"
+                                className="w-full px-3 py-1.5 text-sm border border-gray-300 dark:border-strong rounded-md bg-white dark:bg-surface-elevated text-gray-900 dark:text-foreground focus:ring-2 focus:ring-accent/60"
                                 placeholder={field.label}
                             />
                         ) : (
@@ -94,7 +95,7 @@ export default function PreChatForm({ widgetId, formFields, welcomeMessage, onSu
                                 required={field.required}
                                 value={formData[field.label] || ''}
                                 onChange={(e) => setFormData({ ...formData, [field.label]: e.target.value })}
-                                className="w-full px-3 py-1.5 text-sm border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500"
+                                className="w-full px-3 py-1.5 text-sm border border-gray-300 dark:border-strong rounded-md bg-white dark:bg-surface-elevated text-gray-900 dark:text-foreground focus:ring-2 focus:ring-accent/60"
                                 placeholder={field.label}
                             />
                         )}
@@ -104,7 +105,7 @@ export default function PreChatForm({ widgetId, formFields, welcomeMessage, onSu
                 <button
                     type="submit"
                     disabled={loading}
-                    className="w-full px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors text-sm font-medium"
+                    className="w-full px-4 py-2 bg-accent text-background rounded-md hover:bg-accent-hover disabled:opacity-50 disabled:cursor-not-allowed transition-colors text-sm font-medium"
                 >
                     {loading ? 'Starting...' : 'Start Chat'}
                 </button>

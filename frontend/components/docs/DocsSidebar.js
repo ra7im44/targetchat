@@ -9,8 +9,8 @@ import {
 
 const SidebarItem = ({ href, icon: Icon, label, isActive }) => (
     <Link href={href} className={`flex items-center gap-3 px-3 py-2 rounded-lg transition-colors ${isActive
-        ? 'bg-blue-50 text-blue-600 dark:bg-blue-900/20 dark:text-blue-400 font-medium'
-        : 'text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800'
+        ? 'bg-blue-50 text-accent dark:bg-blue-900/20 dark:text-accent font-medium'
+        : 'text-gray-600 dark:text-muted hover:bg-gray-50 dark:hover:bg-surface-hover'
         }`}>
         <Icon size={18} />
         <span>{label}</span>
@@ -33,7 +33,7 @@ export default function DocsSidebar({ isOpen }) {
     const currentPath = router.pathname;
 
     return (
-        <aside className={`fixed top-16 left-0 z-40 h-[calc(100vh-4rem)] bg-white dark:bg-slate-900 border-r border-gray-200 dark:border-gray-800 w-64 transition-transform ${isOpen ? 'translate-x-0' : '-translate-x-full'
+        <aside className={`fixed top-16 left-0 z-40 h-[calc(100vh-4rem)] bg-white dark:bg-background border-r border-gray-200 dark:border-border w-64 transition-transform ${isOpen ? 'translate-x-0' : '-translate-x-full'
             } lg:translate-x-0 overflow-y-auto`}>
             <div className="p-4">
                 <SidebarItem

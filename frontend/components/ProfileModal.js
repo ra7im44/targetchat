@@ -12,11 +12,11 @@ function generateInitialsAvatar(name) {
     .slice(0, 2);
 
   const colors = [
-    'bg-gradient-to-br from-blue-500 to-purple-600',
-    'bg-gradient-to-br from-green-500 to-teal-600',
-    'bg-gradient-to-br from-orange-500 to-red-600',
-    'bg-gradient-to-br from-pink-500 to-rose-600',
-    'bg-gradient-to-br from-indigo-500 to-blue-600',
+    'bg-accent',
+    'bg-accent',
+    'bg-accent',
+    'bg-accent',
+    'bg-accent',
   ];
 
   const colorIndex = name.charCodeAt(0) % colors.length;
@@ -165,13 +165,13 @@ export default function ProfileModal({ onClose }) {
 
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4" onClick={onClose}>
-      <div className="bg-white dark:bg-gray-800 rounded-2xl w-full max-w-md shadow-2xl" onClick={(e) => e.stopPropagation()}>
+      <div className="bg-white dark:bg-surface rounded-card w-full max-w-md shadow-lg" onClick={(e) => e.stopPropagation()}>
         {/* Header */}
-        <div className="flex items-center justify-between p-6 border-b border-gray-200 dark:border-gray-700">
-          <h2 className="text-2xl font-bold text-gray-900 dark:text-white">My Profile</h2>
+        <div className="flex items-center justify-between p-6 border-b border-gray-200 dark:border-border">
+          <h2 className="text-2xl font-bold text-gray-900 dark:text-foreground">My Profile</h2>
           <button
             onClick={onClose}
-            className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 text-2xl"
+            className="text-gray-500 hover:text-gray-700 dark:text-muted dark:hover:text-secondary text-2xl"
           >
             ×
           </button>
@@ -181,8 +181,8 @@ export default function ProfileModal({ onClose }) {
         <div className="p-6">
           {message && (
             <div className={`p-3 rounded-lg mb-4 text-sm ${message.type === 'success'
-                ? 'bg-green-50 dark:bg-green-900/20 text-green-600 dark:text-green-400'
-                : 'bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400'
+                ? 'bg-success dark:bg-success/20 text-success dark:text-success'
+                : 'bg-danger/10 dark:bg-danger/20 text-danger dark:text-danger'
               }`}>
               {message.text}
             </div>
@@ -192,7 +192,7 @@ export default function ProfileModal({ onClose }) {
           <div className="flex flex-col items-center mb-6">
             <div className="relative group">
               {/* Avatar Display */}
-              <div className="w-32 h-32 rounded-full overflow-hidden border-4 border-gray-200 dark:border-gray-700 shadow-lg">
+              <div className="w-32 h-32 rounded-full overflow-hidden border-4 border-gray-200 dark:border-border shadow-lg">
                 {avatarPreview ? (
                   <img src={avatarPreview} alt="Preview" className="w-full h-full object-cover" />
                 ) : avatarUrl ? (
@@ -229,7 +229,7 @@ export default function ProfileModal({ onClose }) {
               <button
                 onClick={() => fileInputRef.current?.click()}
                 disabled={uploadingAvatar}
-                className="px-3 py-1 text-sm bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50"
+                className="px-3 py-1 text-sm bg-accent text-background rounded-lg hover:bg-accent-hover disabled:opacity-50"
               >
                 Upload
               </button>
@@ -248,48 +248,48 @@ export default function ProfileModal({ onClose }) {
           {/* Profile Form */}
           <div className="space-y-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              <label className="block text-sm font-medium text-gray-700 dark:text-secondary mb-2">
                 Full Name
               </label>
               <input
                 type="text"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 outline-none"
+                className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-strong bg-white dark:bg-background text-gray-900 dark:text-foreground focus:ring-2 focus:ring-accent/60 outline-none"
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              <label className="block text-sm font-medium text-gray-700 dark:text-secondary mb-2">
                 Email Address
               </label>
               <input
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 outline-none"
+                className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-strong bg-white dark:bg-background text-gray-900 dark:text-foreground focus:ring-2 focus:ring-accent/60 outline-none"
               />
             </div>
 
             <button
               onClick={saveProfile}
               disabled={loading}
-              className="w-full px-4 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 transition-colors font-medium"
+              className="w-full px-4 py-3 bg-accent text-background rounded-lg hover:bg-accent-hover disabled:opacity-50 transition-colors font-medium"
             >
               {loading ? 'Saving...' : 'Save Profile Information'}
             </button>
           </div>
 
           {/* Account Info */}
-          <div className="mt-6 pt-6 border-t border-gray-200 dark:border-gray-700">
+          <div className="mt-6 pt-6 border-t border-gray-200 dark:border-border">
             <div className="space-y-2 text-sm">
               <div className="flex justify-between">
-                <span className="text-gray-600 dark:text-gray-400">Account ID:</span>
-                <span className="text-gray-900 dark:text-white font-medium">{user?.id}</span>
+                <span className="text-gray-600 dark:text-muted">Account ID:</span>
+                <span className="text-gray-900 dark:text-foreground font-medium">{user?.id}</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-gray-600 dark:text-gray-400">Role:</span>
-                <span className="px-2 py-1 rounded text-xs bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300">
+                <span className="text-gray-600 dark:text-muted">Role:</span>
+                <span className="px-2 py-1 rounded text-xs bg-accent/10 dark:bg-accent/20 text-info dark:text-info">
                   {user?.role === 'admin' ? 'Admin' : 'User'}
                 </span>
               </div>

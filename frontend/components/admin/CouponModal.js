@@ -48,16 +48,16 @@ export default function CouponModal({ isOpen, onClose, onSubmit, editingCoupon }
 
     return (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-            <div className="bg-white dark:bg-gray-800 rounded-lg p-6 w-full max-w-md">
-                <h2 className="text-xl font-bold mb-4 dark:text-white">
+            <div className="bg-white dark:bg-surface rounded-lg p-6 w-full max-w-md">
+                <h2 className="text-xl font-bold mb-4 dark:text-foreground">
                     {editingCoupon ? 'Edit Coupon' : 'Create Coupon'}
                 </h2>
                 <form onSubmit={handleSubmit}>
                     <div className="mb-4">
-                        <label className="block text-sm font-medium mb-1 dark:text-gray-300">Code</label>
+                        <label className="block text-sm font-medium mb-1 dark:text-secondary">Code</label>
                         <input
                             type="text"
-                            className="w-full p-2 border rounded dark:bg-gray-700 dark:border-gray-600 dark:text-white uppercase"
+                            className="w-full p-2 border rounded dark:bg-surface-elevated dark:border-border dark:text-foreground uppercase"
                             value={formData.code}
                             onChange={(e) => setFormData({ ...formData, code: e.target.value.toUpperCase() })}
                             required
@@ -66,9 +66,9 @@ export default function CouponModal({ isOpen, onClose, onSubmit, editingCoupon }
 
                     <div className="grid grid-cols-2 gap-4 mb-4">
                         <div>
-                            <label className="block text-sm font-medium mb-1 dark:text-gray-300">Type</label>
+                            <label className="block text-sm font-medium mb-1 dark:text-secondary">Type</label>
                             <select
-                                className="w-full p-2 border rounded dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+                                className="w-full p-2 border rounded dark:bg-surface-elevated dark:border-border dark:text-foreground"
                                 value={formData.discountType}
                                 onChange={(e) => setFormData({ ...formData, discountType: e.target.value })}
                             >
@@ -77,10 +77,10 @@ export default function CouponModal({ isOpen, onClose, onSubmit, editingCoupon }
                             </select>
                         </div>
                         <div>
-                            <label className="block text-sm font-medium mb-1 dark:text-gray-300">Value</label>
+                            <label className="block text-sm font-medium mb-1 dark:text-secondary">Value</label>
                             <input
                                 type="number"
-                                className="w-full p-2 border rounded dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+                                className="w-full p-2 border rounded dark:bg-surface-elevated dark:border-border dark:text-foreground"
                                 value={formData.discountValue}
                                 onChange={(e) => setFormData({ ...formData, discountValue: parseFloat(e.target.value) })}
                                 required
@@ -90,10 +90,10 @@ export default function CouponModal({ isOpen, onClose, onSubmit, editingCoupon }
                     </div>
 
                     <div className="mb-4">
-                        <label className="block text-sm font-medium mb-1 dark:text-gray-300">Limit Redemptions (Optional)</label>
+                        <label className="block text-sm font-medium mb-1 dark:text-secondary">Limit Redemptions (Optional)</label>
                         <input
                             type="number"
-                            className="w-full p-2 border rounded dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+                            className="w-full p-2 border rounded dark:bg-surface-elevated dark:border-border dark:text-foreground"
                             value={formData.maxRedemptions}
                             onChange={(e) => setFormData({ ...formData, maxRedemptions: e.target.value })}
                             placeholder="Unlimited"
@@ -101,19 +101,19 @@ export default function CouponModal({ isOpen, onClose, onSubmit, editingCoupon }
                     </div>
 
                     <div className="mb-4">
-                        <label className="block text-sm font-medium mb-1 dark:text-gray-300">Expiration Date (Optional)</label>
+                        <label className="block text-sm font-medium mb-1 dark:text-secondary">Expiration Date (Optional)</label>
                         <input
                             type="date"
-                            className="w-full p-2 border rounded dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+                            className="w-full p-2 border rounded dark:bg-surface-elevated dark:border-border dark:text-foreground"
                             value={formData.expiresAt}
                             onChange={(e) => setFormData({ ...formData, expiresAt: e.target.value })}
                         />
                     </div>
 
                     <div className="mb-4">
-                        <label className="block text-sm font-medium mb-1 dark:text-gray-300">Description</label>
+                        <label className="block text-sm font-medium mb-1 dark:text-secondary">Description</label>
                         <textarea
-                            className="w-full p-2 border rounded dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+                            className="w-full p-2 border rounded dark:bg-surface-elevated dark:border-border dark:text-foreground"
                             value={formData.description}
                             onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                             placeholder="e.g. 20% off for winter sale"
@@ -127,9 +127,9 @@ export default function CouponModal({ isOpen, onClose, onSubmit, editingCoupon }
                                 type="checkbox"
                                 checked={formData.isActive}
                                 onChange={(e) => setFormData({ ...formData, isActive: e.target.checked })}
-                                className="rounded text-blue-600"
+                                className="rounded text-info"
                             />
-                            <span className="text-sm font-medium dark:text-gray-300">Is Active</span>
+                            <span className="text-sm font-medium dark:text-secondary">Is Active</span>
                         </label>
                     </div>
 
@@ -137,13 +137,13 @@ export default function CouponModal({ isOpen, onClose, onSubmit, editingCoupon }
                         <button
                             type="button"
                             onClick={onClose}
-                            className="px-4 py-2 text-gray-600 hover:text-gray-800 dark:text-gray-400 dark:hover:text-white"
+                            className="px-4 py-2 text-gray-600 hover:text-gray-800 dark:text-muted dark:hover:text-foreground"
                         >
                             Cancel
                         </button>
                         <button
                             type="submit"
-                            className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+                            className="px-4 py-2 bg-accent text-background rounded hover:bg-accent-hover"
                         >
                             Save
                         </button>
