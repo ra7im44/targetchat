@@ -469,3 +469,66 @@ The exact per-file detail for every one of those pages would be extremely long; 
   - `curl -sI http://localhost:3000/admin/visitors` returned `HTTP/1.1 200 OK`.
   - Full HTML output verified: renders `<title>Session Tracking | TargetChat Admin</title>` with complete table markup and zero SSR/compiler exceptions.
 - **Git Status**: Clean; only `frontend/pages/admin/visitors.js` and `daily_changes.md` updated.
+
+---
+
+## Part K — Admin Visitors Page Deep UX Improvement (Session Update)
+
+### Date: 2026-11-11
+
+### Problem / Request Details:
+- User requested deep, non-cosmetic improvement of `/admin/visitors`.
+- Live DOM probe (Chrome headless CDP on port 9222) confirmed the real issues before editing:
+  1. Two overlapping status representations (Account badge + Presence badge as separate columns) — redundant and widening the table.
+  2. Column widths unstable because the table used auto layout (no `table-fixed`/`colgroup`), so long IPs/device strings caused horizontal jitter.
+  3. Duplicate `PresenceBadge` definitions and duplicated flag markup (flag emoji rendered twice per row).
+  4. Dynamic Tailwind tone classes (e.g. `` bg-${tone}-soft ``) — class names generated at runtime that Tailwind cannot statically detect, silently degrading to no styling.
+
+### Code Solution & Files Modified:
+- **`frontend/pages/admin/visitors.js`**:
+  - Merged Account + Presence into a single `Status` column (account state + live presence dot in one cell) and removed the redundant presence column.
+  - Switched table to `table-fixed` with an explicit `<colgroup>` (26/17/15/27/15%) so column widths are stable regardless of content.
+  - Removed duplicate `PresenceBadge` and the duplicated flag rendering; flags now render exactly once in `LocationCell`.
+  - Replaced all runtime-generated tone classes with literal `tone maps` (static strings per tone key) so Tailwind compiles them reliably.
+- Pre-edit visual evidence captured in `/tmp/opencode/visitors1.png` (before), post-edit probes `cdp_probe.js` and screenshot confirmed 5 columns and correct badge rendering.
+
+### Verification & Deployment Status:
+- **Local Dev Server Verification**: DOM probe + screenshot after HMR; rendering verified live (`/tmp/opencode/visitors3.png`).
+- **Git**: commit `0b3bb26` "fix(admin/visitors): rebalance session tracking table into 5 fixed columns".
+- **Push**: pushed to fork `ra7im44` (origin `targetup26` rejects 403) — `79d4e0e..0b3bb26 main -> main` verified.
+
+---
+
+## Part L — Admin Users Page Deep Improvement (Session Update)
+
+### Date: 2026-11-11
+
+### Problem / Request Details:
+- User requested the same deep-improvement treatment for `/admin/users` (`frontend/pages/admin/users.js`).
+- Full file read (547 lines) + live DOM probe (CDP) + backend route read (`backend/src/routes/admin/users.js` — returns `pagination: {total, page, limit, pages}`) confirmed root issues before editing:
+  1. **Request storm**: every keystroke fired 3 API calls immediately — no debounce, no stale-response guard, and page number was never reset to 1 on search/filter change (stale page → empty pages).
+  2. **Fake pagination**: `ChevronLeft`/`ChevronRight` imported but never used; no page navigation UI; footer showed "Showing 3 users" hiding totals and page info.
+  3. **Full-page spinner on every refresh**: `if (loading) return <spinner>` emptied the whole DOM on each refresh, including bulk actions → full flicker.
+  4. **Silent errors**: failures logged to console only — no user-visible message or retry.
+
+### Code Solution & Files Modified:
+- **`frontend/pages/admin/users.js`** (+167/−29):
+  - **Debounce 300ms**: new `appliedSearch` state; `useEffect` with `setTimeout` applies `search` after 300ms and resets `page` to 1 (previously every keystroke fired requests instantly).
+  - **Race guard**: `requestIdRef` counter — stale responses no longer overwrite newer state (`if (reqId !== requestIdRef.current) return`).
+  - **Real pagination**: new `pagination` state hydrated from `mainData.pagination`; footer "Showing X–Y of Z users · Page N of M" + Previous/Next buttons using the previously-unused `ChevronLeft`/`ChevronRight`, shown only when `pagination.pages > 1`.
+  - **No more full-page flash**: removed the `if (loading) return <spinner>` early return; initial load shows a spinner row inside the table (`colSpan={6}` + new local `Spinner` component copied from visitors.js pattern); refreshes show a thin 0.5px animated progress bar under the table while keeping the DOM.
+  - **Real error state**: new `error` state with "Could not load users" heading and a "Try again" button calling `checkAdminAndLoadUsers()`.
+  - **Empty state with escape hatch**: "Clear search & filters" button when a search/filter is active; resets search, filter, and page.
+  - **Search UX**: clear button (X) inside the input + `Escape` key clears; `Search` icon tinted `text-muted`; `page` reset to 1 on filter `select` change.
+  - **Bulk action fix**: removed `setLoading` from `handleBulkAction` (the fetch lifecycle already manages `refreshing`); previously a bulk action re-ran the full page-emptying spinner.
+  - Added `useRef` import and the `Spinner` component definition; fixed an unbalanced JSX ternary in `tbody` (the `) : (` branch paren was never closed — `</tbody>` would have landed inside the expression → syntax error).
+
+### Verification & Deployment Status:
+- **Live verification (Chrome headless CDP against dev server on :3000, backend :3001)**:
+  - Debounce: typing "admin" (5 chars) produced exactly **3 requests** (1 main + 2 stats) instead of 15 — measured by instrumenting `window.fetch` via `Page.addScriptToEvaluateOnNewDocument`.
+  - Pagination (temporary `limit=2`, then reverted to 10): footer "Showing 1–2 of 3 users · Page 1 of 2" → Next click → "Showing 3–3 of 3 users · Page 2 of 2", 1 row, Previous enabled / Next disabled — all correct.
+  - Empty state: search "zzzznotfound" → 0 rows + "No users found" + working "Clear search" button → restores 3 rows and filter `all`.
+  - Final screenshots: `/tmp/opencode/users1.png` (before) vs `/tmp/opencode/users3.png` (after).
+  - No official build was run — verification is via the live dev server (HMR) only, per the project's no-local-build rule.
+- **Git**: `git pull --rebase origin main` (up to date); commit `fd5cd13` "Improve admin users page: search debounce, race guard, real pagination, error & empty states" (+167/−29).
+- **Push**: pushed to fork `ra7im44` — `0b3bb26..fd5cd13 main -> main` verified (origin `targetup26` remains 403 write-denied; fork is the working remote).
