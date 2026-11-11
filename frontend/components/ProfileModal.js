@@ -164,14 +164,14 @@ export default function ProfileModal({ onClose }) {
   const { initials, colorClass } = generateInitialsAvatar(name || user?.name || 'U');
 
   return (
-    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4" onClick={onClose}>
-      <div className="bg-white dark:bg-surface rounded-card w-full max-w-md shadow-lg" onClick={(e) => e.stopPropagation()}>
+    <div className="fixed inset-0 bg-black/60 backdrop-blur-xs flex items-center justify-center z-50 p-4 animate-fadeIn" onClick={onClose}>
+      <div className="bg-surface rounded-card w-full max-w-md shadow-lg border border-border overflow-hidden" onClick={(e) => e.stopPropagation()}>
         {/* Header */}
-        <div className="flex items-center justify-between p-6 border-b border-gray-200 dark:border-border">
-          <h2 className="text-2xl font-bold text-gray-900 dark:text-foreground">My Profile</h2>
+        <div className="flex items-center justify-between p-6 border-b border-border">
+          <h2 className="text-2xl font-bold text-foreground">My Profile</h2>
           <button
             onClick={onClose}
-            className="text-gray-500 hover:text-gray-700 dark:text-muted dark:hover:text-secondary text-2xl"
+            className="text-muted hover:text-foreground text-2xl p-1 leading-none"
           >
             ×
           </button>
@@ -180,9 +180,9 @@ export default function ProfileModal({ onClose }) {
         {/* Content */}
         <div className="p-6">
           {message && (
-            <div className={`p-3 rounded-lg mb-4 text-sm ${message.type === 'success'
-                ? 'bg-success dark:bg-success/20 text-success-ink dark:text-success'
-                : 'bg-danger/10 dark:bg-danger/20 text-danger-ink dark:text-danger'
+            <div className={`p-3 rounded-lg mb-4 text-sm border ${message.type === 'success'
+                ? 'bg-success-soft text-success border-success/20'
+                : 'bg-danger-soft text-danger border-danger/20'
               }`}>
               {message.text}
             </div>
@@ -192,13 +192,13 @@ export default function ProfileModal({ onClose }) {
           <div className="flex flex-col items-center mb-6">
             <div className="relative group">
               {/* Avatar Display */}
-              <div className="w-32 h-32 rounded-full overflow-hidden border-4 border-gray-200 dark:border-border shadow-lg">
+              <div className="w-32 h-32 rounded-full overflow-hidden border-4 border-border shadow-xs">
                 {avatarPreview ? (
                   <img src={avatarPreview} alt="Preview" className="w-full h-full object-cover" />
                 ) : avatarUrl ? (
                   <img src={avatarUrl} alt={name} className="w-full h-full object-cover" />
                 ) : (
-                  <div className={`w-full h-full flex items-center justify-center text-white text-3xl font-bold ${colorClass}`}>
+                  <div className={`w-full h-full flex items-center justify-center text-white text-3xl font-bold bg-primary`}>
                     {initials}
                   </div>
                 )}
@@ -229,7 +229,7 @@ export default function ProfileModal({ onClose }) {
               <button
                 onClick={() => fileInputRef.current?.click()}
                 disabled={uploadingAvatar}
-                className="px-3 py-1 text-sm bg-accent text-background rounded-lg hover:bg-accent-hover disabled:opacity-50"
+                className="px-3 py-1 text-sm bg-primary hover:bg-primary-hover text-white rounded-lg disabled:opacity-50 transition-colors"
               >
                 Upload
               </button>
@@ -237,7 +237,7 @@ export default function ProfileModal({ onClose }) {
                 <button
                   onClick={deleteAvatar}
                   disabled={uploadingAvatar}
-                  className="px-3 py-1 text-sm bg-red-600 text-white rounded-lg hover:bg-red-700 disabled:opacity-50"
+                  className="px-3 py-1 text-sm bg-danger-soft hover:bg-danger text-danger hover:text-white border border-danger/20 rounded-lg disabled:opacity-50 transition-colors"
                 >
                   Remove
                 </button>
@@ -248,48 +248,48 @@ export default function ProfileModal({ onClose }) {
           {/* Profile Form */}
           <div className="space-y-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-secondary mb-2">
+              <label className="block text-sm font-medium text-secondary mb-2">
                 Full Name
               </label>
               <input
                 type="text"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-strong bg-white dark:bg-background text-gray-900 dark:text-foreground focus:ring-2 focus:ring-accent/60 outline-none"
+                className="w-full px-4 py-2.5 rounded-lg border border-border bg-surface-elevated text-foreground placeholder:text-muted focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all"
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-secondary mb-2">
+              <label className="block text-sm font-medium text-secondary mb-2">
                 Email Address
               </label>
               <input
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-strong bg-white dark:bg-background text-gray-900 dark:text-foreground focus:ring-2 focus:ring-accent/60 outline-none"
+                className="w-full px-4 py-2.5 rounded-lg border border-border bg-surface-elevated text-foreground placeholder:text-muted focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all"
               />
             </div>
 
             <button
               onClick={saveProfile}
               disabled={loading}
-              className="w-full px-4 py-3 bg-accent text-background rounded-lg hover:bg-accent-hover disabled:opacity-50 transition-colors font-medium"
+              className="w-full px-4 py-2.5 bg-primary hover:bg-primary-hover active:bg-primary-active text-white rounded-lg disabled:opacity-50 transition-colors font-semibold shadow-xs"
             >
               {loading ? 'Saving...' : 'Save Profile Information'}
             </button>
           </div>
 
           {/* Account Info */}
-          <div className="mt-6 pt-6 border-t border-gray-200 dark:border-border">
+          <div className="mt-6 pt-6 border-t border-border">
             <div className="space-y-2 text-sm">
-              <div className="flex justify-between">
-                <span className="text-gray-600 dark:text-muted">Account ID:</span>
-                <span className="text-gray-900 dark:text-foreground font-medium">{user?.id}</span>
+              <div className="flex justify-between items-center">
+                <span className="text-muted">Account ID:</span>
+                <span className="text-muted font-mono text-xs">{user?.id}</span>
               </div>
-              <div className="flex justify-between">
-                <span className="text-gray-600 dark:text-muted">Role:</span>
-                <span className="px-2 py-1 rounded text-xs bg-accent/10 dark:bg-accent/20 text-info-ink dark:text-info">
+              <div className="flex justify-between items-center">
+                <span className="text-muted">Role:</span>
+                <span className="px-2 py-0.5 rounded text-xs font-semibold bg-primary-soft text-primary border border-primary/20">
                   {user?.role === 'admin' ? 'Admin' : 'User'}
                 </span>
               </div>

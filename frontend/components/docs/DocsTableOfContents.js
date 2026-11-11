@@ -37,7 +37,7 @@ export default function DocsTableOfContents() {
 
     return (
         <div className="p-4">
-            <h4 className="text-sm font-bold text-gray-900 dark:text-foreground mb-4">On This Page</h4>
+            <h4 className="text-sm font-bold text-foreground mb-4">On This Page</h4>
             <nav className="space-y-2">
                 {headings.map((heading) => (
                     <a
@@ -45,8 +45,8 @@ export default function DocsTableOfContents() {
                         href={`#${heading.id}`}
                         className={`block text-sm transition-colors ${heading.level === 3 ? 'pl-4' : ''
                             } ${activeId === heading.id
-                                ? 'text-primary-700 dark:text-accent font-medium'
-                                : 'text-gray-600 dark:text-muted hover:text-gray-900 dark:hover:text-foreground'
+                                ? 'text-primary font-medium'
+                                : 'text-muted hover:text-foreground'
                             }`}
                         onClick={(e) => {
                             e.preventDefault();

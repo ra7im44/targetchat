@@ -1,18 +1,49 @@
-version: '3.8'
+# TargetChat — self-hosted stack.
+#
+# Local development and a future production host use this same file. Values
+# marked with `:?` are REQUIRED and have no insecure default.
+#
+#   cp .env.example .env && edit secrets
+#   docker compose up --build
+#
+# Ollama runs on the HOST (not in this stack). The backend reaches it through
+# host.docker.internal, which is mapped to the host gateway below.
 
 services:
   database:
     image: mariadb:10.6
     restart: always
+    command: ["--character-set-server=utf8mb4", "--collation-server=utf8mb4_unicode_ci"]
     environment:
-      # SECURITY: never ship default DB passwords — set these in the shell or
-      # a compose-adjacent .env file before `docker compose up`.
       MARIADB_ROOT_PASSWORD: ${MARIADB_ROOT_PASSWORD:?MARIADB_ROOT_PASSWORD must be set}
-      MARIADB_DATABASE: targetchat
-      MARIADB_USER: targetuser
+      MARIADB_DATABASE: ${DB_NAME:-targetchat}
+      MARIADB_USER: ${DB_USER:-targetuser}
       MARIADB_PASSWORD: ${MARIADB_PASSWORD:?MARIADB_PASSWORD must be set}
     volumes:
       - tc_db_data:/var/lib/mysql
+    healthcheck:
+      # mariadb:10.6's healthcheck.sh does not support --innodb (11.x only).
+      test: ["CMD-SHELL", "mysqladmin ping -h 127.0.0.1 -uroot -p\"$$MARIADB_ROOT_PASSWORD\" --silent"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+    networks:
+      - targetchat_network
+
+  redis:
+    image: redis:7-alpine
+    restart: always
+    command: ["redis-server", "--appendonly", "yes", "--requirepass", "${REDIS_PASSWORD:?REDIS_PASSWORD must be set}"]
+    volumes:
+      - tc_redis_data:/data
+    healthcheck:
+      test: ["CMD-SHELL", "redis-cli -a \"$$REDIS_PASSWORD\" ping | grep PONG"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    environment:
+      REDIS_PASSWORD: ${REDIS_PASSWORD:?REDIS_PASSWORD must be set}
     networks:
       - targetchat_network
 
@@ -22,20 +53,62 @@ services:
       dockerfile: Dockerfile
     restart: always
     environment:
-      - NODE_ENV=production
-      - DB_HOST=database
-      - DB_USER=targetuser
-      - DB_PASS=${MARIADB_PASSWORD:?MARIADB_PASSWORD must be set}
-      - DB_NAME=targetchat
+      NODE_ENV: ${NODE_ENV:-production}
+      PORT: 3001
+      DB_DIALECT: mysql
+      DB_HOST: database
+      DB_PORT: 3306
+      DB_NAME: ${DB_NAME:-targetchat}
+      DB_USER: ${DB_USER:-targetuser}
+      DB_PASS: ${MARIADB_PASSWORD:?MARIADB_PASSWORD must be set}
       # SECURITY: the backend refuses to start without strong secrets.
-      - JWT_SECRET=${JWT_SECRET:?JWT_SECRET must be set}
-      - FILE_SIGN_SECRET=${FILE_SIGN_SECRET:?FILE_SIGN_SECRET must be set}
-      - WEBHOOK_SECRET=${WEBHOOK_SECRET:?WEBHOOK_SECRET must be set}
-      - CORS_ALLOWED_ORIGINS=${CORS_ALLOWED_ORIGINS:-}
-      - FRONTEND_URL=${FRONTEND_URL:-}
-      - PAYPAL_WEBHOOK_ID=${PAYPAL_WEBHOOK_ID:-}
+      JWT_SECRET: ${JWT_SECRET:?JWT_SECRET must be set}
+      FILE_SIGN_SECRET: ${FILE_SIGN_SECRET:?FILE_SIGN_SECRET must be set}
+      WEBHOOK_SECRET: ${WEBHOOK_SECRET:?WEBHOOK_SECRET must be set}
+      CORS_ALLOWED_ORIGINS: ${CORS_ALLOWED_ORIGINS:-http://localhost:3000}
+      FRONTEND_URL: ${FRONTEND_URL:-http://localhost:3000}
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      REDIS_PASSWORD: ${REDIS_PASSWORD:?REDIS_PASSWORD must be set}
+      SOCKETIO_REDIS_ADAPTER: "true"
+      # Schema is created additively at boot; no destructive sync is ever used.
+      DB_AUTO_MIGRATE: ${DB_AUTO_MIGRATE:-true}
+      # Local AI (Ollama on the host).
+      # IMPORTANT: `ollama serve` binds 127.0.0.1 by default, which a container
+      # cannot reach. The host firewall must also allow TCP 11434 from the
+      # docker bridge; if it does not, run the backend with network_mode: host
+      # (Linux) instead. Start Ollama on an address the bridge can reach:
+      #   OLLAMA_HOST=172.17.0.1:11434 ollama serve
+      # (or 0.0.0.0:11434 if you accept LAN exposure). Verify the gateway with:
+      #   docker network inspect bridge -f '{{(index .IPAM.Config 0).Gateway}}'
+      AI_PROVIDER: ${AI_PROVIDER:-ollama}
+      OLLAMA_BASE_URL: ${OLLAMA_BASE_URL:-http://host.docker.internal:11434}
+      OLLAMA_MODEL: ${OLLAMA_MODEL:-qwen2.5:3b}
+      AI_STREAMING_ENABLED: ${AI_STREAMING_ENABLED:-true}
+      AI_REQUEST_TIMEOUT_MS: ${AI_REQUEST_TIMEOUT_MS:-120000}
+      AI_ALLOW_FALLBACK: ${AI_ALLOW_FALLBACK:-false}
+      AI_MAX_TOKENS: ${AI_MAX_TOKENS:-700}
+      # Paid providers stay inert until their keys are supplied.
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
+      GEMINI_API_KEY: ${GEMINI_API_KEY:-}
+      GROQ_API_KEY: ${GROQ_API_KEY:-}
+      DEEPSEEK_API_KEY: ${DEEPSEEK_API_KEY:-}
+      PAYPAL_WEBHOOK_ID: ${PAYPAL_WEBHOOK_ID:-}
+      ALLOW_MOCK_BILLING: ${ALLOW_MOCK_BILLING:-false}
+    extra_hosts:
+      # Required on Linux so host.docker.internal reaches the host's Ollama.
+      - "host.docker.internal:host-gateway"
+    volumes:
+      # Uploads live outside the image so rebuilds never destroy attachments.
+      - tc_uploads:/app/uploads
+      - tc_private_uploads:/app/PrivateUploads
+      - tc_sqlite:/app/data
     depends_on:
-      - database
+      database:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
     ports:
       - "3001:3001"
     networks:
@@ -45,13 +118,30 @@ services:
     build:
       context: ./frontend
       dockerfile: Dockerfile
+      args:
+        # Inlined at build time by Next.js — must be the browser-reachable origin.
+        NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-http://localhost:3001}
     restart: always
     environment:
-      - NEXT_PUBLIC_API_URL=http://your-vps-ip:3001
+      NODE_ENV: production
     depends_on:
-      - backend
+      backend:
+        condition: service_healthy
     ports:
       - "3000:3000"
+    networks:
+      - targetchat_network
+
+  # Optional local SMTP catcher. Enable with:
+  #   docker compose --profile email up
+  # then set EMAIL_PROVIDER=smtp SMTP_HOST=mailpit SMTP_PORT=1025.
+  mailpit:
+    image: axllent/mailpit:latest
+    profiles: ["email"]
+    restart: unless-stopped
+    ports:
+      - "8025:8025"   # web UI
+      - "1025:1025"   # SMTP
     networks:
       - targetchat_network
 
@@ -61,3 +151,7 @@ networks:
 
 volumes:
   tc_db_data:
+  tc_redis_data:
+  tc_uploads:
+  tc_private_uploads:
+  tc_sqlite:

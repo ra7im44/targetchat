@@ -13,6 +13,19 @@ class EmailProvider {
         this.transporter = null;
         this.ses = null;
         this.initialized = false;
+        this.enabled = true;
+    }
+
+    /**
+     * Reload configuration after an admin save. Without this the transporter
+     * keeps the old host/password until the process restarts.
+     */
+    async reload() {
+        this.transporter = null;
+        this.ses = null;
+        this.initialized = false;
+        await this.loadSettings();
+        return this.status();
     }
 
     /**
@@ -23,7 +36,9 @@ class EmailProvider {
             const settingsService = require('./settingsService');
 
             // Get email provider setting
-            this.provider = await settingsService.get('email_provider', 'smtp');
+            this.provider = String(await settingsService.get('email_provider', 'smtp')).toLowerCase();
+            const enabledRaw = await settingsService.get('email_enabled', true);
+            this.enabled = !(enabledRaw === false || String(enabledRaw).toLowerCase() === 'false');
 
             // Load provider-specific settings
             const settings = {
@@ -113,6 +128,11 @@ class EmailProvider {
                 user: settings.smtp_user || process.env.SMTP_USER,
                 pass: settings.smtp_pass || process.env.SMTP_PASS
             },
+            // Bounded network waits: a bad admin-entered host must fail a test
+            // in seconds instead of hanging a request or a queued email.
+            connectionTimeout: 8000,
+            greetingTimeout: 8000,
+            socketTimeout: 15000,
             // Important for self-hosted/Plesk servers with self-signed certs
             tls: {
                 rejectUnauthorized: false,
@@ -172,6 +192,11 @@ class EmailProvider {
      */
     async send({ from, to, subject, html, text, metadata = {} }) {
         try {
+            if (!this.enabled) {
+                const err = new Error('Email sending is disabled in System Settings');
+                err.code = 'email_disabled';
+                throw err;
+            }
             let result;
 
             switch (this.provider) {
@@ -303,6 +328,36 @@ class EmailProvider {
     }
 
     /**
+     * Configuration/health summary. Never returns passwords or API keys.
+     */
+    async status() {
+        const configured = this.provider === 'console'
+            ? true
+            : this.provider === 'smtp'
+                ? Boolean(this.settings && this.settings.smtp_host)
+                : Boolean(this.provider);
+        let verified = this.provider === 'console';
+        let error = null;
+        if (configured && this.provider !== 'console') {
+            try {
+                verified = await this.verify();
+                if (!verified) error = 'Provider verification failed';
+            } catch (err) {
+                verified = false;
+                error = err.message;
+            }
+        }
+        return {
+            provider: this.provider,
+            enabled: this.enabled,
+            configured,
+            verified,
+            host: this.provider === 'smtp' ? (this.settings && this.settings.smtp_host) || null : null,
+            error
+        };
+    }
+
+    /**
      * Verify provider configuration (test connection)
      * @returns {Promise<boolean>}
      */
@@ -332,12 +387,9 @@ class EmailProvider {
     }
 }
 
-// Create singleton instance
+// Create singleton instance.
+// Initialization is explicit (index.js awaits loadSettings() AFTER migrations),
+// so requiring this module before the schema exists cannot spam DB errors.
 const emailProvider = new EmailProvider();
-
-// Initialize with database settings on first require
-emailProvider.loadSettings().catch(err => {
-    console.error('Failed to initialize email provider:', err);
-});
 
 module.exports = emailProvider;

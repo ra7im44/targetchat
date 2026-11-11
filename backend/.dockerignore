@@ -2,9 +2,13 @@ node_modules
 npm-debug.log
 .env
 .env.*
-# SECURITY: never bake local dev secrets or databases into the image.
-data/
-uploads/
+!.env.example
+data
+uploads
+PrivateUploads
 *.sqlite
-*.sqlite3
-*.log
+*.sqlite-*
+.git
+.gitignore
+coverage
+tests

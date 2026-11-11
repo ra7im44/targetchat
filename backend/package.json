@@ -6,10 +6,15 @@
   "scripts": {
     "start": "node src/index.js",
     "dev": "nodemon src/index.js",
+    "test": "node --test --test-concurrency=1 tests/*.test.js",
+    "db:migrate": "node scripts/db-migrate.js",
+    "db:status": "node scripts/db-status.js",
+    "db:drift": "node scripts/db-drift.js",
     "migrate:sessions": "node scripts/migrate_user_sessions.js"
   },
   "dependencies": {
     "@sendgrid/mail": "^8.1.6",
+    "@socket.io/redis-adapter": "^8.3.0",
     "aws-sdk": "^2.1693.0",
     "axios": "^1.4.0",
     "bcrypt": "^5.1.0",

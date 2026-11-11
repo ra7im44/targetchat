@@ -38,6 +38,8 @@ const Lead = require('./Lead');
 const WidgetAssignee = require('./WidgetAssignee');
 const ChatEvent = require('./ChatEvent');
 const ChatNote = require('./ChatNote');
+const KbDocument = require('./KbDocument')(sequelize, DataTypes);
+const KbChunk = require('./KbChunk')(sequelize, DataTypes);
 
 User.hasMany(Chat, { foreignKey: 'userId' });
 Chat.belongsTo(User, { foreignKey: 'userId' });
@@ -183,11 +185,24 @@ Workflow.hasMany(Widget, { foreignKey: 'workflowId', as: 'widgets' });
 Workspace.hasMany(Workflow, { foreignKey: 'workspace_id', as: 'workflows' });
 Workflow.belongsTo(Workspace, { foreignKey: 'workspace_id', as: 'workspace' });
 
-User.hasMany(CannedResponse, { foreignKey: 'userId', as: 'cannedResponses' });
-CannedResponse.belongsTo(User, { foreignKey: 'userId', as: 'user' });
+// MariaDB/MySQL reject a `SET NULL` FK action on a NOT NULL column (errno 150),
+// which is Sequelize's default for belongsTo. Cascade explicitly so the table
+// can be created on MySQL as well as SQLite.
+User.hasMany(CannedResponse, { foreignKey: 'userId', as: 'cannedResponses', onDelete: 'CASCADE', onUpdate: 'CASCADE' });
+CannedResponse.belongsTo(User, { foreignKey: 'userId', as: 'user', onDelete: 'CASCADE', onUpdate: 'CASCADE' });
 
 User.hasMany(UserSession, { foreignKey: 'userId', as: 'sessions' });
 UserSession.belongsTo(User, { foreignKey: 'userId', as: 'user' });
+
+// Knowledge base associations (workspace-scoped)
+Workspace.hasMany(KbDocument, { foreignKey: 'workspace_id', as: 'knowledgeDocuments' });
+KbDocument.belongsTo(Workspace, { foreignKey: 'workspace_id', as: 'workspace' });
+
+User.hasMany(KbDocument, { foreignKey: 'user_id', as: 'knowledgeDocuments' });
+KbDocument.belongsTo(User, { foreignKey: 'user_id', as: 'uploader' });
+
+KbDocument.hasMany(KbChunk, { foreignKey: 'document_id', as: 'chunks', onDelete: 'CASCADE' });
+KbChunk.belongsTo(KbDocument, { foreignKey: 'document_id', as: 'document' });
 
 module.exports = {
     sequelize,
@@ -220,5 +235,7 @@ module.exports = {
     ChatNote,
     BillingLog,
     Channel,
-    CannedResponse
+    CannedResponse,
+    KbDocument,
+    KbChunk
 };

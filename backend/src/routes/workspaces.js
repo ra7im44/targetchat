@@ -1,9 +1,60 @@
 const express = require('express');
 const router = express.Router();
 const { requireAuth } = require('../middleware/auth');
-const { User, Workspace, WorkspaceMember, WorkspaceInvitation, SubscriptionPlan, Coupon } = require('../models');
+const { User, Workspace, WorkspaceMember, WorkspaceInvitation, Subscription, SubscriptionPlan, Coupon } = require('../models');
 const crypto = require('crypto');
 const emailService = require('../services/emailService');
+
+/**
+ * Resolve the plan a workspace may hold, based on the OWNER's actual paid
+ * subscription rather than anything the client sends.
+ *
+ * SECURITY: workspace creation and the plan-update route both used to read
+ * `plan_type` straight from the request body and derive `max_members` from it
+ * (`enterprise` -> 999). The member cap at `POST /:id/invite` is enforced from
+ * `workspace.max_members`, so any authenticated user could pick the Enterprise
+ * radio button in the create-workspace form and receive a 999-seat workspace
+ * without paying. The frontend renders that picker, so this needed no crafted
+ * request at all.
+ *
+ * Free workspaces are still self-serve (that is the product's entry point);
+ * only the paid tiers are gated on a live subscription.
+ */
+async function resolvePlanForUser(userId, requestedPlanType) {
+    const subscription = await Subscription.findOne({
+        where: { userId, status: 'active' },
+        include: [{ model: SubscriptionPlan, as: 'plan' }]
+    });
+
+    const now = new Date();
+    const isLive =
+        subscription &&
+        (!subscription.currentPeriodEnd || new Date(subscription.currentPeriodEnd) > now);
+    const requested = (requestedPlanType || '').toString().trim().toLowerCase();
+
+    if (isLive && subscription.plan) {
+        // An explicit downgrade to free must still work — a paying customer
+        // cancelling should not be pinned to their paid tier.
+        if (requested === 'free') {
+            return { plan_type: 'free', max_members: 1 };
+        }
+        return {
+            plan_type: subscription.plan.name,
+            max_members: subscription.plan.maxMembers
+        };
+    }
+
+    // No live paid subscription: honour only 'free', force everything else down.
+    if (requested === 'free' || !requested) {
+        return { plan_type: 'free', max_members: 1 };
+    }
+
+    return {
+        plan_type: 'free',
+        max_members: 1,
+        rejectedPlanType: requested
+    };
+}
 
 // Helper: Get default permissions by role
 function getDefaultPermissions(role) {
@@ -51,13 +102,17 @@ router.post('/', requireAuth, async (req, res) => {
             return res.status(400).json({ message: 'Workspace name is required' });
         }
 
+        // Plan is derived from the creator's live subscription, never from the
+        // request body. See resolvePlanForUser().
+        const resolvedPlan = await resolvePlanForUser(req.user.id, plan_type);
+
         // Create workspace
         const workspace = await Workspace.create({
             name,
             description,
             owner_id: req.user.id,
-            plan_type: plan_type || 'free',
-            max_members: plan_type === 'enterprise' ? 999 : (plan_type === 'team' ? 5 : 1)
+            plan_type: resolvedPlan.plan_type,
+            max_members: resolvedPlan.max_members
         });
 
         // Add creator as owner
@@ -464,9 +519,22 @@ router.put('/:id/plan', requireAuth, async (req, res) => {
             return res.status(403).json({ message: 'Only the owner can change the plan' });
         }
 
+        // SECURITY: the owner check above does not imply payment. Resolve the
+        // plan from the owner's live subscription so this route can only ever
+        // downgrade to free, or apply a tier that was actually paid for.
+        // Upgrades are granted by billingService.syncSubscription().
+        const resolvedPlan = await resolvePlanForUser(req.user.id, plan_type);
+        if (resolvedPlan.rejectedPlanType) {
+            return res.status(402).json({
+                message: 'Upgrade to this plan requires an active subscription. Complete checkout first.',
+                requestedPlan: resolvedPlan.rejectedPlanType,
+                currentPlan: workspace.plan_type
+            });
+        }
+
         // Update plan and limits
-        workspace.plan_type = plan_type;
-        workspace.max_members = plan_type === 'enterprise' ? 999 : (plan_type === 'team' ? 5 : 1);
+        workspace.plan_type = resolvedPlan.plan_type;
+        workspace.max_members = resolvedPlan.max_members;
         await workspace.save();
 
         // Handle Coupon Usage if provided

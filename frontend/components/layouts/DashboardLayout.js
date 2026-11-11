@@ -3,6 +3,7 @@ import { useRouter } from 'next/router';
 import Head from 'next/head';
 import DashboardSidebar from './DashboardSidebar';
 import DashboardNavbar from './DashboardNavbar';
+import AppFooter from './AppFooter';
 import { toast } from 'react-hot-toast';
 import { API_URL as API, getToken, isAuthError, redirectToLogin } from '../../utils/apiConfig';
 import CreateWorkspaceModal from '../CreateWorkspaceModal';
@@ -10,7 +11,7 @@ import MembersModal from '../MembersModal';
 
 function DashboardContent({ children, title, user, workspaces, currentWorkspace, setCurrentWorkspace, collapsed, setCollapsed, onCreateWorkspace, onManageMembers }) {
     return (
-        <div className="flex h-screen bg-background text-foreground overflow-hidden font-sans">
+        <div className="fixed inset-0 flex bg-background text-foreground overflow-hidden font-sans">
             <Head>
                 <title>{title} | TargetChat</title>
             </Head>
@@ -28,14 +29,18 @@ function DashboardContent({ children, title, user, workspaces, currentWorkspace,
             />
 
             {/* Main Content */}
-            <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
+            <div className="flex-1 flex flex-col min-w-0 min-h-0 h-full overflow-hidden">
                 <DashboardNavbar user={user} onToggleSidebar={() => setCollapsed(!collapsed)} />
 
-                <main className="flex-1 overflow-y-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 bg-background scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-border">
+                <main className="flex-1 overflow-y-auto min-h-0 px-4 sm:px-6 lg:px-8 py-6 sm:py-8 bg-background scrollbar-thin scrollbar-thumb-border">
                     <div className="max-w-[1240px] mx-auto w-full">
                         {children}
                     </div>
                 </main>
+
+                {/* Outside <main>: bounds the scroll region so the footer is
+                    always visible instead of trailing the content. */}
+                <AppFooter />
             </div>
         </div>
     );
@@ -119,8 +124,8 @@ export default function DashboardLayout({ children, title = 'Dashboard' }) {
 
     if (loading) {
         return (
-            <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-background">
-                <div className="w-12 h-12 border-4 border-accent border-t-transparent rounded-full animate-spin"></div>
+            <div className="min-h-screen flex items-center justify-center bg-background">
+                <div className="w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
             </div>
         );
     }

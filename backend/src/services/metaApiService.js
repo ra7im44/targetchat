@@ -13,6 +13,24 @@ const META_GRAPH_VERSION = 'v19.0';
  */
 class MetaApiService {
     /**
+     * Admin settings are the source of truth; legacy env-style keys remain as
+     * fallbacks so existing deployments keep working.
+     */
+    async getAppCredentials() {
+        const appId = await settingsService.get('meta_app_id', null)
+            || await settingsService.get('META_APP_ID', null)
+            || await settingsService.get('FACEBOOK_APP_ID', null)
+            || process.env.META_APP_ID
+            || process.env.FACEBOOK_APP_ID;
+        const appSecret = await settingsService.get('meta_app_secret', null)
+            || await settingsService.get('META_APP_SECRET', null)
+            || await settingsService.get('FACEBOOK_APP_SECRET', null)
+            || process.env.META_APP_SECRET
+            || process.env.FACEBOOK_APP_SECRET;
+        return { appId, appSecret };
+    }
+
+    /**
      * Send message to Facebook Messenger
      */
     async sendFacebookMessage(pageAccessToken, recipientId, text) {
@@ -170,8 +188,7 @@ class MetaApiService {
      */
     async getUserAccessToken(code, redirectUri) {
         try {
-            const appId = await settingsService.get('FACEBOOK_APP_ID');
-            const appSecret = await settingsService.get('FACEBOOK_APP_SECRET');
+            const { appId, appSecret } = await this.getAppCredentials();
 
             const url = `https://graph.facebook.com/v19.0/oauth/access_token`;
             const response = await axios.get(url, {
@@ -193,8 +210,7 @@ class MetaApiService {
      */
     async getLongLivedUserAccessToken(shortLivedToken) {
         try {
-            const appId = await settingsService.get('FACEBOOK_APP_ID');
-            const appSecret = await settingsService.get('FACEBOOK_APP_SECRET');
+            const { appId, appSecret } = await this.getAppCredentials();
 
             const url = `https://graph.facebook.com/v19.0/oauth/access_token`;
             const response = await axios.get(url, {

@@ -43,7 +43,6 @@ export default function InvitationPage() {
         try {
             const token = localStorage.getItem('tc_token');
             if (!token) {
-                // Redirect to login with return URL
                 router.push(`/login?redirect=/workspace/invite/${router.query.token}`);
                 return;
             }
@@ -77,26 +76,26 @@ export default function InvitationPage() {
 
     if (loading) {
         return (
-            <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-background">
-                <div className="w-12 h-12 border-4 border-accent border-t-transparent rounded-full animate-spin"></div>
+            <div className="min-h-screen flex items-center justify-center bg-background">
+                <div className="w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
             </div>
         );
     }
 
     if (error) {
         return (
-            <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-background p-4">
-                <div className="bg-white dark:bg-surface p-8 rounded-card shadow-lg max-w-md w-full text-center">
-                    <div className="w-16 h-16 bg-red-100 dark:bg-red-900/30 rounded-full flex items-center justify-center mx-auto mb-6">
-                        <svg className="w-8 h-8 text-danger-ink dark:text-danger" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div className="min-h-screen flex items-center justify-center bg-background p-4">
+                <div className="bg-surface p-8 rounded-card shadow-lg border border-border max-w-md w-full text-center">
+                    <div className="w-16 h-16 bg-danger-soft border border-danger/20 rounded-full flex items-center justify-center mx-auto mb-6">
+                        <svg className="w-8 h-8 text-danger" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
                         </svg>
                     </div>
-                    <h1 className="text-2xl font-bold text-gray-900 dark:text-foreground mb-2">Invitation Error</h1>
-                    <p className="text-gray-600 dark:text-muted mb-6">{error}</p>
+                    <h1 className="text-2xl font-bold text-foreground mb-2">Invitation Error</h1>
+                    <p className="text-muted mb-6">{error}</p>
                     <button
                         onClick={() => router.push('/chat')}
-                        className="px-6 py-2 bg-gray-100 dark:bg-surface-elevated text-gray-700 dark:text-secondary rounded-lg hover:bg-gray-200 dark:hover:bg-surface-hover transition-colors"
+                        className="px-6 py-2.5 bg-surface hover:bg-surface-hover text-secondary hover:text-foreground border border-border rounded-button font-semibold transition-colors"
                     >
                         Go to Dashboard
                     </button>
@@ -106,31 +105,31 @@ export default function InvitationPage() {
     }
 
     return (
-        <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-background p-4">
+        <div className="min-h-screen flex items-center justify-center bg-background p-4">
             <Head>
                 <title>Join Workspace | TargetChat</title>
             </Head>
 
-            <div className="bg-white dark:bg-surface p-8 rounded-card shadow-lg max-w-md w-full text-center">
-                <div className="w-20 h-20 bg-blue-100 dark:bg-blue-900/30 rounded-full flex items-center justify-center mx-auto mb-6">
-                    <svg className="w-10 h-10 text-primary-700 dark:text-info" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div className="bg-surface p-8 rounded-card shadow-lg border border-border max-w-md w-full text-center">
+                <div className="w-20 h-20 bg-primary-soft border border-primary/20 rounded-full flex items-center justify-center mx-auto mb-6">
+                    <svg className="w-10 h-10 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
                     </svg>
                 </div>
 
-                <h1 className="text-2xl font-bold text-gray-900 dark:text-foreground mb-2">
+                <h1 className="text-2xl font-bold text-foreground mb-2">
                     Join {invitation?.workspace?.name}
                 </h1>
 
-                <p className="text-gray-600 dark:text-muted mb-8">
-                    <strong>{invitation?.inviter?.name}</strong> has invited you to join this workspace as a <span className="capitalize">{invitation?.role}</span>.
+                <p className="text-muted mb-8">
+                    <strong className="text-foreground">{invitation?.inviter?.name}</strong> has invited you to join this workspace as a <span className="capitalize text-foreground font-semibold">{invitation?.role}</span>.
                 </p>
 
                 <div className="space-y-3">
                     <button
                         onClick={handleAccept}
                         disabled={accepting}
-                        className="w-full py-3 px-4 bg-accent hover:bg-accent-hover text-background font-semibold rounded-xl transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                        className="w-full py-3 px-4 bg-primary hover:bg-primary-hover active:bg-primary-active text-white font-semibold rounded-button transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 shadow-xs"
                     >
                         {accepting ? (
                             <>
@@ -144,7 +143,7 @@ export default function InvitationPage() {
 
                     <button
                         onClick={() => router.push('/chat')}
-                        className="w-full py-3 px-4 bg-transparent text-gray-500 dark:text-muted hover:text-gray-700 dark:hover:text-secondary transition-colors"
+                        className="w-full py-3 px-4 bg-surface text-secondary hover:text-foreground hover:bg-surface-hover border border-border font-semibold rounded-button transition-colors"
                     >
                         Decline
                     </button>

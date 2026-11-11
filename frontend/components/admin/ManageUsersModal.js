@@ -96,39 +96,39 @@ export default function ManageUsersModal({ workflow, onClose, onUpdate }) {
 
     return (
         <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-            <div className="bg-white dark:bg-surface rounded-card w-full max-w-2xl shadow-lg max-h-[90vh] overflow-hidden flex flex-col">
+            <div className="bg-surface rounded-card w-full max-w-2xl shadow-lg max-h-[90vh] overflow-hidden flex flex-col border border-border">
                 {/* Header */}
-                <div className="p-6 border-b border-gray-200 dark:border-border flex items-center justify-between">
+                <div className="p-6 border-b border-border flex items-center justify-between bg-surface-elevated">
                     <div>
-                        <h2 className="text-2xl font-bold text-gray-900 dark:text-foreground">Manage Users</h2>
-                        <p className="text-sm text-gray-600 dark:text-muted mt-1">
+                        <h2 className="text-xl font-semibold text-foreground">Manage Users</h2>
+                        <p className="text-sm text-secondary mt-1">
                             {workflow.icon} {workflow.name}
                         </p>
                     </div>
                     <button
                         onClick={onClose}
-                        className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-surface-hover text-gray-500 dark:text-muted"
+                        className="p-2 rounded-xl hover:bg-surface-hover text-muted hover:text-foreground transition-colors"
                     >
                         <X size={18} />
                     </button>
                 </div>
 
                 {/* Content */}
-                <div className="flex-1 overflow-y-auto p-6 space-y-6">
+                <div className="flex-1 overflow-y-auto p-6 space-y-6 bg-surface">
                     {loading ? (
                         <div className="flex items-center justify-center py-12">
-                            <div className="w-12 h-12 border-4 border-accent border-t-transparent rounded-full animate-spin"></div>
+                            <div className="w-10 h-10 border-3 border-primary border-t-transparent rounded-full animate-spin"></div>
                         </div>
                     ) : (
                         <>
                             {/* Assigned Users */}
                             <div>
-                                <h3 className="text-lg font-semibold text-gray-900 dark:text-foreground mb-3 flex items-center gap-2">
-                                    <UserCheck size={18} />
+                                <h3 className="text-base font-semibold text-foreground mb-3 flex items-center gap-2">
+                                    <UserCheck size={18} className="text-success" />
                                     <span>Assigned Users ({assignedUsers.length})</span>
                                 </h3>
                                 {assignedUsers.length === 0 ? (
-                                    <div className="text-center py-8 text-gray-500 dark:text-muted bg-gray-50 dark:bg-background/50 rounded-lg">
+                                    <div className="text-center py-6 text-muted bg-surface-elevated rounded-xl border border-border text-sm">
                                         No users assigned yet
                                     </div>
                                 ) : (
@@ -136,16 +136,16 @@ export default function ManageUsersModal({ workflow, onClose, onUpdate }) {
                                         {assignedUsers.map(user => (
                                             <div
                                                 key={user.id}
-                                                className="flex items-center justify-between p-3 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg"
+                                                className="flex items-center justify-between p-3 bg-success-soft border border-success/20 rounded-xl"
                                             >
                                                 <div>
-                                                    <div className="font-medium text-gray-900 dark:text-foreground">{user.name}</div>
-                                                    <div className="text-sm text-gray-600 dark:text-muted">{user.email}</div>
+                                                    <div className="font-medium text-foreground text-sm">{user.name}</div>
+                                                    <div className="text-xs text-secondary">{user.email}</div>
                                                 </div>
                                                 <button
                                                     onClick={() => unassignUser(user.id)}
                                                     disabled={saving}
-                                                    className="px-3 py-1.5 text-sm font-medium text-danger-ink dark:text-danger hover:bg-red-100 dark:hover:bg-red-900/30 rounded-lg transition-colors disabled:opacity-50"
+                                                    className="px-3 py-1.5 text-xs font-semibold text-danger bg-danger-soft hover:bg-danger/20 border border-danger/20 rounded-lg transition-colors disabled:opacity-50"
                                                 >
                                                     Remove
                                                 </button>
@@ -157,12 +157,12 @@ export default function ManageUsersModal({ workflow, onClose, onUpdate }) {
 
                             {/* Available Users */}
                             <div>
-                                <h3 className="text-lg font-semibold text-gray-900 dark:text-foreground mb-3 flex items-center gap-2">
-                                    <Users size={18} />
+                                <h3 className="text-base font-semibold text-foreground mb-3 flex items-center gap-2">
+                                    <Users size={18} className="text-primary" />
                                     <span>Available Users ({unassignedUsers.length})</span>
                                 </h3>
                                 {unassignedUsers.length === 0 ? (
-                                    <div className="text-center py-8 text-gray-500 dark:text-muted bg-gray-50 dark:bg-background/50 rounded-lg">
+                                    <div className="text-center py-6 text-muted bg-surface-elevated rounded-xl border border-border text-sm">
                                         All users are assigned
                                     </div>
                                 ) : (
@@ -170,16 +170,16 @@ export default function ManageUsersModal({ workflow, onClose, onUpdate }) {
                                         {unassignedUsers.map(user => (
                                             <div
                                                 key={user.id}
-                                                className="flex items-center justify-between p-3 bg-gray-50 dark:bg-background/50 border border-gray-200 dark:border-border rounded-lg hover:bg-gray-100 dark:hover:bg-surface-hover/50 transition-colors"
+                                                className="flex items-center justify-between p-3 bg-surface-elevated border border-border rounded-xl hover:bg-surface-hover transition-colors"
                                             >
                                                 <div>
-                                                    <div className="font-medium text-gray-900 dark:text-foreground">{user.name}</div>
-                                                    <div className="text-sm text-gray-600 dark:text-muted">{user.email}</div>
+                                                    <div className="font-medium text-foreground text-sm">{user.name}</div>
+                                                    <div className="text-xs text-secondary">{user.email}</div>
                                                 </div>
                                                 <button
                                                     onClick={() => assignUser(user.id)}
                                                     disabled={saving}
-                                                    className="px-3 py-1.5 text-sm font-medium text-primary-700 dark:text-accent hover:bg-surface-hover dark:hover:bg-surface-hover rounded-lg transition-colors disabled:opacity-50"
+                                                    className="px-3 py-1.5 text-xs font-semibold text-primary bg-primary-soft hover:bg-primary/20 border border-primary/20 rounded-lg transition-colors disabled:opacity-50"
                                                 >
                                                     Assign
                                                 </button>
@@ -193,10 +193,10 @@ export default function ManageUsersModal({ workflow, onClose, onUpdate }) {
                 </div>
 
                 {/* Footer */}
-                <div className="p-6 border-t border-gray-200 dark:border-border flex justify-end">
+                <div className="p-6 border-t border-border flex justify-end bg-surface-elevated">
                     <button
                         onClick={onClose}
-                        className="px-6 py-2.5 bg-gray-200 dark:bg-surface-elevated text-gray-900 dark:text-foreground rounded-lg hover:bg-gray-300 dark:hover:bg-surface-hover transition-colors font-medium"
+                        className="px-6 py-2.5 bg-primary text-white rounded-xl hover:bg-primary-hover active:bg-primary-active transition-colors font-semibold text-sm shadow-xs"
                     >
                         Done
                     </button>

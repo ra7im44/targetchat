@@ -67,17 +67,17 @@ export default function ActivityLogs() {
             <div className="flex flex-col h-full overflow-hidden space-y-6">
                 <div className="flex justify-between items-center animate-fadeIn">
                     <div>
-                        <h1 className="text-3xl font-bold text-gray-900 dark:text-foreground flex items-center gap-3">
+                        <h1 className="text-3xl font-bold text-foreground flex items-center gap-3">
                             <Activity size={18} />
                             Activity Logs
                         </h1>
-                        <p className="text-gray-500 dark:text-muted mt-1">
+                        <p className="text-muted mt-1">
                             Audit trail of all system activities.
                         </p>
                     </div>
                     <button
                         onClick={() => loadLogs()}
-                        className="p-2 text-gray-500 dark:text-muted hover:text-accent hover:bg-gray-100 dark:hover:bg-surface-hover rounded-lg transition-all"
+                        className="p-2 text-muted hover:text-primary hover:bg-surface-hover rounded-lg transition-all"
                         title="Refresh"
                     >
                         <RefreshCw size={18} className={loading ? 'animate-spin' : ''} />
@@ -85,14 +85,14 @@ export default function ActivityLogs() {
                 </div>
 
                 {/* Filters */}
-                <div className="bg-white dark:bg-surface p-4 rounded-card shadow-sm border border-gray-100 dark:border-border flex flex-wrap gap-4 items-center animate-fadeIn">
-                    <div className="flex items-center gap-2 px-3 py-2 bg-gray-50 dark:bg-background rounded-lg border border-gray-200 dark:border-border">
+                <div className="bg-surface p-4 rounded-card shadow-sm border border-border flex flex-wrap gap-4 items-center animate-fadeIn">
+                    <div className="flex items-center gap-2 px-3 py-2 bg-background rounded-lg border border-border">
                         <Filter size={16} />
-                        <span className="text-sm font-semibold text-gray-700 dark:text-secondary">Action:</span>
+                        <span className="text-sm font-semibold text-secondary">Action:</span>
                         <select
                             value={filters.action}
                             onChange={(e) => handleFilterChange('action', e.target.value)}
-                            className="bg-transparent text-sm outline-none text-gray-900 dark:text-foreground cursor-pointer min-w-[120px]"
+                            className="bg-transparent text-sm outline-none text-foreground cursor-pointer min-w-[120px]"
                         >
                             <option value="">All Actions</option>
                             <option value="LOGIN">LOGIN</option>
@@ -103,22 +103,22 @@ export default function ActivityLogs() {
                         </select>
                     </div>
 
-                    <div className="flex items-center gap-2 px-3 py-2 bg-gray-50 dark:bg-background rounded-lg border border-gray-200 dark:border-border">
+                    <div className="flex items-center gap-2 px-3 py-2 bg-background rounded-lg border border-border">
                         <User size={16} />
-                        <span className="text-sm font-semibold text-gray-700 dark:text-secondary">User ID:</span>
+                        <span className="text-sm font-semibold text-secondary">User ID:</span>
                         <input
                             type="number"
                             placeholder="#"
                             value={filters.userId}
                             onChange={(e) => handleFilterChange('userId', e.target.value)}
-                            className="w-16 bg-transparent text-sm outline-none text-gray-900 dark:text-foreground placeholder:text-gray-400"
+                            className="w-16 bg-transparent text-sm outline-none text-foreground placeholder:text-muted"
                         />
                     </div>
 
                     {(filters.action || filters.userId) && (
                         <button
                             onClick={() => { setFilters({ action: '', userId: '' }); setPage(1); }}
-                            className="text-xs text-red-500 hover:text-red-600 hover:underline ml-auto font-medium"
+                            className="text-xs text-danger hover:text-danger hover:underline ml-auto font-medium"
                         >
                             Clear Filters
                         </button>
@@ -126,31 +126,31 @@ export default function ActivityLogs() {
                 </div>
 
                 {/* Table */}
-                <div className="flex-1 overflow-auto rounded-card border border-gray-200 dark:border-border bg-white dark:bg-surface shadow-sm relative">
+                <div className="flex-1 overflow-auto rounded-card border border-border bg-surface shadow-sm relative">
                     <table className="w-full text-left border-collapse">
-                        <thead className="bg-gray-50/80 dark:bg-surface sticky top-0 z-10 backdrop-blur-md border-b border-gray-100 dark:border-border">
+                        <thead className="bg-surface-secondary sticky top-0 z-10 border-b border-border">
                             <tr>
-                                <th className="px-6 py-4 font-bold text-gray-900 dark:text-foreground text-xs uppercase tracking-wider">Action</th>
-                                <th className="px-6 py-4 font-bold text-gray-900 dark:text-foreground text-xs uppercase tracking-wider">User</th>
-                                <th className="px-6 py-4 font-bold text-gray-900 dark:text-foreground text-xs uppercase tracking-wider">Details</th>
-                                <th className="px-6 py-4 font-bold text-gray-900 dark:text-foreground text-xs uppercase tracking-wider">IP / Agent</th>
-                                <th className="px-6 py-4 font-bold text-gray-900 dark:text-foreground text-xs uppercase tracking-wider">Time</th>
+                                <th className="px-6 py-4 font-bold text-foreground text-xs uppercase tracking-wider">Action</th>
+                                <th className="px-6 py-4 font-bold text-foreground text-xs uppercase tracking-wider">User</th>
+                                <th className="px-6 py-4 font-bold text-foreground text-xs uppercase tracking-wider">Details</th>
+                                <th className="px-6 py-4 font-bold text-foreground text-xs uppercase tracking-wider">IP / Agent</th>
+                                <th className="px-6 py-4 font-bold text-foreground text-xs uppercase tracking-wider">Time</th>
                             </tr>
                         </thead>
-                        <tbody className="divide-y divide-gray-50 dark:divide-gray-700/50">
+                        <tbody className="divide-y divide-border">
                             {loading ? (
                                 [...Array(5)].map((_, i) => (
                                     <tr key={i} className="animate-pulse">
-                                        <td className="px-6 py-4"><div className="h-4 bg-gray-100 dark:bg-surface-elevated rounded w-24"></div></td>
-                                        <td className="px-6 py-4"><div className="h-4 bg-gray-100 dark:bg-surface-elevated rounded w-32"></div></td>
-                                        <td className="px-6 py-4"><div className="h-4 bg-gray-100 dark:bg-surface-elevated rounded w-48"></div></td>
-                                        <td className="px-6 py-4"><div className="h-4 bg-gray-100 dark:bg-surface-elevated rounded w-24"></div></td>
-                                        <td className="px-6 py-4"><div className="h-4 bg-gray-100 dark:bg-surface-elevated rounded w-24"></div></td>
+                                        <td className="px-6 py-4"><div className="h-4 bg-surface-elevated rounded w-24"></div></td>
+                                        <td className="px-6 py-4"><div className="h-4 bg-surface-elevated rounded w-32"></div></td>
+                                        <td className="px-6 py-4"><div className="h-4 bg-surface-elevated rounded w-48"></div></td>
+                                        <td className="px-6 py-4"><div className="h-4 bg-surface-elevated rounded w-24"></div></td>
+                                        <td className="px-6 py-4"><div className="h-4 bg-surface-elevated rounded w-24"></div></td>
                                     </tr>
                                 ))
                             ) : logs.length === 0 ? (
                                 <tr>
-                                    <td colSpan="5" className="px-6 py-20 text-center text-gray-500 dark:text-muted">
+                                    <td colSpan="5" className="px-6 py-20 text-center text-muted">
                                         <div className="flex flex-col items-center justify-center gap-2">
                                             <Search size={18} />
                                             <p>No activity logs found</p>
@@ -159,24 +159,24 @@ export default function ActivityLogs() {
                                 </tr>
                             ) : (
                                 logs.map((log) => (
-                                    <tr key={log.id} className="hover:bg-blue-50/30 dark:hover:bg-blue-900/10 transition-colors">
+                                    <tr key={log.id} className="hover:bg-info-soft/30 transition-colors">
                                         <td className="px-6 py-4">
                                             <span className={`inline-flex items-center px-2.5 py-1 rounded-md text-xs font-bold border ${log.action.includes('DELETE')
-                                                    ? 'bg-red-50 text-red-700 border-red-100 dark:bg-red-900/20 dark:border-red-800 dark:text-red-400'
+                                                    ? 'bg-danger-soft text-danger border-danger/25'
                                                     : log.action.includes('LOGIN')
-                                                        ? 'bg-green-50 text-green-700 border-green-100 dark:bg-green-900/20 dark:border-green-800 dark:text-green-400'
-                                                        : 'bg-blue-50 text-info-ink border-blue-100 dark:bg-blue-900/20 dark:border-blue-800 dark:text-info'
+                                                        ? 'bg-success-soft text-success border-success/25'
+                                                        : 'bg-info-soft text-info-ink border-info/25'
                                                 }`}>
                                                 {log.action}
                                             </span>
                                         </td>
                                         <td className="px-6 py-4">
                                             <div className="flex flex-col">
-                                                <div className="flex items-center gap-2 font-medium text-gray-900 dark:text-foreground text-sm">
+                                                <div className="flex items-center gap-2 font-medium text-foreground text-sm">
                                                     <User size={16} />
                                                     {log.user ? log.user.name : (log.user_id ? 'Unknown User' : 'System')}
                                                 </div>
-                                                <span className="text-xs text-gray-500 pl-5.5">
+                                                <span className="text-xs text-muted pl-5.5">
                                                     {log.user ? log.user.email : (log.user_id ? `ID: ${log.user_id}` : 'System Event')}
                                                 </span>
                                             </div>
@@ -184,19 +184,19 @@ export default function ActivityLogs() {
                                         <td className="px-6 py-4">
                                             <div className="flex items-center gap-2">
                                                 <Info size={16} className="flex-shrink-0" />
-                                                <code className="text-xs bg-gray-50 dark:bg-black/20 px-2 py-1 rounded border border-gray-100 dark:border-border max-w-[200px] truncate text-gray-600 dark:text-secondary" title={JSON.stringify(log.details, null, 2)}>
+                                                <code className="text-xs bg-surface-elevated dark:bg-black/20 px-2 py-1 rounded border border-border max-w-[200px] truncate text-secondary" title={JSON.stringify(log.details, null, 2)}>
                                                     {JSON.stringify(log.details)}
                                                 </code>
                                             </div>
                                         </td>
-                                        <td className="px-6 py-4 text-xs text-gray-500">
+                                        <td className="px-6 py-4 text-xs text-muted">
                                             <div className="flex flex-col gap-1">
                                                 <span className="flex items-center gap-1.5" title="IP Address">
                                                     <Monitor size={12} /> {log.ip_address}
                                                 </span>
                                             </div>
                                         </td>
-                                        <td className="px-6 py-4 text-sm text-gray-600 dark:text-muted">
+                                        <td className="px-6 py-4 text-sm text-muted">
                                             <div className="flex items-center gap-2">
                                                 <Clock size={16} />
                                                 {new Date(log.created_at).toLocaleString()}
@@ -214,17 +214,17 @@ export default function ActivityLogs() {
                     <button
                         disabled={page === 1}
                         onClick={() => setPage(page - 1)}
-                        className="px-4 py-2 rounded-lg bg-white dark:bg-surface border border-gray-200 dark:border-border disabled:opacity-50 hover:bg-gray-50 dark:hover:bg-surface-hover transition-all font-medium text-sm flex items-center gap-2"
+                        className="px-4 py-2 rounded-lg bg-surface border border-border disabled:opacity-50 hover:bg-surface-hover transition-all font-medium text-sm flex items-center gap-2"
                     >
                         Previous
                     </button>
-                    <span className="text-sm font-medium text-gray-600 dark:text-muted">
+                    <span className="text-sm font-medium text-muted">
                         Page {page} of {totalPages}
                     </span>
                     <button
                         disabled={page === totalPages}
                         onClick={() => setPage(page + 1)}
-                        className="px-4 py-2 rounded-lg bg-white dark:bg-surface border border-gray-200 dark:border-border disabled:opacity-50 hover:bg-gray-50 dark:hover:bg-surface-hover transition-all font-medium text-sm flex items-center gap-2"
+                        className="px-4 py-2 rounded-lg bg-surface border border-border disabled:opacity-50 hover:bg-surface-hover transition-all font-medium text-sm flex items-center gap-2"
                     >
                         Next
                     </button>

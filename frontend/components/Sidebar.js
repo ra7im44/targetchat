@@ -63,14 +63,14 @@ export default function Sidebar({ chats, activeId, onSelect, onNew, onDelete, co
 
   return (
     <>
-      <aside className={`h-full flex flex-col bg-white dark:bg-background border-r border-gray-200 dark:border-border relative transition-all duration-300 ${collapsed ? 'w-20' : 'w-80'}`}>
-        {/* Gradient Accent */}
-        <div className="absolute top-0 left-0 right-0 h-1 bg-accent"></div>
+      <aside className={`h-full flex flex-col bg-surface border-r border-border relative transition-all duration-300 ${collapsed ? 'w-20' : 'w-80'}`}>
+        {/* Top Accent Line */}
+        <div className="absolute top-0 left-0 right-0 h-1 bg-primary"></div>
 
         {/* Collapse Button */}
         <button
           onClick={onToggleCollapse}
-          className="absolute -right-3 top-6 z-10 w-6 h-6 bg-white dark:bg-surface border border-gray-200 dark:border-border rounded-full flex items-center justify-center text-gray-600 dark:text-muted hover:text-accent-active dark:hover:text-info hover:border-accent transition-all shadow-md"
+          className="absolute -right-3 top-6 z-10 w-6 h-6 bg-surface border border-border rounded-full flex items-center justify-center text-muted hover:text-primary hover:border-primary transition-all shadow-xs"
           title={collapsed ? "Expand sidebar" : "Collapse sidebar"}
         >
           <Icon name={collapsed ? 'expand' : 'collapse'} className="w-3 h-3" />
@@ -87,30 +87,28 @@ export default function Sidebar({ chats, activeId, onSelect, onNew, onDelete, co
         )}
 
         {/* New Chat Button */}
-        <div className="p-4 border-b border-gray-200 dark:border-border">
+        <div className="p-4 border-b border-border">
           <button
             onClick={onNew}
-            className={`w-full group relative overflow-hidden bg-accent text-background rounded-lg transition-colors shadow-sm ${collapsed ? 'p-3' : 'p-3.5'}`}
+            className={`w-full group relative overflow-hidden bg-primary text-white hover:bg-primary-hover active:bg-primary-active rounded-lg transition-colors shadow-xs ${collapsed ? 'p-3' : 'p-3.5'}`}
             title={collapsed ? "New Chat" : ""}
           >
             <div className={`flex items-center ${collapsed ? 'justify-center' : 'justify-center gap-2'} relative z-10`}>
               <Icon name="new" className="w-5 h-5" />
               {!collapsed && <span className="font-semibold">New Chat</span>}
             </div>
-            {/* Shine effect */}
-            {!collapsed && <div className="absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-1000 bg-white/20"></div>}
           </button>
         </div>
 
         {/* Chat List */}
-        <div className="flex-1 overflow-y-auto p-3 space-y-2 scrollbar-thin scrollbar-thumb-gray-300 dark:scrollbar-thumb-gray-700">
+        <div className="flex-1 overflow-y-auto p-3 space-y-2 scrollbar-thin">
           {chats.length === 0 && (
             <div className="flex flex-col items-center justify-center h-64 text-center p-6">
-              <div className="w-16 h-16 rounded-card bg-gray-100 dark:bg-surface-elevated flex items-center justify-center mb-4 text-gray-500 dark:text-muted">
+              <div className="w-16 h-16 rounded-xl bg-surface-elevated flex items-center justify-center mb-4 text-muted">
                 <Icon name="chat" className="w-8 h-8" />
               </div>
-              <p className="text-sm text-gray-600 dark:text-secondary font-semibold mb-1">No conversations yet</p>
-              <p className="text-xs text-gray-500 dark:text-muted">Click "New Chat" to start</p>
+              <p className="text-sm text-secondary font-semibold mb-1">No conversations yet</p>
+              <p className="text-xs text-muted">Click "New Chat" to start</p>
             </div>
           )}
 
@@ -129,10 +127,10 @@ export default function Sidebar({ chats, activeId, onSelect, onNew, onDelete, co
                 className={`
                 group relative p-3 rounded-xl cursor-pointer transition-all duration-200
                 ${c.id === activeId
-                    ? 'bg-accent/10 dark:bg-accent/10 border border-accent/30 dark:border-accent/30'
-                    : 'hover:bg-gray-50 dark:hover:bg-surface-hover/50 border border-transparent hover:border-gray-200 dark:hover:border-gray-700'
+                    ? 'bg-primary-soft text-primary border border-primary/30'
+                    : 'hover:bg-surface-hover text-secondary border border-transparent'
                   }
-                ${c.pinned ? 'ring-1 ring-amber-400/40 dark:ring-amber-500/30' : ''}
+                ${c.pinned ? 'ring-1 ring-warning/40' : ''}
               `}
               >
                 <div className="flex items-start gap-2.5">
@@ -140,8 +138,8 @@ export default function Sidebar({ chats, activeId, onSelect, onNew, onDelete, co
                   <div className={`
                   w-10 h-10 rounded-xl flex items-center justify-center text-xs font-bold shrink-0 transition-colors
                   ${c.id === activeId
-                      ? 'bg-accent text-background'
-                      : 'bg-gray-100 dark:bg-surface-elevated text-gray-600 dark:text-muted'
+                      ? 'bg-primary text-white'
+                      : 'bg-surface-elevated text-muted'
                     }
                 `}>
                     {(c.title || 'C').charAt(0).toUpperCase()}
@@ -163,18 +161,18 @@ export default function Sidebar({ chats, activeId, onSelect, onNew, onDelete, co
                             value={editTitleValue}
                             onChange={(e) => setEditTitleValue(e.target.value)}
                             onKeyDown={(e) => { if (e.key === 'Escape') setEditingChatId(null); }}
-                            className="w-full px-2 py-0.5 text-xs rounded border border-accent/30 dark:border-accent/30 bg-white dark:bg-surface text-gray-900 dark:text-foreground outline-none focus:ring-1 focus:ring-accent/60"
+                            className="w-full px-2 py-0.5 text-xs rounded border border-border bg-surface text-foreground outline-none focus:border-primary focus:ring-1 focus:ring-primary/30"
                           />
-                          <button type="submit" className="p-1 text-success-ink dark:text-success hover:bg-success dark:hover:bg-success/30 rounded" title="Save">
+                          <button type="submit" className="p-1 text-success hover:bg-success-soft rounded" title="Save">
                             <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M5 13l4 4L19 7" /></svg>
                           </button>
-                          <button type="button" onClick={() => setEditingChatId(null)} className="p-1 text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-950/30 rounded" title="Cancel">
+                          <button type="button" onClick={() => setEditingChatId(null)} className="p-1 text-danger hover:bg-danger-soft rounded" title="Cancel">
                             <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M6 18L18 6M6 6l12 12" /></svg>
                           </button>
                         </form>
                       ) : (
                         <>
-                          <h3 className={`text-sm font-semibold truncate ${c.id === activeId ? 'text-accent-active dark:text-foreground' : 'text-gray-800 dark:text-secondary'}`}>
+                          <h3 className={`text-sm font-semibold truncate ${c.id === activeId ? 'text-primary' : 'text-foreground'}`}>
                             {c.title || 'New Chat'}
                           </h3>
                           <div className="flex items-center gap-0.5 shrink-0">
@@ -187,8 +185,8 @@ export default function Sidebar({ chats, activeId, onSelect, onNew, onDelete, co
                               }}
                               className={`p-1 rounded-md transition-all hover:scale-110 ${
                                 c.pinned
-                                  ? 'text-warning-ink dark:text-warning hover:bg-warning dark:hover:bg-warning/30'
-                                  : 'text-gray-500 dark:text-muted hover:text-warning hover:bg-gray-100 dark:hover:bg-surface-hover'
+                                  ? 'text-warning hover:bg-warning-soft'
+                                  : 'text-muted hover:text-warning hover:bg-surface-hover'
                               }`}
                               title={c.pinned ? "Unpin" : "Pin"}
                             >
@@ -199,7 +197,7 @@ export default function Sidebar({ chats, activeId, onSelect, onNew, onDelete, co
                             <button
                               type="button"
                               onClick={(e) => startRename(c, e)}
-                              className="p-1 text-gray-500 dark:text-muted hover:text-accent dark:hover:text-info hover:bg-accent/10 dark:hover:bg-surface-elevated rounded-md transition-all hover:scale-110"
+                              className="p-1 text-muted hover:text-primary hover:bg-primary-soft rounded-md transition-all hover:scale-110"
                               title="Rename"
                             >
                               <Icon name="edit" className="w-3.5 h-3.5" />
@@ -212,7 +210,7 @@ export default function Sidebar({ chats, activeId, onSelect, onNew, onDelete, co
                                 e.stopPropagation();
                                 setDeleteConfirm({ isOpen: true, chatId: c.id });
                               }}
-                              className="p-1 text-gray-500 dark:text-muted hover:text-danger hover:bg-danger/10 dark:hover:bg-red-900/30 rounded-md transition-all hover:scale-110"
+                              className="p-1 text-muted hover:text-danger hover:bg-danger-soft rounded-md transition-all hover:scale-110"
                               title="Delete"
                             >
                               <Icon name="delete" className="w-3.5 h-3.5" />
@@ -222,11 +220,11 @@ export default function Sidebar({ chats, activeId, onSelect, onNew, onDelete, co
                       )}
                     </div>
                     <div className="flex items-center gap-2">
-                      <p className={`text-xs truncate ${c.id === activeId ? 'text-primary-700 dark:text-info font-medium' : 'text-gray-500 dark:text-muted'}`}>
+                      <p className={`text-xs truncate ${c.id === activeId ? 'text-primary/80 font-medium' : 'text-muted'}`}>
                         {c.messages?.length ? `${c.messages.length} messages` : 'New conversation'}
                       </p>
                       {c.id === activeId && (
-                        <div className="w-1.5 h-1.5 rounded-full bg-accent animate-pulse shrink-0"></div>
+                        <div className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse shrink-0"></div>
                       )}
                     </div>
                   </div>
@@ -236,13 +234,13 @@ export default function Sidebar({ chats, activeId, onSelect, onNew, onDelete, co
         </div>
 
         {/* Footer */}
-        <div className="p-4 border-t border-gray-200 dark:border-border bg-gray-50 dark:bg-surface">
+        <div className="p-4 border-t border-border bg-surface-elevated">
           <div className="flex items-center justify-between px-2">
-            <div className="flex items-center gap-2 text-xs text-gray-500 dark:text-muted">
+            <div className="flex items-center gap-2 text-xs text-muted">
               <div className="w-2 h-2 rounded-full bg-success animate-pulse"></div>
               <span className="font-medium">Online</span>
             </div>
-            <div className="text-xs text-gray-500 dark:text-muted">
+            <div className="text-xs text-muted">
               {chats.length} {chats.length === 1 ? 'chat' : 'chats'}
             </div>
           </div>

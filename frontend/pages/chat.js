@@ -14,6 +14,7 @@ import MembersModal from '../components/MembersModal';
 import { LocaleContext } from './_app';
 import { useTheme } from '../contexts/ThemeContext';
 import { API_URL as API, SOCKET_URL, getToken } from '../utils/apiConfig';
+import { streamChat } from '../utils/streamChat';
 import { Bot, Briefcase, Code, Palette, Gem, Sparkles } from 'lucide-react';
 
 // Dynamic import for emoji picker (client-side only)
@@ -614,29 +615,108 @@ export default function ChatPage() {
     setIsTyping(true); // Show typing indicator
 
     try {
-      const resp = await fetch(`${API}/api/chat/send`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
-        body: JSON.stringify({
-          chat_id: chatId,
-          message: unifiedMsg
-        }),
-      });
+      let aiReply = null;
+      const streamMsgId = `ai-stream-${Date.now()}`;
 
-      if (resp.status === 429) {
-        const data = await resp.json();
-        toast.error(data.message || 'Daily limit reached. Upgrade to Pro.');
-        setLoading(false);
-        setIsTyping(false);
-        return;
+      // Preferred path: incremental Server-Sent Events streaming. Text appears
+      // as the model generates it instead of after the full completion.
+      try {
+        aiReply = await streamChat({
+          token,
+          body: { chat_id: chatId, text: trimmed },
+          onDelta: (delta) => {
+            setIsTyping(false);
+            setChats((currentChats) => currentChats.map((c) => {
+              if (c.id !== chatId) return c;
+              const msgs = c.messages || [];
+              if (msgs.some((m) => m.id === streamMsgId)) {
+                return {
+                  ...c,
+                  messages: msgs.map((m) => (
+                    m.id === streamMsgId ? { ...m, text: `${m.text || ''}${delta}` } : m
+                  ))
+                };
+              }
+              return {
+                ...c,
+                messages: [...msgs, {
+                  id: streamMsgId,
+                  sender: 'ai',
+                  type: 'text',
+                  text: delta,
+                  time: new Date().toLocaleTimeString()
+                }]
+              };
+            }));
+          },
+          onDone: (final) => {
+            setChats((currentChats) => currentChats.map((c) => {
+              if (c.id !== chatId) return c;
+              return {
+                ...c,
+                messages: (c.messages || []).map((m) => (
+                  m.id === streamMsgId
+                    ? {
+                      ...m,
+                      id: final.id || streamMsgId,
+                      text: final.text || m.text,
+                      time: new Date(final.createdAt || Date.now()).toLocaleTimeString()
+                    }
+                    : m
+                ))
+              };
+            }));
+            if (final.fallback) {
+              toast('AI fallback response used (no model available)', { icon: '⚠️' });
+            }
+          }
+        });
+      } catch (streamErr) {
+        if (streamErr.status === 429) {
+          toast.error(streamErr.message || 'Daily limit reached. Upgrade to Pro.');
+          setIsTyping(false);
+          return;
+        }
+        if (streamErr.status === 401 || streamErr.status === 403) return handleAuthError();
+
+        console.error('streaming failed, falling back to /api/chat/send', streamErr.message);
+        // Drop the empty streaming bubble; the compatibility path will add the reply.
+        setChats((currentChats) => currentChats.map((c) => (
+          c.id === chatId
+            ? { ...c, messages: (c.messages || []).filter((m) => m.id !== streamMsgId) }
+            : c
+        )));
       }
 
-      if (resp.status === 401 || resp.status === 403) return handleAuthError();
+      // Compatibility path: non-streaming endpoint (older server, media
+      // messages, or a stream that could not start).
+      if (!aiReply) {
+        const resp = await fetch(`${API}/api/chat/send`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+          body: JSON.stringify({
+            chat_id: chatId,
+            message: unifiedMsg
+          }),
+        });
 
-      if (resp.ok) {
-        try {
+        if (resp.status === 429) {
+          const data = await resp.json();
+          toast.error(data.message || 'Daily limit reached. Upgrade to Pro.');
+          setLoading(false);
+          setIsTyping(false);
+          return;
+        }
+
+        if (resp.status === 401 || resp.status === 403) return handleAuthError();
+
+        if (resp.ok) {
           const respData = await resp.json();
+          if (respData.aiError) {
+            toast.error(respData.aiError.message || 'AI is unavailable right now');
+          }
           if (respData.reply) {
+            aiReply = respData.reply;
             const aiMsg = {
               id: respData.reply.id || `ai-${Date.now()}`,
               sender: 'ai',
@@ -654,11 +734,11 @@ export default function ChatPage() {
                 return c;
               })
             );
-            setIsTyping(false);
-            setLoading(false);
           }
-        } catch (e) {}
+        }
       }
+
+      setIsTyping(false);
 
       if (socketRef.current) {
         socketRef.current.emit('chat:join', chatId);
@@ -681,7 +761,8 @@ export default function ChatPage() {
         setChats((currentChats) => currentChats.map((c) => (c.id === chatId ? { ...c, title: newTitle } : c)));
       }
 
-      // Resilient background poll after 4 seconds to catch AI reply if socket missed
+      // Resilient background refresh: socket events are best-effort, the
+      // server remains the source of truth for persisted history.
       setTimeout(async () => {
         try {
           const tokenCheck = localStorage.getItem('tc_token');
@@ -1043,10 +1124,10 @@ export default function ChatPage() {
       <main className="flex-1 flex flex-col h-full relative w-full">
 
         {/* Header */}
-        <header className="h-16 shrink-0 glass-header flex items-center justify-between px-4 sm:px-6 z-10 relative border-b border-gray-200/50 dark:border-border">
+        <header className="h-16 shrink-0 glass-header flex items-center justify-between px-4 sm:px-6 z-10 relative border-b border-border">
           <div className="flex items-center gap-4">
             <button
-              className="md:hidden p-2 -ml-2 text-gray-600 dark:text-secondary hover:bg-gray-100 dark:hover:bg-surface-hover rounded-xl transition-all"
+              className="md:hidden p-2 -ml-2 text-secondary hover:bg-surface-hover hover:text-foreground rounded-xl transition-all"
               onClick={() => setShowSidebar(true)}
             >
               <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16M4 18h16" /></svg>
@@ -1069,10 +1150,10 @@ export default function ChatPage() {
                     onClick={() => { const t = chats.find((c) => c.id === activeChatId)?.title || ''; setTitleValue(t); setEditingTitle(true); }}
                     title="Rename chat"
                   >
-                    <h1 className="font-bold text-lg text-gray-900 dark:text-foreground truncate max-w-[180px] sm:max-w-md">
+                    <h1 className="font-bold text-lg text-foreground truncate max-w-[180px] sm:max-w-md">
                       {(chats.find((c) => c.id === activeChatId)?.title) || 'New Chat'}
                     </h1>
-                    <svg className="w-4 h-4 text-gray-500 dark:text-muted hover:text-accent transition-colors shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg className="w-4 h-4 text-muted hover:text-primary transition-colors shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
                     </svg>
                   </div>
@@ -1086,8 +1167,8 @@ export default function ChatPage() {
                       }}
                       className={`p-1.5 rounded-lg transition-all ${
                         chats.find((c) => c.id === activeChatId)?.pinned
-                          ? 'text-warning-ink dark:text-warning hover:bg-amber-50 dark:hover:bg-amber-950/30'
-                          : 'text-gray-500 dark:text-muted hover:text-warning hover:bg-gray-100 dark:hover:bg-surface-hover'
+                          ? 'text-warning bg-warning-soft'
+                          : 'text-muted hover:text-warning hover:bg-surface-hover'
                       }`}
                       title={chats.find((c) => c.id === activeChatId)?.pinned ? "Unpin" : "Pin"}
                     >
@@ -1100,9 +1181,9 @@ export default function ChatPage() {
                 </div>
               ) : (
                 <form onSubmit={async (e) => { e.preventDefault(); try { const token = localStorage.getItem('tc_token'); if (!token) return router.replace('/login'); await fetch(`${API}/api/chat/${activeChatId}`, { method: 'PATCH', headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` }, body: JSON.stringify({ title: titleValue }) }); setChats((prev) => prev.map((c) => c.id === activeChatId ? { ...c, title: titleValue } : c)); } catch (err) { console.error('title save', err); } finally { setEditingTitle(false); } }} className="flex items-center gap-2">
-                  <input autoFocus value={titleValue} onChange={(e) => setTitleValue(e.target.value)} className="px-3 py-1.5 rounded-lg border border-accent dark:border-accent bg-white dark:bg-surface text-sm focus:ring-2 focus:ring-accent outline-none" />
-                  <button type="submit" className="p-1.5 text-success-ink dark:text-success hover:bg-green-50 dark:hover:bg-green-900/20 rounded-lg transition-colors"><svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" /></svg></button>
-                  <button type="button" className="p-1.5 text-danger-ink dark:text-danger hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors" onClick={() => setEditingTitle(false)}><svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" /></svg></button>
+                  <input autoFocus value={titleValue} onChange={(e) => setTitleValue(e.target.value)} className="px-3 py-1.5 rounded-lg border border-primary bg-surface text-foreground text-sm focus:ring-2 focus:ring-primary/20 outline-none" />
+                  <button type="submit" className="p-1.5 text-success hover:bg-success-soft rounded-lg transition-colors"><svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" /></svg></button>
+                  <button type="button" className="p-1.5 text-danger hover:bg-danger-soft rounded-lg transition-colors" onClick={() => setEditingTitle(false)}><svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" /></svg></button>
                 </form>
               )}
             </div>
@@ -1113,19 +1194,19 @@ export default function ChatPage() {
             {/* Upgrade Button - Premium Design */}
             <button
               onClick={() => setShowPricing(true)}
-              className="hidden sm:flex items-center gap-2 px-4 py-2 bg-accent hover:bg-accent-hover text-background text-sm font-bold rounded-full shadow-lg transition-all duration-200"
+              className="hidden sm:flex items-center gap-2 px-4 py-2 bg-primary hover:bg-primary-hover active:bg-primary-active text-white text-sm font-semibold rounded-full shadow-sm transition-all duration-200"
             >
-              <Gem size={18} />
+              <Gem size={16} />
               <span>Upgrade</span>
             </button>
 
             {/* Theme Toggle - Redesigned */}
-            <div className="hidden sm:flex items-center gap-1 bg-gray-100 dark:bg-surface rounded-full p-1 shadow-inner">
+            <div className="hidden sm:flex items-center gap-1 bg-surface-elevated border border-border rounded-full p-1 shadow-inner">
               <button
                 onClick={() => setThemePreset('light')}
                 aria-label="Light mode"
                 aria-pressed={!themeDark}
-                className={`p-2 rounded-full transition-all duration-200 ${!themeDark ? 'bg-white shadow-md text-warning-ink scale-110' : 'text-gray-500 dark:text-muted hover:text-gray-600 dark:hover:text-secondary'}`}
+                className={`p-2 rounded-full transition-all duration-200 ${!themeDark ? 'bg-surface shadow-xs text-warning scale-110' : 'text-muted hover:text-secondary'}`}
                 title="Light Mode"
               >
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" /></svg>
@@ -1134,7 +1215,7 @@ export default function ChatPage() {
                 onClick={() => setThemePreset('dark')}
                 aria-label="Dark mode"
                 aria-pressed={themeDark}
-                className={`p-2 rounded-full transition-all duration-200 ${themeDark ? 'bg-gray-700 shadow-md text-info-ink scale-110' : 'text-gray-500 dark:text-muted hover:text-gray-600 dark:hover:text-secondary'}`}
+                className={`p-2 rounded-full transition-all duration-200 ${themeDark ? 'bg-surface shadow-xs text-info scale-110' : 'text-muted hover:text-secondary'}`}
                 title="Dark Mode"
               >
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" /></svg>
@@ -1148,7 +1229,7 @@ export default function ChatPage() {
                 aria-haspopup="menu"
                 aria-expanded={showProfileMenu}
                 aria-label="Account menu"
-                className="w-10 h-10 rounded-full bg-accent text-background flex items-center justify-center font-bold hover:bg-accent-hover transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/40"
+                className="w-10 h-10 rounded-full bg-primary text-white flex items-center justify-center font-bold hover:bg-primary-hover transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
               >
                 U
               </button>
@@ -1157,13 +1238,13 @@ export default function ChatPage() {
               {showProfileMenu && (
                 <>
                   <div className="fixed inset-0 z-40" onClick={() => setShowProfileMenu(false)} />
-                  <div role="menu" className="absolute right-0 mt-2 w-60 bg-white dark:bg-surface shadow-lg shadow-black/10 dark:shadow-black/40 border border-gray-200 dark:border-border rounded-lg py-1.5 z-50 animate-scaleIn">
+                  <div role="menu" className="absolute right-0 mt-2 w-60 bg-surface shadow-xl border border-border rounded-card py-1.5 z-50 animate-scaleIn">
                     <button
                       role="menuitem"
                       onClick={() => router.push('/dashboard')}
-                      className="w-full px-4 py-2.5 text-left text-[14px] font-semibold text-gray-700 dark:text-secondary hover:bg-gray-100 dark:hover:bg-surface-hover flex items-center gap-3 transition-colors focus-visible:outline-none focus-visible:bg-gray-100 dark:focus-visible:bg-surface-hover"
+                      className="w-full px-4 py-2.5 text-left text-[14px] font-semibold text-secondary hover:bg-surface-hover hover:text-foreground flex items-center gap-3 transition-colors focus-visible:outline-none focus-visible:bg-surface-hover"
                     >
-                      <svg className="w-[18px] h-[18px] text-gray-500 dark:text-muted" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="square" strokeLinejoin="miter" strokeWidth="1.75" d="M4 4h7v7H4zM13 4h7v4h-7zM13 11h7v9h-7zM4 14h7v6H4z" /></svg>
+                      <svg className="w-[18px] h-[18px] text-muted" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="square" strokeLinejoin="miter" strokeWidth="1.75" d="M4 4h7v7H4zM13 4h7v4h-7zM13 11h7v9h-7zM4 14h7v6H4z" /></svg>
                       <span>Dashboard</span>
                     </button>
                     <button
@@ -1172,9 +1253,9 @@ export default function ChatPage() {
                         setShowProfile(true);
                         setShowProfileMenu(false);
                       }}
-                      className="w-full px-4 py-2.5 text-left text-[14px] font-semibold text-gray-700 dark:text-secondary hover:bg-gray-100 dark:hover:bg-surface-hover flex items-center gap-3 transition-colors focus-visible:outline-none focus-visible:bg-gray-100 dark:focus-visible:bg-surface-hover"
+                      className="w-full px-4 py-2.5 text-left text-[14px] font-semibold text-secondary hover:bg-surface-hover hover:text-foreground flex items-center gap-3 transition-colors focus-visible:outline-none focus-visible:bg-surface-hover"
                     >
-                      <svg className="w-[18px] h-[18px] text-gray-500 dark:text-muted" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="square" strokeLinejoin="miter" strokeWidth="1.75" d="M12 12a4 4 0 100-8 4 4 0 000 8zM4 20c1.5-3.5 4.5-5 8-5s6.5 1.5 8 5" /></svg>
+                      <svg className="w-[18px] h-[18px] text-muted" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="square" strokeLinejoin="miter" strokeWidth="1.75" d="M12 12a4 4 0 100-8 4 4 0 000 8zM4 20c1.5-3.5 4.5-5 8-5s6.5 1.5 8 5" /></svg>
                       <span>Profile</span>
                     </button>
                     <button
@@ -1183,12 +1264,12 @@ export default function ChatPage() {
                         setShowSettings(true);
                         setShowProfileMenu(false);
                       }}
-                      className="w-full px-4 py-2.5 text-left text-[14px] font-semibold text-gray-700 dark:text-secondary hover:bg-gray-100 dark:hover:bg-surface-hover flex items-center gap-3 transition-colors focus-visible:outline-none focus-visible:bg-gray-100 dark:focus-visible:bg-surface-hover"
+                      className="w-full px-4 py-2.5 text-left text-[14px] font-semibold text-secondary hover:bg-surface-hover hover:text-foreground flex items-center gap-3 transition-colors focus-visible:outline-none focus-visible:bg-surface-hover"
                     >
-                      <svg className="w-[18px] h-[18px] text-gray-500 dark:text-muted" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="square" strokeLinejoin="miter" strokeWidth="1.75" d="M12 15a3 3 0 100-6 3 3 0 000 6zM19 12a7 7 0 01-.1 1.2l2 1.6-2 3.4-2.4-1a7 7 0 01-2 1.2L14 20h-4l-.5-2.6a7 7 0 01-2-1.2l-2.4 1-2-3.4 2-1.6A7 7 0 015 12a7 7 0 01.1-1.2l-2-1.6 2-3.4 2.4 1a7 7 0 012-1.2L10 4h4l.5 2.6a7 7 0 012 1.2l2.4-1 2 3.4-2 1.6c.06.4.1.8.1 1.2z" /></svg>
+                      <svg className="w-[18px] h-[18px] text-muted" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="square" strokeLinejoin="miter" strokeWidth="1.75" d="M12 15a3 3 0 100-6 3 3 0 000 6zM19 12a7 7 0 01-.1 1.2l2 1.6-2 3.4-2.4-1a7 7 0 01-2 1.2L14 20h-4l-.5-2.6a7 7 0 01-2-1.2l-2.4 1-2-3.4 2-1.6A7 7 0 015 12a7 7 0 01.1-1.2l-2-1.6 2-3.4 2.4 1a7 7 0 012-1.2L10 4h4l.5 2.6a7 7 0 012 1.2l2.4-1 2 3.4-2 1.6c.06.4.1.8.1 1.2z" /></svg>
                       <span>Settings</span>
                     </button>
-                    <hr className="my-1.5 border-gray-200 dark:border-border" />
+                    <hr className="my-1.5 border-border" />
                     <button
                       role="menuitem"
                       onClick={async () => {
@@ -1208,7 +1289,7 @@ export default function ChatPage() {
                         } catch (e) {}
                         router.replace('/login');
                       }}
-                      className="w-full px-4 py-2.5 text-left text-[14px] font-semibold text-danger-ink dark:text-danger hover:bg-red-50 dark:hover:bg-red-500/10 flex items-center gap-3 transition-colors focus-visible:outline-none focus-visible:bg-red-50 dark:focus-visible:bg-red-500/10"
+                      className="w-full px-4 py-2.5 text-left text-[14px] font-semibold text-danger-ink hover:bg-danger-soft flex items-center gap-3 transition-colors focus-visible:outline-none focus-visible:bg-danger-soft dark:focus-visible:bg-danger/10"
                     >
                       <svg className="w-[18px] h-[18px]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="square" strokeLinejoin="miter" strokeWidth="1.75" d="M14 4H6v16h8M10 12h11M18 8l3 4-3 4" /></svg>
                       <span>Sign Out</span>
@@ -1255,20 +1336,20 @@ export default function ChatPage() {
 
         {/* Chat Area */}
         <div className="flex-1 overflow-hidden relative flex flex-col">
-          <div ref={listRef} className="flex-1 overflow-y-auto p-4 sm:p-6 scrollbar-thin scrollbar-thumb-gray-200 dark:scrollbar-thumb-gray-800">
+          <div ref={listRef} className="flex-1 overflow-y-auto p-4 sm:p-6 scrollbar-thin scrollbar-thumb-border">
             <div className="max-w-3xl mx-auto space-y-6">
               {!activeChatId && (
                 <div className="h-full flex flex-col items-center justify-center text-center p-4 py-10">
-                  <div className="w-20 h-20 bg-accent rounded-card flex items-center justify-center mb-6 shadow-lg ring-1 ring-white/20">
-                    <svg className="w-10 h-10 text-background" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" /></svg>
+                  <div className="w-20 h-20 bg-primary-soft text-primary rounded-card flex items-center justify-center mb-6 shadow-sm border border-primary/20">
+                    <svg className="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" /></svg>
                   </div>
-                  <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-primary-700 dark:text-accent mb-3">
+                  <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-primary mb-3">
                     {isRtl ? 'شخصيات الذكاء الاصطناعي' : 'AI Personas'}
                   </p>
-                  <h3 className="text-3xl font-semibold tracking-tight text-gray-900 dark:text-foreground mb-2">
+                  <h3 className="text-3xl font-semibold tracking-tight text-foreground mb-2">
                     {isRtl ? 'مرحباً بك في TargetChat' : 'Welcome to TargetChat'}
                   </h3>
-                  <p className="text-[15px] text-gray-500 dark:text-muted max-w-md mb-8">
+                  <p className="text-[15px] text-muted max-w-md mb-8">
                     {isRtl ? 'اختر شخصية الذكاء الاصطناعي المناسبة للبدء.' : 'Select a persona to start your conversation.'}
                   </p>
 
@@ -1281,19 +1362,19 @@ export default function ChatPage() {
                         type="button"
                         onClick={() => setSelectedPersona(p.id)}
                         aria-pressed={selected}
-                        className={`group relative p-4 rounded-card border text-start cursor-pointer transition-all duration-200 hover:-translate-y-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/40 ${selected
-                          ? 'border-accent bg-accent/10 dark:bg-accent/10 shadow-md ring-1 ring-accent/40'
-                          : 'border-gray-200 dark:border-border bg-white/80 dark:bg-surface hover:border-accent dark:hover:border-accent hover:shadow-md'
+                        className={`group relative p-4 rounded-card border text-start cursor-pointer transition-all duration-200 hover:-translate-y-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 ${selected
+                          ? 'border-primary bg-primary-soft text-primary shadow-sm'
+                          : 'border-border bg-surface hover:border-border-strong hover:bg-surface-hover shadow-xs'
                           }`}
                       >
                         {selected && (
-                          <span className="absolute top-3 end-3 w-5 h-5 rounded-full bg-accent flex items-center justify-center">
-                            <svg className="w-3 h-3 text-background" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M5 13l4 4L19 7" /></svg>
+                          <span className="absolute top-3 end-3 w-5 h-5 rounded-full bg-primary text-white flex items-center justify-center">
+                            <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M5 13l4 4L19 7" /></svg>
                           </span>
                         )}
-                        <div className={`w-10 h-10 rounded-xl flex items-center justify-center mb-3 transition-colors ${selected ? 'bg-accent/15 dark:bg-accent/15' : 'bg-gray-100 dark:bg-surface-elevated group-hover:bg-accent/10'}`}><p.Icon size={20} /></div>
-                        <div className="font-semibold text-[15px] text-gray-900 dark:text-foreground tracking-tight">{p.name}</div>
-                        <div className="text-[13px] leading-relaxed text-gray-500 dark:text-muted mt-1 pe-6">{p.desc}</div>
+                        <div className={`w-10 h-10 rounded-xl flex items-center justify-center mb-3 transition-colors ${selected ? 'bg-primary text-white' : 'bg-surface-elevated text-secondary group-hover:text-primary'}`}><p.Icon size={20} /></div>
+                        <div className={`font-semibold text-[15px] tracking-tight ${selected ? 'text-primary' : 'text-foreground'}`}>{p.name}</div>
+                        <div className={`text-[13px] leading-relaxed mt-1 pe-6 ${selected ? 'text-primary/80' : 'text-muted'}`}>{p.desc}</div>
                       </button>
                       );
                     })}
@@ -1307,10 +1388,10 @@ export default function ChatPage() {
 
               {loading && (
                 <div className="flex justify-start animate-fade-in-up">
-                  <div className="bg-white dark:bg-surface p-4 rounded-card rounded-tl-sm shadow-sm border border-gray-100 dark:border-border flex gap-2 items-center">
-                    <div className="w-2 h-2 bg-accent rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
-                    <div className="w-2 h-2 bg-accent rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
-                    <div className="w-2 h-2 bg-accent rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
+                  <div className="bg-surface p-4 rounded-card rounded-tl-sm shadow-xs border border-border flex gap-2 items-center">
+                    <div className="w-2 h-2 bg-primary rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
+                    <div className="w-2 h-2 bg-primary rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
+                    <div className="w-2 h-2 bg-primary rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
                   </div>
                 </div>
               )}
@@ -1320,16 +1401,16 @@ export default function ChatPage() {
                 <div className="flex w-full justify-start group animate-fade-in-up">
                   <div className="flex max-w-[85%] md:max-w-[75%] flex-row items-start gap-3">
                     {/* AI Avatar */}
-                    <div className="w-9 h-9 rounded-full flex items-center justify-center shrink-0 shadow-md bg-accent text-background">
+                    <div className="w-9 h-9 rounded-full flex items-center justify-center shrink-0 shadow-xs bg-primary text-white">
                       <Sparkles size={18} />
                     </div>
 
                     {/* Typing Bubble */}
-                    <div className="relative px-5 py-4 shadow-md bg-white dark:bg-surface text-gray-800 dark:text-foreground border border-gray-200 dark:border-border rounded-card rounded-tl-md">
+                    <div className="relative px-5 py-4 shadow-xs bg-surface text-foreground border border-border rounded-card rounded-tl-md">
                       <div className="flex gap-1.5 items-center">
-                        <div className="w-2 h-2 bg-gray-400 dark:bg-gray-500 rounded-full animate-bounce" style={{ animationDelay: '0ms', animationDuration: '1.4s' }} />
-                        <div className="w-2 h-2 bg-gray-400 dark:bg-gray-500 rounded-full animate-bounce" style={{ animationDelay: '200ms', animationDuration: '1.4s' }} />
-                        <div className="w-2 h-2 bg-gray-400 dark:bg-gray-500 rounded-full animate-bounce" style={{ animationDelay: '400ms', animationDuration: '1.4s' }} />
+                        <div className="w-2 h-2 bg-muted rounded-full animate-bounce" style={{ animationDelay: '0ms', animationDuration: '1.4s' }} />
+                        <div className="w-2 h-2 bg-muted rounded-full animate-bounce" style={{ animationDelay: '200ms', animationDuration: '1.4s' }} />
+                        <div className="w-2 h-2 bg-muted rounded-full animate-bounce" style={{ animationDelay: '400ms', animationDuration: '1.4s' }} />
                       </div>
                     </div>
                   </div>
@@ -1341,7 +1422,7 @@ export default function ChatPage() {
           {/* Input Area - Floating Capsule Design */}
           <div className="p-4 sm:p-6">
             <div className="max-w-3xl mx-auto">
-              <form onSubmit={sendMessage} className="relative flex items-end gap-2 p-2.5 sm:p-3 rounded-card sm:rounded-modal bg-white dark:bg-surface border-2 border-gray-200 dark:border-border transition-all duration-300 focus-within:border-accent dark:focus-within:border-accent focus-within:ring-4 focus-within:ring-accent/40">
+              <form onSubmit={sendMessage} className="relative flex items-end gap-2 p-2.5 sm:p-3 rounded-card sm:rounded-modal bg-surface border border-border transition-all duration-300 focus-within:border-primary focus-within:ring-2 focus-within:ring-primary/20 shadow-sm">
 
                 {/* Hidden File Inputs for Categories */}
                 <input
@@ -1385,8 +1466,8 @@ export default function ChatPage() {
                     onClick={() => setShowAttachMenu(!showAttachMenu)}
                     className={`w-10 h-10 flex items-center justify-center rounded-xl border active:scale-95 transition-all duration-200 shrink-0 shadow-xs ${
                       showAttachMenu
-                        ? 'text-primary-700 dark:text-accent bg-accent/10 dark:bg-accent/10 border-accent dark:border-accent ring-2 ring-accent/40'
-                        : 'bg-gray-100/90 dark:bg-surface text-gray-600 dark:text-secondary hover:text-accent dark:hover:text-accent hover:bg-gray-100 dark:hover:bg-surface-hover border-gray-200 dark:border-border'
+                        ? 'text-primary bg-primary-soft border-primary ring-2 ring-primary/20'
+                        : 'bg-surface-elevated text-secondary hover:text-primary hover:bg-surface-hover border-border'
                     }`}
                     title={isRtl ? "إرفاق وسائط أو ملفات" : "Attach media or files"}
                   >
@@ -1402,7 +1483,7 @@ export default function ChatPage() {
                         className="fixed inset-0 z-40"
                         onClick={() => setShowAttachMenu(false)}
                       />
-                      <div className={`absolute bottom-full ${isRtl ? 'right-0' : 'left-0'} mb-3 z-50 w-48 sm:w-52 bg-white dark:bg-surface border border-gray-200 dark:border-border rounded-card shadow-lg p-1.5 flex flex-col gap-1 animate-scaleIn backdrop-blur-xl ring-1 ring-black/5`}>
+                      <div className={`absolute bottom-full ${isRtl ? 'right-0' : 'left-0'} mb-3 z-50 w-48 sm:w-52 bg-surface border border-border rounded-card shadow-md p-1.5 flex flex-col gap-1 animate-scaleIn`}>
                         {/* Option 1: Image / صورة */}
                         <button
                           type="button"
@@ -1410,18 +1491,18 @@ export default function ChatPage() {
                             setShowAttachMenu(false);
                             imageInputRef.current?.click();
                           }}
-                          className="flex items-center gap-3 w-full px-3 py-2.5 rounded-xl text-start text-sm font-medium text-gray-700 dark:text-secondary hover:bg-gray-100 dark:hover:bg-surface-hover transition-colors group"
+                          className="flex items-center gap-3 w-full px-3 py-2.5 rounded-xl text-start text-sm font-medium text-secondary hover:bg-surface-hover hover:text-foreground transition-colors group"
                         >
-                          <span className="w-8 h-8 rounded-lg bg-gray-100 dark:bg-surface-elevated text-gray-500 dark:text-secondary flex items-center justify-center shrink-0">
+                          <span className="w-8 h-8 rounded-lg bg-surface-elevated text-secondary flex items-center justify-center shrink-0">
                             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
                             </svg>
                           </span>
                           <div className="flex flex-col min-w-0">
-                            <span className="font-semibold text-[13px] leading-tight text-gray-800 dark:text-foreground">
+                            <span className="font-semibold text-[13px] leading-tight text-foreground">
                               {isRtl ? "إرفاق صورة" : "Attach Image"}
                             </span>
-                            <span className="text-[11px] text-gray-500 dark:text-muted">JPG, PNG, WebP</span>
+                            <span className="text-[11px] text-muted">JPG, PNG, WebP</span>
                           </div>
                         </button>
 
@@ -1432,18 +1513,18 @@ export default function ChatPage() {
                             setShowAttachMenu(false);
                             videoInputRef.current?.click();
                           }}
-                          className="flex items-center gap-3 w-full px-3 py-2.5 rounded-xl text-start text-sm font-medium text-gray-700 dark:text-secondary hover:bg-gray-100 dark:hover:bg-surface-hover transition-colors group"
+                          className="flex items-center gap-3 w-full px-3 py-2.5 rounded-xl text-start text-sm font-medium text-secondary hover:bg-surface-hover hover:text-foreground transition-colors group"
                         >
-                          <span className="w-8 h-8 rounded-lg bg-gray-100 dark:bg-surface-elevated text-gray-500 dark:text-secondary flex items-center justify-center shrink-0">
+                          <span className="w-8 h-8 rounded-lg bg-surface-elevated text-secondary flex items-center justify-center shrink-0">
                             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
                             </svg>
                           </span>
                           <div className="flex flex-col min-w-0">
-                            <span className="font-semibold text-[13px] leading-tight text-gray-800 dark:text-foreground">
+                            <span className="font-semibold text-[13px] leading-tight text-foreground">
                               {isRtl ? "إرفاق فيديو" : "Attach Video"}
                             </span>
-                            <span className="text-[11px] text-gray-500 dark:text-muted">MP4, WebM, MOV</span>
+                            <span className="text-[11px] text-muted">MP4, WebM, MOV</span>
                           </div>
                         </button>
 
@@ -1454,18 +1535,18 @@ export default function ChatPage() {
                             setShowAttachMenu(false);
                             docInputRef.current?.click();
                           }}
-                          className="flex items-center gap-3 w-full px-3 py-2.5 rounded-xl text-start text-sm font-medium text-gray-700 dark:text-secondary hover:bg-gray-100 dark:hover:bg-surface-hover transition-colors group"
+                          className="flex items-center gap-3 w-full px-3 py-2.5 rounded-xl text-start text-sm font-medium text-secondary hover:bg-surface-hover hover:text-foreground transition-colors group"
                         >
-                          <span className="w-8 h-8 rounded-lg bg-gray-100 dark:bg-surface-elevated text-gray-500 dark:text-secondary flex items-center justify-center shrink-0">
+                          <span className="w-8 h-8 rounded-lg bg-surface-elevated text-secondary flex items-center justify-center shrink-0">
                             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                             </svg>
                           </span>
                           <div className="flex flex-col min-w-0">
-                            <span className="font-semibold text-[13px] leading-tight text-gray-800 dark:text-foreground">
+                            <span className="font-semibold text-[13px] leading-tight text-foreground">
                               {isRtl ? "إرفاق ملف" : "Attach File"}
                             </span>
-                            <span className="text-[11px] text-gray-500 dark:text-muted">PDF, DOC, XLS, ZIP</span>
+                            <span className="text-[11px] text-muted">PDF, DOC, XLS, ZIP</span>
                           </div>
                         </button>
                       </div>
@@ -1480,8 +1561,8 @@ export default function ChatPage() {
                     onClick={() => setShowEmojiPicker(!showEmojiPicker)}
                     className={`w-10 h-10 flex items-center justify-center rounded-xl border active:scale-95 transition-all duration-200 shrink-0 shadow-xs ${
                       showEmojiPicker
-                        ? 'text-amber-600 bg-amber-50 dark:bg-amber-950/50 border-amber-300 dark:border-amber-700'
-                        : 'bg-gray-100/90 dark:bg-surface text-gray-600 dark:text-secondary hover:text-warning dark:hover:text-warning hover:bg-amber-50/80 dark:hover:bg-surface-hover border-gray-200 dark:border-border'
+                        ? 'text-warning bg-warning-soft border-warning/40'
+                        : 'bg-surface-elevated text-secondary hover:text-warning hover:bg-surface-hover border-border'
                     }`}
                     title="Add Emoji"
                   >
@@ -1517,7 +1598,7 @@ export default function ChatPage() {
                       ? (activeChatId ? "اكتب رسالتك هنا..." : "اختر النموذج المناسب واكتب رسالتك لبدء المحادثة...")
                       : (activeChatId ? "Type a message..." : "Select a model & type a message to start...")
                   }
-                  className="flex-1 bg-transparent border-none focus:outline-none focus:ring-0 text-gray-900 dark:text-foreground placeholder-gray-400 dark:placeholder-muted text-[15px] sm:text-base font-medium leading-relaxed resize-none py-2 px-1 max-h-32 min-h-[44px]"
+                  className="flex-1 bg-transparent border-none focus:outline-none focus:ring-0 text-foreground placeholder-muted text-[15px] sm:text-base font-medium leading-relaxed resize-none py-2 px-1 max-h-32 min-h-[44px]"
                   rows="1"
                   style={{ height: 'auto', minHeight: '44px' }}
                 />
@@ -1528,8 +1609,8 @@ export default function ChatPage() {
                   onClick={isRecording ? stopRecording : startRecording}
                   className={`w-10 h-10 flex items-center justify-center rounded-xl active:scale-95 transition-all duration-200 shrink-0 shadow-xs ${
                     isRecording
-                      ? 'bg-rose-500 text-white shadow-lg shadow-rose-500/40 ring-4 ring-rose-500/20 animate-pulse border border-rose-600'
-                      : 'bg-gray-100/90 dark:bg-surface text-gray-600 dark:text-secondary hover:text-danger dark:hover:text-danger hover:bg-rose-50/80 dark:hover:bg-surface-hover border border-gray-200 dark:border-border'
+                      ? 'bg-danger text-white shadow-sm ring-2 ring-danger/20 animate-pulse border border-danger'
+                      : 'bg-surface-elevated text-secondary hover:text-danger hover:bg-surface-hover border border-border'
                   }`}
                   title={isRecording ? "Stop Recording" : "Voice Message"}
                 >
@@ -1540,7 +1621,7 @@ export default function ChatPage() {
                   )}
                 </button>
 
-                <span aria-hidden="true" className="w-px h-7 bg-gray-200 dark:bg-border mx-1 self-center rounded-full shrink-0" />
+                <span aria-hidden="true" className="w-px h-7 bg-border mx-1 self-center rounded-full shrink-0" />
 
                 <button
                   type="submit"
@@ -1548,8 +1629,8 @@ export default function ChatPage() {
                   className={`
                     w-10 h-10 sm:w-11 sm:h-11 rounded-xl sm:rounded-card flex items-center justify-center transition-all duration-200 shrink-0
                     ${!text.trim() || loading
-                      ? 'bg-gray-100 dark:bg-surface-elevated text-gray-500 dark:text-muted border border-gray-200 dark:border-border cursor-not-allowed'
-                      : 'bg-accent hover:bg-accent-hover text-background shadow-lg active:scale-[0.98] ring-1 ring-white/20'
+                      ? 'bg-surface-elevated text-muted border border-border cursor-not-allowed'
+                      : 'bg-primary hover:bg-primary-hover active:bg-primary-active text-white shadow-sm active:scale-[0.98]'
                     }
                   `}
                   title="Send Message"
@@ -1562,7 +1643,7 @@ export default function ChatPage() {
                 </button>
               </form>
               <div className="flex items-center justify-center mt-2.5 text-center">
-                <p className="inline-flex items-center gap-1.5 text-[11px] sm:text-xs text-gray-500 dark:text-muted">
+                <p className="inline-flex items-center gap-1.5 text-[11px] sm:text-xs text-muted">
                   <svg className="w-3.5 h-3.5 opacity-60 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
                   <span>TargetChat AI can make mistakes. Consider checking important information.</span>
                 </p>

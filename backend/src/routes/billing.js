@@ -3,6 +3,7 @@ const router = express.Router();
 const { SubscriptionPlan, Subscription, Invoice } = require('../models');
 const { requireAuth } = require('../middleware/auth');
 const stripeService = require('../services/stripeService');
+const { isProduction } = require('../config/secrets');
 
 // GET /api/billing/plans - List all active subscription plans
 router.get('/plans', async (req, res) => {
@@ -145,6 +146,21 @@ router.get('/subscription', requireAuth, async (req, res) => {
 
 // POST /api/billing/mock-activate - Simulate direct plan upgrade in dev/demo
 router.post('/mock-activate', requireAuth, async (req, res) => {
+    // SECURITY: this mints a real, active, 30-day subscription without any
+    // payment. It must be BOTH non-production AND explicitly enabled with
+    // ALLOW_MOCK_BILLING=true (default off). A production user can never
+    // self-serve a paid plan through this endpoint.
+    const settingsService = require('../services/settingsService');
+    const mockExplicitlyEnabled = String(process.env.ALLOW_MOCK_BILLING || '').toLowerCase() === 'true';
+    // Two independent switches: env (deployment) AND the admin setting. Both
+    // must be on, so a settings mistake alone cannot mint paid subscriptions.
+    const mockSettingEnabled = String(await settingsService.get('MOCK_BILLING_ENABLED', false)).toLowerCase() === 'true';
+    if (isProduction() || !mockExplicitlyEnabled || !mockSettingEnabled) {
+        return res.status(403).json({
+            error: 'mock_billing_disabled',
+            message: 'Mock billing requires ALLOW_MOCK_BILLING=true, MOCK_BILLING_ENABLED in settings, and a non-production environment'
+        });
+    }
     try {
         const { planId, workspaceId } = req.body;
         if (!planId) return res.status(400).json({ message: 'Plan ID required' });
@@ -200,7 +216,10 @@ router.post('/checkout', requireAuth, async (req, res) => {
         res.json({ url: session.url, id: session.id });
     } catch (error) {
         console.error('Checkout error:', error);
-        res.status(500).json({ message: error.message || 'Failed to create checkout session' });
+        // 502: the payment gateway is unconfigured/unreachable. Distinct from a
+        // 500 so the client can show "payment not available" rather than a
+        // generic server error. Never falls back to a free subscription.
+        res.status(502).json({ message: error.message || 'Failed to create checkout session' });
     }
 });
 

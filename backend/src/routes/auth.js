@@ -12,9 +12,61 @@ const { requireAuth } = require('../middleware/auth');
 const { getJwtSecret } = require('../config/secrets');
 const { getClientIp } = require('../utils/requestContext');
 const { parseUserAgent, detectGeo } = require('../utils/geoIp');
+const settingsService = require('../services/settingsService');
+
+// Failed-login throttling, enforced per email+IP. Deliberately in-memory: the
+// limit is a brute-force speed bump, and a restart clearing it is acceptable.
+const LOGIN_WINDOW_MS = 15 * 60 * 1000;
+const loginFailures = new Map();
+
+function loginKey(email, ip) {
+  return `${String(email || '').toLowerCase()}|${ip || 'unknown'}`;
+}
+
+async function jwtLifetime() {
+  const hours = Number(await settingsService.get('jwt_expiry_hours', 0));
+  if (Number.isFinite(hours) && hours > 0) return `${hours}h`;
+  return process.env.JWT_EXPIRES_IN || '12h';
+}
+
+async function maxLoginAttempts() {
+  const configured = Number(await settingsService.get('max_login_attempts', 5));
+  return Number.isFinite(configured) && configured > 0 ? configured : 5;
+}
+
+function recentFailures(key) {
+  const entry = loginFailures.get(key);
+  if (!entry) return 0;
+  if (Date.now() - entry.firstAt > LOGIN_WINDOW_MS) {
+    loginFailures.delete(key);
+    return 0;
+  }
+  return entry.count;
+}
+
+function recordFailure(key) {
+  const entry = loginFailures.get(key);
+  if (!entry || Date.now() - entry.firstAt > LOGIN_WINDOW_MS) {
+    loginFailures.set(key, { count: 1, firstAt: Date.now() });
+  } else {
+    entry.count += 1;
+  }
+  if (loginFailures.size > 5000) {
+    const now = Date.now();
+    for (const [k, v] of loginFailures) {
+      if (now - v.firstAt > LOGIN_WINDOW_MS) loginFailures.delete(k);
+    }
+  }
+}
 
 router.post('/register', validate(schemas.register), async (req, res) => {
   try {
+    if (String(await settingsService.get('allow_registration', true)) === 'false') {
+      return res.status(403).json({
+        error: 'registration_disabled',
+        message: 'Registration is currently disabled'
+      });
+    }
     const { name, email, password } = req.body;
     const existing = await User.findOne({ where: { email } });
     if (existing) return res.status(400).json({ message: 'Email already in use' });
@@ -84,7 +136,7 @@ router.post('/verify-email', async (req, res) => {
     const sessionToken = jwt.sign(
       { id: user.id, iss: 'targetchat', aud: 'targetchat:api' },
       getJwtSecret(),
-      { expiresIn: process.env.JWT_EXPIRES_IN || '12h' }
+      { expiresIn: await jwtLifetime() }
     );
 
     return res.json({
@@ -101,6 +153,14 @@ router.post('/verify-email', async (req, res) => {
 router.post('/login', validate(schemas.login), async (req, res) => {
   try {
     const { email, password } = req.body;
+    const limitKey = loginKey(email, getClientIp(req));
+    const attempts = recentFailures(limitKey);
+    if (attempts >= await maxLoginAttempts()) {
+      return res.status(429).json({
+        error: 'too_many_attempts',
+        message: 'Too many failed login attempts. Try again later.'
+      });
+    }
     const user = await User.findOne({ where: { email } });
 
     // SECURITY: uniform error + timing for unknown accounts vs wrong passwords
@@ -110,6 +170,7 @@ router.post('/login', validate(schemas.login), async (req, res) => {
 
     if (!user) {
       await bcrypt.compare(password, DUMMY_HASH);
+      recordFailure(limitKey);
       return res.status(400).json(INVALID_CREDENTIALS);
     }
 
@@ -123,8 +184,10 @@ router.post('/login', validate(schemas.login), async (req, res) => {
 
     const ok = await bcrypt.compare(password, user.password);
     if (!ok) {
+      recordFailure(limitKey);
       return res.status(400).json({ message: 'Invalid credentials' });
     }
+    loginFailures.delete(limitKey);
 
     // Update last login, IP, location and device
     const clientIp = getClientIp(req);
@@ -164,7 +227,7 @@ router.post('/login', validate(schemas.login), async (req, res) => {
     const token = jwt.sign(
       { id: user.id, iss: 'targetchat', aud: 'targetchat:api' },
       getJwtSecret(),
-      { expiresIn: process.env.JWT_EXPIRES_IN || '12h' }
+      { expiresIn: await jwtLifetime() }
     );
 
     // Return both token and user object (excluding sensitive data)

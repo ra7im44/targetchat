@@ -114,15 +114,15 @@ export default function LeadsPage() {
 
     function getStatusBadge(status) {
         const styles = {
-            new: 'bg-accent/10 text-info-ink border-accent/30 dark:bg-accent/20 dark:text-info',
-            contacted: 'bg-warning text-warning-ink border-yellow-200 dark:bg-warning/30 dark:text-warning',
-            converted: 'bg-success text-success-ink border-success dark:bg-success/30 dark:text-success',
-            lost: 'bg-gray-100 text-gray-700 border-gray-200 dark:bg-surface-elevated dark:text-secondary'
+            new: 'bg-info-soft text-info border-info/20',
+            contacted: 'bg-warning-soft text-warning border-warning/20',
+            converted: 'bg-success-soft text-success border-success/20',
+            lost: 'bg-surface-elevated text-muted border-border'
         };
         const style = styles[status] || styles.new;
 
         return (
-            <span className={`px-2.5 py-1 text-xs font-bold rounded-full border ${style} capitalize`}>
+            <span className={`px-2.5 py-1 text-xs font-semibold rounded-full border ${style} capitalize`}>
                 {status}
             </span>
         );
@@ -134,7 +134,7 @@ export default function LeadsPage() {
             <div className="flex flex-col md:flex-row md:items-center justify-between mb-8 gap-4">
                 <div>
                     <h1 className="text-2xl font-semibold text-foreground tracking-tight">Leads</h1>
-                    <p className="text-text-muted mt-1.5 text-sm">
+                    <p className="text-secondary mt-1.5 text-sm">
                         Manage and track {pagination?.total || 0} potential customers.
                     </p>
                 </div>
@@ -148,22 +148,22 @@ export default function LeadsPage() {
             </div>
 
             {/* Filters Bar */}
-            <div className="bg-surface rounded-xl shadow-sm border border-border p-2 mb-6 flex flex-col md:flex-row gap-2">
+            <div className="bg-surface rounded-xl shadow-xs border border-border p-2 mb-6 flex flex-col md:flex-row gap-2">
                 <div className="flex-1 relative">
-                    <svg className="w-5 h-5 absolute left-4 top-3.5 text-text-muted" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
+                    <svg className="w-5 h-5 absolute left-4 top-3.5 text-muted" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
                     <input
                         type="text"
                         placeholder="Search leads..."
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
-                        className="w-full pl-12 pr-4 py-3 bg-transparent border-none text-foreground placeholder-text-muted focus:ring-0 text-sm font-medium"
+                        className="w-full pl-12 pr-4 py-3 bg-transparent border-none text-foreground placeholder-muted focus:ring-0 text-sm font-medium"
                     />
                 </div>
                 <div className="flex gap-2 p-1">
                     <select
                         value={selectedWidget}
                         onChange={(e) => setSelectedWidget(e.target.value)}
-                        className="px-4 py-2 bg-surface-elevated border border-border rounded-xl text-sm font-semibold text-foreground focus:ring-2 focus:ring-primary/40 cursor-pointer"
+                        className="px-4 py-2 bg-surface-elevated border border-border rounded-xl text-sm font-semibold text-foreground focus:ring-2 focus:ring-primary/20 cursor-pointer"
                     >
                         <option value="all">All Widgets</option>
                         {widgets.map(w => (
@@ -173,7 +173,7 @@ export default function LeadsPage() {
                     <select
                         value={selectedStatus}
                         onChange={(e) => setSelectedStatus(e.target.value)}
-                        className="px-4 py-2 bg-surface-elevated border border-border rounded-xl text-sm font-semibold text-foreground focus:ring-2 focus:ring-primary/40 cursor-pointer"
+                        className="px-4 py-2 bg-surface-elevated border border-border rounded-xl text-sm font-semibold text-foreground focus:ring-2 focus:ring-primary/20 cursor-pointer"
                     >
                         <option value="all">All Status</option>
                         <option value="new">New</option>
@@ -185,7 +185,7 @@ export default function LeadsPage() {
             </div>
 
             {/* Leads Table */}
-            <div className="bg-surface rounded-xl shadow-sm border border-border overflow-hidden">
+            <div className="bg-surface rounded-xl shadow-xs border border-border overflow-hidden">
                 {loading ? (
                     <div className="p-12 text-center">
                         <div className="w-10 h-10 border-3 border-primary border-t-transparent rounded-full animate-spin mx-auto"></div>
@@ -193,10 +193,10 @@ export default function LeadsPage() {
                 ) : leads.length === 0 ? (
                     <div className="p-16 text-center">
                         <div className="w-16 h-16 bg-surface-elevated border border-border rounded-full flex items-center justify-center mx-auto mb-4">
-                            <Inbox size={18} className="text-text-muted" />
+                            <Inbox size={18} className="text-muted" />
                         </div>
                         <h3 className="text-lg font-bold text-foreground mb-1">No leads found</h3>
-                        <p className="text-text-muted text-sm max-w-sm mx-auto">
+                        <p className="text-secondary text-sm max-w-sm mx-auto">
                             {searchQuery || selectedWidget !== 'all' || selectedStatus !== 'all'
                                 ? 'Try adjusting your filters to see more results.'
                                 : 'Leads will appear here automatically when visitors fill out your pre-chat form.'}
@@ -207,11 +207,11 @@ export default function LeadsPage() {
                         <table className="w-full">
                             <thead className="bg-surface-elevated/50 border-b border-border">
                                 <tr>
-                                    <th className="px-6 py-4 text-left text-xs font-semibold text-text-muted uppercase tracking-wider">Contact</th>
-                                    <th className="px-6 py-4 text-left text-xs font-semibold text-text-muted uppercase tracking-wider">Contact Info</th>
-                                    <th className="px-6 py-4 text-left text-xs font-semibold text-text-muted uppercase tracking-wider">Company</th>
-                                    <th className="px-6 py-4 text-left text-xs font-semibold text-text-muted uppercase tracking-wider">Status</th>
-                                    <th className="px-6 py-4 text-right text-xs font-semibold text-text-muted uppercase tracking-wider">Created</th>
+                                    <th className="px-6 py-4 text-left text-xs font-semibold text-secondary uppercase tracking-wider">Contact</th>
+                                    <th className="px-6 py-4 text-left text-xs font-semibold text-secondary uppercase tracking-wider">Contact Info</th>
+                                    <th className="px-6 py-4 text-left text-xs font-semibold text-secondary uppercase tracking-wider">Company</th>
+                                    <th className="px-6 py-4 text-left text-xs font-semibold text-secondary uppercase tracking-wider">Status</th>
+                                    <th className="px-6 py-4 text-right text-xs font-semibold text-secondary uppercase tracking-wider">Created</th>
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-border">
@@ -219,28 +219,28 @@ export default function LeadsPage() {
                                     <tr key={lead.id} className="hover:bg-surface-hover transition-colors group">
                                         <td className="px-6 py-4 whitespace-nowrap">
                                             <div className="flex items-center">
-                                                <div className="h-9 w-9 flex-shrink-0 rounded-full bg-primary/10 border border-primary/20 flex items-center justify-center text-primary font-bold text-xs">
+                                                <div className="h-9 w-9 flex-shrink-0 rounded-full bg-primary-soft border border-primary/20 flex items-center justify-center text-primary font-bold text-xs">
                                                     {getInitials(lead.name)}
                                                 </div>
                                                 <div className="ml-3">
                                                     <div className="text-sm font-semibold text-foreground">{lead.name || 'Anonymous'}</div>
-                                                    <div className="text-xs text-text-muted">ID: #{lead.id}</div>
+                                                    <div className="text-xs text-muted">ID: #{lead.id}</div>
                                                 </div>
                                             </div>
                                         </td>
                                         <td className="px-6 py-4 whitespace-nowrap">
                                             <div className="text-sm text-foreground font-medium">{lead.email || '-'}</div>
-                                            <div className="text-xs text-text-muted">{lead.phone || '-'}</div>
+                                            <div className="text-xs text-muted">{lead.phone || '-'}</div>
                                         </td>
                                         <td className="px-6 py-4 whitespace-nowrap">
-                                            <div className="text-xs font-semibold text-text-secondary bg-surface-elevated border border-border px-2.5 py-1 rounded-md inline-block">
+                                            <div className="text-xs font-semibold text-secondary bg-surface-elevated border border-border px-2.5 py-1 rounded-md inline-block">
                                                 {lead.company || '-'}
                                             </div>
                                         </td>
                                         <td className="px-6 py-4 whitespace-nowrap">
                                             {getStatusBadge(lead.status)}
                                         </td>
-                                        <td className="px-6 py-4 whitespace-nowrap text-right text-xs text-text-muted tabular-nums">
+                                        <td className="px-6 py-4 whitespace-nowrap text-right text-xs text-muted tabular-nums font-mono">
                                             {new Date(lead.createdAt).toLocaleDateString()}
                                         </td>
                                     </tr>
@@ -260,7 +260,7 @@ export default function LeadsPage() {
                         >
                             Previous
                         </button>
-                        <span className="text-xs font-medium text-text-muted">
+                        <span className="text-xs font-medium text-muted">
                             Page {page} of {pagination.pages}
                         </span>
                         <button

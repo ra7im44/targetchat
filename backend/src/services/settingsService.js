@@ -40,6 +40,19 @@ class SettingsService {
     }
 
     /**
+     * Synchronous read for call sites that cannot await (URL signing). Uses the
+     * cache loaded at boot or by the last refresh; falls back to env, then the
+     * provided default. Never performs I/O.
+     */
+    getSync(key, defaultValue = null) {
+        if (this.cache.has(key)) return this.cache.get(key);
+        const envValue = process.env[key] !== undefined
+            ? process.env[key]
+            : process.env[String(key).toUpperCase()];
+        return envValue !== undefined ? envValue : defaultValue;
+    }
+
+    /**
      * Force refresh the cache.
      */
     async refresh() {

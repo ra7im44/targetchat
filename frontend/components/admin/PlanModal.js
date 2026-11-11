@@ -17,10 +17,10 @@ const intOr = (v, fb) => {
     return Number.isFinite(n) ? n : fb;
 };
 
-const inputCls = 'w-full px-4 py-2.5 rounded-xl border border-gray-300/80 dark:border-border bg-white dark:bg-white/5 dark:text-foreground placeholder:text-gray-400 dark:placeholder:text-muted focus:border-accent focus:ring-1 focus:ring-accent/40 outline-none transition-colors';
+const inputCls = 'w-full px-4 py-2.5 rounded-xl border border-border bg-surface-elevated text-foreground placeholder:text-muted focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-colors';
 const monoCls = `${inputCls} text-xs font-mono`;
-const labelCls = 'block text-sm font-semibold mb-1.5 text-gray-700 dark:text-secondary';
-const miniLabelCls = 'block text-[11px] font-bold text-gray-500 dark:text-muted uppercase tracking-wider mb-1.5';
+const labelCls = 'block text-sm font-semibold mb-1.5 text-secondary';
+const miniLabelCls = 'block text-[11px] font-bold text-muted uppercase tracking-wider mb-1.5';
 
 export default function PlanModal({ plan, onClose, onSave }) {
     const [formData, setFormData] = useState({
@@ -104,19 +104,23 @@ export default function PlanModal({ plan, onClose, onSave }) {
     };
 
     return (
-        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4 animate-fadeIn overflow-y-auto">
-            <div className="w-full max-w-2xl my-auto rounded-card shadow-lg overflow-hidden animate-scaleIn bg-white dark:bg-background border border-gray-200 dark:border-border">
-                <div className="px-6 py-5 border-b border-gray-100 dark:border-border flex items-center justify-between bg-white/90 dark:bg-background/90 backdrop-blur-md sticky top-0 z-10">
-                    <div>
-                        <h2 className="text-xl font-bold tracking-tight text-gray-900 dark:text-foreground">
-                            {plan ? 'Edit Plan' : 'Create New Plan'}
-                        </h2>
-                        <p className="text-xs text-gray-500 dark:text-muted mt-0.5">Pricing, limits and feature flags</p>
-                    </div>
-                    <button onClick={onClose} aria-label="Close" className="p-2 text-gray-500 dark:text-muted hover:text-gray-700 dark:hover:text-secondary hover:bg-gray-100 dark:hover:bg-white/10 rounded-full transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/60"><X size={18} /></button>
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4 animate-fadeIn">
+            <div className="bg-surface w-full max-w-2xl rounded-card shadow-lg max-h-[90vh] overflow-y-auto border border-border">
+                {/* Header */}
+                <div className="p-6 border-b border-border flex items-center justify-between bg-surface-elevated sticky top-0 z-10">
+                    <h2 className="text-xl font-semibold text-foreground">
+                        {plan ? 'Edit Plan' : 'Create Plan'}
+                    </h2>
+                    <button
+                        onClick={onClose}
+                        className="p-2 rounded-xl hover:bg-surface-hover text-muted hover:text-foreground transition-all"
+                    >
+                        <X size={18} />
+                    </button>
                 </div>
 
-                <form onSubmit={handleSubmit} className="p-6 space-y-7 max-h-[80vh] overflow-y-auto custom-scrollbar">
+                {/* Form */}
+                <form onSubmit={handleSubmit} className="p-6 sm:p-8 space-y-6 bg-surface">
                     {/* Basic Info */}
                     <section className="space-y-4">
                         <h3 className="text-xs font-bold text-info-ink dark:text-info uppercase tracking-[0.15em]">General Information</h3>
@@ -176,20 +180,20 @@ export default function PlanModal({ plan, onClose, onSave }) {
                                     className={`${inputCls} font-mono`}
                                 />
                             </div>
-                            <label className="flex items-center gap-2.5 cursor-pointer pt-7 text-sm font-semibold text-gray-700 dark:text-secondary">
+                            <label className="flex items-center gap-2.5 cursor-pointer pt-7 text-sm font-semibold text-secondary">
                                 <input
                                     type="checkbox"
                                     checked={formData.isActive}
                                     onChange={(e) => set({ isActive: e.target.checked })}
-                                    className="w-4 h-4 accent-accent"
+                                    className="w-4 h-4 accent-primary"
                                 />
                                 Visible to users
                             </label>
                         </div>
                     </section>
 
-                    <section className="border-t border-gray-100 dark:border-border pt-6 space-y-4">
-                        <h3 className="text-xs font-bold text-primary-700 dark:text-accent uppercase tracking-[0.15em]">Gateway IDs (PRO)</h3>
+                    <section className="border-t border-border pt-6 space-y-4">
+                        <h3 className="text-xs font-bold text-primary uppercase tracking-[0.15em]">Gateway IDs (PRO)</h3>
                         <div className="grid grid-cols-2 gap-4">
                             <div className="space-y-4">
                                 <div>
@@ -238,8 +242,8 @@ export default function PlanModal({ plan, onClose, onSave }) {
                         </div>
                     </section>
 
-                    <section className="border-t border-gray-100 dark:border-border pt-6 space-y-4">
-                        <h3 className="text-xs font-bold text-success-ink dark:text-success uppercase tracking-[0.15em]">Resource Limits <span className="normal-case font-medium text-gray-500">(−1 = unlimited)</span></h3>
+                    <section className="border-t border-border pt-6 space-y-4">
+                        <h3 className="text-xs font-bold text-success uppercase tracking-[0.15em]">Resource Limits <span className="normal-case font-medium text-muted">(−1 = unlimited)</span></h3>
                         <div className="grid grid-cols-2 gap-4">
                             {[
                                 ['maxChats', 'Max Chats'],
@@ -262,13 +266,13 @@ export default function PlanModal({ plan, onClose, onSave }) {
                         </div>
                     </section>
 
-                    <section className="border-t border-gray-100 dark:border-border pt-6">
+                    <section className="border-t border-border pt-6">
                         <div className="flex items-center justify-between mb-3">
-                            <span className="text-xs font-bold text-gray-500 dark:text-muted uppercase tracking-[0.15em]">Feature Toggles</span>
+                            <span className="text-xs font-bold text-muted uppercase tracking-[0.15em]">Feature Toggles</span>
                             <button
                                 type="button"
                                 onClick={() => setFormData((f) => ({ ...f, customFeatures: [...f.customFeatures, { key: '', value: true }] }))}
-                                className="text-xs font-bold text-primary-700 dark:text-accent hover:underline"
+                                className="text-xs font-bold text-primary hover:underline"
                             >
                                 + Custom flag
                             </button>
@@ -280,9 +284,9 @@ export default function PlanModal({ plan, onClose, onSave }) {
                                         type="checkbox"
                                         checked={!!formData.features[key]}
                                         onChange={(e) => setFeature(key, e.target.checked)}
-                                        className="w-5 h-5 accent-accent rounded"
+                                        className="w-5 h-5 accent-primary rounded"
                                     />
-                                    <span className="text-sm font-medium text-gray-700 dark:text-secondary group-hover:text-accent dark:group-hover:text-accent transition-colors">{label}</span>
+                                    <span className="text-sm font-medium text-secondary group-hover:text-primary transition-colors">{label}</span>
                                 </label>
                             ))}
                         </div>
@@ -299,7 +303,7 @@ export default function PlanModal({ plan, onClose, onSave }) {
                                             placeholder="feature_key"
                                             className={`${inputCls} font-mono text-sm flex-1`}
                                         />
-                                        <label className="flex items-center gap-1.5 text-xs font-semibold text-gray-600 dark:text-secondary cursor-pointer">
+                                        <label className="flex items-center gap-1.5 text-xs font-semibold text-secondary cursor-pointer">
                                             <input
                                                 type="checkbox"
                                                 checked={!!row.value}
@@ -314,7 +318,7 @@ export default function PlanModal({ plan, onClose, onSave }) {
                                         <button
                                             type="button"
                                             onClick={() => setFormData((f) => ({ ...f, customFeatures: f.customFeatures.filter((_, idx) => idx !== i) }))}
-                                            className="p-2 text-gray-500 dark:text-muted hover:text-danger transition-colors"
+                                            className="p-2 text-muted hover:text-danger transition-colors"
                                             title="Remove"
                                         >
                                             <X size={16} />
@@ -325,11 +329,11 @@ export default function PlanModal({ plan, onClose, onSave }) {
                         )}
                     </section>
 
-                    <div className="pt-2 border-t border-gray-100 dark:border-border flex justify-end gap-3 sticky bottom-0 bg-white dark:bg-background py-4 -mb-6 -mx-6 px-6">
-                        <button type="button" onClick={onClose} className="px-6 py-2.5 rounded-xl text-sm font-bold text-gray-600 dark:text-secondary hover:bg-gray-100 dark:hover:bg-white/10 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/60">
+                    <div className="pt-2 border-t border-border flex justify-end gap-3 sticky bottom-0 bg-surface py-4 -mb-6 -mx-6 px-6">
+                        <button type="button" onClick={onClose} className="px-6 py-2.5 rounded-xl text-sm font-semibold text-secondary hover:bg-surface-hover hover:text-foreground border border-border transition-colors">
                             Cancel
                         </button>
-                        <button type="submit" className="px-8 py-2.5 text-sm bg-accent text-background rounded-xl hover:bg-accent-hover font-bold shadow-md transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/60">
+                        <button type="submit" className="px-8 py-2.5 text-sm bg-primary text-white rounded-xl hover:bg-primary-hover active:bg-primary-active font-semibold shadow-xs transition-colors">
                             {plan ? 'Save Changes' : 'Create Plan'}
                         </button>
                     </div>

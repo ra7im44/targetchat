@@ -160,7 +160,7 @@ export default function WorkflowsPage() {
         return (
             <AdminLayout>
                 <div className="flex items-center justify-center h-full">
-                    <div className="w-16 h-16 border-4 border-accent border-t-transparent rounded-full animate-spin"></div>
+                    <div className="w-16 h-16 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
                 </div>
             </AdminLayout>
         );
@@ -172,17 +172,17 @@ export default function WorkflowsPage() {
                 {/* Header */}
                 <div className="flex justify-between items-center">
                     <div>
-                        <h1 className="text-3xl font-bold text-gray-900 dark:text-foreground flex items-center gap-3">
+                        <h1 className="text-3xl font-bold text-foreground flex items-center gap-3">
                             <Zap size={18} />
                             Workflow Management
                         </h1>
-                        <p className="text-gray-500 dark:text-muted mt-1">
+                        <p className="text-muted mt-1">
                             Orchestrate your AI agents and chatbot flows.
                         </p>
                     </div>
                     <button
                         onClick={() => setShowCreateModal(true)}
-                        className="px-6 py-3 bg-accent text-background rounded-lg hover:bg-accent-hover transition-colors flex items-center gap-2 font-medium"
+                        className="px-6 py-3 bg-primary text-white rounded-lg hover:bg-primary-hover active:bg-primary-active transition-colors flex items-center gap-2 font-medium"
                     >
                         <Plus size={18} className="group-hover:rotate-90 transition-transform duration-300" />
                         <span className="hidden sm:inline">New Workflow</span>
@@ -190,7 +190,7 @@ export default function WorkflowsPage() {
                 </div>
 
                 {/* Search and Filters */}
-                <div className="bg-white dark:bg-surface p-4 rounded-card flex flex-col sm:flex-row gap-4 shadow-sm border border-gray-100 dark:border-border">
+                <div className="bg-surface p-4 rounded-card flex flex-col sm:flex-row gap-4 shadow-sm border border-border">
                     <div className="flex-1 relative">
                         <Search className="absolute left-4 top-1/2 -translate-y-1/2" size={18} />
                         <input
@@ -198,12 +198,12 @@ export default function WorkflowsPage() {
                             placeholder="Search workflows..."
                             value={searchQuery}
                             onChange={(e) => setSearchQuery(e.target.value)}
-                            className="w-full px-4 py-3 pl-11 bg-gray-50 dark:bg-background border border-gray-200 dark:border-border rounded-xl focus:ring-2 focus:ring-accent/60 focus:border-transparent transition-all text-gray-900 dark:text-foreground"
+                            className="w-full px-4 py-3 pl-11 bg-background border border-border rounded-xl focus:ring-2 focus:ring-primary/20 focus:border-primary focus:border-transparent transition-all text-foreground"
                         />
                         {searchQuery && (
                             <button
                                 onClick={() => setSearchQuery('')}
-                                className="absolute right-3 top-1/2 -translate-y-1/2 p-1 hover:bg-gray-200 dark:hover:bg-surface-hover rounded-full transition-colors"
+                                className="absolute right-3 top-1/2 -translate-y-1/2 p-1 hover:bg-surface-hover dark:hover:bg-surface-hover rounded-full transition-colors"
                             >
                                 <X size={16} />
                             </button>
@@ -214,7 +214,7 @@ export default function WorkflowsPage() {
                         <select
                             value={statusFilter}
                             onChange={(e) => setStatusFilter(e.target.value)}
-                            className="px-4 py-3 bg-gray-50 dark:bg-background border border-gray-200 dark:border-border rounded-xl focus:ring-2 focus:ring-accent/60 outline-none cursor-pointer"
+                            className="px-4 py-3 bg-background border border-border rounded-xl focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none cursor-pointer"
                         >
                             <option value="all">All Status</option>
                             <option value="active">Active Only</option>
@@ -224,7 +224,7 @@ export default function WorkflowsPage() {
                         <select
                             value={visibilityFilter}
                             onChange={(e) => setVisibilityFilter(e.target.value)}
-                            className="px-4 py-3 bg-gray-50 dark:bg-background border border-gray-200 dark:border-border rounded-xl focus:ring-2 focus:ring-accent/60 outline-none cursor-pointer"
+                            className="px-4 py-3 bg-background border border-border rounded-xl focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none cursor-pointer"
                         >
                             <option value="all">All Visibility</option>
                             <option value="public">Public Only</option>
@@ -235,18 +235,18 @@ export default function WorkflowsPage() {
 
                 {/* Results Count */}
                 {(searchQuery || statusFilter !== 'all' || visibilityFilter !== 'all') && (
-                    <div className="text-sm text-gray-600 dark:text-muted">
-                        Showing <span className="font-semibold text-gray-900 dark:text-foreground">{filteredWorkflows.length}</span> results
+                    <div className="text-sm text-muted">
+                        Showing <span className="font-semibold text-foreground">{filteredWorkflows.length}</span> results
                     </div>
                 )}
 
                 {/* Workflows Grid */}
                 <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6 pb-8">
                     {filteredWorkflows.length === 0 ? (
-                        <div className="col-span-full py-20 text-center bg-white dark:bg-surface rounded-card border border-dashed border-gray-200 dark:border-border">
+                        <div className="col-span-full py-20 text-center bg-surface rounded-card border border-dashed border-border">
                             <Search className="w-12 h-12 mx-auto mb-4" />
-                            <h3 className="text-xl font-semibold text-gray-900 dark:text-foreground mb-2">No workflows found</h3>
-                            <p className="text-gray-500 dark:text-muted">
+                            <h3 className="text-xl font-semibold text-foreground mb-2">No workflows found</h3>
+                            <p className="text-muted">
                                 Try adjusting your filters or create a new one.
                             </p>
                         </div>
@@ -254,37 +254,37 @@ export default function WorkflowsPage() {
                         filteredWorkflows.map((workflow, index) => (
                             <div
                                 key={workflow.id}
-                                className="bg-white dark:bg-surface p-6 rounded-card shadow-sm border border-gray-100 dark:border-border flex flex-col relative group hover:-translate-y-1 transition-all duration-300 animate-fadeIn"
+                                className="bg-surface p-6 rounded-card shadow-sm border border-border flex flex-col relative group hover:-translate-y-1 transition-all duration-300 animate-fadeIn"
                                 style={{ animationDelay: `${index * 50}ms` }}
                             >
-                                <div className="absolute -top-10 -right-10 w-32 h-32 bg-accent/5 rounded-full blur-3xl group-hover:bg-accent/10 transition-all duration-500 pointer-events-none"></div>
+                                <div className="absolute -top-10 -right-10 w-32 h-32 bg-primary/5 rounded-full blur-3xl group-hover:bg-primary/10 transition-all duration-500 pointer-events-none"></div>
 
                                 {/* Header */}
                                 <div className="flex items-start justify-between mb-4 relative z-10">
                                     <div className="flex items-center gap-4">
-                                        <div className="w-14 h-14 rounded-card bg-gray-50 dark:bg-surface flex items-center justify-center text-3xl shadow-inner border border-blue-100 dark:border-blue-800/30">
+                                        <div className="w-14 h-14 rounded-card bg-surface flex items-center justify-center text-3xl shadow-inner border border-border">
                                             {/* Ideally this would be a dynamic icon component, but assuming string for now or passed element */}
                                             {workflow.icon}
                                         </div>
                                         <div>
-                                            <h3 className="text-lg font-bold text-gray-900 dark:text-foreground leading-tight">{workflow.name}</h3>
+                                            <h3 className="text-lg font-bold text-foreground leading-tight">{workflow.name}</h3>
                                             <div className="mt-1 flex items-center gap-2 flex-wrap">
                                                 <span className={`inline-flex items-center gap-1.5 px-2 py-0.5 text-[10px] font-bold rounded-full border ${workflow.isActive
-                                                    ? 'bg-emerald-50 text-emerald-700 border-emerald-100 dark:bg-emerald-900/20 dark:border-emerald-800 dark:text-emerald-400'
-                                                    : 'bg-gray-50 text-gray-600 border-gray-100 dark:bg-surface dark:border-border dark:text-muted'
+                                                    ? 'bg-success-soft text-success-ink border-success/25'
+                                                    : 'bg-surface-elevated text-muted border-border'
                                                     }`}>
-                                                    <div className={`w-1.5 h-1.5 rounded-full ${workflow.isActive ? 'bg-emerald-500' : 'bg-gray-400'}`}></div>
+                                                    <div className={`w-1.5 h-1.5 rounded-full ${workflow.isActive ? 'bg-success' : 'bg-border-strong'}`}></div>
                                                     {workflow.isActive ? 'Active' : 'Inactive'}
                                                 </span>
                                                 <span className={`inline-flex items-center gap-1 px-2 py-0.5 text-[10px] font-bold rounded-full border ${workflow.isPublic
-                                                    ? 'bg-sky-50 text-sky-700 border-sky-100 dark:bg-sky-900/20 dark:border-sky-800 dark:text-sky-400'
-                                                    : 'bg-orange-50 text-orange-700 border-orange-100 dark:bg-orange-900/20 dark:border-orange-800 dark:text-orange-400'
+                                                    ? 'bg-info-soft text-info-ink border-info/25'
+                                                    : 'bg-warning-soft text-warning-ink border-warning/25'
                                                     }`}>
                                                     {workflow.isPublic ? <Globe size={10} /> : <Lock size={10} />}
                                                     {workflow.isPublic ? 'Public' : 'Private'}
                                                 </span>
                                                 {workflow.owner && (
-                                                    <span className="inline-flex items-center gap-1 px-2 py-0.5 text-[10px] font-bold rounded-full border bg-purple-50 text-purple-700 border-purple-100 dark:bg-purple-900/20 dark:border-purple-800 dark:text-purple-400">
+                                                    <span className="inline-flex items-center gap-1 px-2 py-0.5 text-[10px] font-bold rounded-full border bg-accent-soft text-accent-ink border-accent/25">
                                                         <User size={10} />
                                                         {workflow.owner.name || 'User'}
                                                     </span>
@@ -295,15 +295,15 @@ export default function WorkflowsPage() {
                                 </div>
 
                                 {/* Description */}
-                                <p className="text-sm text-gray-600 dark:text-muted mb-6 line-clamp-2 min-h-[2.5em] relative z-10">
+                                <p className="text-sm text-muted mb-6 line-clamp-2 min-h-[2.5em] relative z-10">
                                     {workflow.description || 'No description provided.'}
                                 </p>
 
                                 {/* Webhook URL */}
                                 <div className="mb-6 relative z-10">
-                                    <p className="text-[10px] font-bold text-gray-500 dark:text-muted uppercase tracking-wider mb-1">Webhook Endpoint</p>
-                                    <div className="bg-gray-50 dark:bg-black/30 rounded-lg border border-gray-100 dark:border-border p-2 flex items-center gap-2 group/copy transition-colors hover:border-blue-200 dark:hover:border-blue-800/50">
-                                        <code className="text-xs font-mono text-gray-600 dark:text-secondary truncate flex-1">
+                                    <p className="text-[10px] font-bold text-muted uppercase tracking-wider mb-1">Webhook Endpoint</p>
+                                    <div className="bg-surface-elevated rounded-lg border border-border p-2 flex items-center gap-2 group/copy transition-colors hover:border-primary/40">
+                                        <code className="text-xs font-mono text-secondary truncate flex-1">
                                             {workflow.webhookUrl}
                                         </code>
                                         <button
@@ -311,7 +311,7 @@ export default function WorkflowsPage() {
                                                 navigator.clipboard.writeText(workflow.webhookUrl);
                                                 // toast success?
                                             }}
-                                            className="text-gray-500 dark:text-muted hover:text-accent transition-colors p-1 rounded"
+                                            className="text-muted hover:text-primary transition-colors p-1 rounded"
                                             title="Copy URL"
                                         >
                                             <Copy size={16} />
@@ -320,12 +320,12 @@ export default function WorkflowsPage() {
                                 </div>
 
                                 {/* Actions */}
-                                <div className="flex gap-2 mt-auto relative z-10 pt-4 border-t border-gray-50 dark:border-border">
+                                <div className="flex gap-2 mt-auto relative z-10 pt-4 border-t border-border">
                                     <button
                                         onClick={() => toggleActive(workflow)}
                                         className={`flex-1 flex items-center justify-center gap-2 px-3 py-2 text-sm font-medium rounded-lg border transition-all ${workflow.isActive
-                                            ? 'border-gray-200 dark:border-border text-gray-700 dark:text-secondary hover:bg-gray-50 dark:hover:bg-surface-hover'
-                                            : 'border-emerald-200 dark:border-emerald-800 text-emerald-700 dark:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-emerald-900/20'
+                                            ? 'border-border text-secondary hover:bg-surface-hover'
+                                            : 'border-success/30 text-success-ink hover:bg-success-soft'
                                             }`}
                                     >
                                         {workflow.isActive ? <Pause size={16} /> : <Play size={16} />}
@@ -333,14 +333,14 @@ export default function WorkflowsPage() {
                                     </button>
                                     <button
                                         onClick={() => setEditingWorkflow(workflow)}
-                                        className="flex-1 flex items-center justify-center gap-2 px-3 py-2 text-sm font-medium rounded-lg bg-blue-50 dark:bg-blue-900/20 text-primary-700 dark:text-info hover:bg-blue-100 dark:hover:bg-blue-900/40 transition-all border border-transparent"
+                                        className="flex-1 flex items-center justify-center gap-2 px-3 py-2 text-sm font-medium rounded-lg bg-info-soft text-info-ink hover:bg-info/15 transition-all border border-transparent"
                                     >
                                         <Edit size={16} /> Edit
                                     </button>
                                     {!workflow.isPublic && (
                                         <button
                                             onClick={() => setManagingUsersWorkflow(workflow)}
-                                            className="px-3 py-2 text-sm font-medium rounded-lg bg-orange-50 dark:bg-orange-900/20 text-orange-600 dark:text-orange-400 hover:bg-orange-100 dark:hover:bg-orange-900/40 transition-all border border-transparent"
+                                            className="px-3 py-2 text-sm font-medium rounded-lg bg-warning-soft text-warning-ink hover:bg-warning/15 transition-all border border-transparent"
                                             title="Manage Users"
                                         >
                                             <User size={16} />
@@ -348,7 +348,7 @@ export default function WorkflowsPage() {
                                     )}
                                     <button
                                         onClick={() => deleteWorkflow(workflow.id, workflow.name)}
-                                        className="px-3 py-2 text-sm font-medium rounded-lg text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 transition-all border border-transparent"
+                                        className="px-3 py-2 text-sm font-medium rounded-lg text-danger hover:bg-danger-soft transition-all border border-transparent"
                                         title="Delete Workflow"
                                     >
                                         <Trash2 size={16} />

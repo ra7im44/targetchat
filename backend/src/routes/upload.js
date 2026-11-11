@@ -4,16 +4,21 @@ const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
 const { requireAuth } = require('../middleware/auth');
+const featureFlags = require('../services/featureFlags');
 
-// Ensure uploads directory exists
-const uploadDir = 'uploads';
+// Resolve the upload directory to an absolute path anchored at the backend
+// root, matching how secureFile.js / admin/files.js resolve it. A relative
+// 'uploads' depends on process.cwd(); under Docker (WORKDIR /app) that happens
+// to be /app/uploads, but it silently diverges under any other launch directory
+// and lands files outside a mounted volume.
+const uploadDir = path.resolve(__dirname, '..', '..', 'uploads');
 if (!fs.existsSync(uploadDir)) {
-    fs.mkdirSync(uploadDir);
+    fs.mkdirSync(uploadDir, { recursive: true });
 }
 
 const storage = multer.diskStorage({
     destination: function (req, file, cb) {
-        cb(null, 'uploads/')
+        cb(null, uploadDir)
     },
     filename: function (req, file, cb) {
         const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
@@ -25,6 +30,9 @@ const upload = multer({
     storage: storage,
     limits: { fileSize: 10 * 1024 * 1024 }, // 10MB limit
     fileFilter: (req, file, cb) => {
+        if (String(file.mimetype).startsWith('audio/') && !featureFlags.isEnabled('enable_voice_notes')) {
+            return cb(new Error('Voice notes are disabled by the administrator'));
+        }
         // Allowed file types: Documents, Images, Audio, Video
         const allowedMimeTypes = [
             // Documents
@@ -89,7 +97,7 @@ const { generateSignedUrl } = require('../utils/generateSignedUrl');
 
 // SECURITY: uploads were previously anonymous — anyone on the internet could
 // store files on the server. Require authentication.
-router.post('/', requireAuth, upload.single('file'), async (req, res) => {
+router.post('/', requireAuth, featureFlags.requireEnabled('enable_file_upload'), upload.single('file'), async (req, res) => {
     if (!req.file) {
         return res.status(400).json({ message: 'No file uploaded' });
     }

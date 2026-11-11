@@ -22,7 +22,7 @@ export default function QuickStart() {
 
             <h2 id="step-1">Step 1: Create Your Account</h2>
             <p>
-                If you haven't already, <Link href="/register" className="text-info-ink dark:text-info hover:underline">sign up for a free TargetChat account</Link>. You'll receive a verification email - click the link to activate your account.
+                If you haven't already, <Link href="/register" className="text-info-ink hover:underline">sign up for a free TargetChat account</Link>. You'll receive a verification email - click the link to activate your account.
             </p>
 
             <h2 id="step-2">Step 2: Create Your First Widget</h2>
@@ -95,29 +95,29 @@ export default function QuickStart() {
             </p>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 my-6">
-                <Link href="/docs/automation/private-workflows" className="block p-4 bg-blue-50 dark:bg-blue-900/20 rounded-xl border border-blue-200 dark:border-blue-800 hover:border-blue-400 dark:hover:border-blue-600 transition-colors">
-                    <h3 className="font-bold text-gray-900 dark:text-foreground mb-2 flex items-center gap-2"><Zap size={16} /> Private Workflows</h3>
-                    <p className="text-sm text-gray-600 dark:text-muted">Discover personalized AI bots for your team</p>
+                <Link href="/docs/automation/private-workflows" className="block p-4 bg-info-soft rounded-xl border border-info/25 hover:border-info/40 transition-colors">
+                    <h3 className="font-bold text-foreground mb-2 flex items-center gap-2"><Zap size={16} /> Private Workflows</h3>
+                    <p className="text-sm text-muted">Discover personalized AI bots for your team</p>
                 </Link>
 
-                <Link href="/docs/integrations/overview" className="block p-4 bg-purple-50 dark:bg-purple-900/20 rounded-xl border border-purple-200 dark:border-purple-800 hover:border-purple-400 dark:hover:border-purple-600 transition-colors">
-                    <h3 className="font-bold text-gray-900 dark:text-foreground mb-2 flex items-center gap-2"><Plug size={16} /> Integrations</h3>
-                    <p className="text-sm text-gray-600 dark:text-muted">Connect to your stack via Webhooks & API</p>
+                <Link href="/docs/integrations/overview" className="block p-4 bg-accent-soft rounded-xl border border-accent/25 hover:border-accent/40 transition-colors">
+                    <h3 className="font-bold text-foreground mb-2 flex items-center gap-2"><Plug size={16} /> Integrations</h3>
+                    <p className="text-sm text-muted">Connect to your stack via Webhooks & API</p>
                 </Link>
 
-                <Link href="/docs/widgets/creating" className="block p-4 bg-green-50 dark:bg-green-900/20 rounded-xl border border-green-200 dark:border-green-800 hover:border-green-400 dark:hover:border-green-600 transition-colors">
-                    <h3 className="font-bold text-gray-900 dark:text-foreground mb-2 flex items-center gap-2"><Palette size={16} /> Customize Your Widget</h3>
-                    <p className="text-sm text-gray-600 dark:text-muted">Match your brand with advanced styling options</p>
+                <Link href="/docs/widgets/creating" className="block p-4 bg-success-soft rounded-xl border border-success/25 hover:border-success/40 transition-colors">
+                    <h3 className="font-bold text-foreground mb-2 flex items-center gap-2"><Palette size={16} /> Customize Your Widget</h3>
+                    <p className="text-sm text-muted">Match your brand with advanced styling options</p>
                 </Link>
 
-                <Link href="/docs/chat" className="block p-4 bg-orange-50 dark:bg-orange-900/20 rounded-xl border border-orange-200 dark:border-orange-800 hover:border-orange-400 dark:hover:border-orange-600 transition-colors">
-                    <h3 className="font-bold text-gray-900 dark:text-foreground mb-2 flex items-center gap-2"><MessageSquare size={16} /> Chat Interface</h3>
-                    <p className="text-sm text-gray-600 dark:text-muted">Master the real-time chat dashboard</p>
+                <Link href="/docs/chat" className="block p-4 bg-warning-soft rounded-xl border border-warning/25 hover:border-warning/40 transition-colors">
+                    <h3 className="font-bold text-foreground mb-2 flex items-center gap-2"><MessageSquare size={16} /> Chat Interface</h3>
+                    <p className="text-sm text-muted">Master the real-time chat dashboard</p>
                 </Link>
             </div>
 
             <Callout type="tip" title="Need Help?">
-                Join our community or contact support at <a href="mailto:support@targetchat.ai" className="text-info-ink dark:text-info hover:underline">support@targetchat.ai</a>
+                Join our community or contact support at <a href="mailto:support@targetchat.ai" className="text-info-ink hover:underline">support@targetchat.ai</a>
             </Callout>
         </DocsLayout>
     );

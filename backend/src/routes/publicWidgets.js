@@ -5,9 +5,14 @@ const { sendToN8N } = require('../utils/n8nClient');
 const cors = require('cors');
 const jwt = require('jsonwebtoken');
 const { getJwtSecret } = require('../config/secrets');
+const featureFlags = require('../services/featureFlags');
 
 // Enable CORS for all public widget routes
 router.use(cors());
+
+// Live chat can be switched off globally from System Settings; the public
+// widget API must then be closed, not merely hidden from the dashboard.
+router.use(featureFlags.requireEnabled('enable_live_chat'));
 
 /**
  * SECURITY: Emits Socket events only to authorized user rooms (owner, assignee, creator)

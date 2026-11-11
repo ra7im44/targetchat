@@ -1,15 +1,30 @@
 const axios = require('axios');
 const { Setting } = require('../models');
+const settingsService = require('./settingsService');
 
 class PayPalService {
     constructor() {
-        this.baseUrl = process.env.PAYPAL_MODE === 'live'
+        this.mode = process.env.PAYPAL_MODE === 'live' ? 'live' : 'sandbox';
+        this.baseUrl = this.urlFor(this.mode);
+    }
+
+    urlFor(mode) {
+        return mode === 'live'
             ? 'https://api-m.paypal.com'
             : 'https://api-m.sandbox.paypal.com';
     }
 
+    /** Admin setting wins over env so sandbox/live can be switched at runtime. */
+    async refreshMode() {
+        const configured = String(await settingsService.get('PAYPAL_MODE', this.mode)).toLowerCase();
+        this.mode = configured === 'live' ? 'live' : 'sandbox';
+        this.baseUrl = this.urlFor(this.mode);
+        return this.mode;
+    }
+
     async getAccessToken() {
         try {
+            await this.refreshMode();
             const clientIdSetting = await Setting.findOne({ where: { key: 'PAYPAL_CLIENT_ID' } });
             const secretSetting = await Setting.findOne({ where: { key: 'PAYPAL_SECRET' } });
 

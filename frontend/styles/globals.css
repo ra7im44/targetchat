@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Outfit:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -7,40 +7,147 @@
 /* ============ TargetChat design tokens ============ */
 :root {
     /* Base surfaces */
-    --bg-base: #F8FAFC;
+    --bg-base: #F7F8FA;
     --bg-surface: #FFFFFF;
-    --bg-elevated: #F1F5F9;
-    --bg-hover: #E2E8F0;
-    --border: #E2E8F0;
-    --border-subtle: #F1F5F9;
-    --border-strong: #CBD5E1;
+    --bg-elevated: #F1F3F6;
+    --bg-hover: #E9EDF2;
+    --border: #DDE2E8;
+    --border-strong: #C9D0D9;
 
     /* Semantic typography */
-    --text-primary: #0F172A;
-    --text-secondary: #475569;
-    --text-muted: #64748B;
+    --text-primary: #18202B;
+    --text-secondary: #4E5D6C;
+    --text-muted: #63707F;
 
-    /* Brand & Accent: Professional Indigo */
-    --primary: #4F46E5;
-    --primary-hover: #4338CA;
-    --primary-active: #3730A3;
+    /* Neutral ramp — theme-aware.
+       Low steps (50-300) are surfaces/borders; high steps (500-950) are ink.
+       The ramp inverts in dark mode so legacy `text-gray-*` / `bg-gray-*`
+       utilities become theme-correct without per-file `dark:` duplication. */
+    --n-50: #F8FAFC;
+    --n-100: #F1F5F9;
+    --n-200: #E2E8F0;
+    --n-300: #CBD5E1;
+    --n-400: #94A3B8;
+    --n-500: #64748B;
+    --n-600: #475569;
+    --n-700: #334155;
+    --n-800: #1E293B;
+    --n-900: #0F172A;
+    --n-950: #020617;
+
+    /* Brand Primary */
+    --primary: #5B5BD6;
+    --primary-hover: #4D4DC4;
+    --primary-active: #4545B5;
+    --primary-soft: #EEEEFC;
     --primary-foreground: #FFFFFF;
-    --primary-subtle: #EEF2FF;
-    --accent: #4F46E5;
-    --accent-hover: #4338CA;
-    --accent-active: #3730A3;
+    --accent: #5B5BD6;
+    --accent-hover: #4D4DC4;
+    --accent-active: #4545B5;
+    --accent-soft: #EEEEFC;
+    --accent-ink: #3F3FB0;
+    --accent-foreground: var(--primary-foreground);
 
-    /* Status Colors */
-    --danger: #EF4444;
-    --warning: #F59E0B;
-    --success: #10B981;
-    --info: #3B82F6;
+    /* Status — solid fill.
+       `--*-foreground` is the text colour ON the solid fill
+       (all >=4.5:1, verified against the fill value). */
+    --success: #278466;
+    --danger: #B84A4A;
+    --warning: #8F5E12;
+    --info: #4776B5;
+    --success-foreground: #FFFFFF;
+    --danger-foreground: #FFFFFF;
+    --warning-foreground: #FFFFFF;
+    --info-foreground: #FFFFFF;
+
+    /* Status — soft fill + readable ink.
+       `--*-ink` is the text colour ON `--*-soft`
+       (all >=4.5:1, verified against the soft value). */
+    --success-soft: #EAF6F1;
+    --danger-soft: #FAEEEE;
+    --warning-soft: #FAF4E8;
+    --info-soft: #EDF3FA;
+    --success-ink: #14654A;
+    --danger-ink: #A33A3A;
+    --warning-ink: #7E530D;
+    --info-ink: #2F5A88;
+
+    /* Focus ring — >=3:1 against adjacent surfaces (WCAG 1.4.11) */
+    --ring: #4D4DC4;
+
+    /* Elevation — shadows are tinted per theme so Dark never looks like
+       Light with the lights off. */
+    --shadow-2xs: 0 1px 1px rgba(16, 24, 40, 0.04);
+    --shadow-xs: 0 1px 2px rgba(16, 24, 40, 0.05);
+    --shadow-card: 0 1px 3px rgba(16, 24, 40, 0.07), 0 1px 2px rgba(16, 24, 40, 0.04);
+    --shadow-raise: 0 2px 6px rgba(16, 24, 40, 0.08), 0 1px 2px rgba(16, 24, 40, 0.04);
+    --shadow-popover: 0 10px 28px rgba(16, 24, 40, 0.14);
+    --shadow-modal: 0 24px 48px rgba(16, 24, 40, 0.20);
+    --shadow-inset: inset 0 1px 2px rgba(16, 24, 40, 0.06);
+
+    /* ------------------------------------------------------------------
+       Channel triplets for Tailwind alpha support.
+       Tailwind 3 can only apply an opacity modifier (`bg-primary/10`) when
+       the colour is declared as `rgb(<channels> / <alpha-value>)`.
+       With a hex-backed var the generated rule is invalid, so Tailwind
+       DROPS it silently — that is what previously killed every
+       `ring-primary/20` focus ring and every `/10` soft tint.
+       These MUST stay in sync with the hex values above.
+       ------------------------------------------------------------------ */
+    --bg-base-rgb: 247 248 250;
+    --bg-surface-rgb: 255 255 255;
+    --bg-elevated-rgb: 241 243 246;
+    --bg-hover-rgb: 233 237 242;
+    --border-rgb: 221 226 232;
+    --border-strong-rgb: 201 208 217;
+    --text-primary-rgb: 24 32 43;
+    --text-secondary-rgb: 78 93 108;
+    --text-muted-rgb: 99 112 127;
+    --primary-rgb: 91 91 214;
+    --primary-hover-rgb: 77 77 196;
+    --primary-active-rgb: 69 69 181;
+    --primary-soft-rgb: 238 238 252;
+    --primary-foreground-rgb: 255 255 255;
+    --accent-rgb: 91 91 214;
+    --accent-hover-rgb: 77 77 196;
+    --accent-active-rgb: 69 69 181;
+    --accent-soft-rgb: 238 238 252;
+    --accent-ink-rgb: 63 63 176;
+    --success-rgb: 39 132 102;
+    --danger-rgb: 184 74 74;
+    --warning-rgb: 143 94 18;
+    --info-rgb: 71 118 181;
+    --success-foreground-rgb: 255 255 255;
+    --danger-foreground-rgb: 255 255 255;
+    --warning-foreground-rgb: 255 255 255;
+    --info-foreground-rgb: 255 255 255;
+    --success-soft-rgb: 234 246 241;
+    --danger-soft-rgb: 250 238 238;
+    --warning-soft-rgb: 250 244 232;
+    --info-soft-rgb: 237 243 250;
+    --success-ink-rgb: 20 101 74;
+    --danger-ink-rgb: 163 58 58;
+    --warning-ink-rgb: 126 83 13;
+    --info-ink-rgb: 47 90 136;
+    --ring-rgb: 77 77 196;
+    --n-50-rgb: 248 250 252;
+    --n-100-rgb: 241 245 249;
+    --n-200-rgb: 226 232 240;
+    --n-300-rgb: 203 213 225;
+    --n-400-rgb: 148 163 184;
+    --n-500-rgb: 100 116 139;
+    --n-600-rgb: 71 85 105;
+    --n-700-rgb: 51 65 85;
+    --n-800-rgb: 30 41 59;
+    --n-900-rgb: 15 23 42;
+    --n-950-rgb: 2 6 23;
 
     /* Semantic aliases */
     --background: var(--bg-base);
     --surface: var(--bg-surface);
     --surface-elevated: var(--bg-elevated);
     --surface-hover: var(--bg-hover);
+    --foreground: var(--text-primary);
     --lm-bg: var(--bg-base);
     --lm-surface: var(--bg-surface);
     --lm-border: var(--border);
@@ -49,42 +156,137 @@
     --lm-text-muted: var(--text-muted);
 }
 
+
 html.dark {
     /* Base surfaces */
-    --bg-base: #0B0F17;
-    --bg-surface: #131926;
-    --bg-elevated: #1A2234;
-    --bg-hover: #222C40;
-    --border: rgba(255, 255, 255, 0.08);
-    --border-subtle: rgba(255, 255, 255, 0.04);
-    --border-strong: rgba(255, 255, 255, 0.16);
+    --bg-base: #0D1117;
+    --bg-surface: #151B23;
+    --bg-elevated: #1B232E;
+    --bg-hover: #242E3B;
+    --border: #2A3441;
+    --border-strong: #3A4656;
 
     /* Semantic typography */
-    --text-primary: #F8FAFC;
-    --text-secondary: #94A3B8;
-    --text-muted: #64748B;
+    --text-primary: #F1F5F9;
+    --text-secondary: #B6C0CD;
+    --text-muted: #8D9AAD;
 
-    /* Brand & Accent: Luminous Indigo in dark mode */
-    --primary: #6366F1;
-    --primary-hover: #818CF8;
-    --primary-active: #4F46E5;
-    --primary-foreground: #FFFFFF;
-    --primary-subtle: rgba(99, 102, 241, 0.15);
-    --accent: #6366F1;
-    --accent-hover: #818CF8;
-    --accent-active: #4F46E5;
+    /* Neutral ramp — inverted: low steps become dark surfaces,
+       high steps become light ink. */
+    --n-50: #10151C;
+    --n-100: #202834;
+    --n-200: #2A3441;
+    --n-300: #3A4656;
+    --n-400: #7C8A9C;
+    --n-500: #8D9AAD;
+    --n-600: #A5B0BF;
+    --n-700: #B6C0CD;
+    --n-800: #D3DAE3;
+    --n-900: #F1F5F9;
+    --n-950: #F8FAFC;
 
-    /* Status Colors */
-    --danger: #F87171;
-    --warning: #FBBF24;
-    --success: #34D399;
-    --info: #60A5FA;
+    /* Brand Primary: luminous in dark mode.
+       Foreground must be DARK ink — white on #818CF8 is only 2.98:1. */
+    --primary: #818CF8;
+    --primary-hover: #939BF9;
+    --primary-active: #717CF0;
+    --primary-soft: #202442;
+    --primary-foreground: #10141B;
+    --accent: #818CF8;
+    --accent-hover: #939BF9;
+    --accent-active: #717CF0;
+    --accent-soft: #202442;
+    --accent-ink: #A5A5F0;
+    --accent-foreground: var(--primary-foreground);
+
+    /* Status — solid fill. Dark fills are luminous => dark foreground ink. */
+    --success: #56C69B;
+    --danger: #EB7A7A;
+    --warning: #D9A441;
+    --info: #72A4DF;
+    --success-foreground: #10141B;
+    --danger-foreground: #10141B;
+    --warning-foreground: #10141B;
+    --info-foreground: #10141B;
+
+    /* Status — soft fill + readable ink (>=4.5:1 on each soft value). */
+    --success-soft: #172A25;
+    --danger-soft: #2D1D20;
+    --warning-soft: #2B2519;
+    --info-soft: #192635;
+    --success-ink: #6FD3AC;
+    --danger-ink: #F09393;
+    --warning-ink: #E5B65E;
+    --info-ink: #8EBBEA;
+
+    /* Focus ring — >=3:1 against adjacent surfaces (WCAG 1.4.11) */
+    --ring: #A5B4FC;
+
+    /* Elevation — deeper, neutral-black shadows for dark surfaces. */
+    --shadow-2xs: 0 1px 1px rgba(0, 0, 0, 0.35);
+    --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.40);
+    --shadow-card: 0 1px 3px rgba(0, 0, 0, 0.45), 0 1px 2px rgba(0, 0, 0, 0.30);
+    --shadow-raise: 0 2px 6px rgba(0, 0, 0, 0.45), 0 1px 2px rgba(0, 0, 0, 0.30);
+    --shadow-popover: 0 10px 28px rgba(0, 0, 0, 0.55);
+    --shadow-modal: 0 24px 48px rgba(0, 0, 0, 0.65);
+    --shadow-inset: inset 0 1px 0 rgba(255, 255, 255, 0.04);
+
+    /* Channel triplets — see the LIGHT block for the rationale.
+       MUST stay in sync with the hex values above. */
+    --bg-base-rgb: 13 17 23;
+    --bg-surface-rgb: 21 27 35;
+    --bg-elevated-rgb: 27 35 46;
+    --bg-hover-rgb: 36 46 59;
+    --border-rgb: 42 52 65;
+    --border-strong-rgb: 58 70 86;
+    --text-primary-rgb: 241 245 249;
+    --text-secondary-rgb: 182 192 205;
+    --text-muted-rgb: 141 154 173;
+    --primary-rgb: 129 140 248;
+    --primary-hover-rgb: 147 155 249;
+    --primary-active-rgb: 113 124 240;
+    --primary-soft-rgb: 32 36 66;
+    --primary-foreground-rgb: 16 20 27;
+    --accent-rgb: 129 140 248;
+    --accent-hover-rgb: 147 155 249;
+    --accent-active-rgb: 113 124 240;
+    --accent-soft-rgb: 32 36 66;
+    --accent-ink-rgb: 165 165 240;
+    --success-rgb: 86 198 155;
+    --danger-rgb: 235 122 122;
+    --warning-rgb: 217 164 65;
+    --info-rgb: 114 164 223;
+    --success-foreground-rgb: 16 20 27;
+    --danger-foreground-rgb: 16 20 27;
+    --warning-foreground-rgb: 16 20 27;
+    --info-foreground-rgb: 16 20 27;
+    --success-soft-rgb: 23 42 37;
+    --danger-soft-rgb: 45 29 32;
+    --warning-soft-rgb: 43 37 25;
+    --info-soft-rgb: 25 38 53;
+    --success-ink-rgb: 111 211 172;
+    --danger-ink-rgb: 240 147 147;
+    --warning-ink-rgb: 229 182 94;
+    --info-ink-rgb: 142 187 234;
+    --ring-rgb: 165 180 252;
+    --n-50-rgb: 16 21 28;
+    --n-100-rgb: 32 40 52;
+    --n-200-rgb: 42 52 65;
+    --n-300-rgb: 58 70 86;
+    --n-400-rgb: 124 138 156;
+    --n-500-rgb: 141 154 173;
+    --n-600-rgb: 165 176 191;
+    --n-700-rgb: 182 192 205;
+    --n-800-rgb: 211 218 227;
+    --n-900-rgb: 241 245 249;
+    --n-950-rgb: 248 250 252;
 
     /* Semantic aliases */
     --background: var(--bg-base);
     --surface: var(--bg-surface);
     --surface-elevated: var(--bg-elevated);
     --surface-hover: var(--bg-hover);
+    --foreground: var(--text-primary);
 }
 
 html,
@@ -94,11 +296,11 @@ body,
 }
 
 body {
-    font-family: 'Inter', ui-sans-serif, system-ui, -apple-system, sans-serif;
+    font-family: 'Plus Jakarta Sans', 'Inter', ui-sans-serif, system-ui, -apple-system, sans-serif;
     -webkit-font-smoothing: antialiased;
     text-rendering: optimizeLegibility;
-    background-color: var(--lm-bg);
-    color: var(--lm-text);
+    background-color: var(--background);
+    color: var(--text-primary);
 }
 
 html.dark body {
@@ -106,22 +308,26 @@ html.dark body {
     color: var(--text-primary);
 }
 
-/* Type hierarchy: 400 reading, 500 UI emphasis, 600 strong. No 700+ in body copy. */
+/* Type hierarchy: 400 reading, 500 UI emphasis, 600 strong. No 700+ in body copy.
+   One family across the product — decorative display faces read as templated. */
 h1, h2, h3 {
-    font-family: 'Outfit', 'Inter', sans-serif;
+    font-family: 'Plus Jakarta Sans', 'Inter', sans-serif;
     font-weight: 600;
-    letter-spacing: -0.01em;
+    letter-spacing: -0.02em;
+    color: var(--text-primary);
 }
 h4, h5, h6 {
-    font-family: 'Inter', sans-serif;
+    font-family: 'Plus Jakarta Sans', sans-serif;
     font-weight: 600;
+    letter-spacing: -0.01em;
+    color: var(--text-primary);
 }
 
 /* Visible keyboard focus everywhere (never remove for aesthetics) */
 :focus-visible {
-    outline: 2px solid var(--accent);
+    outline: 2px solid var(--primary);
     outline-offset: 2px;
-    border-radius: 4px;
+    border-radius: 6px;
 }
 
 /* Thin token-tinted scrollbars */
@@ -171,12 +377,13 @@ html.dark .glass-panel {
     backdrop-filter: none;
     -webkit-backdrop-filter: none;
 }
+/* Solid chrome. Translucent headers blur content behind them and muddy text. */
 .glass-header {
-    background: rgba(255, 255, 255, 0.92);
-    border-bottom: 1px solid var(--lm-border);
+    background: var(--bg-surface);
+    border-bottom: 1px solid var(--border);
 }
 html.dark .glass-header {
-    background: rgba(17, 26, 31, 0.92);
+    background: var(--surface);
     border-bottom: 1px solid var(--border);
     backdrop-filter: none;
     -webkit-backdrop-filter: none;
@@ -244,14 +451,51 @@ html.dark .bubble.ai {
     border-color: var(--border);
 }
 
-/* Ensure button text on primary/accent is crisp high-contrast white */
-button.bg-accent,
-a.bg-accent,
-button.bg-primary,
-a.bg-primary,
-.bg-accent.text-white,
-.bg-primary.text-white {
-    color: #FFFFFF !important;
+/* Contrast backstop for legacy markup.
+   Legacy screens pair a solid `bg-primary` / `bg-accent` / `bg-success`… fill
+   with a hardcoded `text-white`. In Dark mode the luminous primary and status
+   fills require DARK ink (white on #818CF8 measures only 2.98:1), so each
+   pairing is re-pointed at its matching `--*-foreground` token.
+   `!important` is required here because a bare `.text-white` utility (0,2,0)
+   outranks `button.bg-primary` (0,1,1).
+   New code should use the Button / Badge primitives instead of this backstop. */
+button.bg-primary, a.bg-primary, .bg-primary.text-white,
+button.bg-accent, a.bg-accent, .bg-accent.text-white {
+    color: var(--primary-foreground) !important;
+}
+button.bg-success, a.bg-success, .bg-success.text-white {
+    color: var(--success-foreground) !important;
+}
+button.bg-danger, a.bg-danger, .bg-danger.text-white {
+    color: var(--danger-foreground) !important;
+}
+button.bg-warning, a.bg-warning, .bg-warning.text-white {
+    color: var(--warning-foreground) !important;
+}
+button.bg-info, a.bg-info, .bg-info.text-white {
+    color: var(--info-foreground) !important;
+}
+
+/* Always-dark surfaces — terminals, payload viewers, request inspector.
+   Deliberately identical in Light and Dark: a code console is dark by
+   convention, not by theme. Use instead of `bg-gray-900 text-white`. */
+.code-surface {
+    background: #0F172A;
+    color: #E2E8F0;
+    border: 1px solid #1E293B;
+}
+.code-surface::selection {
+    background: rgba(129, 140, 248, 0.35);
+}
+
+/* Placeholder + disabled conventions so controls never read as "dead text". */
+:disabled,
+[aria-disabled='true'] {
+    cursor: not-allowed;
+}
+::placeholder {
+    color: var(--text-muted);
+    opacity: 1;
 }
 
 /* Sidebar chat items: surface shift + accent bar, no glow */
@@ -262,34 +506,24 @@ a.bg-primary,
     border-left: 2px solid transparent;
 }
 .chat-item:hover {
-    background: rgba(0, 0, 0, 0.04);
+    background: var(--bg-hover);
 }
 html.dark .chat-item:hover {
-    background: var(--surface-hover);
+    background: var(--bg-hover);
 }
 .chat-item.active {
-    background: rgba(104, 117, 245, 0.12);
-    border-left-color: var(--accent);
+    background: var(--primary-soft);
+    border-left-color: var(--primary);
+    color: var(--primary);
     font-weight: 500;
 }
 html.dark .chat-item.active {
-    background: var(--surface-hover);
-    border-left-color: var(--accent);
+    background: var(--primary-soft);
+    border-left-color: var(--primary);
+    color: var(--primary);
 }
-
-/* Animations */
-@keyframes blob {
-    0%, 100% { transform: translate(0, 0) scale(1); }
-    25% { transform: translate(20px, -50px) scale(1.1); }
-    50% { transform: translate(-20px, 20px) scale(0.9); }
-    75% { transform: translate(50px, 50px) scale(1.05); }
-}
-.animate-blob { animation: blob 7s infinite; }
-.animation-delay-2000 { animation-delay: 2s; }
-.animation-delay-4000 { animation-delay: 4s; }
 
 @media (prefers-reduced-motion: reduce) {
-    .animate-blob,
     .animate-fadeIn,
     .animate-scaleIn,
     .animate-fade-in-up {

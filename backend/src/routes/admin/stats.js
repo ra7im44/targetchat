@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { User, UserSession, Chat, Message, Workflow } = require('../../models');
+const { sequelize, User, UserSession, Chat, Message, Workflow } = require('../../models');
 const { requireAuth } = require('../../middleware/auth');
 const { requireAdmin } = require('../../middleware/rbac');
 const { Op, fn, col, literal } = require('sequelize');
@@ -141,6 +141,66 @@ router.get('/', async (req, res) => {
         });
     } catch (err) {
         console.error('Error fetching stats:', err);
+        res.status(500).json({ message: 'Server error', error: err.message });
+    }
+});
+
+// GET /api/admin/stats/traffic - Get historical message traffic for timeframe
+router.get('/traffic', async (req, res) => {
+    try {
+        const days = Math.min(Math.max(parseInt(req.query.days) || 7, 1), 90);
+        const startDate = new Date();
+        startDate.setHours(0, 0, 0, 0);
+        startDate.setDate(startDate.getDate() - (days - 1));
+
+        // Build list of all dates in the range
+        const dateMap = {};
+        const resultList = [];
+        for (let i = 0; i < days; i++) {
+            const d = new Date(startDate);
+            d.setDate(d.getDate() + i);
+            const isoDate = d.toISOString().split('T')[0];
+            const label = d.toLocaleDateString('en-US', {
+                month: days > 14 ? 'numeric' : 'short',
+                day: 'numeric',
+                ...(days <= 7 ? { weekday: 'short' } : {})
+            });
+            dateMap[isoDate] = 0;
+            resultList.push({ dateStr: isoDate, label });
+        }
+
+        // Query grouped counts from Message table
+        const messages = await Message.findAll({
+            attributes: [
+                [sequelize.fn('date', sequelize.col('created_at')), 'msgDate'],
+                [sequelize.fn('COUNT', sequelize.col('id')), 'count']
+            ],
+            where: {
+                created_at: { [Op.gte]: startDate }
+            },
+            group: [sequelize.fn('date', sequelize.col('created_at'))],
+            raw: true
+        });
+
+        messages.forEach(m => {
+            const dStr = m.msgDate;
+            if (dateMap.hasOwnProperty(dStr)) {
+                dateMap[dStr] = parseInt(m.count) || 0;
+            }
+        });
+
+        const finalData = resultList.map(item => ({
+            date: item.label,
+            dateStr: item.dateStr,
+            count: dateMap[item.dateStr] || 0
+        }));
+
+        res.json({
+            days,
+            data: finalData
+        });
+    } catch (err) {
+        console.error('Error fetching traffic stats:', err);
         res.status(500).json({ message: 'Server error', error: err.message });
     }
 });

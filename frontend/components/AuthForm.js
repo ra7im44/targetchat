@@ -54,26 +54,24 @@ export default function AuthForm() {
     };
 
     return (
-        <div className="w-full max-w-md bg-background/80 backdrop-blur-xl rounded-card shadow-lg border border-white/10 overflow-hidden relative group">
-            <div className="absolute -inset-1 bg-accent rounded-lg blur opacity-10 group-hover:opacity-20 transition duration-1000 group-hover:duration-200"></div>
-
+        <div className="w-full max-w-md bg-surface rounded-card shadow-lg border border-border overflow-hidden relative">
             <div className="relative">
                 {/* Tabs */}
-                <div className="flex p-1.5 gap-1.5 bg-surface/80 border-b border-white/5">
+                <div className="flex p-1.5 gap-1.5 bg-surface-elevated border-b border-border">
                     <button
                         onClick={() => setMode('login')}
-                        className={`flex-1 py-3 text-sm font-bold rounded-xl transition-all duration-300 ${mode === 'login'
-                            ? 'bg-accent text-background shadow-lg'
-                            : 'text-gray-500 dark:text-muted hover:bg-white/5 hover:text-white'
+                        className={`flex-1 py-2.5 text-sm font-semibold rounded-xl transition-all duration-200 ${mode === 'login'
+                            ? 'bg-primary text-white shadow-xs'
+                            : 'text-secondary hover:bg-surface-hover hover:text-foreground'
                             }`}
                     >
                         Login
                     </button>
                     <button
                         onClick={() => setMode('register')}
-                        className={`flex-1 py-3 text-sm font-bold rounded-lg transition-colors ${mode === 'register'
-                            ? 'bg-accent text-background shadow-sm'
-                            : 'text-gray-500 dark:text-muted hover:bg-white/5 hover:text-foreground'
+                        className={`flex-1 py-2.5 text-sm font-semibold rounded-xl transition-all duration-200 ${mode === 'register'
+                            ? 'bg-primary text-white shadow-xs'
+                            : 'text-secondary hover:bg-surface-hover hover:text-foreground'
                             }`}
                     >
                         Sign Up
@@ -81,12 +79,12 @@ export default function AuthForm() {
                 </div>
 
                 {/* Form */}
-                <form onSubmit={handleSubmit} className="p-8 space-y-6">
-                    <div className="text-center mb-8">
-                        <h3 className="text-2xl font-bold text-white tracking-tight">
+                <form onSubmit={handleSubmit} className="p-8 space-y-5">
+                    <div className="text-center mb-6">
+                        <h3 className="text-2xl font-bold text-foreground tracking-tight">
                             {mode === 'login' ? 'Welcome Back' : 'Start Free Trial'}
                         </h3>
-                        <p className="text-sm text-gray-500 dark:text-muted mt-2 font-medium">
+                        <p className="text-sm text-secondary mt-1 font-normal">
                             {mode === 'login'
                                 ? 'Command center access'
                                 : 'Deploy your AI agent in seconds'}
@@ -94,74 +92,61 @@ export default function AuthForm() {
                     </div>
 
                     {mode === 'register' && (
-                        <div className="space-y-2 animate-slideIn">
-                            <label className="text-xs font-bold text-gray-500 dark:text-muted uppercase tracking-wider ml-1">Full Name</label>
-                            <div className="relative group/input">
-                                <div className="absolute -inset-0.5 bg-accent rounded-xl blur opacity-0 group-hover/input:opacity-50 transition duration-500"></div>
-                                <input
-                                    type="text"
-                                    value={name}
-                                    onChange={(e) => setName(e.target.value)}
-                                    placeholder="John Doe"
-                                    className="relative w-full px-5 py-3.5 bg-background border border-strong rounded-xl focus:border-accent focus:ring-1 focus:ring-accent/60 outline-none transition-all text-white placeholder-slate-600"
-                                    required
-                                />
-                            </div>
+                        <div className="space-y-1.5 animate-slideIn">
+                            <label className="text-xs font-semibold text-secondary uppercase tracking-wider ml-1">Full Name</label>
+                            <input
+                                type="text"
+                                value={name}
+                                onChange={(e) => setName(e.target.value)}
+                                placeholder="John Doe"
+                                className="w-full px-4 py-3 bg-surface-elevated border border-border rounded-xl focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all text-foreground placeholder-muted"
+                                required
+                            />
                         </div>
                     )}
 
-                    <div className="space-y-2">
-                        <label className="text-xs font-bold text-gray-500 dark:text-muted uppercase tracking-wider ml-1">Email Access</label>
-                        <div className="relative group/input">
-                            <div className="absolute -inset-0.5 bg-accent rounded-xl blur opacity-0 group-hover/input:opacity-50 transition duration-500"></div>
-                            <input
-                                type="email"
-                                value={email}
-                                onChange={(e) => setEmail(e.target.value)}
-                                placeholder="name@company.com"
-                                className="relative w-full px-5 py-3.5 bg-background border border-strong rounded-xl focus:border-accent focus:ring-1 focus:ring-accent/60 outline-none transition-all text-white placeholder-slate-600"
-                                required
-                            />
-                        </div>
+                    <div className="space-y-1.5">
+                        <label className="text-xs font-semibold text-secondary uppercase tracking-wider ml-1">Email Access</label>
+                        <input
+                            type="email"
+                            value={email}
+                            onChange={(e) => setEmail(e.target.value)}
+                            placeholder="name@company.com"
+                            className="w-full px-4 py-3 bg-surface-elevated border border-border rounded-xl focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all text-foreground placeholder-muted"
+                            required
+                        />
                     </div>
 
-                    <div className="space-y-2">
+                    <div className="space-y-1.5">
                         <div className="flex justify-between items-center ml-1">
-                            <label className="text-xs font-bold text-gray-500 dark:text-muted uppercase tracking-wider">Passcode</label>
+                            <label className="text-xs font-semibold text-secondary uppercase tracking-wider">Passcode</label>
                             {mode === 'login' && (
-                                <a href="/forgot-password" className="text-xs text-info-ink dark:text-info hover:text-info font-medium transition-colors">Recover?</a>
+                                <a href="/forgot-password" className="text-xs text-primary hover:text-primary-hover font-medium transition-colors">Recover?</a>
                             )}
                         </div>
-                        <div className="relative group/input">
-                            <div className="absolute -inset-0.5 bg-accent rounded-xl blur opacity-0 group-hover/input:opacity-50 transition duration-500"></div>
-                            <input
-                                type="password"
-                                value={password}
-                                onChange={(e) => setPassword(e.target.value)}
-                                placeholder="••••••••"
-                                className="relative w-full px-5 py-3.5 bg-background border border-strong rounded-xl focus:border-accent focus:ring-1 focus:ring-accent/60 outline-none transition-all text-white placeholder-slate-600"
-                                required
-                            />
-                        </div>
+                        <input
+                            type="password"
+                            value={password}
+                            onChange={(e) => setPassword(e.target.value)}
+                            placeholder="••••••••"
+                            className="w-full px-4 py-3 bg-surface-elevated border border-border rounded-xl focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all text-foreground placeholder-muted"
+                            required
+                        />
                     </div>
 
                     <button
                         type="submit"
                         disabled={loading}
-                        className="relative w-full py-4 group overflow-hidden rounded-xl disabled:opacity-50 disabled:cursor-not-allowed"
+                        className="w-full py-3.5 bg-primary hover:bg-primary-hover active:bg-primary-active text-white font-semibold rounded-xl transition-all shadow-xs disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 mt-2"
                     >
-                        <span className="absolute inset-0 bg-accent transition-all duration-300 group-hover:scale-105"></span>
-                        <span className="absolute inset-0 bg-white/0 group-hover:bg-white/10 transition-colors"></span>
-                        <span className="relative flex items-center justify-center gap-2 text-white font-bold tracking-wide">
-                            {loading ? (
-                                <span className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin block" />
-                            ) : (
-                                <>
-                                    {mode === 'login' ? 'Initiate Session' : 'Create Account'}
-                                    <svg className="w-5 h-5 transition-transform group-hover:translate-x-1" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" /></svg>
-                                </>
-                            )}
-                        </span>
+                        {loading ? (
+                            <span className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin block" />
+                        ) : (
+                            <>
+                                <span>{mode === 'login' ? 'Initiate Session' : 'Create Account'}</span>
+                                <svg className="w-4 h-4 transition-transform group-hover:translate-x-1" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" /></svg>
+                            </>
+                        )}
                     </button>
                 </form>
             </div>

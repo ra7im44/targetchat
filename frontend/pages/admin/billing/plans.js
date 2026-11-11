@@ -220,19 +220,19 @@ export default function AdminPlansPage() {
             <div className="space-y-6">
                 <div className="flex flex-wrap items-center justify-between gap-3">
                     <div>
-                        <h1 className="text-3xl font-bold tracking-tight text-gray-900 dark:text-foreground">Subscription Plans</h1>
-                        <p className="text-gray-600 dark:text-muted mt-1">Create plans, set prices, limits and feature flags</p>
+                        <h1 className="text-3xl font-bold tracking-tight text-foreground">Subscription Plans</h1>
+                        <p className="text-muted mt-1">Create plans, set prices, limits and feature flags</p>
                     </div>
                     <div className="flex items-center gap-3">
                         <Link
                             href="/admin/billing"
-                            className="px-4 py-2.5 bg-gray-200 dark:bg-surface-elevated rounded-xl hover:opacity-80 transition-colors text-black dark:text-foreground text-sm font-semibold"
+                            className="px-4 py-2.5 bg-surface-elevated rounded-xl hover:opacity-80 transition-colors text-foreground text-sm font-semibold"
                         >
                             ← Back to Billing
                         </Link>
                         <button
                             onClick={openCreate}
-                            className="px-4 py-2.5 bg-accent hover:bg-accent-hover text-background text-sm font-bold rounded-lg shadow-md transition-colors"
+                            className="px-4 py-2.5 bg-primary hover:bg-primary-hover active:bg-primary-active text-background text-sm font-bold rounded-lg shadow-md transition-colors"
                         >
                             + New Plan
                         </button>
@@ -242,70 +242,70 @@ export default function AdminPlansPage() {
                 <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
                     {loading ? (
                         [1, 2, 3].map(i => (
-                            <div key={i} className="p-6 rounded-card h-72 animate-pulse bg-gray-100 dark:bg-surface border border-gray-200 dark:border-border"></div>
+                            <div key={i} className="p-6 rounded-card h-72 animate-pulse bg-surface-elevated border border-border"></div>
                         ))
                     ) : plans.length === 0 ? (
-                        <div className="col-span-full text-center py-16 text-gray-500 dark:text-muted">
-                            <div className="flex justify-center mb-3 text-gray-500 dark:text-muted"><Package size={18} /></div>
+                        <div className="col-span-full text-center py-16 text-muted">
+                            <div className="flex justify-center mb-3 text-muted"><Package size={18} /></div>
                             <p className="font-semibold">No plans yet</p>
                             <p className="text-sm mt-1">Create your first plan to start selling.</p>
                         </div>
                     ) : (
                         plans.map(plan => (
-                            <div key={plan.id} className={`p-6 rounded-card border transition-all bg-white dark:bg-surface flex flex-col ${plan.isActive ? 'border-gray-200 dark:border-border' : 'border-gray-200 dark:border-border opacity-75'}`}>
+                            <div key={plan.id} className={`p-6 rounded-card border transition-all bg-surface flex flex-col ${plan.isActive ? 'border-border' : 'border-border opacity-75'}`}>
                                 <div className="flex justify-between items-start mb-3">
-                                    <h3 className="text-xl font-bold tracking-tight text-gray-900 dark:text-foreground">{plan.name}</h3>
+                                    <h3 className="text-xl font-bold tracking-tight text-foreground">{plan.name}</h3>
                                     <span className={`px-2.5 py-1 text-[11px] rounded-full font-bold ${plan.isActive
-                                        ? 'bg-success text-success-ink dark:bg-success/30 dark:text-success'
-                                        : 'bg-gray-100 text-gray-600 dark:bg-surface-elevated dark:text-muted'
+                                        ? 'bg-success-soft text-success-ink'
+                                        : 'bg-surface-elevated text-muted bg-surface-elevated text-muted'
                                         }`}>
                                         {plan.isActive ? 'ACTIVE' : 'HIDDEN'}
                                     </span>
                                 </div>
                                 {plan.description && (
-                                    <p className="text-sm text-gray-500 dark:text-muted mb-3">{plan.description}</p>
+                                    <p className="text-sm text-muted mb-3">{plan.description}</p>
                                 )}
 
                                 <div className="mb-4">
-                                    <span className="text-3xl font-bold tracking-tight text-gray-900 dark:text-foreground">
+                                    <span className="text-3xl font-bold tracking-tight text-foreground">
                                         ${plan.priceMonthly}</span>
-                                    <span className="text-gray-500 text-sm">/mo</span>
+                                    <span className="text-muted text-sm">/mo</span>
                                     {plan.priceYearly != null && (
-                                        <span className="text-gray-500 text-sm"> · ${plan.priceYearly}/yr</span>
+                                        <span className="text-muted text-sm"> · ${plan.priceYearly}/yr</span>
                                     )}
                                 </div>
 
                                 <div className="grid grid-cols-2 gap-2 mb-4 text-sm">
                                     {[['Chats', plan.maxChats], ['Msgs/mo', plan.maxMessagesPerMonth], ['Widgets', plan.maxWidgets], ['Members', plan.maxMembers]].map(([label, v]) => (
-                                        <div key={label} className="bg-gray-50 dark:bg-surface rounded-lg px-3 py-2">
-                                            <div className="text-[11px] uppercase tracking-wider text-gray-500 dark:text-muted">{label}</div>
-                                            <div className="font-bold text-gray-900 dark:text-foreground">{fmtLimit(v)}</div>
+                                        <div key={label} className="bg-surface rounded-lg px-3 py-2">
+                                            <div className="text-[11px] uppercase tracking-wider text-muted">{label}</div>
+                                            <div className="font-bold text-foreground">{fmtLimit(v)}</div>
                                         </div>
                                     ))}
                                 </div>
-                                <p className="text-xs text-gray-500 dark:text-muted mb-3">Trial: {plan.trialDays ?? 0} days</p>
+                                <p className="text-xs text-muted mb-3">Trial: {plan.trialDays ?? 0} days</p>
 
                                 {plan.features && Object.keys(plan.features).length > 0 && (
                                     <div className="flex flex-wrap gap-1.5 mb-4">
                                         {Object.entries(plan.features).map(([k, v]) => (
-                                            <span key={k} className={`px-2 py-0.5 text-[11px] font-mono rounded-md ${v ? 'bg-accent/10 text-accent-active dark:bg-accent/20 dark:text-info' : 'bg-gray-100 text-gray-500 dark:bg-surface line-through'}`}>
+                                            <span key={k} className={`px-2 py-0.5 text-[11px] font-mono rounded-md ${v ? 'bg-primary/10 text-primary-active dark:bg-primary/20 dark:text-info' : 'bg-surface-elevated text-muted line-through'}`}>
                                                 {k}
                                             </span>
                                         ))}
                                     </div>
                                 )}
 
-                                <div className="mt-auto pt-4 border-t border-gray-100 dark:border-border flex items-center gap-2">
+                                <div className="mt-auto pt-4 border-t border-border flex items-center gap-2">
                                     <button
                                         onClick={() => openEdit(plan)}
-                                        className="flex-1 py-2 text-sm font-bold bg-gray-100 dark:bg-surface-elevated hover:bg-gray-200 dark:hover:bg-white/15 rounded-lg transition-colors text-gray-800 dark:text-foreground"
+                                        className="flex-1 py-2 text-sm font-bold bg-surface-elevated hover:bg-surface-hover dark:hover:bg-white/15 rounded-lg transition-colors text-foreground"
                                     >
                                         Edit
                                     </button>
                                     <button
                                         onClick={() => handleDelete(plan)}
                                         disabled={deletingId === plan.id}
-                                        className="flex-1 py-2 text-sm font-bold bg-danger/10 dark:bg-danger/20 text-danger-ink dark:text-danger hover:bg-red-100 dark:hover:bg-red-900/40 rounded-lg transition-colors disabled:opacity-50"
+                                        className="flex-1 py-2 text-sm font-bold bg-danger/10 text-danger hover:bg-danger-soft rounded-lg transition-colors disabled:opacity-50"
                                     >
                                         {deletingId === plan.id ? '...' : 'Delete'}
                                     </button>
@@ -317,8 +317,8 @@ export default function AdminPlansPage() {
                                                 checked={!!plan.isActive}
                                                 onChange={() => togglePlanStatus(plan)}
                                             />
-                                            <div className={`block w-10 h-6 rounded-full transition-colors ${plan.isActive ? 'bg-success' : 'bg-gray-300 dark:bg-white/15'} `}></div>
-                                            <div className={`absolute left-1 top-1 bg-white w-4 h-4 rounded-full transition-transform ${plan.isActive ? 'translate-x-4' : ''} `}></div>
+                                            <div className={`block w-10 h-6 rounded-full transition-colors ${plan.isActive ? 'bg-success' : 'bg-border-strong'}`}></div>
+                                            <div className={`absolute left-1 top-1 bg-white w-4 h-4 rounded-full transition-transform ${plan.isActive ? 'translate-x-4' : ''}`}></div>
                                         </div>
                                     </label>
                                 </div>
@@ -331,45 +331,45 @@ export default function AdminPlansPage() {
             {showModal && (
                 <div className="fixed inset-0 z-[70] flex items-center justify-center p-4">
                     <div className="fixed inset-0 bg-black/60 backdrop-blur-sm" onClick={() => !saving && setShowModal(false)} />
-                    <form onSubmit={handleSave} className="relative bg-white dark:bg-background rounded-card shadow-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto p-6 sm:p-8">
-                        <h2 className="text-2xl font-bold tracking-tight text-gray-900 dark:text-foreground mb-1">
+                    <form onSubmit={handleSave} className="relative bg-background rounded-card shadow-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto p-6 sm:p-8">
+                        <h2 className="text-2xl font-bold tracking-tight text-foreground mb-1">
                             {editing ? 'Edit Plan' : 'New Plan'}
                         </h2>
-                        <p className="text-sm text-gray-500 dark:text-muted mb-6">
+                        <p className="text-sm text-muted mb-6">
                             {editing ? `Updating "${editing.name}" — changes apply to new checkouts immediately.` : 'Define pricing, limits (-1 = unlimited) and feature flags.'}
                         </p>
 
                         <div className="grid sm:grid-cols-2 gap-4">
                             <label className="block sm:col-span-2">
-                                <span className="text-xs font-bold uppercase tracking-wider text-gray-500">Plan name *</span>
+                                <span className="text-xs font-bold uppercase tracking-wider text-muted">Plan name *</span>
                                 <input value={form.name} onChange={(e) => setField('name', e.target.value)}
                                     placeholder="Pro" required
-                                    className="mt-1.5 w-full px-3.5 py-2.5 rounded-xl bg-gray-50 dark:bg-surface border border-gray-200 dark:border-border focus:border-accent focus:ring-1 focus:ring-accent/40 outline-none text-gray-900 dark:text-foreground" />
+                                    className="mt-1.5 w-full px-3.5 py-2.5 rounded-xl bg-surface border border-border focus:border-primary focus:ring-1 focus:ring-primary/20 outline-none text-foreground" />
                             </label>
                             <label className="block sm:col-span-2">
-                                <span className="text-xs font-bold uppercase tracking-wider text-gray-500">Description</span>
+                                <span className="text-xs font-bold uppercase tracking-wider text-muted">Description</span>
                                 <input value={form.description} onChange={(e) => setField('description', e.target.value)}
                                     placeholder="For professionals and small teams"
-                                    className="mt-1.5 w-full px-3.5 py-2.5 rounded-xl bg-gray-50 dark:bg-surface border border-gray-200 dark:border-border focus:border-accent focus:ring-1 focus:ring-accent/40 outline-none text-gray-900 dark:text-foreground" />
+                                    className="mt-1.5 w-full px-3.5 py-2.5 rounded-xl bg-surface border border-border focus:border-primary focus:ring-1 focus:ring-primary/20 outline-none text-foreground" />
                             </label>
                             <label className="block">
-                                <span className="text-xs font-bold uppercase tracking-wider text-gray-500">Price / month (USD)</span>
+                                <span className="text-xs font-bold uppercase tracking-wider text-muted">Price / month (USD)</span>
                                 <input type="number" min="0" step="0.01" value={form.priceMonthly} onChange={(e) => setField('priceMonthly', e.target.value)}
-                                    className="mt-1.5 w-full px-3.5 py-2.5 rounded-xl bg-gray-50 dark:bg-surface border border-gray-200 dark:border-border focus:border-accent focus:ring-1 focus:ring-accent/40 outline-none text-gray-900 dark:text-foreground" />
+                                    className="mt-1.5 w-full px-3.5 py-2.5 rounded-xl bg-surface border border-border focus:border-primary focus:ring-1 focus:ring-primary/20 outline-none text-foreground" />
                             </label>
                             <label className="block">
-                                <span className="text-xs font-bold uppercase tracking-wider text-gray-500">Price / year (empty = none)</span>
+                                <span className="text-xs font-bold uppercase tracking-wider text-muted">Price / year (empty = none)</span>
                                 <input type="number" min="0" step="0.01" value={form.priceYearly} onChange={(e) => setField('priceYearly', e.target.value)}
                                     placeholder="e.g. 190"
-                                    className="mt-1.5 w-full px-3.5 py-2.5 rounded-xl bg-gray-50 dark:bg-surface border border-gray-200 dark:border-border focus:border-accent focus:ring-1 focus:ring-accent/40 outline-none text-gray-900 dark:text-foreground" />
+                                    className="mt-1.5 w-full px-3.5 py-2.5 rounded-xl bg-surface border border-border focus:border-primary focus:ring-1 focus:ring-primary/20 outline-none text-foreground" />
                             </label>
                             <label className="block">
-                                <span className="text-xs font-bold uppercase tracking-wider text-gray-500">Trial days</span>
+                                <span className="text-xs font-bold uppercase tracking-wider text-muted">Trial days</span>
                                 <input type="number" min="0" step="1" value={form.trialDays} onChange={(e) => setField('trialDays', e.target.value)}
-                                    className="mt-1.5 w-full px-3.5 py-2.5 rounded-xl bg-gray-50 dark:bg-surface border border-gray-200 dark:border-border focus:border-accent focus:ring-1 focus:ring-accent/40 outline-none text-gray-900 dark:text-foreground" />
+                                    className="mt-1.5 w-full px-3.5 py-2.5 rounded-xl bg-surface border border-border focus:border-primary focus:ring-1 focus:ring-primary/20 outline-none text-foreground" />
                             </label>
                             <div className="flex items-center gap-3 pt-6">
-                                <label className="flex items-center gap-2 cursor-pointer text-sm font-semibold text-gray-700 dark:text-secondary">
+                                <label className="flex items-center gap-2 cursor-pointer text-sm font-semibold text-secondary">
                                     <input type="checkbox" checked={form.isActive} onChange={(e) => setField('isActive', e.target.checked)}
                                         className="w-4 h-4 accent-accent" />
                                     Visible to users
@@ -378,13 +378,13 @@ export default function AdminPlansPage() {
                         </div>
 
                         <div className="mt-6">
-                            <div className="text-xs font-bold uppercase tracking-wider text-gray-500 mb-2">Limits <span className="normal-case font-normal">(−1 = unlimited)</span></div>
+                            <div className="text-xs font-bold uppercase tracking-wider text-muted mb-2">Limits <span className="normal-case font-normal">(−1 = unlimited)</span></div>
                             <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                                 {LIMIT_FIELDS.map(({ key, label }) => (
                                     <label key={key} className="block">
-                                        <span className="text-xs text-gray-500">{label}</span>
+                                        <span className="text-xs text-muted">{label}</span>
                                         <input type="number" step="1" value={form[key]} onChange={(e) => setField(key, e.target.value)}
-                                            className="mt-1 w-full px-3 py-2 rounded-xl bg-gray-50 dark:bg-surface border border-gray-200 dark:border-border focus:border-accent focus:ring-1 focus:ring-accent/40 outline-none text-gray-900 dark:text-foreground font-mono" />
+                                            className="mt-1 w-full px-3 py-2 rounded-xl bg-surface border border-border focus:border-primary focus:ring-1 focus:ring-primary/20 outline-none text-foreground font-mono" />
                                     </label>
                                 ))}
                             </div>
@@ -392,26 +392,26 @@ export default function AdminPlansPage() {
 
                         <div className="mt-6">
                             <div className="flex items-center justify-between mb-2">
-                                <div className="text-xs font-bold uppercase tracking-wider text-gray-500">Feature flags</div>
+                                <div className="text-xs font-bold uppercase tracking-wider text-muted">Feature flags</div>
                                 <button type="button" onClick={addFeatureRow}
-                                    className="text-xs font-bold text-accent-active dark:text-info hover:underline">+ Add feature</button>
+                                    className="text-xs font-bold text-primary-active dark:text-info hover:underline">+ Add feature</button>
                             </div>
                             {form.features.length === 0 ? (
-                                <p className="text-xs text-gray-500 dark:text-muted">No flags — add keys like <code className="font-mono bg-gray-100 dark:bg-surface-elevated px-1 rounded">priority_support</code> to gate features in code via <code className="font-mono bg-gray-100 dark:bg-surface-elevated px-1 rounded">plan.hasFeature(key)</code>.</p>
+                                <p className="text-xs text-muted">No flags — add keys like <code className="font-mono bg-surface-elevated px-1 rounded">priority_support</code> to gate features in code via <code className="font-mono bg-surface-elevated px-1 rounded">plan.hasFeature(key)</code>.</p>
                             ) : (
                                 <div className="space-y-2">
                                     {form.features.map((row, i) => (
                                         <div key={i} className="flex items-center gap-2">
                                             <input value={row.key} onChange={(e) => updateFeatureRow(i, { key: e.target.value })}
                                                 placeholder="feature_key"
-                                                className="flex-1 px-3 py-2 rounded-xl bg-gray-50 dark:bg-surface border border-gray-200 dark:border-border focus:border-accent outline-none font-mono text-sm text-gray-900 dark:text-foreground" />
-                                            <label className="flex items-center gap-1.5 text-xs font-semibold text-gray-600 dark:text-secondary cursor-pointer">
+                                                className="flex-1 px-3 py-2 rounded-xl bg-surface border border-border focus:border-primary outline-none font-mono text-sm text-foreground" />
+                                            <label className="flex items-center gap-1.5 text-xs font-semibold text-secondary cursor-pointer">
                                                 <input type="checkbox" checked={row.value} onChange={(e) => updateFeatureRow(i, { value: e.target.checked })}
                                                     className="w-4 h-4 accent-accent" />
                                                 On
                                             </label>
                                             <button type="button" onClick={() => removeFeatureRow(i)}
-                                                className="p-2 text-gray-500 dark:text-muted hover:text-danger transition-colors" title="Remove">
+                                                className="p-2 text-muted hover:text-danger transition-colors" title="Remove">
                                                 <X size={18} />
                                             </button>
                                         </div>
@@ -422,11 +422,11 @@ export default function AdminPlansPage() {
 
                         <div className="flex gap-3 mt-8">
                             <button type="button" onClick={() => setShowModal(false)} disabled={saving}
-                                className="flex-1 py-3 rounded-xl font-bold bg-gray-100 dark:bg-surface-elevated hover:bg-gray-200 dark:hover:bg-white/15 transition-colors text-gray-800 dark:text-foreground disabled:opacity-50">
+                                className="flex-1 py-3 rounded-xl font-bold bg-surface-elevated hover:bg-surface-hover dark:hover:bg-white/15 transition-colors text-foreground disabled:opacity-50">
                                 Cancel
                             </button>
                             <button type="submit" disabled={saving}
-                                className="flex-1 py-3 rounded-lg font-bold bg-accent hover:bg-accent-hover text-background shadow-md transition-colors disabled:opacity-50">
+                                className="flex-1 py-3 rounded-lg font-bold bg-primary hover:bg-primary-hover active:bg-primary-active text-background shadow-md transition-colors disabled:opacity-50">
                                 {saving ? 'Saving...' : editing ? 'Save Changes' : 'Create Plan'}
                             </button>
                         </div>

@@ -66,18 +66,18 @@ export default function PreChatForm({ widgetId, formFields, welcomeMessage, onSu
     }
 
     return (
-        <div className="bg-white dark:bg-surface rounded-lg shadow-lg p-4 max-w-sm mx-auto">
-            <h2 className="text-xl font-bold text-gray-900 dark:text-foreground mb-2">
-                <span className="flex items-center gap-2"><Hand size={18} /> Welcome!</span>
+        <div className="bg-surface rounded-xl shadow-lg p-5 max-w-sm mx-auto border border-border">
+            <h2 className="text-xl font-bold text-foreground mb-2">
+                <span className="flex items-center gap-2"><Hand size={18} className="text-primary" /> Welcome!</span>
             </h2>
-            <p className="text-sm text-gray-600 dark:text-muted mb-4">
+            <p className="text-sm text-secondary mb-4">
                 {welcomeMessage || "Please fill out this form to start chatting."}
             </p>
 
             <form onSubmit={handleSubmit} className="space-y-3">
                 {fieldsToRender.map((field, index) => (
                     <div key={index}>
-                        <label className="block text-xs font-medium text-gray-700 dark:text-secondary mb-1">
+                        <label className="block text-xs font-medium text-secondary mb-1">
                             {field.label} {field.required && '*'}
                         </label>
                         {field.type === 'textarea' ? (
@@ -86,7 +86,7 @@ export default function PreChatForm({ widgetId, formFields, welcomeMessage, onSu
                                 value={formData[field.label] || ''}
                                 onChange={(e) => setFormData({ ...formData, [field.label]: e.target.value })}
                                 rows={2}
-                                className="w-full px-3 py-1.5 text-sm border border-gray-300 dark:border-strong rounded-md bg-white dark:bg-surface-elevated text-gray-900 dark:text-foreground focus:ring-2 focus:ring-accent/60"
+                                className="w-full px-3 py-2 text-sm border border-border rounded-lg bg-surface-elevated text-foreground placeholder:text-muted focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-colors"
                                 placeholder={field.label}
                             />
                         ) : (
@@ -95,7 +95,7 @@ export default function PreChatForm({ widgetId, formFields, welcomeMessage, onSu
                                 required={field.required}
                                 value={formData[field.label] || ''}
                                 onChange={(e) => setFormData({ ...formData, [field.label]: e.target.value })}
-                                className="w-full px-3 py-1.5 text-sm border border-gray-300 dark:border-strong rounded-md bg-white dark:bg-surface-elevated text-gray-900 dark:text-foreground focus:ring-2 focus:ring-accent/60"
+                                className="w-full px-3 py-2 text-sm border border-border rounded-lg bg-surface-elevated text-foreground placeholder:text-muted focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-colors"
                                 placeholder={field.label}
                             />
                         )}
@@ -105,7 +105,7 @@ export default function PreChatForm({ widgetId, formFields, welcomeMessage, onSu
                 <button
                     type="submit"
                     disabled={loading}
-                    className="w-full px-4 py-2 bg-accent text-background rounded-md hover:bg-accent-hover disabled:opacity-50 disabled:cursor-not-allowed transition-colors text-sm font-medium"
+                    className="w-full px-4 py-2.5 bg-primary hover:bg-primary-hover active:bg-primary-active text-white rounded-lg disabled:opacity-50 disabled:cursor-not-allowed transition-colors text-sm font-semibold shadow-xs"
                 >
                     {loading ? 'Starting...' : 'Start Chat'}
                 </button>

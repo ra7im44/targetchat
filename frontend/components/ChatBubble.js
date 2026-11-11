@@ -96,7 +96,7 @@ export default function ChatBubble({ sender, message }) {
           href={currentUrl}
           target="_blank"
           rel="noopener noreferrer"
-          className="flex items-center gap-2 text-primary-700 dark:text-accent hover:underline font-medium"
+          className="flex items-center gap-2 text-primary hover:underline font-medium"
         >
           <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
           {file?.name || 'Download File'}
@@ -117,7 +117,7 @@ export default function ChatBubble({ sender, message }) {
               code: ({ node, inline, className, children, ...props }) => {
                 if (inline) {
                   return (
-                    <code className="px-1.5 py-0.5 rounded bg-gray-100 dark:bg-surface text-sm font-mono text-pink-600 dark:text-pink-400" {...props}>
+                    <code className="px-1.5 py-0.5 rounded bg-surface-elevated text-sm font-mono text-primary" {...props}>
                       {children}
                     </code>
                   );
@@ -137,40 +137,40 @@ export default function ChatBubble({ sender, message }) {
                   <div className="relative group">
                     <button
                       onClick={handleCopy}
-                      className="absolute top-2 right-2 px-2.5 py-1 bg-gray-700/80 hover:bg-gray-600 text-white text-xs font-medium rounded-lg transition-colors flex items-center gap-1.5 z-10"
+                      className="absolute top-2 right-2 px-2.5 py-1 bg-surface-elevated hover:bg-surface-hover text-foreground text-xs font-medium rounded-lg border border-border transition-colors flex items-center gap-1.5 z-10"
                     >
                       {copied ? (
                         <>
-                          <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" /></svg>
-                          Copied!
+                          <svg className="w-3.5 h-3.5 text-success" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" /></svg>
+                          <span className="text-[10px] text-success font-medium">Copied!</span>
                         </>
                       ) : (
                         <>
                           <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" /></svg>
-                          Copy
+                          <span className="text-[10px]">Copy</span>
                         </>
                       )}
                     </button>
-                    <code className={`${className} block p-4 rounded-xl bg-[#1e1e1e] text-gray-100 text-sm overflow-x-auto my-3 font-mono`} {...props}>
+                    <code className={`${className} block p-4 rounded-xl bg-surface-elevated text-foreground border border-border text-sm overflow-x-auto my-3 font-mono`} {...props}>
                       {children}
                     </code>
                   </div>
                 );
               },
-              pre: ({ node, ...props }) => <pre className="my-3 rounded-xl overflow-hidden bg-[#1e1e1e]" {...props} />,
+              pre: ({ node, ...props }) => <pre className="my-3 rounded-xl overflow-hidden bg-surface-elevated border border-border" {...props} />,
               ul: ({ node, ...props }) => <ul className="list-disc list-inside mb-3 space-y-1" {...props} />,
               ol: ({ node, ...props }) => <ol className="list-decimal list-inside mb-3 space-y-1" {...props} />,
               li: ({ node, ...props }) => <li className="leading-6" {...props} />,
-              h1: ({ node, ...props }) => <h1 className="text-2xl font-bold mb-3 mt-4" {...props} />,
-              h2: ({ node, ...props }) => <h2 className="text-xl font-bold mb-2 mt-3" {...props} />,
-              h3: ({ node, ...props }) => <h3 className="text-lg font-bold mb-2 mt-3" {...props} />,
-              strong: ({ node, ...props }) => <strong className="font-bold text-gray-900 dark:text-foreground" {...props} />,
+              h1: ({ node, ...props }) => <h1 className="text-2xl font-bold mb-3 mt-4 text-foreground" {...props} />,
+              h2: ({ node, ...props }) => <h2 className="text-xl font-bold mb-2 mt-3 text-foreground" {...props} />,
+              h3: ({ node, ...props }) => <h3 className="text-lg font-bold mb-2 mt-3 text-foreground" {...props} />,
+              strong: ({ node, ...props }) => <strong className="font-bold text-foreground" {...props} />,
               em: ({ node, ...props }) => <em className="italic" {...props} />,
               blockquote: ({ node, ...props }) => (
-                <blockquote className="border-l-4 border-gray-300 dark:border-strong pl-4 my-3 italic text-gray-600 dark:text-muted" {...props} />
+                <blockquote className="border-l-4 border-border pl-4 my-3 italic text-secondary" {...props} />
               ),
               a: ({ node, ...props }) => (
-                <a className="text-accent-active dark:text-info hover:underline" target="_blank" rel="noopener noreferrer" {...props} />
+                <a className="text-primary hover:underline" target="_blank" rel="noopener noreferrer" {...props} />
               ),
             }}
           >
@@ -196,8 +196,8 @@ export default function ChatBubble({ sender, message }) {
         <div className={`
           w-9 h-9 rounded-full flex items-center justify-center shrink-0 text-xs font-bold
           ${isUser
-            ? 'bg-accent text-background'
-            : 'bg-surface-elevated text-gray-600 dark:text-secondary border border-border'
+            ? 'bg-primary text-white'
+            : 'bg-surface-elevated text-secondary border border-border'
           }
         `}>
           {isUser ? 'Y' : <Sparkles size={16} />}
@@ -209,8 +209,8 @@ export default function ChatBubble({ sender, message }) {
           <div className={`
             relative px-5 py-3.5
             ${isUser
-              ? 'bg-accent text-background rounded-card rounded-tr-md shadow-sm'
-              : 'bg-white dark:bg-surface text-gray-800 dark:text-gray-100 border border-gray-200 dark:border-border rounded-card rounded-tl-md shadow-sm'
+              ? 'bg-primary text-white rounded-card rounded-tr-md shadow-xs'
+              : 'bg-surface text-foreground border border-border rounded-card rounded-tl-md shadow-xs'
             }
           `}>
             {renderContent()}
@@ -218,17 +218,17 @@ export default function ChatBubble({ sender, message }) {
 
           {/* Action Row: Timestamp & Copy Button */}
           <div className={`flex items-center gap-2 px-1 text-[11px] font-medium ${isUser ? 'justify-end' : 'justify-start'}`}>
-            {time && <span className="text-gray-500 dark:text-muted">{time}</span>}
+            {time && <span className="text-muted">{time}</span>}
             <button
               type="button"
               onClick={handleCopyMessage}
-              className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-md hover:bg-gray-100 dark:hover:bg-surface-elevated text-gray-500 dark:text-muted hover:text-accent dark:hover:text-info transition-colors"
+              className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-md hover:bg-surface-hover text-muted hover:text-foreground transition-colors"
               title="Copy message"
             >
               {copiedMessage ? (
                 <>
-                  <svg className="w-3.5 h-3.5 text-success-ink dark:text-success" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" /></svg>
-                  <span className="text-[10px] text-success-ink dark:text-success font-medium">Copied!</span>
+                  <svg className="w-3.5 h-3.5 text-success" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" /></svg>
+                  <span className="text-[10px] text-success font-medium">Copied!</span>
                 </>
               ) : (
                 <>

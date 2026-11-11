@@ -2,7 +2,14 @@ import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
 import DashboardLayout from '../../components/layouts/DashboardLayout';
 import { toast } from 'react-hot-toast';
-import { ClipboardList, Eye } from 'lucide-react';
+import Link from 'next/link';
+import {
+    Sliders, Palette, Zap, MessageSquare, Code2,
+    Save, Trash2, ExternalLink, Copy, Check, Plus,
+    ArrowLeft, Eye, EyeOff, CheckCircle2, AlertCircle, Clock,
+    User, Smartphone, Laptop, Loader2, Sparkles, X,
+    ChevronRight, HelpCircle
+} from 'lucide-react';
 
 import { API_URL as API } from '../../utils/apiConfig';
 
@@ -14,14 +21,25 @@ export default function WidgetEditor() {
     const [saving, setSaving] = useState(false);
     const [activeTab, setActiveTab] = useState('general');
     const [isPreviewOpen, setIsPreviewOpen] = useState(true);
+    const [previewDevice, setPreviewDevice] = useState('mobile'); // 'mobile' | 'desktop'
     const [workflows, setWorkflows] = useState([]);
+    const [copiedCode, setCopiedCode] = useState(false);
 
-    // New state for Workflow & Leads
+    // State for Workflow & Leads
     const [workflowStatus, setWorkflowStatus] = useState(true);
     const [preChatEnabled, setPreChatEnabled] = useState(true);
     const [assignees, setAssignees] = useState([]);
     const [workspaceMembers, setWorkspaceMembers] = useState([]);
     const [selectedMember, setSelectedMember] = useState('');
+
+    const presetColors = [
+        { name: 'Indigo', color: '#5B5BD6' },
+        { name: 'Meta Blue', color: '#1877F2' },
+        { name: 'Emerald', color: '#10B981' },
+        { name: 'Rose', color: '#E11D48' },
+        { name: 'Amber', color: '#F59E0B' },
+        { name: 'Dark Slate', color: '#1E293B' }
+    ];
 
     useEffect(() => {
         if (id) {
@@ -39,7 +57,7 @@ export default function WidgetEditor() {
                 fetchWorkspaceMembers(widget.workspaceId);
             }
         }
-    }, [widget]);
+    }, [widget?.id]);
 
     async function fetchWorkflows() {
         try {
@@ -71,7 +89,25 @@ export default function WidgetEditor() {
 
             if (res.ok) {
                 const data = await res.json();
-                setWidget(data.widget);
+                // Ensure defaults for nested theme and settings
+                const w = data.widget;
+                w.theme = {
+                    primaryColor: '#5B5BD6',
+                    headerTextColor: '#FFFFFF',
+                    position: 'bottom-right',
+                    borderRadius: 12,
+                    launcherSize: 60,
+                    launcherIcon: '',
+                    ...(w.theme || {})
+                };
+                w.settings = {
+                    preChatEnabled: true,
+                    welcomeMessage: 'Hello! How can we assist you today?',
+                    placeholder: 'Type your message...',
+                    showBranding: true,
+                    ...(w.settings || {})
+                };
+                setWidget(w);
             } else if (res.status === 401) {
                 toast.error('Session expired. Please log in again.');
                 localStorage.removeItem('tc_token');
@@ -192,26 +228,6 @@ export default function WidgetEditor() {
         }
     }
 
-    async function toggleWorkflow(status) {
-        try {
-            const token = localStorage.getItem('tc_token');
-            const res = await fetch(`${API}/api/widgets/${id}/workflow-status`, {
-                method: 'PATCH',
-                headers: {
-                    'Content-Type': 'application/json',
-                    Authorization: `Bearer ${token}`
-                },
-                body: JSON.stringify({ status })
-            });
-            if (res.ok) {
-                setWorkflowStatus(status);
-                toast.success(`Workflow ${status ? 'Enabled' : 'Disabled'}`);
-            }
-        } catch (err) {
-            toast.error('Failed to toggle workflow');
-        }
-    }
-
     async function handleSave() {
         setSaving(true);
         try {
@@ -226,18 +242,20 @@ export default function WidgetEditor() {
                     name: widget.name,
                     theme: widget.theme,
                     triggers: widget.triggers,
-                    settings: widget.settings,
+                    settings: {
+                        ...widget.settings,
+                        preChatEnabled: preChatEnabled
+                    },
                     status: widget.status,
                     workflowId: widget.workflowId,
-                    // New fields
                     preChatEnabled: preChatEnabled,
                     preChatMessage: widget.preChatMessage
                 })
             });
 
             if (res.ok) {
-                toast.success('Widget saved successfully');
-                fetchWidget(); // Reload to get any server-side updates
+                toast.success('Widget configuration saved!');
+                fetchWidget();
             } else {
                 toast.error('Failed to save widget');
             }
@@ -249,672 +267,960 @@ export default function WidgetEditor() {
         }
     }
 
-    if (loading) return <DashboardLayout>Loading...</DashboardLayout>;
-    if (!widget) return <DashboardLayout>Widget not found</DashboardLayout>;
+    if (loading) {
+        return (
+            <DashboardLayout title="Widget Editor">
+                <div className="flex items-center justify-center min-h-[60vh]">
+                    <div className="flex flex-col items-center gap-3">
+                        <Loader2 size={32} className="animate-spin text-primary" />
+                        <p className="text-xs font-semibold text-muted">Loading widget editor...</p>
+                    </div>
+                </div>
+            </DashboardLayout>
+        );
+    }
 
-    const embedCode = `<script>
-  (function(){ 
-    var w=window;
-    var d=document;
-    var s='${window.location.origin}/widget.js'; 
-    var x=d.createElement('script'); 
-    x.type='text/javascript'; 
-    x.async=true; 
-    x.src=s; 
-    var h=d.getElementsByTagName('head')[0]; 
-    h.appendChild(x); 
-    x.onload = function(){ 
-      TargetChatWidget.init({ widget: "${widget.slug}" }); 
+    if (!widget) {
+        return (
+            <DashboardLayout title="Widget Not Found">
+                <div className="text-center py-20">
+                    <p className="text-muted">Widget not found or removed.</p>
+                    <Link href="/widgets" className="mt-4 inline-block text-primary font-semibold text-sm">
+                        ← Back to My Widgets
+                    </Link>
+                </div>
+            </DashboardLayout>
+        );
+    }
+
+    const origin = typeof window !== 'undefined' ? window.location.origin : 'https://api.u-axis.com';
+    const embedCode = `<!-- TargetChat Widget Code -->
+<script>
+  (function(){
+    var w=window,d=document;
+    var s='${origin}/widget.js';
+    var x=d.createElement('script');
+    x.type='text/javascript';
+    x.async=true;
+    x.src=s;
+    var h=d.getElementsByTagName('head')[0];
+    h.appendChild(x);
+    x.onload=function(){
+      TargetChatWidget.init({ widget: "${widget.slug}" });
     };
   })();
 </script>`;
 
+    const tabs = [
+        { id: 'general', label: 'General', icon: <Sliders size={15} /> },
+        { id: 'appearance', label: 'Appearance', icon: <Palette size={15} /> },
+        { id: 'workflow', label: 'Workflow & Leads', icon: <Zap size={15} /> },
+        { id: 'content', label: 'Content', icon: <MessageSquare size={15} /> },
+        { id: 'install', label: 'Install', icon: <Code2 size={15} /> }
+    ];
+
+    const primaryColor = widget.theme?.primaryColor || '#5B5BD6';
+    const headerTextColor = widget.theme?.headerTextColor || '#FFFFFF';
+    const borderRadius = parseInt(widget.theme?.borderRadius) || 12;
+    const isBottomLeft = widget.theme?.position === 'bottom-left';
+
     return (
         <DashboardLayout title={`Edit ${widget.name}`}>
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-                {/* Header */}
-                <div className="flex items-center justify-between mb-8">
+            <div className="space-y-6 max-w-7xl mx-auto p-4 md:p-8">
+                {/* Breadcrumbs & Header Bar */}
+                <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-4 border-b border-border/80">
                     <div>
-                        <h1 className="text-2xl font-bold text-gray-900 dark:text-foreground">Widget Editor</h1>
-                        <p className="text-gray-500 dark:text-muted mt-1">Customize your chat widget appearance and behavior.</p>
+                        <div className="flex items-center gap-2 text-xs text-muted mb-1 font-medium">
+                            <Link href="/widgets" className="hover:text-primary transition-colors flex items-center gap-1">
+                                <ArrowLeft size={13} />
+                                <span>Widgets</span>
+                            </Link>
+                            <ChevronRight size={12} />
+                            <span className="text-foreground font-semibold truncate max-w-[200px]">{widget.name}</span>
+                            <span className={`px-2 py-0.5 rounded-full text-[10px] font-semibold border ${
+                                widget.status === 'active'
+                                    ? 'bg-success-soft text-success border-success/20'
+                                    : 'bg-surface-elevated text-muted border-border'
+                            }`}>
+                                {widget.status === 'active' ? 'Active' : 'Inactive'}
+                            </span>
+                        </div>
+                        <h1 className="text-2xl font-bold tracking-tight text-foreground">
+                            Widget Editor
+                        </h1>
+                        <p className="text-xs text-muted mt-0.5">
+                            Customize widget visual styling, automated conversational bot routing, and lead collection.
+                        </p>
                     </div>
-                    <div className="flex items-center gap-3">
+
+                    {/* Header Actions */}
+                    <div className="flex items-center gap-2.5">
                         <button
                             type="button"
                             onClick={handleDeleteWidget}
-                            className="px-4 py-2 bg-danger/10 dark:bg-danger/20 border border-red-200 dark:border-red-800 text-danger-ink dark:text-danger rounded-xl font-medium hover:bg-red-100 dark:hover:bg-red-900/40 transition-colors flex items-center gap-1.5"
+                            className="px-3.5 py-2 bg-surface hover:bg-danger-soft text-muted hover:text-danger border border-border hover:border-danger/30 rounded-button text-xs font-semibold transition-all flex items-center gap-1.5"
                             title="Delete Widget"
                         >
-                            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                            </svg>
-                            Delete
+                            <Trash2 size={14} />
+                            <span>Delete</span>
                         </button>
                         <a
                             href={`/embed/${widget.slug}`}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="px-4 py-2 bg-white dark:bg-surface border border-gray-200 dark:border-border text-gray-700 dark:text-secondary rounded-xl font-medium hover:bg-gray-50 dark:hover:bg-surface-hover transition-colors"
+                            className="px-3.5 py-2 bg-surface hover:bg-surface-hover text-secondary hover:text-foreground border border-border rounded-button text-xs font-semibold transition-all flex items-center gap-1.5"
+                            title="Open standalone preview in new window"
                         >
-                            Preview
+                            <ExternalLink size={14} />
+                            <span>Preview</span>
                         </a>
                         <button
                             onClick={handleSave}
                             disabled={saving}
-                            className="px-6 py-2 bg-accent hover:bg-accent-hover text-background rounded-xl font-medium transition-colors disabled:opacity-50 flex items-center gap-2"
+                            className="group inline-flex items-center gap-2 px-5 py-2 bg-primary hover:bg-primary-hover active:bg-primary-active text-white rounded-button text-xs font-semibold shadow-xs transition-all disabled:opacity-60"
                         >
-                            {saving ? 'Saving...' : 'Save Changes'}
+                            {saving ? <Loader2 size={14} className="animate-spin" /> : <Save size={14} />}
+                            <span>{saving ? 'Saving...' : 'Save Changes'}</span>
                         </button>
                     </div>
                 </div>
 
-                {/* Main Content Grid */}
-                <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-
-                    {/* Left Column: Settings */}
-                    <div className="lg:col-span-2">
-                        {/* Tabs */}
-                        <div className="flex gap-1 bg-gray-100 dark:bg-surface p-1 rounded-xl mb-6 w-fit">
-                            {['general', 'appearance', 'workflow', 'content', 'install'].map((tab) => (
-                                <button
-                                    key={tab}
-                                    onClick={() => setActiveTab(tab)}
-                                    className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${activeTab === tab
-                                        ? 'bg-white dark:bg-surface-elevated text-gray-900 dark:text-foreground shadow-sm'
-                                        : 'text-gray-500 dark:text-muted hover:text-gray-700 dark:hover:text-secondary'
+                {/* Main 2-Column Layout */}
+                <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+                    {/* Left Column: Editor Tabs & Configuration (7 cols) */}
+                    <div className="lg:col-span-7 space-y-6">
+                        {/* Tab Segmented Control */}
+                        <div className="flex items-center gap-1.5 p-1 bg-surface border border-border rounded-xl shadow-2xs overflow-x-auto custom-scrollbar">
+                            {tabs.map((tab) => {
+                                const isActive = activeTab === tab.id;
+                                return (
+                                    <button
+                                        key={tab.id}
+                                        type="button"
+                                        onClick={() => setActiveTab(tab.id)}
+                                        className={`flex items-center gap-2 px-3.5 py-2 rounded-lg text-xs font-semibold whitespace-nowrap transition-all ${
+                                            isActive
+                                                ? 'bg-primary text-white shadow-xs'
+                                                : 'text-muted hover:text-foreground hover:bg-surface-hover'
                                         }`}
-                                >
-                                    {tab.charAt(0).toUpperCase() + tab.slice(1)}
-                                </button>
-                            ))}
+                                    >
+                                        {tab.icon}
+                                        <span>{tab.label}</span>
+                                    </button>
+                                );
+                            })}
                         </div>
 
-                        <div className="bg-white dark:bg-surface rounded-card shadow-sm border border-gray-100 dark:border-border p-6">
-
-                            {/* General Tab */}
+                        {/* Tab Panels Container */}
+                        <div className="bg-surface rounded-xl border border-border shadow-xs p-6">
+                            {/* 1. GENERAL TAB */}
                             {activeTab === 'general' && (
                                 <div className="space-y-6">
                                     <div>
-                                        <label className="block text-sm font-medium text-gray-700 dark:text-secondary mb-2">Widget Name</label>
+                                        <label className="block text-xs font-semibold uppercase tracking-wider text-muted mb-1.5">
+                                            Widget Name
+                                        </label>
                                         <input
                                             type="text"
                                             value={widget.name}
                                             onChange={(e) => setWidget({ ...widget, name: e.target.value })}
-                                            className="w-full px-4 py-2 border border-gray-200 dark:border-border rounded-xl bg-gray-50 dark:bg-background text-gray-900 dark:text-foreground focus:ring-2 focus:ring-accent/60 outline-none"
+                                            className="w-full px-3.5 py-2.5 bg-surface-elevated border border-border rounded-lg text-xs font-medium text-foreground focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
+                                            placeholder="e.g. Sales Website Chat"
                                         />
+                                        <p className="text-[11px] text-muted mt-1">Used for internal identification and title bar header.</p>
                                     </div>
 
+                                    {/* Status Card Selector */}
                                     <div>
-                                        <label className="block text-sm font-medium text-gray-700 dark:text-secondary mb-2">Status</label>
-                                        <select
-                                            value={widget.status}
-                                            onChange={(e) => setWidget({ ...widget, status: e.target.value })}
-                                            className="w-full px-4 py-2 border border-gray-200 dark:border-border rounded-xl bg-gray-50 dark:bg-background text-gray-900 dark:text-foreground focus:ring-2 focus:ring-accent/60 outline-none"
-                                        >
-                                            <option value="active">Active</option>
-                                            <option value="inactive">Inactive</option>
-                                        </select>
+                                        <label className="block text-xs font-semibold uppercase tracking-wider text-muted mb-1.5">
+                                            Live Deployment Status
+                                        </label>
+                                        <div className="grid grid-cols-2 gap-3">
+                                            <button
+                                                type="button"
+                                                onClick={() => setWidget({ ...widget, status: 'active' })}
+                                                className={`p-3.5 rounded-xl border text-left transition-all ${
+                                                    widget.status === 'active'
+                                                        ? 'border-success bg-success-soft/30 ring-1 ring-success/30 text-foreground'
+                                                        : 'border-border bg-surface-elevated/40 hover:bg-surface-hover text-muted'
+                                                }`}
+                                            >
+                                                <div className="flex items-center gap-1.5 text-xs font-bold text-success mb-0.5">
+                                                    <CheckCircle2 size={14} />
+                                                    <span>Active</span>
+                                                </div>
+                                                <p className="text-[11px] text-muted leading-tight">
+                                                    Chat bubble is visible and accepts visitor messages
+                                                </p>
+                                            </button>
+
+                                            <button
+                                                type="button"
+                                                onClick={() => setWidget({ ...widget, status: 'inactive' })}
+                                                className={`p-3.5 rounded-xl border text-left transition-all ${
+                                                    widget.status === 'inactive'
+                                                        ? 'border-border-strong bg-surface-elevated ring-1 ring-border-strong text-foreground'
+                                                        : 'border-border bg-surface-elevated/40 hover:bg-surface-hover text-muted'
+                                                }`}
+                                            >
+                                                <div className="flex items-center gap-1.5 text-xs font-bold text-muted mb-0.5">
+                                                    <Clock size={14} />
+                                                    <span>Inactive</span>
+                                                </div>
+                                                <p className="text-[11px] text-muted leading-tight">
+                                                    Snippet is disabled; widget will not render on websites
+                                                </p>
+                                            </button>
+                                        </div>
                                     </div>
 
+                                    {/* Connected Bot / Workflow */}
                                     <div>
-                                        <label className="block text-sm font-medium text-gray-700 dark:text-secondary mb-2">Connected Bot (Workflow)</label>
+                                        <label className="block text-xs font-semibold uppercase tracking-wider text-muted mb-1.5">
+                                            Connected Conversational Bot (Workflow)
+                                        </label>
                                         <select
                                             value={widget.workflowId || ''}
                                             onChange={(e) => setWidget({ ...widget, workflowId: e.target.value || null })}
-                                            className="w-full px-4 py-2 border border-gray-200 dark:border-border rounded-xl bg-gray-50 dark:bg-background text-gray-900 dark:text-foreground focus:ring-2 focus:ring-accent/60 outline-none"
+                                            className="w-full px-3.5 py-2.5 bg-surface-elevated border border-border rounded-lg text-xs font-medium text-foreground focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
                                         >
-                                            <option value="">-- Select a Bot --</option>
-                                            {workflows.map(wf => (
+                                            <option value="">-- No Bot (Human Agent Mode Only) --</option>
+                                            {workflows.map((wf) => (
                                                 <option key={wf.id} value={wf.id}>
-                                                    {wf.icon} {wf.name}
+                                                    {wf.icon || '🤖'} {wf.name}
                                                 </option>
                                             ))}
                                         </select>
+                                        <p className="text-[11px] text-muted mt-1">
+                                            Automated responses will be driven by the selected workflow's AI logic.
+                                        </p>
                                     </div>
+
+                                    {/* Assigned Agents */}
+                                    {workspaceMembers.length > 0 && (
+                                        <div className="pt-4 border-t border-border/80">
+                                            <div className="flex items-center justify-between mb-3">
+                                                <div>
+                                                    <h3 className="text-xs font-bold uppercase tracking-wider text-muted">
+                                                        Assigned Human Agents
+                                                    </h3>
+                                                    <p className="text-[11px] text-muted">
+                                                        Team members who receive notifications and can reply from Inbox.
+                                                    </p>
+                                                </div>
+                                            </div>
+
+                                            <div className="flex items-center gap-2 mb-3">
+                                                <select
+                                                    value={selectedMember}
+                                                    onChange={(e) => setSelectedMember(e.target.value)}
+                                                    className="flex-1 px-3 py-2 bg-surface-elevated border border-border rounded-lg text-xs text-foreground focus:outline-none focus:ring-1 focus:ring-primary"
+                                                >
+                                                    <option value="">Select a workspace member...</option>
+                                                    {workspaceMembers.map((m) => (
+                                                        <option key={m.userId || m.id} value={m.userId || m.id}>
+                                                            {m.name || m.email} ({m.role || 'Member'})
+                                                        </option>
+                                                    ))}
+                                                </select>
+                                                <button
+                                                    type="button"
+                                                    onClick={addAssignee}
+                                                    disabled={!selectedMember}
+                                                    className="px-3 py-2 bg-primary-soft hover:bg-primary/20 text-primary border border-primary/30 rounded-lg text-xs font-semibold transition-colors disabled:opacity-50 flex items-center gap-1"
+                                                >
+                                                    <Plus size={13} />
+                                                    <span>Assign</span>
+                                                </button>
+                                            </div>
+
+                                            <div className="space-y-1.5">
+                                                {assignees.map((a) => (
+                                                    <div key={a.id || a.userId} className="flex items-center justify-between p-2 rounded-lg bg-surface-elevated border border-border/60 text-xs">
+                                                        <div className="flex items-center gap-2">
+                                                            <div className="w-6 h-6 rounded-full bg-primary-soft text-primary font-bold text-[10px] flex items-center justify-center">
+                                                                {(a.name || a.email || 'U').substring(0, 1).toUpperCase()}
+                                                            </div>
+                                                            <span className="font-medium text-foreground">{a.name || a.email}</span>
+                                                        </div>
+                                                        <button
+                                                            type="button"
+                                                            onClick={() => removeAssignee(a.userId || a.id)}
+                                                            className="text-muted hover:text-danger p-1"
+                                                            title="Remove assignee"
+                                                        >
+                                                            <X size={13} />
+                                                        </button>
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        </div>
+                                    )}
                                 </div>
                             )}
 
-                            {/* Appearance Tab */}
+                            {/* 2. APPEARANCE TAB */}
                             {activeTab === 'appearance' && (
                                 <div className="space-y-6">
-                                    <div className="grid grid-cols-2 gap-6">
-                                        <div>
-                                            <label className="block text-sm font-medium text-gray-700 dark:text-secondary mb-2">Primary Color</label>
-                                            <div className="flex items-center gap-3">
-                                                <input
-                                                    type="color"
-                                                    value={widget.theme.primaryColor}
-                                                    onChange={(e) => setWidget({ ...widget, theme: { ...widget.theme, primaryColor: e.target.value } })}
-                                                    className="w-12 h-12 rounded-lg cursor-pointer border-0 p-0"
-                                                />
-                                                <input
-                                                    type="text"
-                                                    value={widget.theme.primaryColor}
-                                                    onChange={(e) => setWidget({ ...widget, theme: { ...widget.theme, primaryColor: e.target.value } })}
-                                                    className="w-full px-4 py-2 border border-gray-200 dark:border-border rounded-xl bg-gray-50 dark:bg-background text-gray-900 dark:text-foreground font-mono"
-                                                />
-                                            </div>
+                                    {/* Preset Color Swatches */}
+                                    <div>
+                                        <label className="block text-xs font-semibold uppercase tracking-wider text-muted mb-2">
+                                            Theme Primary Color
+                                        </label>
+                                        <div className="flex flex-wrap items-center gap-2.5 mb-3">
+                                            {presetColors.map((p) => (
+                                                <button
+                                                    key={p.color}
+                                                    type="button"
+                                                    onClick={() => setWidget({
+                                                        ...widget,
+                                                        theme: { ...widget.theme, primaryColor: p.color }
+                                                    })}
+                                                    className={`w-7 h-7 rounded-full flex items-center justify-center transition-transform hover:scale-110 shadow-2xs ${
+                                                        widget.theme?.primaryColor?.toLowerCase() === p.color.toLowerCase()
+                                                            ? 'ring-2 ring-offset-2 ring-primary scale-110'
+                                                            : ''
+                                                    }`}
+                                                    style={{ backgroundColor: p.color }}
+                                                    title={p.name}
+                                                >
+                                                    {widget.theme?.primaryColor?.toLowerCase() === p.color.toLowerCase() && (
+                                                        <Check size={13} className="text-white drop-shadow" strokeWidth={3} />
+                                                    )}
+                                                </button>
+                                            ))}
                                         </div>
-                                        <div>
-                                            <label className="block text-sm font-medium text-gray-700 dark:text-secondary mb-2">Header Text Color</label>
-                                            <div className="flex items-center gap-3">
-                                                <input
-                                                    type="color"
-                                                    value={widget.theme.headerTextColor || '#ffffff'}
-                                                    onChange={(e) => setWidget({ ...widget, theme: { ...widget.theme, headerTextColor: e.target.value } })}
-                                                    className="w-12 h-12 rounded-lg cursor-pointer border-0 p-0"
-                                                />
-                                                <input
-                                                    type="text"
-                                                    value={widget.theme.headerTextColor || '#ffffff'}
-                                                    onChange={(e) => setWidget({ ...widget, theme: { ...widget.theme, headerTextColor: e.target.value } })}
-                                                    className="w-full px-4 py-2 border border-gray-200 dark:border-border rounded-xl bg-gray-50 dark:bg-background text-gray-900 dark:text-foreground font-mono"
-                                                />
+
+                                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                            <div>
+                                                <label className="block text-[11px] font-semibold text-muted mb-1">Custom Hex Code</label>
+                                                <div className="flex items-center gap-2">
+                                                    <input
+                                                        type="color"
+                                                        value={widget.theme.primaryColor || '#5B5BD6'}
+                                                        onChange={(e) => setWidget({
+                                                            ...widget,
+                                                            theme: { ...widget.theme, primaryColor: e.target.value }
+                                                        })}
+                                                        className="w-9 h-9 rounded-lg cursor-pointer border border-border p-0.5 bg-surface shrink-0"
+                                                    />
+                                                    <input
+                                                        type="text"
+                                                        value={widget.theme.primaryColor || '#5B5BD6'}
+                                                        onChange={(e) => setWidget({
+                                                            ...widget,
+                                                            theme: { ...widget.theme, primaryColor: e.target.value }
+                                                        })}
+                                                        className="w-full px-3 py-2 bg-surface-elevated border border-border rounded-lg text-xs font-mono text-foreground uppercase"
+                                                    />
+                                                </div>
+                                            </div>
+
+                                            <div>
+                                                <label className="block text-[11px] font-semibold text-muted mb-1">Header Text Color</label>
+                                                <div className="flex items-center gap-2">
+                                                    <input
+                                                        type="color"
+                                                        value={widget.theme.headerTextColor || '#FFFFFF'}
+                                                        onChange={(e) => setWidget({
+                                                            ...widget,
+                                                            theme: { ...widget.theme, headerTextColor: e.target.value }
+                                                        })}
+                                                        className="w-9 h-9 rounded-lg cursor-pointer border border-border p-0.5 bg-surface shrink-0"
+                                                    />
+                                                    <input
+                                                        type="text"
+                                                        value={widget.theme.headerTextColor || '#FFFFFF'}
+                                                        onChange={(e) => setWidget({
+                                                            ...widget,
+                                                            theme: { ...widget.theme, headerTextColor: e.target.value }
+                                                        })}
+                                                        className="w-full px-3 py-2 bg-surface-elevated border border-border rounded-lg text-xs font-mono text-foreground uppercase"
+                                                    />
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
 
+                                    {/* Position on screen */}
                                     <div>
-                                        <label className="block text-sm font-medium text-gray-700 dark:text-secondary mb-2">Position</label>
-                                        <div className="grid grid-cols-2 gap-4">
+                                        <label className="block text-xs font-semibold uppercase tracking-wider text-muted mb-2">
+                                            Screen Position
+                                        </label>
+                                        <div className="grid grid-cols-2 gap-3">
                                             <button
-                                                onClick={() => setWidget({ ...widget, theme: { ...widget.theme, position: 'bottom-right' } })}
-                                                className={`p-4 border-2 rounded-xl flex flex-col items-center gap-2 transition-all ${widget.theme.position === 'bottom-right'
-                                                    ? 'border-accent bg-accent/10 dark:bg-accent/20'
-                                                    : 'border-gray-200 dark:border-border hover:border-accent'
-                                                    }`}
+                                                type="button"
+                                                onClick={() => setWidget({
+                                                    ...widget,
+                                                    theme: { ...widget.theme, position: 'bottom-right' }
+                                                })}
+                                                className={`p-3.5 rounded-xl border text-left transition-all ${
+                                                    widget.theme.position !== 'bottom-left'
+                                                        ? 'border-primary bg-primary-soft/30 ring-1 ring-primary/30 text-foreground'
+                                                        : 'border-border bg-surface-elevated/40 hover:bg-surface-hover text-muted'
+                                                }`}
                                             >
-                                                <div className="w-16 h-12 bg-gray-100 dark:bg-surface-elevated rounded-lg relative">
-                                                    <div className="absolute bottom-1 right-1 w-6 h-6 bg-accent rounded-full"></div>
+                                                <div className="h-10 w-full bg-surface rounded border border-border/80 relative mb-2 flex items-end justify-end p-1">
+                                                    <div className="w-3.5 h-3.5 rounded-full bg-primary" />
                                                 </div>
-                                                <span className="font-medium text-gray-700 dark:text-secondary">Bottom Right</span>
+                                                <div className="text-xs font-bold text-foreground">Bottom Right</div>
+                                                <p className="text-[11px] text-muted">Standard position for web widgets</p>
                                             </button>
+
                                             <button
-                                                onClick={() => setWidget({ ...widget, theme: { ...widget.theme, position: 'bottom-left' } })}
-                                                className={`p-4 border-2 rounded-xl flex flex-col items-center gap-2 transition-all ${widget.theme.position === 'bottom-left'
-                                                    ? 'border-accent bg-accent/10 dark:bg-accent/20'
-                                                    : 'border-gray-200 dark:border-border hover:border-accent'
-                                                    }`}
+                                                type="button"
+                                                onClick={() => setWidget({
+                                                    ...widget,
+                                                    theme: { ...widget.theme, position: 'bottom-left' }
+                                                })}
+                                                className={`p-3.5 rounded-xl border text-left transition-all ${
+                                                    widget.theme.position === 'bottom-left'
+                                                        ? 'border-primary bg-primary-soft/30 ring-1 ring-primary/30 text-foreground'
+                                                        : 'border-border bg-surface-elevated/40 hover:bg-surface-hover text-muted'
+                                                }`}
                                             >
-                                                <div className="w-16 h-12 bg-gray-100 dark:bg-surface-elevated rounded-lg relative">
-                                                    <div className="absolute bottom-1 left-1 w-6 h-6 bg-accent rounded-full"></div>
+                                                <div className="h-10 w-full bg-surface rounded border border-border/80 relative mb-2 flex items-end justify-start p-1">
+                                                    <div className="w-3.5 h-3.5 rounded-full bg-primary" />
                                                 </div>
-                                                <span className="font-medium text-gray-700 dark:text-secondary">Bottom Left</span>
+                                                <div className="text-xs font-bold text-foreground">Bottom Left</div>
+                                                <p className="text-[11px] text-muted">Ideal if right corner hosts other tools</p>
                                             </button>
                                         </div>
                                     </div>
 
-                                    <div>
-                                        <label className="block text-sm font-medium text-gray-700 dark:text-secondary mb-2">Border Radius</label>
-                                        <div className="flex items-center gap-4">
+                                    {/* Sliders: Border Radius & Launcher Size */}
+                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                        <div>
+                                            <div className="flex justify-between items-center mb-1.5">
+                                                <label className="text-xs font-semibold uppercase tracking-wider text-muted">
+                                                    Corner Radius
+                                                </label>
+                                                <span className="text-xs font-mono font-bold text-foreground bg-surface-elevated px-2 py-0.5 rounded border border-border">
+                                                    {widget.theme.borderRadius || 12}px
+                                                </span>
+                                            </div>
                                             <input
                                                 type="range"
                                                 min="0"
                                                 max="24"
                                                 value={parseInt(widget.theme.borderRadius) || 12}
-                                                onChange={(e) => setWidget({ ...widget, theme: { ...widget.theme, borderRadius: e.target.value } })}
-                                                className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer dark:bg-surface-elevated"
+                                                onChange={(e) => setWidget({
+                                                    ...widget,
+                                                    theme: { ...widget.theme, borderRadius: e.target.value }
+                                                })}
+                                                className="w-full h-2 bg-surface-elevated rounded-lg appearance-none cursor-pointer accent-primary"
                                             />
-                                            <span className="text-sm font-mono text-gray-600 dark:text-muted w-12 text-right">
-                                                {widget.theme.borderRadius || 12}px
-                                            </span>
                                         </div>
-                                    </div>
 
-                                    <div>
-                                        <label className="block text-sm font-medium text-gray-700 dark:text-secondary mb-2">Launcher Size</label>
-                                        <div className="flex items-center gap-4">
+                                        <div>
+                                            <div className="flex justify-between items-center mb-1.5">
+                                                <label className="text-xs font-semibold uppercase tracking-wider text-muted">
+                                                    Launcher Size
+                                                </label>
+                                                <span className="text-xs font-mono font-bold text-foreground bg-surface-elevated px-2 py-0.5 rounded border border-border">
+                                                    {widget.theme.launcherSize || 60}px
+                                                </span>
+                                            </div>
                                             <input
                                                 type="range"
-                                                min="40"
-                                                max="80"
+                                                min="44"
+                                                max="72"
                                                 value={parseInt(widget.theme.launcherSize) || 60}
-                                                onChange={(e) => setWidget({ ...widget, theme: { ...widget.theme, launcherSize: e.target.value } })}
-                                                className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer dark:bg-surface-elevated"
+                                                onChange={(e) => setWidget({
+                                                    ...widget,
+                                                    theme: { ...widget.theme, launcherSize: e.target.value }
+                                                })}
+                                                className="w-full h-2 bg-surface-elevated rounded-lg appearance-none cursor-pointer accent-primary"
                                             />
-                                            <span className="text-sm font-mono text-gray-600 dark:text-muted w-12 text-right">
-                                                {widget.theme.launcherSize || 60}px
-                                            </span>
                                         </div>
                                     </div>
 
+                                    {/* Custom Launcher Icon URL */}
                                     <div>
-                                        <label className="block text-sm font-medium text-gray-700 dark:text-secondary mb-2">Custom Launcher Icon (URL)</label>
+                                        <label className="block text-xs font-semibold uppercase tracking-wider text-muted mb-1.5">
+                                            Custom Launcher Icon (Optional Image URL)
+                                        </label>
                                         <input
-                                            type="text"
+                                            type="url"
                                             value={widget.theme.launcherIcon || ''}
-                                            onChange={(e) => setWidget({ ...widget, theme: { ...widget.theme, launcherIcon: e.target.value } })}
-                                            placeholder="https://example.com/icon.png"
-                                            className="w-full px-4 py-2 border border-gray-200 dark:border-border rounded-xl bg-gray-50 dark:bg-background text-gray-900 dark:text-foreground focus:ring-2 focus:ring-accent/60 outline-none"
+                                            onChange={(e) => setWidget({
+                                                ...widget,
+                                                theme: { ...widget.theme, launcherIcon: e.target.value }
+                                            })}
+                                            placeholder="https://yourdomain.com/avatar.png"
+                                            className="w-full px-3.5 py-2.5 bg-surface-elevated border border-border rounded-lg text-xs text-foreground focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary font-mono"
                                         />
+                                        <p className="text-[11px] text-muted mt-1">If blank, the default conversational chat bubble icon is used.</p>
                                     </div>
                                 </div>
                             )}
 
-                            {/* Workflow & Leads Tab */}
+                            {/* 3. WORKFLOW & LEADS TAB */}
                             {activeTab === 'workflow' && (
-                                <div className="space-y-8">
-                                    {/* Pre-Chat Form Settings */}
-                                    <div>
-                                        <h3 className="text-lg font-semibold text-gray-900 dark:text-foreground mb-4 flex items-center gap-2"><ClipboardList size={18} /> Pre-Chat Form</h3>
-                                        <div className="space-y-4">
-                                            <div className="flex items-center justify-between p-4 border border-gray-200 dark:border-border rounded-xl">
-                                                <div>
-                                                    <div className="font-medium text-gray-900 dark:text-foreground">Enable Pre-Chat Form</div>
-                                                    <div className="text-sm text-gray-500 dark:text-muted">Collect visitor info before starting chat</div>
-                                                </div>
-                                                <label className="relative inline-flex items-center cursor-pointer">
-                                                    <input
-                                                        type="checkbox"
-                                                        checked={preChatEnabled}
-                                                        onChange={(e) => {
-                                                            setPreChatEnabled(e.target.checked);
-                                                            setWidget({
-                                                                ...widget,
-                                                                settings: { ...widget.settings, preChatEnabled: e.target.checked }
-                                                            });
-                                                        }}
-                                                        className="sr-only peer"
-                                                    />
-                                                    <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-accent/30 dark:peer-focus:ring-accent/60 rounded-full peer dark:bg-surface-elevated peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-strong peer-checked:bg-accent"></div>
-                                                </label>
-                                            </div>
-
-                                            {preChatEnabled && (
-                                                <div>
-                                                    <label className="block text-sm font-medium text-gray-700 dark:text-secondary mb-2">Welcome Message</label>
-                                                    <textarea
-                                                        value={widget.preChatMessage || ''}
-                                                        onChange={(e) => setWidget({
-                                                            ...widget,
-                                                            settings: { ...widget.settings, preChatMessage: e.target.value }
-                                                        })}
-                                                        rows={3}
-                                                        className="w-full px-4 py-2 border border-gray-200 dark:border-border rounded-xl bg-gray-50 dark:bg-background text-gray-900 dark:text-foreground focus:ring-2 focus:ring-accent/60 outline-none"
-                                                        placeholder="Hello! Please fill out this form to start chatting."
-                                                    />
-                                                </div>
-                                            )}
-                                        </div>
-                                    </div>
-
-                                    {/* Form Fields Section */}
-                                </div>
-                            )}
-
-                            {/* Form Fields Tab (New) */}
-                            {activeTab === 'workflow' && (
-                                <div className="mt-8 border-t border-gray-200 dark:border-border pt-8">
-                                    <div className="flex items-center justify-between mb-4">
+                                <div className="space-y-6">
+                                    {/* Pre-Chat Form Toggle */}
+                                    <div className="flex items-center justify-between p-4 bg-surface-elevated/40 border border-border rounded-xl">
                                         <div>
-                                            <h3 className="text-lg font-medium text-gray-900 dark:text-foreground">Pre-Chat Form Fields</h3>
-                                            <p className="text-sm text-gray-500 dark:text-muted">Customize the fields shown to visitors before the chat starts.</p>
+                                            <div className="text-xs font-bold text-foreground">
+                                                Enable Pre-Chat Lead Capture Form
+                                            </div>
+                                            <div className="text-[11px] text-muted mt-0.5">
+                                                Require visitors to supply their contact details before a conversation begins
+                                            </div>
                                         </div>
                                         <button
-                                            onClick={() => {
-                                                const defaultFields = [
-                                                    { id: 'name', label: 'Name', type: 'text', required: true },
-                                                    { id: 'email', label: 'Email', type: 'email', required: false },
-                                                    { id: 'phone', label: 'Phone', type: 'phone', required: false },
-                                                    { id: 'company', label: 'Company', type: 'text', required: false },
-                                                    { id: 'message', label: 'Message', type: 'textarea', required: true }
-                                                ];
-
-                                                const currentFields = (widget.formFields && widget.formFields.length > 0)
-                                                    ? widget.formFields
-                                                    : defaultFields;
-
-                                                const newField = { id: Date.now(), label: 'New Field', type: 'text', required: false };
-
-                                                setWidget({
-                                                    ...widget,
-                                                    formFields: [...currentFields, newField]
-                                                });
-                                            }}
-                                            className="px-3 py-1.5 bg-accent/10 text-primary-700 hover:bg-accent/10 dark:bg-accent/20 dark:text-info rounded-lg text-sm font-medium transition-colors"
+                                            type="button"
+                                            onClick={() => setPreChatEnabled(!preChatEnabled)}
+                                            className={`w-11 h-6 flex items-center rounded-full p-1 transition-colors duration-200 ${
+                                                preChatEnabled ? 'bg-primary' : 'bg-surface-elevated border border-border'
+                                            }`}
+                                            aria-label="Toggle Pre-Chat Form"
                                         >
-                                            + Add Field
+                                            <div
+                                                className={`bg-white w-4 h-4 rounded-full shadow transform transition-transform duration-200 ${
+                                                    preChatEnabled ? 'translate-x-5' : 'translate-x-0'
+                                                }`}
+                                            />
                                         </button>
                                     </div>
 
-                                    <div className="space-y-3">
-                                        {(!widget.formFields || widget.formFields.length === 0) && (
-                                            <div className="text-center py-6 bg-gray-50 dark:bg-background rounded-xl border border-dashed border-gray-200 dark:border-border text-sm text-gray-500">
-                                                Using default fields (Name, Email, Phone, Company, Message)
+                                    {preChatEnabled && (
+                                        <div className="space-y-4">
+                                            <div>
+                                                <label className="block text-xs font-semibold uppercase tracking-wider text-muted mb-1.5">
+                                                    Form Intro Message
+                                                </label>
+                                                <textarea
+                                                    rows={2}
+                                                    value={widget.preChatMessage || ''}
+                                                    onChange={(e) => setWidget({
+                                                        ...widget,
+                                                        preChatMessage: e.target.value
+                                                    })}
+                                                    className="w-full px-3.5 py-2.5 bg-surface-elevated border border-border rounded-lg text-xs text-foreground focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
+                                                    placeholder="Hello! Please introduce yourself to start chatting with our team."
+                                                />
                                             </div>
-                                        )}
-                                        {widget.formFields?.map((field, index) => (
-                                            <div key={field.id} className="flex items-start gap-3 p-3 bg-white dark:bg-surface border border-gray-200 dark:border-border rounded-xl">
-                                                <div className="flex-1 grid grid-cols-12 gap-3">
-                                                    <div className="col-span-5">
-                                                        <label className="block text-xs font-medium text-gray-500 mb-1">Label</label>
-                                                        <input
-                                                            type="text"
-                                                            value={field.label}
-                                                            onChange={(e) => {
-                                                                const newFields = [...widget.formFields];
-                                                                newFields[index].label = e.target.value;
-                                                                setWidget({ ...widget, formFields: newFields });
-                                                            }}
-                                                            className="w-full px-3 py-1.5 text-sm border border-gray-200 dark:border-border rounded-lg bg-gray-50 dark:bg-background text-gray-900 dark:text-foreground"
-                                                        />
+
+                                            {/* Fields Builder */}
+                                            <div className="pt-2">
+                                                <div className="flex items-center justify-between mb-3">
+                                                    <div>
+                                                        <h4 className="text-xs font-bold uppercase tracking-wider text-muted">
+                                                            Lead Form Fields
+                                                        </h4>
+                                                        <p className="text-[11px] text-muted">
+                                                            Fields displayed inside the pre-chat card.
+                                                        </p>
                                                     </div>
-                                                    <div className="col-span-4">
-                                                        <label className="block text-xs font-medium text-gray-500 mb-1">Type</label>
-                                                        <select
-                                                            value={field.type}
-                                                            onChange={(e) => {
-                                                                const newFields = [...widget.formFields];
-                                                                newFields[index].type = e.target.value;
-                                                                setWidget({ ...widget, formFields: newFields });
-                                                            }}
-                                                            className="w-full px-3 py-1.5 text-sm border border-gray-200 dark:border-border rounded-lg bg-gray-50 dark:bg-background text-gray-900 dark:text-foreground"
-                                                        >
-                                                            <option value="text">Text</option>
-                                                            <option value="email">Email</option>
-                                                            <option value="phone">Phone</option>
-                                                            <option value="number">Number</option>
-                                                            <option value="textarea">Text Area</option>
-                                                        </select>
-                                                    </div>
-                                                    <div className="col-span-3 flex items-center h-full pt-5">
-                                                        <label className="flex items-center gap-2 cursor-pointer">
-                                                            <input
-                                                                type="checkbox"
-                                                                checked={field.required}
-                                                                onChange={(e) => {
-                                                                    const newFields = [...widget.formFields];
-                                                                    newFields[index].required = e.target.checked;
-                                                                    setWidget({ ...widget, formFields: newFields });
-                                                                }}
-                                                                className="w-4 h-4 text-primary-700 dark:text-accent rounded focus:ring-accent/60"
-                                                            />
-                                                            <span className="text-sm text-gray-700 dark:text-secondary">Required</span>
-                                                        </label>
-                                                    </div>
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => {
+                                                            const defaultFields = [
+                                                                { id: 'name', label: 'Full Name', type: 'text', required: true },
+                                                                { id: 'email', label: 'Work Email', type: 'email', required: true },
+                                                                { id: 'phone', label: 'Phone Number', type: 'phone', required: false }
+                                                            ];
+                                                            const current = (widget.formFields && widget.formFields.length > 0)
+                                                                ? widget.formFields
+                                                                : defaultFields;
+                                                            const newField = { id: `f_${Date.now()}`, label: 'Company Name', type: 'text', required: false };
+                                                            setWidget({ ...widget, formFields: [...current, newField] });
+                                                        }}
+                                                        className="px-3 py-1.5 bg-primary-soft hover:bg-primary/20 text-primary border border-primary/20 rounded-lg text-xs font-semibold transition-colors flex items-center gap-1"
+                                                    >
+                                                        <Plus size={13} />
+                                                        <span>Add Field</span>
+                                                    </button>
                                                 </div>
-                                                <button
-                                                    onClick={() => {
-                                                        const newFields = widget.formFields.filter((_, i) => i !== index);
-                                                        setWidget({ ...widget, formFields: newFields });
-                                                    }}
-                                                    className="mt-6 p-1.5 text-danger-ink dark:text-danger hover:bg-danger/10 dark:hover:bg-red-900/20 rounded-lg transition-colors"
-                                                >
-                                                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
-                                                </button>
+
+                                                <div className="space-y-2.5">
+                                                    {(!widget.formFields || widget.formFields.length === 0) ? (
+                                                        <div className="text-center py-6 bg-surface-elevated/40 border border-dashed border-border rounded-xl text-xs text-muted">
+                                                            Default fields applied: Name (Required), Email (Required), Message.
+                                                        </div>
+                                                    ) : (
+                                                        widget.formFields.map((field, idx) => (
+                                                            <div key={field.id || idx} className="flex items-center gap-2 p-3 bg-surface-elevated/60 border border-border/80 rounded-xl">
+                                                                <div className="flex-1 grid grid-cols-12 gap-2">
+                                                                    <div className="col-span-6">
+                                                                        <input
+                                                                            type="text"
+                                                                            value={field.label}
+                                                                            onChange={(e) => {
+                                                                                const updated = [...widget.formFields];
+                                                                                updated[idx].label = e.target.value;
+                                                                                setWidget({ ...widget, formFields: updated });
+                                                                            }}
+                                                                            className="w-full px-2.5 py-1.5 bg-surface border border-border rounded-md text-xs text-foreground"
+                                                                            placeholder="Field Label"
+                                                                        />
+                                                                    </div>
+                                                                    <div className="col-span-4">
+                                                                        <select
+                                                                            value={field.type}
+                                                                            onChange={(e) => {
+                                                                                const updated = [...widget.formFields];
+                                                                                updated[idx].type = e.target.value;
+                                                                                setWidget({ ...widget, formFields: updated });
+                                                                            }}
+                                                                            className="w-full px-2.5 py-1.5 bg-surface border border-border rounded-md text-xs text-foreground"
+                                                                        >
+                                                                            <option value="text">Text</option>
+                                                                            <option value="email">Email</option>
+                                                                            <option value="phone">Phone</option>
+                                                                            <option value="textarea">Textarea</option>
+                                                                        </select>
+                                                                    </div>
+                                                                    <div className="col-span-2 flex items-center justify-center">
+                                                                        <label className="inline-flex items-center gap-1 text-[11px] text-muted cursor-pointer">
+                                                                            <input
+                                                                                type="checkbox"
+                                                                                checked={Boolean(field.required)}
+                                                                                onChange={(e) => {
+                                                                                    const updated = [...widget.formFields];
+                                                                                    updated[idx].required = e.target.checked;
+                                                                                    setWidget({ ...widget, formFields: updated });
+                                                                                }}
+                                                                                className="rounded border-border text-primary focus:ring-0 w-3.5 h-3.5"
+                                                                            />
+                                                                            <span>Req</span>
+                                                                        </label>
+                                                                    </div>
+                                                                </div>
+                                                                <button
+                                                                    type="button"
+                                                                    onClick={() => {
+                                                                        const updated = widget.formFields.filter((_, i) => i !== idx);
+                                                                        setWidget({ ...widget, formFields: updated });
+                                                                    }}
+                                                                    className="p-1 text-muted hover:text-danger rounded"
+                                                                    title="Remove field"
+                                                                >
+                                                                    <X size={14} />
+                                                                </button>
+                                                            </div>
+                                                        ))
+                                                    )}
+                                                </div>
                                             </div>
-                                        ))}
-                                    </div>
+                                        </div>
+                                    )}
                                 </div>
                             )}
 
-                            {/* Content Tab */}
+                            {/* 4. CONTENT TAB */}
                             {activeTab === 'content' && (
                                 <div className="space-y-6">
                                     <div>
-                                        <label className="block text-sm font-medium text-gray-700 dark:text-secondary mb-2">Welcome Message</label>
+                                        <label className="block text-xs font-semibold uppercase tracking-wider text-muted mb-1.5">
+                                            Default Welcome Message
+                                        </label>
                                         <textarea
-                                            value={widget.settings.welcomeMessage}
-                                            onChange={(e) => setWidget({ ...widget, settings: { ...widget.settings, welcomeMessage: e.target.value } })}
                                             rows={3}
-                                            className="w-full px-4 py-2 border border-gray-200 dark:border-border rounded-xl bg-gray-50 dark:bg-background text-gray-900 dark:text-foreground focus:ring-2 focus:ring-accent/60 outline-none"
+                                            value={widget.settings?.welcomeMessage || ''}
+                                            onChange={(e) => setWidget({
+                                                ...widget,
+                                                settings: { ...widget.settings, welcomeMessage: e.target.value }
+                                            })}
+                                            className="w-full px-3.5 py-2.5 bg-surface-elevated border border-border rounded-lg text-xs text-foreground focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
+                                            placeholder="Hello! How can we assist you today?"
                                         />
+                                        <p className="text-[11px] text-muted mt-1">First bubble shown when a visitor opens the live chat.</p>
                                     </div>
 
                                     <div>
-                                        <label className="block text-sm font-medium text-gray-700 dark:text-secondary mb-2">Input Placeholder</label>
+                                        <label className="block text-xs font-semibold uppercase tracking-wider text-muted mb-1.5">
+                                            Input Placeholder
+                                        </label>
                                         <input
                                             type="text"
-                                            value={widget.settings.placeholder}
-                                            onChange={(e) => setWidget({ ...widget, settings: { ...widget.settings, placeholder: e.target.value } })}
-                                            className="w-full px-4 py-2 border border-gray-200 dark:border-border rounded-xl bg-gray-50 dark:bg-background text-gray-900 dark:text-foreground focus:ring-2 focus:ring-accent/60 outline-none"
+                                            value={widget.settings?.placeholder || ''}
+                                            onChange={(e) => setWidget({
+                                                ...widget,
+                                                settings: { ...widget.settings, placeholder: e.target.value }
+                                            })}
+                                            className="w-full px-3.5 py-2.5 bg-surface-elevated border border-border rounded-lg text-xs text-foreground focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
+                                            placeholder="Type your message..."
                                         />
                                     </div>
 
-                                    <div className="flex items-center gap-3">
-                                        <input
-                                            type="checkbox"
-                                            id="branding"
-                                            checked={widget.settings.showBranding}
-                                            onChange={(e) => setWidget({ ...widget, settings: { ...widget.settings, showBranding: e.target.checked } })}
-                                            className="w-5 h-5 text-primary-700 dark:text-accent rounded focus:ring-accent/60"
-                                        />
-                                        <label htmlFor="branding" className="text-sm font-medium text-gray-700 dark:text-secondary">Show "Powered by TargetChat" branding</label>
-                                    </div>
-                                </div>
-                            )}
-
-                            {/* Install Tab */}
-                            {activeTab === 'install' && (
-                                <div className="space-y-6">
-                                    <div className="bg-accent/10 dark:bg-accent/20 border border-accent/30 dark:border-accent/30 rounded-xl p-4">
-                                        <h3 className="font-semibold text-info-ink dark:text-info mb-2">Installation Instructions</h3>
-                                        <p className="text-sm text-info-ink dark:text-info">
-                                            Copy the code below and paste it into your website's HTML, just before the closing <code>&lt;/body&gt;</code> tag.
-                                        </p>
-                                    </div>
-
-                                    <div className="relative">
-                                        <pre className="bg-gray-900 text-gray-100 p-4 rounded-xl overflow-x-auto text-sm font-mono">
-                                            {embedCode}
-                                        </pre>
+                                    {/* Branding toggle */}
+                                    <div className="flex items-center justify-between p-4 bg-surface-elevated/40 border border-border rounded-xl">
+                                        <div>
+                                            <div className="text-xs font-bold text-foreground">
+                                                Show "Powered by TargetChat" Branding
+                                            </div>
+                                            <div className="text-[11px] text-muted mt-0.5">
+                                                Displays subtle product attribution footer in chat window
+                                            </div>
+                                        </div>
                                         <button
-                                            onClick={() => {
-                                                navigator.clipboard.writeText(embedCode);
-                                                toast.success('Copied to clipboard!');
-                                            }}
-                                            className="absolute top-4 right-4 px-3 py-1 bg-white/10 hover:bg-white/20 text-white rounded-lg text-xs font-medium transition-colors"
+                                            type="button"
+                                            onClick={() => setWidget({
+                                                ...widget,
+                                                settings: { ...widget.settings, showBranding: !widget.settings?.showBranding }
+                                            })}
+                                            className={`w-11 h-6 flex items-center rounded-full p-1 transition-colors duration-200 ${
+                                                widget.settings?.showBranding ? 'bg-primary' : 'bg-surface-elevated border border-border'
+                                            }`}
+                                            aria-label="Toggle Branding"
                                         >
-                                            Copy Code
+                                            <div
+                                                className={`bg-white w-4 h-4 rounded-full shadow transform transition-transform duration-200 ${
+                                                    widget.settings?.showBranding ? 'translate-x-5' : 'translate-x-0'
+                                                }`}
+                                            />
                                         </button>
                                     </div>
                                 </div>
                             )}
 
+                            {/* 5. INSTALL TAB */}
+                            {activeTab === 'install' && (
+                                <div className="space-y-6">
+                                    <div className="p-4 bg-primary-soft/40 border border-primary/20 rounded-xl flex items-start gap-3">
+                                        <div className="w-8 h-8 rounded-lg bg-primary-soft text-primary flex items-center justify-center shrink-0 border border-primary/20 mt-0.5">
+                                            <Code2 size={16} />
+                                        </div>
+                                        <div className="text-xs text-secondary leading-relaxed">
+                                            <span className="font-bold text-foreground">One-line Embed Installation: </span>
+                                            Copy the script snippet below and paste it into the HTML of any web page right before the closing <code className="px-1 py-0.5 bg-surface rounded border border-border font-mono text-primary">&lt;/body&gt;</code> tag.
+                                        </div>
+                                    </div>
+
+                                    <div>
+                                        <div className="flex items-center justify-between mb-2">
+                                            <label className="text-xs font-semibold uppercase tracking-wider text-muted">
+                                                HTML Embed Script
+                                            </label>
+                                            <button
+                                                type="button"
+                                                onClick={() => {
+                                                    navigator.clipboard.writeText(embedCode);
+                                                    setCopiedCode(true);
+                                                    toast.success('Embed snippet copied to clipboard!');
+                                                    setTimeout(() => setCopiedCode(false), 2000);
+                                                }}
+                                                className="inline-flex items-center gap-1.5 px-3 py-1 bg-surface-elevated hover:bg-surface-hover text-foreground border border-border rounded-md text-xs font-semibold transition-colors"
+                                            >
+                                                {copiedCode ? <Check size={13} className="text-success" /> : <Copy size={13} />}
+                                                <span>{copiedCode ? 'Copied' : 'Copy Code'}</span>
+                                            </button>
+                                        </div>
+
+                                        <div className="relative">
+                                            <pre className="p-4 bg-slate-900 text-slate-100 rounded-xl font-mono text-xs overflow-x-auto border border-slate-800 shadow-inset leading-relaxed">
+                                                {embedCode}
+                                            </pre>
+                                        </div>
+                                    </div>
+
+                                    <div className="pt-2 flex items-center gap-3">
+                                        <a
+                                            href={`/embed/${widget.slug}`}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            className="inline-flex items-center gap-1.5 text-xs font-semibold text-primary hover:underline"
+                                        >
+                                            <ExternalLink size={13} />
+                                            <span>Open Standalone Webpage Demo</span>
+                                        </a>
+                                    </div>
+                                </div>
+                            )}
                         </div>
                     </div>
 
-                    {/* Right Column: Live Preview */}
-                    <div className="lg:col-span-1">
-                        <div className="sticky top-8">
-                            <div className="flex justify-between items-center mb-4">
-                                <h2 className="text-lg font-bold text-gray-900 dark:text-foreground">Live Preview</h2>
+                    {/* Right Column: Live Interactive Device Preview (5 cols) */}
+                    <div className="lg:col-span-5 sticky top-6">
+                        <div className="bg-surface rounded-xl border border-border shadow-xs p-5 space-y-4">
+                            {/* Preview Header */}
+                            <div className="flex items-center justify-between">
                                 <div className="flex items-center gap-2">
-                                    <span className="text-xs font-medium text-gray-500">Preview Mode</span>
+                                    <span className="w-2 h-2 rounded-full bg-success animate-pulse" />
+                                    <h2 className="text-xs font-bold uppercase tracking-wider text-foreground">
+                                        Live Interactive Preview
+                                    </h2>
+                                </div>
+                                <div className="flex items-center gap-2">
                                     <button
+                                        type="button"
                                         onClick={() => setIsPreviewOpen(!isPreviewOpen)}
-                                        className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${isPreviewOpen ? 'bg-accent' : 'bg-gray-200 dark:bg-surface-elevated'}`}
+                                        className="text-[11px] font-semibold text-primary hover:underline"
                                     >
-                                        <span className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${isPreviewOpen ? 'translate-x-6' : 'translate-x-1'}`} />
+                                        {isPreviewOpen ? 'Minimize' : 'Open Bubble'}
                                     </button>
                                 </div>
                             </div>
 
-                            {/* Phone Frame */}
-                            <div className="relative mx-auto border-gray-800 dark:border-border bg-gray-800 border-[14px] rounded-[2.5rem] h-[600px] w-[300px] shadow-lg">
-                                <div className="w-[60px] h-[18px] bg-gray-800 top-0 rounded-b-[1rem] left-1/2 -translate-x-1/2 absolute z-20"></div>
-                                <div className="h-[32px] w-[3px] bg-gray-800 absolute -left-[17px] top-[72px] rounded-l-lg"></div>
-                                <div className="h-[46px] w-[3px] bg-gray-800 absolute -left-[17px] top-[124px] rounded-l-lg"></div>
-                                <div className="h-[46px] w-[3px] bg-gray-800 absolute -left-[17px] top-[178px] rounded-l-lg"></div>
-                                <div className="h-[64px] w-[3px] bg-gray-800 absolute -right-[17px] top-[142px] rounded-r-lg"></div>
+                            {/* Simulated Device Frame */}
+                            <div className="relative mx-auto rounded-[2rem] border-[8px] border-slate-800 bg-slate-900 shadow-modal overflow-hidden h-[540px] max-w-[290px] w-full flex flex-col justify-between">
+                                {/* Top Camera Notch */}
+                                <div className="absolute top-0 left-1/2 -translate-x-1/2 h-4 w-28 bg-slate-800 rounded-b-xl z-30 flex items-center justify-center">
+                                    <div className="w-2.5 h-2.5 rounded-full bg-slate-950" />
+                                </div>
 
                                 {/* Screen Content */}
-                                <div className="relative rounded-[2rem] overflow-hidden w-full h-full bg-white dark:bg-background">
-
-                                    {/* Mock Website */}
-                                    <div className="absolute inset-0 overflow-hidden bg-gray-50 dark:bg-background">
-                                        {/* Navbar */}
-                                        <div className="h-14 bg-white dark:bg-surface border-b border-gray-100 dark:border-border flex items-center px-4 justify-between sticky top-0 z-10 opacity-90 backdrop-blur-sm">
-                                            <div className="w-20 h-4 bg-gray-200 dark:bg-surface-elevated rounded-full"></div>
-                                            <div className="w-8 h-8 bg-gray-200 dark:bg-surface-elevated rounded-full"></div>
+                                <div className="relative w-full h-full bg-slate-100 dark:bg-slate-950 overflow-hidden flex flex-col justify-between text-left">
+                                    {/* Mock Website Page */}
+                                    <div className="p-3 pt-6 space-y-2.5 select-none opacity-85">
+                                        <div className="h-6 bg-white dark:bg-slate-900 rounded-lg shadow-2xs border border-slate-200 dark:border-slate-800 flex items-center justify-between px-2.5">
+                                            <div className="w-12 h-2 rounded bg-primary/40" />
+                                            <div className="w-4 h-4 rounded-full bg-slate-300 dark:bg-slate-700" />
                                         </div>
-
-                                        {/* Hero */}
-                                        <div className="p-6 space-y-4">
-                                            <div className="w-full aspect-square bg-gray-100 dark:bg-surface rounded-card mb-4"></div>
-                                            <div className="w-3/4 h-5 bg-gray-200 dark:bg-surface-elevated rounded-lg"></div>
-                                            <div className="w-1/2 h-3 bg-gray-100 dark:bg-surface rounded"></div>
-                                            <div className="w-full h-3 bg-gray-100 dark:bg-surface rounded"></div>
+                                        <div className="p-3 bg-white dark:bg-slate-900 rounded-xl shadow-2xs border border-slate-200 dark:border-slate-800 space-y-1.5">
+                                            <div className="w-3/4 h-3 rounded bg-slate-800 dark:bg-slate-200 font-bold" />
+                                            <div className="w-full h-2 rounded bg-slate-300 dark:bg-slate-700" />
+                                            <div className="w-2/3 h-2 rounded bg-slate-200 dark:bg-slate-800" />
                                         </div>
-
-                                        {/* Grid */}
-                                        <div className="grid grid-cols-2 gap-3 p-4 pt-0">
-                                            {[1, 2, 3, 4].map(i => (
-                                                <div key={i} className="aspect-[3/4] bg-gray-100 dark:bg-surface rounded-xl"></div>
-                                            ))}
+                                        <div className="grid grid-cols-2 gap-2">
+                                            <div className="h-16 rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-2xs p-2" />
+                                            <div className="h-16 rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-2xs p-2" />
                                         </div>
                                     </div>
 
-                                    {/* Widget Overlay */}
-                                    <div className={`absolute inset-0 pointer-events-none p-4 flex flex-col justify-end ${widget.theme.position === 'bottom-left' ? 'items-start' : 'items-end'}`}>
-
-                                        {/* Chat Window */}
+                                    {/* Floating Chat Widget Overlay */}
+                                    <div className={`p-3 flex flex-col ${isBottomLeft ? 'items-start' : 'items-end'} relative z-20`}>
+                                        {/* Chat Window Popup */}
                                         <div
-                                            className={`w-full max-w-[260px] bg-white dark:bg-surface shadow-lg flex flex-col overflow-hidden transition-all duration-300 origin-bottom mb-3 ${isPreviewOpen
-                                                ? 'opacity-100 scale-100 translate-y-0 h-[400px]'
-                                                : 'opacity-0 scale-90 translate-y-10 h-0'
-                                                }`}
-                                            style={{
-                                                borderRadius: `${widget.theme.borderRadius || 12}px`,
-                                                pointerEvents: 'auto',
-                                                zIndex: 50
-                                            }}
+                                            className={`w-full max-w-[245px] bg-white dark:bg-slate-900 shadow-modal border border-slate-200 dark:border-slate-800 flex flex-col overflow-hidden transition-all duration-300 origin-bottom mb-2.5 ${
+                                                isPreviewOpen
+                                                    ? 'opacity-100 scale-100 translate-y-0 max-h-[350px]'
+                                                    : 'opacity-0 scale-90 translate-y-8 max-h-0 pointer-events-none'
+                                            }`}
+                                            style={{ borderRadius: `${borderRadius}px` }}
                                         >
-                                            {/* Header */}
-                                            <div className="p-3 text-white flex items-center gap-3 shrink-0"
-                                                style={{ backgroundColor: widget.theme.primaryColor, color: widget.theme.headerTextColor || '#fff' }}>
-                                                <div className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center">
-                                                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"></path></svg>
+                                            {/* Widget Header */}
+                                            <div
+                                                className="p-3 flex items-center justify-between shrink-0 shadow-xs"
+                                                style={{ backgroundColor: primaryColor, color: headerTextColor }}
+                                            >
+                                                <div className="flex items-center gap-2 min-w-0">
+                                                    <div className="w-7 h-7 rounded-full bg-white/20 flex items-center justify-center shrink-0">
+                                                        <MessageSquare size={13} style={{ color: headerTextColor }} />
+                                                    </div>
+                                                    <div className="truncate">
+                                                        <h3 className="font-bold text-xs truncate max-w-[130px]" style={{ color: headerTextColor }}>
+                                                            {widget.name || 'Chat Widget'}
+                                                        </h3>
+                                                        <p className="text-[10px] opacity-90 flex items-center gap-1">
+                                                            <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 inline-block" />
+                                                            <span>Online</span>
+                                                        </p>
+                                                    </div>
                                                 </div>
-                                                <div>
-                                                    <h3 className="font-bold text-sm truncate max-w-[140px]">{widget.name}</h3>
-                                                    <p className="text-[10px] opacity-90">Online</p>
-                                                </div>
+                                                <button
+                                                    type="button"
+                                                    onClick={() => setIsPreviewOpen(false)}
+                                                    className="p-1 hover:bg-white/10 rounded transition-colors"
+                                                    aria-label="Close Preview Window"
+                                                >
+                                                    <X size={13} style={{ color: headerTextColor }} />
+                                                </button>
                                             </div>
 
-                                            {/* Content Area */}
+                                            {/* Widget Body */}
                                             {preChatEnabled ? (
-                                                <div className="flex-1 bg-gray-50 dark:bg-background p-4 overflow-y-auto flex flex-col justify-center">
-
+                                                <div className="p-3 bg-slate-50 dark:bg-slate-950 flex flex-col justify-center space-y-2 text-xs overflow-y-auto max-h-[260px]">
                                                     {widget.preChatMessage && (
-                                                        <div className="text-xs text-gray-500 dark:text-muted text-center mb-4">
+                                                        <p className="text-[11px] text-muted text-center leading-relaxed">
                                                             {widget.preChatMessage}
-                                                        </div>
+                                                        </p>
                                                     )}
-
-                                                    <div className="space-y-3">
-                                                        {(widget.formFields || [
-                                                            { id: 'name', label: 'Name', type: 'text' },
-                                                            { id: 'email', label: 'Email', type: 'email' },
-                                                            { id: 'msg', label: 'Message', type: 'textarea' }
-                                                        ]).map((field, idx) => (
-                                                            <div key={idx}>
-                                                                {field.type === 'textarea' ? (
-                                                                    <textarea
-                                                                        placeholder={field.label}
-                                                                        rows={2}
-                                                                        className="w-full px-3 py-2 bg-white dark:bg-surface border border-gray-200 dark:border-border rounded-lg text-xs focus:ring-1 focus:ring-accent/60 outline-none"
-                                                                        onChange={() => { }}
-                                                                    />
-                                                                ) : (
-                                                                    <input
-                                                                        type={field.type}
-                                                                        placeholder={field.label}
-                                                                        className="w-full px-3 py-2 bg-white dark:bg-surface border border-gray-200 dark:border-border rounded-lg text-xs focus:ring-1 focus:ring-accent/60 outline-none"
-                                                                        onChange={() => { }}
-                                                                    />
-                                                                )}
-                                                            </div>
+                                                    <div className="space-y-1.5">
+                                                        {(widget.formFields && widget.formFields.length > 0
+                                                            ? widget.formFields
+                                                            : [
+                                                                { id: 'name', label: 'Full Name', type: 'text' },
+                                                                { id: 'email', label: 'Email', type: 'email' }
+                                                            ]
+                                                        ).map((f, i) => (
+                                                            <input
+                                                                key={i}
+                                                                type={f.type === 'email' ? 'email' : 'text'}
+                                                                placeholder={f.label}
+                                                                readOnly
+                                                                className="w-full px-2.5 py-1.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-lg text-[11px] text-foreground placeholder:text-muted"
+                                                            />
                                                         ))}
                                                         <button
-                                                            className="w-full py-2 rounded-lg text-white text-xs font-bold shadow-md opacity-90 hover:opacity-100 transition-opacity"
-                                                            style={{ backgroundColor: widget.theme.primaryColor }}
-                                                            onClick={(e) => {
-                                                                e.preventDefault();
-                                                                toast('This is just a preview!', { icon: <Eye size={16} /> });
-                                                            }}
+                                                            type="button"
+                                                            onClick={() => toast('Preview only mode', { icon: '👁️' })}
+                                                            className="w-full py-2 rounded-lg font-bold text-[11px] text-white shadow-xs transition-opacity hover:opacity-95"
+                                                            style={{ backgroundColor: primaryColor }}
                                                         >
-                                                            Start Chat
+                                                            Start Conversation
                                                         </button>
                                                     </div>
                                                 </div>
                                             ) : (
-                                                <>
-                                                    {/* Messages */}
-                                                    <div className="flex-1 bg-gray-50 dark:bg-background p-3 space-y-3 overflow-y-auto">
-                                                        {widget.settings.welcomeMessage && (
+                                                <div className="flex flex-col h-[240px] justify-between bg-slate-50 dark:bg-slate-950">
+                                                    {/* Messages Flow */}
+                                                    <div className="p-2.5 space-y-2 overflow-y-auto">
+                                                        {widget.settings?.welcomeMessage && (
                                                             <div className="flex justify-start">
-                                                                <div className="bg-white dark:bg-surface p-2.5 rounded-card rounded-tl-none shadow-sm max-w-[90%] text-xs text-gray-800 dark:text-secondary"
-                                                                    style={{ borderRadius: `${widget.theme.borderRadius || 12}px`, borderTopLeftRadius: 0 }}>
+                                                                <div className="p-2 bg-white dark:bg-slate-900 text-foreground border border-slate-200 dark:border-slate-800 rounded-xl rounded-tl-none text-[11px] max-w-[85%] shadow-2xs">
                                                                     {widget.settings.welcomeMessage}
                                                                 </div>
                                                             </div>
                                                         )}
                                                         <div className="flex justify-end">
-                                                            <div className="p-2.5 rounded-card rounded-tr-none shadow-sm max-w-[90%] text-xs text-white"
-                                                                style={{
-                                                                    backgroundColor: widget.theme.primaryColor,
-                                                                    borderRadius: `${widget.theme.borderRadius || 12}px`,
-                                                                    borderTopRightRadius: 0
-                                                                }}>
-                                                                Hello! How can I help you?
+                                                            <div
+                                                                className="p-2 text-white rounded-xl rounded-tr-none text-[11px] max-w-[85%] shadow-2xs"
+                                                                style={{ backgroundColor: primaryColor }}
+                                                            >
+                                                                Hi, I have a quick question!
                                                             </div>
                                                         </div>
                                                     </div>
 
-                                                    {/* Input */}
-                                                    <div className="p-2 bg-white dark:bg-surface border-t border-gray-100 dark:border-border shrink-0">
-                                                        <div className="flex gap-2">
+                                                    {/* Input row */}
+                                                    <div className="p-2 bg-white dark:bg-slate-900 border-t border-slate-200 dark:border-slate-800">
+                                                        <div className="flex items-center gap-1.5">
                                                             <input
                                                                 type="text"
-                                                                placeholder={widget.settings.placeholder}
-                                                                className="flex-1 px-3 py-2 bg-gray-50 dark:bg-background rounded-full text-xs border border-gray-200 dark:border-border focus:ring-1 focus:ring-accent/60 outline-none"
-                                                                onChange={() => { }}
+                                                                readOnly
+                                                                placeholder={widget.settings?.placeholder || 'Type your message...'}
+                                                                className="flex-1 px-2.5 py-1.5 bg-slate-100 dark:bg-slate-800 rounded-full text-[11px] text-foreground border border-slate-200 dark:border-slate-700 outline-none"
                                                             />
-                                                            <button
-                                                                className="p-1.5 rounded-full text-white shrink-0"
-                                                                style={{ backgroundColor: widget.theme.primaryColor }}
-                                                                onClick={(e) => {
-                                                                    e.preventDefault();
-                                                                    toast('This is just a preview!', { icon: <Eye size={16} /> });
-                                                                }}
+                                                            <div
+                                                                className="w-6 h-6 rounded-full flex items-center justify-center text-white shrink-0 shadow-2xs"
+                                                                style={{ backgroundColor: primaryColor }}
                                                             >
-                                                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path></svg>
-                                                            </button>
+                                                                <Zap size={11} />
+                                                            </div>
                                                         </div>
-                                                        {widget.settings.showBranding && (
-                                                            <div className="text-center mt-1 text-[9px] text-gray-500 dark:text-muted">Powered by TargetChat</div>
+                                                        {widget.settings?.showBranding && (
+                                                            <p className="text-[9px] text-center text-muted mt-1">
+                                                                Powered by TargetChat
+                                                            </p>
                                                         )}
                                                     </div>
-                                                </>
-                                            )}
-                                        </div>
-
-                                        {/* Launcher */}
-                                        <div
-                                            onClick={() => setIsPreviewOpen(!isPreviewOpen)}
-                                            className="rounded-full shadow-lg cursor-pointer flex items-center justify-center transition-transform hover:scale-105 active:scale-95 shrink-0"
-                                            style={{
-                                                backgroundColor: widget.theme.primaryColor,
-                                                width: `${Math.min(widget.theme.launcherSize || 60, 56)}px`,
-                                                height: `${Math.min(widget.theme.launcherSize || 60, 56)}px`,
-                                                pointerEvents: 'auto',
-                                                zIndex: 50
-                                            }}
-                                        >
-                                            {widget.theme.launcherIcon ? (
-                                                <img src={widget.theme.launcherIcon} className="w-full h-full rounded-full object-cover" />
-                                            ) : (
-                                                <div className={`transition-transform duration-300 ${isPreviewOpen ? 'rotate-90' : 'rotate-0'}`}>
-                                                    {isPreviewOpen ? (
-                                                        <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"></path></svg>
-                                                    ) : (
-                                                        <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"></path></svg>
-                                                    )}
                                                 </div>
                                             )}
                                         </div>
 
+                                        {/* Launcher Circle Button */}
+                                        <button
+                                            type="button"
+                                            onClick={() => setIsPreviewOpen(!isPreviewOpen)}
+                                            className="rounded-full shadow-lg flex items-center justify-center transition-transform hover:scale-105 active:scale-95 text-white"
+                                            style={{
+                                                backgroundColor: primaryColor,
+                                                width: `${Math.min(parseInt(widget.theme.launcherSize) || 54, 52)}px`,
+                                                height: `${Math.min(parseInt(widget.theme.launcherSize) || 54, 52)}px`
+                                            }}
+                                            aria-label="Toggle Widget Preview"
+                                        >
+                                            {widget.theme.launcherIcon ? (
+                                                <img src={widget.theme.launcherIcon} className="w-full h-full rounded-full object-cover" alt="Launcher" />
+                                            ) : (
+                                                <div className={`transition-transform duration-200 ${isPreviewOpen ? 'rotate-90' : 'rotate-0'}`}>
+                                                    {isPreviewOpen ? <X size={20} /> : <MessageSquare size={20} />}
+                                                </div>
+                                            )}
+                                        </button>
                                     </div>
                                 </div>
                             </div>

@@ -60,7 +60,7 @@ export default function DashboardOverview() {
             </p>
             <ul>
                 <li><span className="text-success-ink dark:text-success font-bold">Active:</span> Widget is live and responding.</li>
-                <li><span className="text-gray-500 font-bold">Inactive:</span> Widget is disabled.</li>
+                <li><span className="text-muted font-bold">Inactive:</span> Widget is disabled.</li>
             </ul>
 
             <h2 id="next-steps">Next Steps</h2>

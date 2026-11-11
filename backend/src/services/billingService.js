@@ -1,6 +1,7 @@
 const stripeService = require('./stripeService');
 const paypalService = require('./paypalService');
 const { BillingLog, Subscription, SubscriptionPlan, Workspace, User } = require('../models');
+const { isProduction } = require('../config/secrets');
 
 /**
  * Advanced Billing Service (Multi-Gateway Abstraction)
@@ -76,6 +77,15 @@ class BillingService {
             if (!priceId) {
                 // Fallback to mock session if Stripe price not configured
                 console.warn('⚠️ Stripe Price ID not configured. Using Mock checkout fallback.');
+                // SECURITY: activating a paid plan without collecting payment is
+                // a revenue hole. In production the gateway must be configured;
+                // failing closed here surfaces the misconfiguration instead of
+                // silently granting the subscription.
+                if (isProduction()) {
+                    throw new Error(
+                        'Stripe price is not configured for this plan. Contact support to complete payment.'
+                    );
+                }
                 const mockId = `mock_stripe_${Date.now()}`;
                 await this.syncSubscription({
                     gateway: 'mock',
@@ -136,6 +146,13 @@ class BillingService {
                     console.log(`[PayPal AutoSync] Successfully created and saved plan: ${planIdPayPal}`);
                 } catch (err) {
                     console.warn(`[PayPal AutoSync] Credentials not live, using mock PayPal session: ${err.message}`);
+                    // SECURITY: see the Stripe branch above — never mint a paid
+                    // subscription in production without a real charge.
+                    if (isProduction()) {
+                        throw new Error(
+                            'PayPal credentials are not configured. Contact support to complete payment.'
+                        );
+                    }
                     planIdPayPal = `P-MOCK-${Date.now()}`;
                 }
             }
@@ -149,6 +166,13 @@ class BillingService {
                 });
             } catch (payPalErr) {
                 console.warn('PayPal subscription API error, falling back to mock approval URL:', payPalErr.message);
+                // SECURITY: a failed PayPal charge must not become a free
+                // subscription in production.
+                if (isProduction()) {
+                    throw new Error(
+                        'PayPal could not start the subscription. No payment was taken — please retry.'
+                    );
+                }
                 const mockSubId = `I-MOCK-${Date.now()}`;
                 await this.syncSubscription({
                     gateway: 'mock',

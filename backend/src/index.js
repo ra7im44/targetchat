@@ -436,6 +436,8 @@ app.use((req, res, next) => {
 // Serve uploads statically - REMOVED for security
 // app.use('/uploads', express.static('uploads'));
 
+app.use('/api/internal', require('./routes/internalAi'));
+app.use('/api/ai', require('./routes/ai')); // provider status / catalog
 app.use('/api/auth', authRoutes);
 app.use('/api/auth/meta', require('./routes/auth/meta'));
 app.use('/api/chat', chatRoutes);
@@ -499,6 +501,34 @@ app.use('/widget/public', require('./routes/publicWidgets'));
 // Public settings (app config)
 app.use('/api/settings', require('./routes/settings'));
 
+// Workspace knowledge base (documents + retrieval)
+app.use('/api/knowledge', require('./routes/knowledge'));
+
+// ----------------------------
+// Central error handling
+// ----------------------------
+// Unknown API route → JSON, never the HTML error page.
+app.use('/api', (req, res) => {
+  res.status(404).json({ error: 'not_found', message: 'API endpoint not found' });
+});
+
+// Final error handler: normalises every thrown error into one safe JSON shape.
+// Provider/database messages may contain infrastructure details, so only the
+// typed code and a curated message reach the client; full detail is logged.
+// eslint-disable-next-line no-unused-vars
+app.use((err, req, res, next) => {
+  const status = Number(err && (err.status || err.statusCode)) || 500;
+  const code = (err && err.code) || 'server_error';
+  if (status >= 500) {
+    console.error('[error]', req.method, req.originalUrl, '-', err && (err.stack || err.message));
+  }
+  if (res.headersSent) return next(err);
+  const safeMessage = status < 500 && typeof err.message === 'string'
+    ? err.message
+    : 'Internal server error';
+  res.status(status).json({ error: typeof code === 'string' ? code : 'server_error', message: safeMessage });
+});
+
 app.get('/', (req, res) => res.json({ app: 'TargetChat API' }));
 
 const PORT = process.env.PORT || 3001;
@@ -508,11 +538,22 @@ async function start() {
     await sequelize.authenticate();
     console.log('✅ Database connection OK');
 
-    // Disabled auto-sync to prevent ALTER TABLE conflicts
-    // Use migration scripts instead (scripts/add-user-roles.js, etc.)
+    // Additive, version-tracked migrations. `sync()` is called WITHOUT alter or
+    // force inside the runner, so existing data is never modified. Set
+    // DB_AUTO_MIGRATE=false to manage migrations out-of-band (npm run db:migrate).
+    if (String(process.env.DB_AUTO_MIGRATE || 'true').toLowerCase() !== 'false') {
+      const { migrate } = require('./db/migrator');
+      const migration = await migrate({ logger: console });
+      console.log(`✅ Migrations OK (${migration.applied.length} applied, ${migration.pending.length} pending, ${migration.drift.length} drift warnings)`);
+    }
 
     // Initialize email queue processor
     const { emailQueue } = require('./queues/emailQueue');
+
+    // Prime the settings cache before services that read it synchronously
+    // (signed-URL expiry, feature flags) serve their first request.
+    const settingsService = require('./services/settingsService');
+    await settingsService.refresh();
 
     // Initialize Email Provider (load settings)
     const emailProvider = require('./services/emailProvider');

@@ -15,21 +15,21 @@ export default function N8nTemplateGuide() {
       </p>
 
       <h2 id="workflow-logic">How It Works</h2>
-      <div className="my-6 p-4 bg-gray-50 dark:bg-surface rounded-xl border border-gray-200 dark:border-border text-sm font-mono">
+      <div className="my-6 p-4 bg-surface rounded-xl border border-border text-sm font-mono">
         <div className="flex flex-col gap-4 text-center">
-          <div className="p-3 bg-white dark:bg-background rounded shadow">
+          <div className="p-3 bg-surface dark:bg-background rounded shadow">
             <strong>Webhook (POST)</strong><br />
-            <span className="text-gray-500">Receives `message` & `chat_id`</span>
+            <span className="text-muted">Receives `message` & `chat_id`</span>
           </div>
-          <div className="text-gray-500 dark:text-muted">↓</div>
-          <div className="p-3 bg-accent/10 dark:bg-accent/20 rounded shadow border border-accent/30 dark:border-accent/30">
+          <div className="text-muted">↓</div>
+          <div className="p-3 bg-accent/10 rounded shadow border border-accent/30">
             <strong>AI Agent (LangChain)</strong><br />
-            <span className="text-primary-700 dark:text-accent">Processes logic + System Prompt</span>
+            <span className="text-primary dark:text-primary">Processes logic + System Prompt</span>
           </div>
-          <div className="text-gray-500 dark:text-muted">↓</div>
-          <div className="p-3 bg-white dark:bg-background rounded shadow">
+          <div className="text-muted">↓</div>
+          <div className="p-3 bg-surface dark:bg-background rounded shadow">
             <strong>Respond to Webhook</strong><br />
-            <span className="text-gray-500">Returns JSON reply</span>
+            <span className="text-muted">Returns JSON reply</span>
           </div>
         </div>
       </div>

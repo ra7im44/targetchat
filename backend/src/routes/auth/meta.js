@@ -21,6 +21,7 @@ const crypto = require('crypto');
 const jwt = require('jsonwebtoken');
 const { getJwtSecret } = require('../../config/secrets');
 const { Setting } = require('../../models');
+const settingsService = require('../../services/settingsService');
 const { Op } = require('sequelize');
 
 /**
@@ -42,7 +43,7 @@ router.post('/prepare', requireAuth, (req, res) => {
  * GET /api/auth/meta/login
  * Redirect user to Meta OAuth dialog using the verified state ticket.
  */
-router.get('/login', (req, res) => {
+router.get('/login', async (req, res) => {
     const { state } = req.query;
     if (!state || typeof state !== 'string') {
         return res.status(401).send('Invalid or missing OAuth state. Please restart authorization.');
@@ -57,7 +58,19 @@ router.get('/login', (req, res) => {
         return res.status(401).send('Expired or invalid OAuth state. Please restart authorization.');
     }
 
-    const appId = process.env.FACEBOOK_APP_ID;
+    let appId;
+    try {
+        appId = await settingsService.get('meta_app_id', null)
+            || await settingsService.get('META_APP_ID', null)
+            || await settingsService.get('FACEBOOK_APP_ID', null)
+            || process.env.META_APP_ID
+            || process.env.FACEBOOK_APP_ID;
+    } catch (err) {
+        appId = process.env.META_APP_ID || process.env.FACEBOOK_APP_ID;
+    }
+    if (!appId) {
+        return res.status(503).send('Meta app credentials are not configured in System Settings.');
+    }
     const redirectUri = `${process.env.BACKEND_URL || 'http://localhost:3001'}/api/auth/meta/callback`;
     const scope = [
         'pages_messaging',

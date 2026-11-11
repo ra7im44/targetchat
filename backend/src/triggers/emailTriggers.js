@@ -1,4 +1,10 @@
 const emailService = require('../services/emailService');
+const settingsService = require('../services/settingsService');
+
+async function appBaseUrl() {
+    const configured = await settingsService.get('app_url', process.env.FRONTEND_URL || 'http://localhost:3000');
+    return String(configured || 'http://localhost:3000').replace(/\/+$/, '');
+}
 
 /**
  * Email Triggers - Automatic email sending on platform events
@@ -15,7 +21,7 @@ const triggers = {
      */
     'user.registered': async (user, verificationToken) => {
         try {
-            const verificationLink = `${process.env.FRONTEND_URL || 'http://localhost:3000'}/verify-email?token=${verificationToken}`;
+            const verificationLink = `${await appBaseUrl()}/verify-email?token=${verificationToken}`;
 
             await emailService.sendSystemEmail(
                 'welcome',
@@ -43,7 +49,7 @@ const triggers = {
      */
     'user.email_verification': async (user, verificationToken, otp = null) => {
         try {
-            const verificationLink = `${process.env.FRONTEND_URL}/verify-email?token=${verificationToken}`;
+            const verificationLink = `${await appBaseUrl()}/verify-email?token=${verificationToken}`;
 
             await emailService.sendSystemEmail(
                 'email-verification',
@@ -72,7 +78,7 @@ const triggers = {
      */
     'user.password_reset': async (user, resetToken) => {
         try {
-            const resetLink = `${process.env.FRONTEND_URL}/reset-password?token=${resetToken}`;
+            const resetLink = `${await appBaseUrl()}/reset-password?token=${resetToken}`;
 
             await emailService.sendSystemEmail(
                 'password-reset',

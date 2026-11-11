@@ -135,14 +135,14 @@ export default function EmbedPage() {
     };
 
     if (loadError) return (
-        <div className="flex items-center justify-center h-screen bg-gray-50 p-6">
-            <div className="max-w-sm text-center bg-white rounded-card shadow-sm border border-gray-200 p-8">
-                <div className="flex justify-center mb-3 text-warning-ink dark:text-warning"><TriangleAlert size={18} /></div>
-                <h1 className="font-bold text-gray-900 mb-2">Chat unavailable</h1>
-                <p className="text-sm text-gray-500 mb-4">{loadError}</p>
+        <div className="flex items-center justify-center h-screen bg-background p-6">
+            <div className="max-w-sm text-center bg-surface rounded-card shadow-sm border border-border p-8">
+                <div className="flex justify-center mb-3 text-warning"><TriangleAlert size={18} /></div>
+                <h1 className="font-bold text-foreground mb-2">Chat unavailable</h1>
+                <p className="text-sm text-muted mb-4">{loadError}</p>
                 <button
                     onClick={() => window.location.reload()}
-                    className="px-4 py-2 bg-accent hover:bg-accent-hover text-background text-sm font-bold rounded-xl transition-colors"
+                    className="px-4 py-2 bg-primary hover:bg-primary-hover active:bg-primary-active text-white text-sm font-semibold rounded-button transition-colors"
                 >
                     Try again
                 </button>
@@ -150,11 +150,11 @@ export default function EmbedPage() {
         </div>
     );
 
-    if (!config) return <div className="flex items-center justify-center h-screen">Loading...</div>;
+    if (!config) return <div className="flex items-center justify-center h-screen text-muted">Loading...</div>;
 
     if (showPreChat) {
         return (
-            <div className="flex flex-col h-screen bg-gray-50 p-4 justify-center">
+            <div className="flex flex-col h-screen bg-background p-4 justify-center">
                 <Head>
                     <title>{config.name}</title>
                 </Head>
@@ -169,7 +169,7 @@ export default function EmbedPage() {
     }
 
     return (
-        <div className="flex flex-col h-screen bg-gray-50">
+        <div className="flex flex-col h-screen bg-background">
             <Head>
                 <title>{config.name}</title>
             </Head>
@@ -197,7 +197,7 @@ export default function EmbedPage() {
                         <div
                             className={`max-w-[85%] p-3 rounded-card shadow-sm text-sm ${msg.sender === 'user'
                                 ? 'text-white rounded-tr-none'
-                                : 'bg-white text-gray-800 rounded-tl-none'
+                                : 'bg-surface text-foreground border border-border rounded-tl-none'
                                 }`}
                             style={msg.sender === 'user' ? { backgroundColor: config.theme.primaryColor } : {}}
                         >
@@ -216,14 +216,14 @@ export default function EmbedPage() {
             </div>
 
             {/* Input */}
-            <form onSubmit={sendMessage} className="p-4 bg-white border-t border-gray-100 shrink-0">
+            <form onSubmit={sendMessage} className="p-4 bg-surface border-t border-border shrink-0">
                 <div className="flex gap-2">
                     <input
                         type="text"
                         value={input}
                         onChange={(e) => setInput(e.target.value)}
                         placeholder={config.settings.placeholder || "Type a message..."}
-                        className="flex-1 px-4 py-2 bg-gray-50 rounded-full border border-gray-200 focus:outline-none focus:ring-2 focus:ring-accent/20 focus:border-accent transition-all"
+                        className="flex-1 px-4 py-2 bg-surface-elevated text-foreground rounded-full border border-border focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all placeholder:text-muted"
                     />
                     <button
                         type="submit"
@@ -238,7 +238,7 @@ export default function EmbedPage() {
                 </div>
                 {config.settings.showBranding && (
                     <div className="text-center mt-2">
-                        <a href="https://targetchat.ai" target="_blank" rel="noopener noreferrer" className="text-[10px] text-gray-500 dark:text-muted hover:text-gray-600 transition-colors">
+                        <a href="https://targetchat.ai" target="_blank" rel="noopener noreferrer" className="text-[10px] text-muted hover:text-foreground transition-colors">
                             Powered by TargetChat
                         </a>
                     </div>

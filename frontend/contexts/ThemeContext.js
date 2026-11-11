@@ -1,7 +1,11 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 
 const ThemeContext = createContext();
-const THEMES = ['light', 'dark', 'professional'];
+/* Only two themes are implemented and reachable. A third `professional` entry
+   previously existed here but had no CSS rules in styles/globals.css and no
+   UI entry point (the "Professional" option on /chat is an AI persona, not a
+   theme), so it silently resolved to Dark. Kept out until it is really built. */
+const THEMES = ['light', 'dark'];
 
 function readSavedTheme() {
     try {
@@ -17,8 +21,7 @@ function applyTheme(nextTheme) {
     const root = document.documentElement;
     const isDark = nextTheme !== 'light';
     root.classList.toggle('dark', isDark);
-    root.classList.toggle('professional', nextTheme === 'professional');
-    root.style.colorScheme = nextTheme === 'light' ? 'light' : 'dark';
+    root.style.colorScheme = isDark ? 'dark' : 'light';
 
     try {
         localStorage.setItem('tc_theme', nextTheme);

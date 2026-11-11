@@ -57,16 +57,16 @@ export default function CreateWorkspaceModal({ isOpen, onClose, onCreated }) {
     if (!isOpen) return null;
 
     return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
-            <div className="bg-white dark:bg-surface rounded-card shadow-lg max-w-md w-full p-6">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs animate-fadeIn">
+            <div className="bg-surface rounded-card shadow-lg max-w-md w-full p-6 border border-border">
                 {/* Header */}
                 <div className="flex items-center justify-between mb-6">
-                    <h2 className="text-2xl font-bold text-gray-900 dark:text-foreground">
+                    <h2 className="text-2xl font-bold text-foreground">
                         Create Workspace
                     </h2>
                     <button
                         onClick={onClose}
-                        className="p-2 hover:bg-gray-100 dark:hover:bg-surface-hover rounded-lg transition-colors"
+                        className="p-2 text-muted hover:text-foreground hover:bg-surface-hover rounded-lg transition-colors"
                     >
                         <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
@@ -78,7 +78,7 @@ export default function CreateWorkspaceModal({ isOpen, onClose, onCreated }) {
                 <form onSubmit={handleSubmit} className="space-y-4">
                     {/* Workspace Name */}
                     <div>
-                        <label className="block text-sm font-medium text-gray-700 dark:text-secondary mb-2">
+                        <label className="block text-sm font-medium text-secondary mb-2">
                             Workspace Name *
                         </label>
                         <input
@@ -86,14 +86,14 @@ export default function CreateWorkspaceModal({ isOpen, onClose, onCreated }) {
                             value={name}
                             onChange={(e) => setName(e.target.value)}
                             placeholder="e.g., Marketing Team"
-                            className="w-full px-4 py-3 rounded-xl border border-gray-300 dark:border-strong bg-white dark:bg-surface-elevated text-gray-900 dark:text-foreground focus:ring-2 focus:ring-accent/60 focus:border-transparent transition-all"
+                            className="w-full px-4 py-2.5 rounded-xl border border-border bg-surface-elevated text-foreground placeholder:text-muted focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all"
                             required
                         />
                     </div>
 
                     {/* Description */}
                     <div>
-                        <label className="block text-sm font-medium text-gray-700 dark:text-secondary mb-2">
+                        <label className="block text-sm font-medium text-secondary mb-2">
                             Description (Optional)
                         </label>
                         <textarea
@@ -101,20 +101,20 @@ export default function CreateWorkspaceModal({ isOpen, onClose, onCreated }) {
                             onChange={(e) => setDescription(e.target.value)}
                             placeholder="What's this workspace for?"
                             rows="3"
-                            className="w-full px-4 py-3 rounded-xl border border-gray-300 dark:border-strong bg-white dark:bg-surface-elevated text-gray-900 dark:text-foreground focus:ring-2 focus:ring-accent/60 focus:border-transparent transition-all resize-none"
+                            className="w-full px-4 py-2.5 rounded-xl border border-border bg-surface-elevated text-foreground placeholder:text-muted focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all resize-none"
                         />
                     </div>
 
                     {/* Plan Type */}
                     <div>
-                        <label className="block text-sm font-medium text-gray-700 dark:text-secondary mb-3">
+                        <label className="block text-sm font-medium text-secondary mb-3">
                             Plan Type
                         </label>
                         <div className="space-y-2">
                             {/* Free Plan */}
                             <label className={`flex items-center p-4 rounded-xl border-2 cursor-pointer transition-all ${planType === 'free'
-                                    ? 'border-accent bg-accent/10 dark:bg-accent/20'
-                                    : 'border-gray-200 dark:border-border hover:border-gray-300 dark:hover:border-gray-600'
+                                    ? 'border-primary bg-primary-soft'
+                                    : 'border-border hover:border-border-strong bg-surface'
                                 }`}>
                                 <input
                                     type="radio"
@@ -122,51 +122,39 @@ export default function CreateWorkspaceModal({ isOpen, onClose, onCreated }) {
                                     value="free"
                                     checked={planType === 'free'}
                                     onChange={(e) => setPlanType(e.target.value)}
-                                    className="w-4 h-4 text-primary-700 dark:text-accent"
+                                    className="w-4 h-4 text-primary focus:ring-primary"
                                 />
                                 <div className="ml-3 flex-1">
-                                    <div className="font-medium text-gray-900 dark:text-foreground">Free</div>
-                                    <div className="text-sm text-gray-500 dark:text-muted">Personal workspace only</div>
+                                    <div className="font-medium text-foreground">Free</div>
+                                    <div className="text-sm text-muted">Personal workspace only</div>
                                 </div>
                             </label>
 
-                            {/* Team Plan */}
-                            <label className={`flex items-center p-4 rounded-xl border-2 cursor-pointer transition-all ${planType === 'team'
-                                    ? 'border-accent bg-accent/10 dark:bg-accent/20'
-                                    : 'border-gray-200 dark:border-border hover:border-gray-300 dark:hover:border-gray-600'
-                                }`}>
-                                <input
-                                    type="radio"
-                                    name="plan"
-                                    value="team"
-                                    checked={planType === 'team'}
-                                    onChange={(e) => setPlanType(e.target.value)}
-                                    className="w-4 h-4 text-primary-700 dark:text-accent"
-                                />
-                                <div className="ml-3 flex-1">
-                                    <div className="font-medium text-gray-900 dark:text-foreground">Team - $25/month</div>
-                                    <div className="text-sm text-gray-500 dark:text-muted">Up to 5 members</div>
+                            {/* Paid tiers are an upsell, not a creation option.
+                                The backend derives the workspace plan from the
+                                owner's live subscription, so selecting these here
+                                cannot grant them — it would create a free
+                                workspace and silently drop the choice. */}
+                            <div className="p-4 rounded-xl border border-border bg-surface">
+                                <div className="font-medium text-foreground">
+                                    Need more than 1 member?
                                 </div>
-                            </label>
-
-                            {/* Enterprise Plan */}
-                            <label className={`flex items-center p-4 rounded-xl border-2 cursor-pointer transition-all ${planType === 'enterprise'
-                                    ? 'border-accent bg-accent/10 dark:bg-accent/20'
-                                    : 'border-gray-200 dark:border-border hover:border-gray-300 dark:hover:border-gray-600'
-                                }`}>
-                                <input
-                                    type="radio"
-                                    name="plan"
-                                    value="enterprise"
-                                    checked={planType === 'enterprise'}
-                                    onChange={(e) => setPlanType(e.target.value)}
-                                    className="w-4 h-4 text-primary-700 dark:text-accent"
-                                />
-                                <div className="ml-3 flex-1">
-                                    <div className="font-medium text-gray-900 dark:text-foreground">Enterprise - $100/month</div>
-                                    <div className="text-sm text-gray-500 dark:text-muted">Unlimited members</div>
+                                <div className="text-sm text-muted mt-1">
+                                    Team ($25/mo, up to 5 members) and Enterprise ($100/mo,
+                                    unlimited members) are available on any workspace after
+                                    you subscribe.
                                 </div>
-                            </label>
+                                <button
+                                    type="button"
+                                    onClick={() => {
+                                        onClose();
+                                        window.location.assign('/pricing');
+                                    }}
+                                    className="mt-3 px-4 py-2 rounded-xl border border-border text-foreground bg-surface-hover hover:bg-surface font-medium transition-colors"
+                                >
+                                    View plans
+                                </button>
+                            </div>
                         </div>
                     </div>
 
@@ -175,14 +163,14 @@ export default function CreateWorkspaceModal({ isOpen, onClose, onCreated }) {
                         <button
                             type="button"
                             onClick={onClose}
-                            className="flex-1 px-4 py-3 rounded-xl border border-gray-300 dark:border-strong text-gray-700 dark:text-secondary font-medium hover:bg-gray-50 dark:hover:bg-surface-hover transition-colors"
+                            className="flex-1 px-4 py-2.5 rounded-xl border border-border text-foreground bg-surface hover:bg-surface-hover font-medium transition-colors"
                         >
                             Cancel
                         </button>
                         <button
                             type="submit"
                             disabled={loading}
-                            className="flex-1 px-4 py-3 rounded-xl bg-accent text-background font-medium disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-lg"
+                            className="flex-1 px-4 py-2.5 rounded-xl bg-primary hover:bg-primary-hover active:bg-primary-active text-white font-semibold disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-xs"
                         >
                             {loading ? 'Creating...' : 'Create Workspace'}
                         </button>

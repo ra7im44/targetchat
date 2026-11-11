@@ -1,19 +1,4 @@
-const { Setting } = require('../models');
-
-// In-memory cache for maintenance mode
-let isMaintenanceMode = false;
-let lastCheck = 0;
-const CHECK_INTERVAL = 30000; // 30 seconds
-
-const checkMaintenanceStatus = async () => {
-    try {
-        const setting = await Setting.findOne({ where: { key: 'maintenance_mode' } });
-        isMaintenanceMode = setting ? setting.value === 'true' : false;
-        lastCheck = Date.now();
-    } catch (err) {
-        console.error('Error checking maintenance mode:', err);
-    }
-};
+const settingsService = require('../services/settingsService');
 
 const maintenanceMiddleware = async (req, res, next) => {
     // 1. Always allow preflight (OPTIONS) requests
@@ -23,16 +8,16 @@ const maintenanceMiddleware = async (req, res, next) => {
 
     // 2. Allow Public Settings and Auth Routes (always needed for frontend to stay alive)
     if (
+        req.path === '/health' ||
         req.path.startsWith('/api/auth') ||
         req.path.startsWith('/api/settings/public')
     ) {
         return next();
     }
 
-    // Refresh status if stale
-    if (Date.now() - lastCheck > CHECK_INTERVAL) {
-        await checkMaintenanceStatus();
-    }
+    // Shared settings cache: admin saves call refresh(), so toggling this
+    // setting takes effect on the next request instead of after a restart.
+    const isMaintenanceMode = Boolean(await settingsService.get('maintenance_mode', false));
 
     if (isMaintenanceMode) {
         // 3. Allow Admin Routes

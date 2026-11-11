@@ -101,11 +101,11 @@ export default function AdminAnnouncements() {
                 {/* Header */}
                 <div className="flex items-center justify-between">
                     <div>
-                        <h1 className="text-3xl font-bold text-gray-900 dark:text-foreground flex items-center gap-3">
+                        <h1 className="text-3xl font-bold text-foreground flex items-center gap-3">
                             <Megaphone size={18} />
                             Announcements Center
                         </h1>
-                        <p className="text-gray-600 dark:text-muted mt-2">
+                        <p className="text-muted mt-2">
                             Broadcast updates, news, and offers to your user base.
                         </p>
                     </div>
@@ -122,10 +122,10 @@ export default function AdminAnnouncements() {
 
                             <div className="space-y-6">
                                 <div>
-                                    <label className="block text-sm font-medium text-text-secondary mb-2">Subject Line</label>
+                                    <label className="block text-sm font-medium text-secondary mb-2">Subject Line</label>
                                     <input
                                         type="text"
-                                        className="w-full p-3.5 bg-surface-elevated border border-border rounded-xl focus:ring-2 focus:ring-primary/40 focus:border-primary outline-none transition-all text-foreground font-medium shadow-sm placeholder:text-text-muted"
+                                        className="w-full p-3.5 bg-surface-elevated border border-border rounded-xl focus:ring-2 focus:ring-primary/40 focus:border-primary outline-none transition-all text-foreground font-medium shadow-sm placeholder:text-muted"
                                         placeholder="e.g. Big Update: New Features Added!"
                                         value={formData.subject}
                                         onChange={e => setFormData({ ...formData, subject: e.target.value })}
@@ -133,22 +133,22 @@ export default function AdminAnnouncements() {
                                 </div>
 
                                 <div>
-                                    <label className="block text-sm font-medium text-text-secondary mb-2">Message (HTML Supported)</label>
+                                    <label className="block text-sm font-medium text-secondary mb-2">Message (HTML Supported)</label>
                                     <textarea
-                                        className="w-full p-4 h-64 bg-surface-elevated border border-border rounded-xl focus:ring-2 focus:ring-primary/40 focus:border-primary outline-none transition-all text-foreground font-mono text-sm shadow-sm placeholder:text-text-muted"
+                                        className="w-full p-4 h-64 bg-surface-elevated border border-border rounded-xl focus:ring-2 focus:ring-primary/40 focus:border-primary outline-none transition-all text-foreground font-mono text-sm shadow-sm placeholder:text-muted"
                                         placeholder="<h1>Hello!</h1><p>We have some news...</p>"
                                         value={formData.message}
                                         onChange={e => setFormData({ ...formData, message: e.target.value })}
                                     />
-                                    <p className="text-xs text-text-muted mt-2 flex items-center gap-1.5">
-                                        <span className="font-semibold bg-surface-elevated border border-border px-1.5 py-0.5 rounded text-text-secondary">Tip:</span>
+                                    <p className="text-xs text-muted mt-2 flex items-center gap-1.5">
+                                        <span className="font-semibold bg-surface-elevated border border-border px-1.5 py-0.5 rounded text-secondary">Tip:</span>
                                         Basic HTML tags allowed. Use <code className="bg-primary/10 text-primary px-1.5 py-0.5 rounded text-xs font-mono">{`{{name}}`}</code> to insert user's name.
                                     </p>
                                 </div>
 
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6 bg-surface-elevated p-6 rounded-xl border border-border">
                                     <div>
-                                        <label className="block text-sm font-semibold text-text-secondary mb-2">Audience</label>
+                                        <label className="block text-sm font-semibold text-secondary mb-2">Audience</label>
                                         <select
                                             className="w-full p-3 bg-surface border border-border rounded-xl outline-none text-foreground cursor-pointer focus:border-primary"
                                             value={formData.audience}
@@ -160,11 +160,11 @@ export default function AdminAnnouncements() {
                                         </select>
                                     </div>
                                     <div>
-                                        <label className="block text-sm font-semibold text-text-secondary mb-2">Send Test To</label>
+                                        <label className="block text-sm font-semibold text-secondary mb-2">Send Test To</label>
                                         <div className="flex gap-2">
                                             <input
                                                 type="email"
-                                                className="w-full p-3 bg-surface border border-border rounded-xl outline-none text-foreground placeholder:text-text-muted focus:border-primary"
+                                                className="w-full p-3 bg-surface border border-border rounded-xl outline-none text-foreground placeholder:text-muted focus:border-primary"
                                                 placeholder="me@example.com"
                                                 value={formData.testEmail}
                                                 onChange={e => setFormData({ ...formData, testEmail: e.target.value })}
@@ -210,12 +210,12 @@ export default function AdminAnnouncements() {
                             </h3>
                             <div className="space-y-4 overflow-y-auto pr-2 custom-scrollbar flex-1">
                                 {loading ? (
-                                    <div className="flex flex-col items-center justify-center h-40 text-text-muted">
+                                    <div className="flex flex-col items-center justify-center h-40 text-muted">
                                         <RefreshCw className="animate-spin mb-2" />
                                         <span className="text-sm">Loading history...</span>
                                     </div>
                                 ) : history.length === 0 ? (
-                                    <div className="flex flex-col items-center justify-center h-40 text-text-muted text-center">
+                                    <div className="flex flex-col items-center justify-center h-40 text-muted text-center">
                                         <Mail size={18} className="mb-2 opacity-30" />
                                         <span className="text-sm">No announcements sent yet.</span>
                                     </div>
@@ -233,11 +233,11 @@ export default function AdminAnnouncements() {
                                                     {log.status === 'failed' && <AlertCircle size={10} />}
                                                     {log.status}
                                                 </span>
-                                                <span className="text-xs text-text-muted">{new Date(log.createdAt || log.created_at).toLocaleDateString()}</span>
+                                                <span className="text-xs text-muted">{new Date(log.createdAt || log.created_at).toLocaleDateString()}</span>
                                             </div>
                                             <p className="font-semibold text-foreground text-sm mb-1 line-clamp-2">{log.subject}</p>
-                                            <p className="text-xs text-text-muted truncate mt-1">
-                                                <span className="font-medium text-text-secondary">To:</span> {log.recipientEmail}
+                                            <p className="text-xs text-muted truncate mt-1">
+                                                <span className="font-medium text-secondary">To:</span> {log.recipientEmail}
                                             </p>
                                         </div>
                                     ))

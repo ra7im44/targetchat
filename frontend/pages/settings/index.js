@@ -4,7 +4,7 @@ import { toast } from 'react-hot-toast';
 
 export default function SettingsPage() {
     const [activeTab, setActiveTab] = useState('profile');
-    const [user, setUser] = useState({ name: 'Admin User', email: 'admin@targetchat.com' }); // Mock data for now
+    const [user, setUser] = useState({ name: 'Admin User', email: 'admin@targetchat.com' });
 
     // Tabs configuration
     const tabs = [
@@ -24,8 +24,8 @@ export default function SettingsPage() {
         <DashboardLayout title="Settings">
             <div className="max-w-5xl mx-auto">
                 <div className="mb-8">
-                    <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-foreground tracking-tight">Settings</h1>
-                    <p className="text-gray-500 dark:text-muted mt-1.5 text-sm font-medium">Manage your account preferences.</p>
+                    <h1 className="text-2xl sm:text-3xl font-bold text-foreground tracking-tight">Settings</h1>
+                    <p className="text-muted mt-1.5 text-sm font-medium">Manage your account preferences.</p>
                 </div>
 
                 <div className="flex flex-col lg:flex-row gap-8">
@@ -38,7 +38,7 @@ export default function SettingsPage() {
                                     onClick={() => setActiveTab(tab.id)}
                                     className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-lg text-sm font-semibold transition-all duration-150 ${activeTab === tab.id
                                         ? 'bg-primary text-white shadow-xs'
-                                        : 'text-text-secondary hover:bg-surface hover:text-text-primary'
+                                        : 'text-secondary hover:bg-surface hover:text-foreground'
                                         }`}
                                 >
                                     {tab.icon}
@@ -55,35 +55,35 @@ export default function SettingsPage() {
                             <div className="bg-surface rounded-card shadow-xs border border-border p-6 sm:p-8">
                                 <div className="flex items-center gap-5 mb-8 border-b border-border pb-6">
                                     <div className="relative group cursor-pointer">
-                                        <div className="w-16 h-16 rounded-full bg-primary/10 border border-primary/20 flex items-center justify-center text-primary text-xl font-bold">
+                                        <div className="w-16 h-16 rounded-full bg-primary-soft border border-primary/20 flex items-center justify-center text-primary text-xl font-bold">
                                             {user.name.substring(0, 2).toUpperCase()}
                                         </div>
                                     </div>
                                     <div>
-                                        <h3 className="text-lg font-bold text-gray-900 dark:text-foreground">Profile Picture</h3>
-                                        <p className="text-text-muted text-xs mt-0.5">PNG, JPG up to 5MB</p>
+                                        <h3 className="text-lg font-bold text-foreground">Profile Picture</h3>
+                                        <p className="text-muted text-xs mt-0.5">PNG, JPG up to 5MB</p>
                                     </div>
                                 </div>
 
                                 <form className="space-y-5">
                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                                         <div>
-                                            <label className="block text-xs font-semibold uppercase tracking-wider text-text-muted mb-2">Full Name</label>
-                                            <input type="text" defaultValue={user.name} className="w-full px-3.5 py-2.5 rounded-lg border border-border bg-surface-elevated text-gray-900 dark:text-foreground text-sm focus:ring-2 focus:ring-primary/40 focus:border-primary transition-all outline-none" placeholder="Your Name" />
+                                            <label className="block text-xs font-semibold uppercase tracking-wider text-muted mb-2">Full Name</label>
+                                            <input type="text" defaultValue={user.name} className="w-full px-3.5 py-2.5 rounded-lg border border-border bg-surface-elevated text-foreground text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all outline-none" placeholder="Your Name" />
                                         </div>
                                         <div>
-                                            <label className="block text-xs font-semibold uppercase tracking-wider text-text-muted mb-2">Email Address</label>
-                                            <input type="email" defaultValue={user.email} className="w-full px-3.5 py-2.5 rounded-lg border border-border bg-surface text-text-muted text-sm cursor-not-allowed" disabled />
+                                            <label className="block text-xs font-semibold uppercase tracking-wider text-muted mb-2">Email Address</label>
+                                            <input type="email" defaultValue={user.email} className="w-full px-3.5 py-2.5 rounded-lg border border-border bg-surface-elevated text-muted text-sm cursor-not-allowed" disabled />
                                         </div>
                                     </div>
 
                                     <div>
-                                        <label className="block text-xs font-semibold uppercase tracking-wider text-text-muted mb-2">Company Name</label>
-                                        <input type="text" className="w-full px-3.5 py-2.5 rounded-lg border border-border bg-surface-elevated text-gray-900 dark:text-foreground text-sm focus:ring-2 focus:ring-primary/40 focus:border-primary transition-all outline-none" placeholder="Your Company" />
+                                        <label className="block text-xs font-semibold uppercase tracking-wider text-muted mb-2">Company Name</label>
+                                        <input type="text" className="w-full px-3.5 py-2.5 rounded-lg border border-border bg-surface-elevated text-foreground text-sm focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all outline-none" placeholder="Your Company" />
                                     </div>
 
                                     <div className="pt-4 border-t border-border flex justify-end">
-                                        <button type="button" className="px-5 py-2.5 bg-primary hover:bg-primary-hover text-white rounded-lg font-semibold text-sm shadow-xs transition-all" onClick={() => toast.success('Profile updated!')}>
+                                        <button type="button" className="px-5 py-2.5 bg-primary hover:bg-primary-hover active:bg-primary-active text-white rounded-button font-semibold text-sm shadow-xs transition-all" onClick={() => toast.success('Profile updated!')}>
                                             Save Changes
                                         </button>
                                     </div>
@@ -91,16 +91,16 @@ export default function SettingsPage() {
                             </div>
                         )}
 
-                        {/* Notifications Tab Placeholder */}
+                        {/* Notifications Tab */}
                         {activeTab === 'notifications' && (
                             <div className="bg-surface rounded-card shadow-xs border border-border p-6 sm:p-8">
-                                <h2 className="text-lg font-bold text-gray-900 dark:text-foreground mb-5">Notification Preferences</h2>
+                                <h2 className="text-lg font-bold text-foreground mb-5">Notification Preferences</h2>
                                 <div className="space-y-3">
                                     {['Email Notifications', 'Desktop Push Notifications', 'Marketing Updates'].map((item) => (
                                         <div key={item} className="flex items-center justify-between p-3.5 bg-surface-elevated rounded-xl border border-border">
-                                            <span className="font-medium text-sm text-gray-900 dark:text-foreground">{item}</span>
+                                            <span className="font-medium text-sm text-foreground">{item}</span>
                                             <div className="relative inline-block w-11 align-middle select-none">
-                                                <input type="checkbox" name="toggle" id={item} className="toggle-checkbox w-5 h-5 accent-primary rounded cursor-pointer" defaultChecked />
+                                                <input type="checkbox" name="toggle" id={item} className="w-5 h-5 accent-primary rounded cursor-pointer" defaultChecked />
                                             </div>
                                         </div>
                                     ))}

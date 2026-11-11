@@ -42,20 +42,20 @@ export default function DashboardNavbar({ user, onToggleSidebar }) {
                         <button
                             onClick={onToggleSidebar}
                             aria-label="Toggle navigation"
-                            className="md:hidden w-8 h-8 rounded-md flex items-center justify-center text-text-muted hover:text-text-primary hover:bg-surface-hover border border-transparent hover:border-border transition-colors"
+                            className="md:hidden w-8 h-8 rounded-md flex items-center justify-center text-muted hover:text-foreground hover:bg-surface-hover border border-transparent hover:border-border transition-colors"
                         >
                             <Menu size={16} />
                         </button>
                     )}
 
                     <nav aria-label="Breadcrumbs" className="flex items-center gap-1.5 text-xs">
-                        <Link href="/dashboard" className="text-text-muted hover:text-text-primary transition-colors">
+                        <Link href="/dashboard" className="text-muted hover:text-foreground transition-colors">
                             TargetChat
                         </Link>
                         {breadcrumbs.map((crumb, index) => (
                             <React.Fragment key={crumb.href}>
-                                <ChevronRight size={12} className="text-text-muted opacity-60" />
-                                <span className={index === breadcrumbs.length - 1 ? 'text-text-primary font-semibold' : 'text-text-muted hover:text-text-primary transition-colors'}>
+                                <ChevronRight size={12} className="text-muted opacity-60" />
+                                <span className={index === breadcrumbs.length - 1 ? 'text-foreground font-semibold' : 'text-muted hover:text-foreground transition-colors'}>
                                     {crumb.name}
                                 </span>
                             </React.Fragment>
@@ -70,7 +70,7 @@ export default function DashboardNavbar({ user, onToggleSidebar }) {
                         onClick={toggleTheme}
                         aria-label={`Switch to ${theme === 'light' ? 'dark' : 'light'} mode`}
                         aria-pressed={theme !== 'light'}
-                        className="w-8 h-8 rounded-md flex items-center justify-center text-text-muted hover:text-text-primary hover:bg-gray-100 dark:hover:bg-surface-hover border border-transparent hover:border-border transition-colors focus-visible:ring-2 focus-visible:ring-primary/60"
+                        className="w-8 h-8 rounded-md flex items-center justify-center text-muted hover:text-foreground hover:bg-surface-hover border border-transparent hover:border-border transition-colors focus-visible:ring-2 focus-visible:ring-primary/60"
                         title={`Switch to ${theme === 'light' ? 'dark' : 'light'} mode`}
                     >
                         {theme === 'light' ? (
@@ -86,34 +86,34 @@ export default function DashboardNavbar({ user, onToggleSidebar }) {
                             onClick={() => setDropdownOpen(!dropdownOpen)}
                             aria-expanded={dropdownOpen}
                             aria-haspopup="true"
-                            className="flex items-center gap-2 py-1 px-2 rounded-md hover:bg-gray-100 dark:hover:bg-surface-hover border border-transparent hover:border-border transition-colors focus-visible:ring-2 focus-visible:ring-primary/60 group text-left"
+                            className="flex items-center gap-2 py-1 px-2 rounded-md hover:bg-surface-hover border border-transparent hover:border-border transition-colors focus-visible:ring-2 focus-visible:ring-primary/60 group text-left"
                         >
-                            <div className="w-7 h-7 rounded-md bg-surface-elevated border border-border flex items-center justify-center text-text-primary font-semibold text-xs shrink-0 shadow-xs">
+                            <div className="w-7 h-7 rounded-md bg-surface-elevated border border-border flex items-center justify-center text-foreground font-semibold text-xs shrink-0 shadow-xs">
                                 {(user?.name || 'U').charAt(0).toUpperCase()}
                             </div>
                             <div className="hidden sm:flex flex-col text-left">
-                                <span className="text-xs font-medium text-text-primary leading-tight">
+                                <span className="text-xs font-medium text-foreground leading-tight">
                                     {user?.name || 'Admin User'}
                                 </span>
-                                <span className="text-[11px] text-text-muted leading-tight truncate max-w-[140px]">
+                                <span className="text-[11px] text-muted leading-tight truncate max-w-[140px]">
                                     {user?.email || 'admin@targetchat.com'}
                                 </span>
                             </div>
-                            <ChevronDown size={13} className={`text-text-muted group-hover:text-text-secondary transition-transform shrink-0 ${dropdownOpen ? 'rotate-180' : ''}`} />
+                            <ChevronDown size={13} className={`text-muted group-hover:text-secondary transition-transform shrink-0 ${dropdownOpen ? 'rotate-180' : ''}`} />
                         </button>
 
                         {/* Dropdown Menu */}
                         {dropdownOpen && (
-                            <div className="absolute right-0 mt-1.5 w-56 bg-surface rounded-lg shadow-xl border border-border py-1.5 z-50 animate-scaleIn origin-top-right">
+                            <div className="absolute right-0 mt-1.5 w-56 bg-surface rounded-card shadow-xl border border-border py-1.5 z-50 animate-scaleIn origin-top-right">
                                 <div className="px-3.5 py-2 border-b border-border mb-1">
-                                    <p className="text-xs font-semibold text-text-primary truncate">{user?.name || 'Admin User'}</p>
-                                    <p className="text-[11px] text-text-muted truncate">{user?.email}</p>
+                                    <p className="text-xs font-semibold text-foreground truncate">{user?.name || 'Admin User'}</p>
+                                    <p className="text-[11px] text-muted truncate">{user?.email}</p>
                                 </div>
 
                                 <Link
                                     href="/chat"
                                     onClick={() => setDropdownOpen(false)}
-                                    className="flex items-center gap-2 px-3.5 py-2 text-xs text-text-secondary hover:bg-gray-100 dark:hover:bg-surface-hover hover:text-text-primary transition-colors"
+                                    className="flex items-center gap-2 px-3.5 py-2 text-xs text-secondary hover:bg-surface-hover hover:text-foreground transition-colors"
                                 >
                                     <MessageCircle size={14} /> Back to Chat
                                 </Link>
@@ -122,7 +122,7 @@ export default function DashboardNavbar({ user, onToggleSidebar }) {
                                     <Link
                                         href="/admin"
                                         onClick={() => setDropdownOpen(false)}
-                                        className="flex items-center gap-2 px-3.5 py-2 text-xs text-text-secondary hover:bg-gray-100 dark:hover:bg-surface-hover hover:text-primary transition-colors"
+                                        className="flex items-center gap-2 px-3.5 py-2 text-xs text-secondary hover:bg-surface-hover hover:text-primary transition-colors"
                                     >
                                         <ShieldCheck size={14} /> Admin Panel
                                     </Link>
@@ -131,7 +131,7 @@ export default function DashboardNavbar({ user, onToggleSidebar }) {
                                 <Link
                                     href="/settings"
                                     onClick={() => setDropdownOpen(false)}
-                                    className="flex items-center gap-2 px-3.5 py-2 text-xs text-text-secondary hover:bg-gray-100 dark:hover:bg-surface-hover hover:text-text-primary transition-colors"
+                                    className="flex items-center gap-2 px-3.5 py-2 text-xs text-secondary hover:bg-surface-hover hover:text-foreground transition-colors"
                                 >
                                     <Settings size={14} /> Settings
                                 </Link>
@@ -140,7 +140,7 @@ export default function DashboardNavbar({ user, onToggleSidebar }) {
 
                                 <button
                                     onClick={handleLogout}
-                                    className="w-full flex items-center gap-2 px-3.5 py-2 text-xs text-danger hover:bg-danger/10 transition-colors text-left"
+                                    className="w-full flex items-center gap-2 px-3.5 py-2 text-xs text-danger hover:bg-danger-soft transition-colors text-left"
                                 >
                                     <LogOut size={14} /> Log Out
                                 </button>

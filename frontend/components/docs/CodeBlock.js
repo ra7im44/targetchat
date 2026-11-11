@@ -15,12 +15,12 @@ export default function CodeBlock({ children, language = 'javascript' }) {
             <div className="absolute top-3 right-3 z-10">
                 <button
                     onClick={copyToClipboard}
-                    className="px-3 py-1.5 bg-gray-700 hover:bg-gray-600 text-white text-xs rounded-lg transition-colors opacity-0 group-hover:opacity-100"
+                    className="px-3 py-1.5 bg-surface hover:bg-surface-hover text-foreground border border-border text-xs rounded-button transition-colors opacity-0 group-hover:opacity-100 shadow-sm"
                 >
-                    {copied ? <span className="flex items-center gap-1"><Check size={16} /> Copied!</span> : 'Copy'}
+                    {copied ? <span className="flex items-center gap-1 text-success"><Check size={14} /> Copied!</span> : 'Copy'}
                 </button>
             </div>
-            <pre className="bg-gray-900 dark:bg-background text-gray-100 p-4 rounded-xl overflow-x-auto">
+            <pre className="bg-surface-elevated text-foreground border border-border p-4 rounded-card overflow-x-auto font-mono text-xs">
                 <code className={`language-${language}`}>{children}</code>
             </pre>
         </div>

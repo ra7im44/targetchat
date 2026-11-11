@@ -47,63 +47,63 @@ export default function BillingEventsPage() {
             <div className="space-y-6">
                 <div className="flex items-center justify-between">
                     <div>
-                        <h1 className="text-3xl font-bold text-gray-900 dark:text-foreground">Billing Events Log</h1>
-                        <p className="text-gray-600 dark:text-muted mt-1">Stripe webhook events and processing status</p>
+                        <h1 className="text-3xl font-bold text-foreground">Billing Events Log</h1>
+                        <p className="text-muted mt-1">Stripe webhook events and processing status</p>
                     </div>
                     <Link
                         href="/admin/billing"
-                        className="px-4 py-2 bg-gray-200 dark:bg-surface rounded-card hover:opacity-80 transition-colors text-black dark:text-foreground flex items-center gap-2"
+                        className="px-4 py-2 bg-surface rounded-card hover:opacity-80 transition-colors text-foreground flex items-center gap-2"
                     >
                         <ArrowLeft size={16} /> Back to Billing
                     </Link>
                 </div>
 
-                <div className="glass-panel rounded-card overflow-hidden shadow-lg">
+                <div className="bg-surface border border-border rounded-card overflow-hidden">
                     <div className="overflow-x-auto">
                         <table className="w-full">
-                            <thead className="bg-gray-50/50 dark:bg-surface">
+                            <thead className="bg-surface-elevated/50">
                                 <tr>
-                                    <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 dark:text-muted uppercase tracking-wider">Event ID</th>
-                                    <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 dark:text-muted uppercase tracking-wider">Type</th>
-                                    <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 dark:text-muted uppercase tracking-wider">Status</th>
-                                    <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 dark:text-muted uppercase tracking-wider">Time</th>
+                                    <th className="px-6 py-4 text-left text-xs font-semibold text-muted uppercase tracking-wider">Event ID</th>
+                                    <th className="px-6 py-4 text-left text-xs font-semibold text-muted uppercase tracking-wider">Type</th>
+                                    <th className="px-6 py-4 text-left text-xs font-semibold text-muted uppercase tracking-wider">Status</th>
+                                    <th className="px-6 py-4 text-left text-xs font-semibold text-muted uppercase tracking-wider">Time</th>
                                 </tr>
                             </thead>
-                            <tbody className="divide-y divide-gray-200/20 dark:divide-gray-700/30">
+                            <tbody className="divide-y divide-border/20">
                                 {loading ? (
                                     <tr>
                                         <td colSpan="4" className="px-6 py-12 text-center">
                                             <div className="flex justify-center">
-                                                <div className="w-8 h-8 border-4 border-accent border-t-transparent rounded-full animate-spin"></div>
+                                                <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
                                             </div>
                                         </td>
                                     </tr>
                                 ) : events.length === 0 ? (
                                     <tr>
-                                        <td colSpan="4" className="px-6 py-12 text-center text-gray-500 dark:text-muted">
+                                        <td colSpan="4" className="px-6 py-12 text-center text-muted">
                                             No events recorded
                                         </td>
                                     </tr>
                                 ) : (
                                     events.map((event) => (
-                                        <tr key={event.id} className="hover:bg-gray-50/50 dark:hover:bg-surface-hover/50 transition-colors font-mono text-sm">
-                                            <td className="px-6 py-4 whitespace-nowrap text-gray-500 dark:text-muted">
+                                        <tr key={event.id} className="hover:bg-surface-hover/50 dark:hover:bg-surface-hover/50 transition-colors font-mono text-sm">
+                                            <td className="px-6 py-4 whitespace-nowrap text-muted">
                                                 {event.stripeEventId}
                                             </td>
                                             <td className="px-6 py-4 whitespace-nowrap">
-                                                <span className="text-primary-700 dark:text-info font-medium">
+                                                <span className="text-primary font-medium">
                                                     {event.eventType}
                                                 </span>
                                             </td>
                                             <td className="px-6 py-4 whitespace-nowrap">
                                                 <span className={`px-2 py-1 rounded-full text-xs font-bold ${event.status === 'processed'
-                                                    ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300'
-                                                    : 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-300'
+                                                    ? 'bg-success-soft text-success'
+                                                    : 'bg-warning-soft text-warning'
                                                     }`}>
                                                     {event.status.toUpperCase()}
                                                 </span>
                                             </td>
-                                            <td className="px-6 py-4 whitespace-nowrap text-gray-500 dark:text-muted">
+                                            <td className="px-6 py-4 whitespace-nowrap text-muted">
                                                 {new Date(event.created_at).toLocaleString()}
                                             </td>
                                         </tr>

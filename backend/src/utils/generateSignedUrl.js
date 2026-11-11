@@ -1,7 +1,15 @@
 const crypto = require('crypto');
 const { getFileSignSecret } = require('../config/secrets');
+const settingsService = require('../services/settingsService');
 
-const EXPIRE_SECONDS = parseInt(process.env.FILE_URL_EXPIRE_SECONDS || '86400', 10); // 24 hours default
+function expireSeconds() {
+    // Admin setting first (cached, no I/O), then env, then 24 hours.
+    const configured = Number(settingsService.getSync(
+        'file_url_expire_seconds',
+        process.env.FILE_URL_EXPIRE_SECONDS || 86400
+    ));
+    return Number.isFinite(configured) && configured > 0 ? configured : 86400;
+}
 
 /**
  * Generates a signed URL for a given filename.
@@ -11,7 +19,7 @@ const EXPIRE_SECONDS = parseInt(process.env.FILE_URL_EXPIRE_SECONDS || '86400', 
  */
 function generateSignedUrl(filename, userId = null) {
     const secret = getFileSignSecret();
-    const expires = Math.floor(Date.now() / 1000) + EXPIRE_SECONDS;
+    const expires = Math.floor(Date.now() / 1000) + expireSeconds();
     const uidStr = (userId !== null && userId !== undefined && userId !== '') ? String(userId) : '';
     const dataToSign = uidStr ? `${filename}:${expires}:${uidStr}` : `${filename}:${expires}`;
     const signature = crypto.createHmac('sha256', secret)

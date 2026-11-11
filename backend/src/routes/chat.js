@@ -3,6 +3,7 @@ const router = express.Router();
 const { requireAuth } = require('../middleware/auth');
 const { Chat, Message, Widget, Channel, Setting } = require('../models');
 const { sendToN8N } = require('../utils/n8nClient');
+const aiService = require('../services/aiService');
 
 const { validate, schemas } = require('../middleware/validation');
 var usageLimit = (req, res, next) => require('../middleware/usageLimit')(req, res, next);
@@ -326,6 +327,7 @@ router.post('/send', requireAuth, (req, res, next) => { req.usageResourceType = 
     });
 
     // Forward to n8n OR route to human
+    let aiFailure = null;
     try {
       const { Workflow, Widget, WidgetAssignee, User } = require('../models');
 
@@ -372,29 +374,29 @@ router.post('/send', requireAuth, (req, res, next) => { req.usageResourceType = 
           }
 
           try {
-            const aiService = require('../services/aiService');
-            const recentHistory = await Message.findAll({
-              where: { chatId: chat_id },
-              order: [['created_at', 'ASC']],
-              limit: 10
-            });
+            // NOTE: newest-first then reverse — ordering ASC with LIMIT returns
+            // the OLDEST messages and silently breaks conversation memory.
+            const recentHistory = await getRecentHistory(chat_id, 12);
 
-            const replyText = await aiService.generateResponse({
+            const aiResult = await aiService.generate({
               chatId: chat_id,
               userId,
               userMessage: unifiedMessage,
               persona: chatWithDetails.persona || 'default',
               workflow: chatWithDetails.workflow,
-              history: recentHistory
+              history: recentHistory,
+              knowledge: await getKnowledgeContext(chatWithDetails, unifiedMessage.text)
             });
 
+            const replyText = aiResult.text;
             if (replyText) {
               const aiMsg = await Message.create({
                 chatId: chat_id,
                 userId: null,
                 sender: 'ai',
                 text: replyText,
-                type: 'text'
+                type: 'text',
+                metadata: buildAiMetadata(aiResult)
               });
 
               if (io) {
@@ -428,12 +430,26 @@ router.post('/send', requireAuth, (req, res, next) => { req.usageResourceType = 
                   sender: 'ai',
                   type: 'text',
                   text: replyText,
+                  provider: aiResult.provider,
+                  model: aiResult.model,
+                  fallback: Boolean(aiResult.fallback),
+                  usage: aiResult.usage || {},
                   createdAt: aiMsg.created_at
                 }
               });
             }
           } catch (aiErr) {
-            console.error('[Chat Routing] AI response generation failed:', aiErr.message);
+            // Do not pretend the message was answered: surface the failure to
+            // the client (and any listeners) with a safe, typed code.
+            console.error('[Chat Routing] AI response generation failed:', aiErr.code || aiErr.message);
+            if (io) {
+              io.to(`chat_${chat_id}`).emit('ai:error', {
+                chatId: chat_id,
+                error: aiErr.code || 'ai_error',
+                message: aiErr.code ? aiErr.message : 'AI generation failed'
+              });
+            }
+            aiFailure = { error: aiErr.code || 'ai_error', message: aiErr.code ? aiErr.message : 'AI generation failed' };
           } finally {
             if (io) {
               io.to(`chat_${chat_id}`).emit('ai:thinking', { chatId: chat_id, isThinking: false });
@@ -454,12 +470,254 @@ router.post('/send', requireAuth, (req, res, next) => { req.usageResourceType = 
         content: unifiedMessage.text,
         role: 'user', // sender is always user in this endpoint
         createdAt: newMsg.created_at
-      }
+      },
+      ...(aiFailure ? { aiError: aiFailure } : {})
     });
 
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: 'Server error' });
+  }
+});
+
+/**
+ * Newest N messages in chronological order.
+ */
+async function getRecentHistory(chatId, limit = 12) {
+  const rows = await Message.findAll({
+    where: { chatId },
+    order: [['created_at', 'DESC'], ['id', 'DESC']],
+    limit
+  });
+  return rows.reverse();
+}
+
+/**
+ * Persist real provider metadata alongside the AI message so usage/billing and
+ * audit views never rely on invented numbers.
+ */
+function buildAiMetadata(result) {
+  const usage = result.usage || {};
+  return {
+    ai: {
+      provider: result.provider || null,
+      model: result.model || null,
+      requestedModel: result.requestedModel || null,
+      modelMismatch: Boolean(result.modelMismatch),
+      promptTokens: usage.promptTokens == null ? null : usage.promptTokens,
+      completionTokens: usage.completionTokens == null ? null : usage.completionTokens,
+      totalTokens: usage.totalTokens == null ? null : usage.totalTokens,
+      providerReported: Boolean(usage.providerReported),
+      generationMs: usage.generationMs == null ? null : usage.generationMs,
+      loadMs: usage.loadDurationMs == null ? null : usage.loadDurationMs,
+      latencyMs: result.latencyMs == null ? null : result.latencyMs,
+      finishReason: result.finishReason || usage.finishReason || null,
+      fallback: Boolean(result.fallback),
+      fallbackReason: result.fallbackReason || null,
+      status: 'ok'
+    }
+  };
+}
+
+/**
+ * Workspace-scoped retrieval. Any failure degrades to "no context" rather than
+ * breaking the chat.
+ */
+async function getKnowledgeContext(chat, query) {
+  try {
+    if (!chat || !chat.workspace_id || !query) return [];
+    const knowledgeService = require('../services/knowledgeService');
+    return await knowledgeService.search({
+      workspaceId: chat.workspace_id,
+      query,
+      limit: Number(process.env.AI_KNOWLEDGE_TOP_K) || 4
+    });
+  } catch (err) {
+    console.warn('[chat] knowledge retrieval unavailable:', err.message);
+    return [];
+  }
+}
+
+function safeAiError(err) {
+  if (err && err.code && typeof err.message === 'string') {
+    return { error: err.code, message: err.message };
+  }
+  return { error: 'ai_error', message: 'AI generation failed' };
+}
+
+/**
+ * POST /api/chat/stream
+ * Server-Sent Events streaming for text messages.
+ *
+ * events: start → delta* → done | error → end
+ * The final assistant message is persisted once, with provider usage metadata.
+ * Media messages keep using POST /api/chat/send (non-streaming).
+ */
+router.post('/stream', requireAuth, (req, res, next) => { req.usageResourceType = 'messages'; next(); }, usageLimit, async (req, res) => {
+  const userId = req.user.id;
+  const chatId = Number(req.body && req.body.chat_id);
+  const messageText = typeof (req.body && req.body.text) === 'string' ? req.body.text.trim() : '';
+
+  if (!Number.isInteger(chatId) || chatId <= 0 || !messageText) {
+    return res.status(400).json({ error: 'invalid_request', message: 'chat_id and a non-empty text are required' });
+  }
+  if (messageText.length > 8000) {
+    return res.status(400).json({ error: 'message_too_long', message: 'Message exceeds 8000 characters' });
+  }
+
+  try {
+    const { Workflow, Widget: WidgetModel } = require('../models');
+    const chat = await Chat.findByPk(chatId, {
+      include: [
+        { model: Workflow, as: 'workflow' },
+        { model: WidgetModel, as: 'widget' }
+      ]
+    });
+    if (!chat || !(await canAccessPersonalChat(userId, chat, req.user.role))) {
+      return res.status(404).json({ error: 'chat_not_found' });
+    }
+    if (chat.widget && chat.widget.workflowStatus === false) {
+      return res.status(409).json({ error: 'ai_disabled', message: 'AI is disabled for this conversation (human handoff active)' });
+    }
+
+    // System Settings master switch: refuse before writing a user message so a
+    // disabled AI leaves no half-finished turn behind.
+    const runtime = await aiService.runtimeOptions();
+    if (!runtime.enabled) {
+      return res.status(503).json({ error: 'ai_disabled', message: 'AI is disabled in System Settings' });
+    }
+
+    const userMsg = await Message.create({
+      chatId,
+      userId,
+      sender: 'user',
+      text: messageText,
+      type: 'text'
+    });
+
+    const io = req.io;
+    if (io) {
+      io.to(`chat_${chatId}`).emit('message', {
+        chatId,
+        message: {
+          id: userMsg.id, sender: 'user', type: 'text', text: messageText,
+          createdAt: userMsg.created_at
+        }
+      });
+      io.to(`chat_${chatId}`).emit('ai:thinking', { chatId, isThinking: true });
+    }
+
+    res.writeHead(200, {
+      'Content-Type': 'text/event-stream; charset=utf-8',
+      'Cache-Control': 'no-cache, no-transform',
+      Connection: 'keep-alive',
+      'X-Accel-Buffering': 'no'
+    });
+
+    const emit = (event, data) => {
+      if (!res.writableEnded) res.write(`event: ${event}\ndata: ${JSON.stringify(data)}\n\n`);
+    };
+
+    const controller = new AbortController();
+    let clientGone = false;
+    res.on('close', () => {
+      if (!res.writableEnded) {
+        clientGone = true;
+        controller.abort();
+      }
+    });
+
+    emit('start', { chatId, userMessageId: userMsg.id, text: messageText });
+
+    try {
+      const history = await getRecentHistory(chatId, 12);
+      const knowledge = req.body.include_knowledge === false
+        ? []
+        : await getKnowledgeContext(chat, messageText);
+
+      let final = null;
+      const streamArgs = {
+        chatId,
+        userId,
+        userMessage: { type: 'text', text: messageText },
+        persona: chat.persona || 'default',
+        workflow: chat.workflow,
+        history,
+        knowledge,
+        abortSignal: controller.signal
+      };
+
+      if (!runtime.streaming) {
+        // Streaming disabled in settings: generate once, then emit a single
+        // delta so clients still receive a normal SSE transcript.
+        const result = await aiService.generate(streamArgs);
+        emit('delta', { text: result.text });
+        final = { type: 'done', ...result };
+      } else {
+        for await (const chunk of aiService.stream(streamArgs)) {
+          if (chunk.type === 'delta') {
+            emit('delta', { text: chunk.text });
+          } else if (chunk.type === 'done') {
+            final = chunk;
+          } else if (chunk.type === 'error') {
+            throw Object.assign(new Error(chunk.error.message), chunk.error);
+          }
+        }
+      }
+
+      if (!final || !final.text) {
+        throw Object.assign(new Error('AI generation produced no output'), {
+          error: 'ai_empty_response', message: 'AI generation produced no output'
+        });
+      }
+
+      const aiMsg = await Message.create({
+        chatId,
+        userId: null,
+        sender: 'ai',
+        text: final.text,
+        type: 'text',
+        metadata: buildAiMetadata(final)
+      });
+
+      if (io) {
+        io.to(`chat_${chatId}`).emit('message', {
+          chatId,
+          message: {
+            id: aiMsg.id, sender: 'ai', type: 'text', text: final.text,
+            provider: final.provider, model: final.model,
+            createdAt: aiMsg.created_at
+          }
+        });
+      }
+
+      emit('done', {
+        id: aiMsg.id,
+        text: final.text,
+        provider: final.provider,
+        model: final.model,
+        usage: final.usage || {},
+        fallback: Boolean(final.fallback),
+        latencyMs: final.latencyMs,
+        createdAt: aiMsg.created_at
+      });
+      emit('end', { ok: true });
+    } catch (err) {
+      const safe = err && err.code
+        ? { error: err.code, message: err.message }
+        : { error: err.error || 'ai_error', message: err.message || 'AI generation failed' };
+      if (!clientGone) emit('error', safe);
+      if (!clientGone) emit('end', { ok: false });
+    } finally {
+      if (io) io.to(`chat_${chatId}`).emit('ai:thinking', { chatId, isThinking: false });
+      if (!res.writableEnded) res.end();
+    }
+  } catch (err) {
+    console.error('[chat/stream] setup failed:', err.message);
+    if (!res.headersSent) {
+      return res.status(500).json({ error: 'server_error', message: 'Failed to start streaming' });
+    }
+    if (!res.writableEnded) res.end();
   }
 });
 

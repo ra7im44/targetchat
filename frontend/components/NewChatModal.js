@@ -12,15 +12,15 @@ export default function NewChatModal({ isOpen, onClose, selectedWorkflow, onSele
             <div className="relative">
                 {/* Modal Content */}
                 <div
-                    className="bg-white dark:bg-surface rounded-card shadow-lg max-w-2xl w-full overflow-hidden"
+                    className="bg-surface rounded-card shadow-lg max-w-2xl w-full overflow-hidden border border-border"
                     onClick={(e) => e.stopPropagation()}
                 >
                     {/* Header */}
-                    <div className="p-6 border-b border-gray-100 dark:border-border">
-                        <h3 className="text-2xl font-bold text-gray-900 dark:text-foreground">
+                    <div className="p-6 border-b border-border">
+                        <h3 className="text-2xl font-bold text-foreground">
                             Create New Chat
                         </h3>
-                        <p className="text-sm text-gray-500 dark:text-muted mt-1">
+                        <p className="text-sm text-secondary mt-1">
                             Select an AI model to start chatting
                         </p>
                     </div>
@@ -34,10 +34,10 @@ export default function NewChatModal({ isOpen, onClose, selectedWorkflow, onSele
                     </div>
 
                     {/* Actions */}
-                    <div className="p-6 bg-gray-50 dark:bg-surface flex gap-3 justify-end">
+                    <div className="p-6 bg-surface-elevated border-t border-border flex gap-3 justify-end">
                         <button
                             onClick={onClose}
-                            className="px-5 py-2.5 rounded-xl font-medium text-gray-700 dark:text-secondary hover:bg-gray-200 dark:hover:bg-surface-hover transition-all duration-200"
+                            className="px-5 py-2.5 rounded-xl font-medium text-foreground bg-surface hover:bg-surface-hover border border-border transition-colors"
                         >
                             Cancel
                         </button>
@@ -47,7 +47,7 @@ export default function NewChatModal({ isOpen, onClose, selectedWorkflow, onSele
                                 onClose();
                             }}
                             disabled={!selectedWorkflow}
-                            className="px-5 py-2.5 rounded-xl font-medium bg-accent hover:bg-accent-hover text-background shadow-lg transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+                            className="px-5 py-2.5 rounded-xl font-semibold bg-primary hover:bg-primary-hover active:bg-primary-active text-white shadow-xs transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                         >
                             Create Chat
                         </button>
@@ -57,7 +57,7 @@ export default function NewChatModal({ isOpen, onClose, selectedWorkflow, onSele
                 {/* Close Button (Outside Modal) */}
                 <button
                     onClick={onClose}
-                    className="absolute -bottom-16 left-1/2 -translate-x-1/2 w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 backdrop-blur-sm border border-white/20 flex items-center justify-center text-white transition-all duration-200 hover:scale-110"
+                    className="absolute -bottom-16 left-1/2 -translate-x-1/2 w-10 h-10 rounded-full bg-surface-elevated hover:bg-surface-hover border border-border flex items-center justify-center text-foreground transition-all duration-200 hover:scale-110 shadow-md"
                     aria-label="Close"
                 >
                     <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">

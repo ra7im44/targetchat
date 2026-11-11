@@ -3,6 +3,7 @@ import { Toaster } from 'react-hot-toast';
 import React, { useState, createContext } from 'react';
 import { GlobalConfigProvider } from '../context/GlobalConfig';
 import { ThemeProvider } from '../contexts/ThemeContext';
+import MaintenanceGate from '../components/MaintenanceGate';
 import en from '../public/locales/en.json';
 import ar from '../public/locales/ar.json';
 
@@ -16,7 +17,9 @@ function MyApp({ Component, pageProps }) {
       <GlobalConfigProvider>
         <LocaleContext.Provider value={{ t, locale, setLocale }}>
           <Toaster position="top-center" toastOptions={{ duration: 4000 }} />
-          <Component {...pageProps} />
+          <MaintenanceGate>
+            <Component {...pageProps} />
+          </MaintenanceGate>
         </LocaleContext.Provider>
       </GlobalConfigProvider>
     </ThemeProvider>

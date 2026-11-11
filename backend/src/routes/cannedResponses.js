@@ -3,6 +3,11 @@ const router = express.Router();
 const { CannedResponse } = require('../models');
 const { requireAuth } = require('../middleware/auth');
 const { Op } = require('sequelize');
+const featureFlags = require('../services/featureFlags');
+
+// Enforced server-side: disabling the feature makes the API unavailable, not
+// just the UI control.
+router.use(featureFlags.requireEnabled('enable_canned_responses'));
 
 // Ensure table exists on first load
 (async () => {

@@ -158,16 +158,16 @@ export default function AdminBillingCenter() {
                 {/* Header Section */}
                 <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
                     <div>
-                        <h1 className="text-4xl font-bold text-gray-900 dark:text-foreground tracking-tight flex items-center gap-4">
-                            <CreditCard className="text-primary-700 dark:text-accent" size={18} />
+                        <h1 className="text-4xl font-bold text-foreground tracking-tight flex items-center gap-4">
+                            <CreditCard className="text-primary" size={18} />
                             Billing Center
                         </h1>
-                        <p className="text-gray-500 dark:text-muted mt-2 text-lg font-medium">
+                        <p className="text-muted mt-2 text-lg font-medium">
                             One dashboard to rule all payments, plans, and promotional offers.
                         </p>
                     </div>
 
-                    <div className="flex bg-gray-100 dark:bg-surface p-1.5 rounded-card shadow-sm border border-gray-200 dark:border-border">
+                    <div className="flex bg-surface-elevated p-1.5 rounded-card shadow-sm border border-border">
                         {['subscribers', 'plans', 'coupons', 'logs'].map((t) => (
                             <button
                                 key={t}
@@ -176,8 +176,8 @@ export default function AdminBillingCenter() {
                                     router.push(`/admin/billing?tab=${t}`, undefined, { shallow: true });
                                 }}
                                 className={`px-6 py-2.5 rounded-xl text-sm font-bold transition-all capitalize ${activeTab === t
-                                    ? 'bg-accent text-background shadow-lg '
-                                    : 'text-gray-500 hover:text-gray-900 dark:hover:text-white'
+                                    ? 'bg-primary text-white shadow-lg '
+                                    : 'text-muted hover:text-foreground dark:hover:text-white'
                                     }`}
                             >
                                 {t}
@@ -219,52 +219,52 @@ export default function AdminBillingCenter() {
 function LogDetailModal({ log, onClose }) {
     return (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-background/80 backdrop-blur-sm animate-fadeIn">
-            <div className="bg-white dark:bg-surface w-full max-w-2xl rounded-modal shadow-lg border border-gray-100 dark:border-border overflow-hidden">
-                <div className="p-6 border-b border-gray-100 dark:border-border flex justify-between items-center bg-gray-50/50 dark:bg-background">
+            <div className="bg-surface w-full max-w-2xl rounded-modal shadow-lg border border-border overflow-hidden">
+                <div className="p-6 border-b border-border flex justify-between items-center bg-surface-elevated/50">
                     <div>
-                        <h2 className="text-xl font-bold text-gray-900 dark:text-foreground uppercase tracking-tight">Log Event Details</h2>
-                        <p className="text-xs text-gray-500 dark:text-muted font-mono tracking-tighter mt-1">{log.id}</p>
+                        <h2 className="text-xl font-bold text-foreground uppercase tracking-tight">Log Event Details</h2>
+                        <p className="text-xs text-muted font-mono tracking-tighter mt-1">{log.id}</p>
                     </div>
-                    <button onClick={onClose} className="p-2 hover:bg-gray-200 dark:hover:bg-surface-hover rounded-xl transition-all">
+                    <button onClick={onClose} className="p-2 hover:bg-surface-hover dark:hover:bg-surface-hover rounded-xl transition-all">
                         <XCircle size={18} />
                     </button>
                 </div>
                 <div className="p-8 space-y-6 max-h-[70vh] overflow-y-auto">
                     <div className="grid grid-cols-2 gap-6">
                         <div className="space-y-1">
-                            <label className="text-[10px] font-bold text-gray-500 dark:text-muted uppercase tracking-widest">Gateway</label>
-                            <div className="text-sm font-bold text-gray-900 dark:text-foreground uppercase">{log.gateway}</div>
+                            <label className="text-[10px] font-bold text-muted uppercase tracking-widest">Gateway</label>
+                            <div className="text-sm font-bold text-foreground uppercase">{log.gateway}</div>
                         </div>
                         <div className="space-y-1">
-                            <label className="text-[10px] font-bold text-gray-500 dark:text-muted uppercase tracking-widest">Event Type</label>
-                            <div className="text-sm font-bold text-gray-900 dark:text-foreground uppercase">{log.eventType}</div>
+                            <label className="text-[10px] font-bold text-muted uppercase tracking-widest">Event Type</label>
+                            <div className="text-sm font-bold text-foreground uppercase">{log.eventType}</div>
                         </div>
                         <div className="space-y-1">
-                            <label className="text-[10px] font-bold text-gray-500 dark:text-muted uppercase tracking-widest">Status</label>
-                            <div className={`text-sm font-bold uppercase ${log.status === 'success' ? 'text-success-ink dark:text-success' : 'text-danger-ink'}`}>{log.status}</div>
+                            <label className="text-[10px] font-bold text-muted uppercase tracking-widest">Status</label>
+                            <div className={`text-sm font-bold uppercase ${log.status === 'success' ? 'text-success' : 'text-danger-ink'}`}>{log.status}</div>
                         </div>
                         <div className="space-y-1">
-                            <label className="text-[10px] font-bold text-gray-500 dark:text-muted uppercase tracking-widest">External ID</label>
-                            <div className="text-sm font-bold text-gray-500 dark:text-muted font-mono break-all">{log.externalId || 'N/A'}</div>
+                            <label className="text-[10px] font-bold text-muted uppercase tracking-widest">External ID</label>
+                            <div className="text-sm font-bold text-muted font-mono break-all">{log.externalId || 'N/A'}</div>
                         </div>
                     </div>
 
                     {log.error && (
-                        <div className="p-4 bg-danger/10 dark:bg-danger/20 border border-red-100 dark:border-red-900/50 rounded-card">
-                            <label className="text-[10px] font-bold text-danger-ink dark:text-danger uppercase tracking-widest block mb-2">Error Message</label>
-                            <p className="text-sm text-danger-ink dark:text-danger font-medium">{log.error}</p>
+                        <div className="p-4 bg-danger/10 border border-danger/25 rounded-card">
+                            <label className="text-[10px] font-bold text-danger uppercase tracking-widest block mb-2">Error Message</label>
+                            <p className="text-sm text-danger font-medium">{log.error}</p>
                         </div>
                     )}
 
                     <div className="space-y-2">
-                        <label className="text-[10px] font-bold text-gray-500 dark:text-muted uppercase tracking-widest">Raw Payload Data</label>
-                        <pre className="p-4 bg-gray-50 dark:bg-background rounded-card text-[11px] font-mono text-gray-600 dark:text-muted overflow-x-auto border border-gray-100 dark:border-border">
+                        <label className="text-[10px] font-bold text-muted uppercase tracking-widest">Raw Payload Data</label>
+                        <pre className="p-4 bg-background rounded-card text-[11px] font-mono text-muted overflow-x-auto border border-border">
                             {JSON.stringify(log.payload, null, 2)}
                         </pre>
                     </div>
                 </div>
-                <div className="p-6 bg-gray-50 dark:bg-background border-t border-gray-100 dark:border-border flex justify-end">
-                    <button onClick={onClose} className="px-6 py-2.5 bg-gray-200 dark:bg-surface-elevated text-gray-700 dark:text-foreground rounded-xl font-bold text-sm hover:bg-gray-300 dark:hover:bg-surface-hover transition-all">Close</button>
+                <div className="p-6 bg-background border-t border-border flex justify-end">
+                    <button onClick={onClose} className="px-6 py-2.5 bg-surface-elevated text-foreground rounded-xl font-bold text-sm hover:bg-surface-hover transition-all">Close</button>
                 </div>
             </div>
         </div>
@@ -286,16 +286,16 @@ function SubscribersTab({ stats, subscriptions, loading, subPage, setSubPage, su
             </div>
 
             {/* Subscriber Table */}
-            <div className="bg-white dark:bg-surface rounded-card shadow-sm border border-gray-100 dark:border-border overflow-hidden">
-                <div className="px-8 py-6 border-b border-gray-100 dark:border-border flex flex-col sm:flex-row justify-between items-center gap-4">
-                    <h2 className="text-xl font-bold text-gray-900 dark:text-foreground flex items-center gap-2">
+            <div className="bg-surface rounded-card shadow-sm border border-border overflow-hidden">
+                <div className="px-8 py-6 border-b border-border flex flex-col sm:flex-row justify-between items-center gap-4">
+                    <h2 className="text-xl font-bold text-foreground flex items-center gap-2">
                         <Users size={18} />
                         Active Subscriptions
                     </h2>
                     <select
                         value={subFilterStatus}
                         onChange={(e) => setSubFilterStatus(e.target.value)}
-                        className="px-4 py-2 rounded-xl bg-gray-50 dark:bg-background border border-gray-200 dark:border-border text-sm font-bold outline-none cursor-pointer"
+                        className="px-4 py-2 rounded-xl bg-background border border-border text-sm font-bold outline-none cursor-pointer"
                     >
                         <option value="all">All Status</option>
                         <option value="active">Active</option>
@@ -306,49 +306,49 @@ function SubscribersTab({ stats, subscriptions, loading, subPage, setSubPage, su
                 </div>
                 <div className="overflow-x-auto">
                     <table className="w-full text-left">
-                        <thead className="bg-gray-50/50 dark:bg-background">
+                        <thead className="bg-surface-elevated/50">
                             <tr>
-                                <th className="px-8 py-5 text-xs font-bold text-gray-500 dark:text-muted uppercase tracking-widest">User</th>
-                                <th className="px-8 py-5 text-xs font-bold text-gray-500 dark:text-muted uppercase tracking-widest">Plan</th>
-                                <th className="px-8 py-5 text-xs font-bold text-gray-500 dark:text-muted uppercase tracking-widest">Status</th>
-                                <th className="px-8 py-5 text-xs font-bold text-gray-500 dark:text-muted uppercase tracking-widest">Gateway</th>
-                                <th className="px-8 py-5 text-xs font-bold text-gray-500 dark:text-muted uppercase tracking-widest text-right">Amount</th>
+                                <th className="px-8 py-5 text-xs font-bold text-muted uppercase tracking-widest">User</th>
+                                <th className="px-8 py-5 text-xs font-bold text-muted uppercase tracking-widest">Plan</th>
+                                <th className="px-8 py-5 text-xs font-bold text-muted uppercase tracking-widest">Status</th>
+                                <th className="px-8 py-5 text-xs font-bold text-muted uppercase tracking-widest">Gateway</th>
+                                <th className="px-8 py-5 text-xs font-bold text-muted uppercase tracking-widest text-right">Amount</th>
                             </tr>
                         </thead>
-                        <tbody className="divide-y divide-gray-100 dark:divide-gray-700">
+                        <tbody className="divide-y divide-border">
                             {loading ? (
-                                <tr><td colSpan="5" className="px-8 py-20 text-center text-gray-500 dark:text-muted">Loading subscribers...</td></tr>
+                                <tr><td colSpan="5" className="px-8 py-20 text-center text-muted">Loading subscribers...</td></tr>
                             ) : subscriptions.length === 0 ? (
-                                <tr><td colSpan="5" className="px-8 py-20 text-center text-gray-500 dark:text-muted font-medium">No subscriptions yet.</td></tr>
+                                <tr><td colSpan="5" className="px-8 py-20 text-center text-muted font-medium">No subscriptions yet.</td></tr>
                             ) : (
                                 subscriptions.map((sub) => (
-                                    <tr key={sub.id} className="hover:bg-gray-50/50 dark:hover:bg-surface-hover/30 transition-colors">
+                                    <tr key={sub.id} className="hover:bg-surface-hover/50 dark:hover:bg-surface-hover/30 transition-colors">
                                         <td className="px-8 py-5">
                                             <div className="flex items-center gap-3">
-                                                <div className="w-10 h-10 rounded-full bg-accent/10 dark:bg-accent/20 text-primary-700 dark:text-info flex items-center justify-center font-bold">
+                                                <div className="w-10 h-10 rounded-full bg-primary/10 dark:bg-primary/20 text-primary flex items-center justify-center font-bold">
                                                     {sub.user?.name?.charAt(0) || 'U'}
                                                 </div>
                                                 <div>
-                                                    <div className="text-sm font-bold text-gray-900 dark:text-foreground">{sub.user?.name || 'Unknown'}</div>
-                                                    <div className="text-xs text-gray-500 font-medium">{sub.user?.email}</div>
+                                                    <div className="text-sm font-bold text-foreground">{sub.user?.name || 'Unknown'}</div>
+                                                    <div className="text-xs text-muted font-medium">{sub.user?.email}</div>
                                                 </div>
                                             </div>
                                         </td>
-                                        <td className="px-8 py-5 text-sm font-bold text-gray-700 dark:text-secondary">
-                                            <span className="bg-gray-100 dark:bg-surface-elevated px-3 py-1 rounded-lg">{sub.plan?.name}</span>
+                                        <td className="px-8 py-5 text-sm font-bold text-secondary">
+                                            <span className="bg-surface-elevated px-3 py-1 rounded-lg">{sub.plan?.name}</span>
                                         </td>
                                         <td className="px-8 py-5">
-                                            <span className={`px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-tight ${sub.status === 'active' ? 'bg-success text-success-ink dark:bg-success/30 dark:text-success' : 'bg-gray-100 text-gray-500'}`}>
+                                            <span className={`px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-tight ${sub.status === 'active' ? 'bg-success-soft text-success-ink' : 'bg-surface-elevated text-muted'}`}>
                                                 {sub.status}
                                             </span>
                                         </td>
                                         <td className="px-8 py-5">
-                                            <span className="text-[10px] font-bold text-gray-500 dark:text-muted uppercase flex items-center gap-1.5">
-                                                {sub.gateway === 'paypal' ? <img src="https://www.paypalobjects.com/webstatic/mktg/logo/pp_cc_mark_37x23.jpg" className="h-3 rounded" /> : <span className="w-2 h-2 rounded-full bg-accent"></span>}
+                                            <span className="text-[10px] font-bold text-muted uppercase flex items-center gap-1.5">
+                                                {sub.gateway === 'paypal' ? <img src="https://www.paypalobjects.com/webstatic/mktg/logo/pp_cc_mark_37x23.jpg" className="h-3 rounded" /> : <span className="w-2 h-2 rounded-full bg-primary"></span>}
                                                 {sub.gateway}
                                             </span>
                                         </td>
-                                        <td className="px-8 py-5 text-right font-mono font-bold text-gray-900 dark:text-foreground">
+                                        <td className="px-8 py-5 text-right font-mono font-bold text-foreground">
                                             ${sub.plan?.priceMonthly}
                                         </td>
                                     </tr>
@@ -357,11 +357,11 @@ function SubscribersTab({ stats, subscriptions, loading, subPage, setSubPage, su
                         </tbody>
                     </table>
                 </div>
-                <div className="px-8 py-4 border-t border-gray-100 dark:border-border flex justify-between items-center text-sm font-bold text-gray-500">
+                <div className="px-8 py-4 border-t border-border flex justify-between items-center text-sm font-bold text-muted">
                     <span>Page {subPage} of {subTotalPages}</span>
                     <div className="flex gap-2">
-                        <button disabled={subPage === 1} onClick={() => setSubPage(p => p - 1)} className="px-4 py-2 rounded-xl bg-gray-50 dark:bg-background hover:bg-gray-100 disabled:opacity-30">Previous</button>
-                        <button disabled={subPage >= subTotalPages} onClick={() => setSubPage(p => p + 1)} className="px-4 py-2 rounded-xl bg-gray-50 dark:bg-background hover:bg-gray-100 disabled:opacity-30">Next</button>
+                        <button disabled={subPage === 1} onClick={() => setSubPage(p => p - 1)} className="px-4 py-2 rounded-xl bg-background hover:bg-surface-hover disabled:opacity-30">Previous</button>
+                        <button disabled={subPage >= subTotalPages} onClick={() => setSubPage(p => p + 1)} className="px-4 py-2 rounded-xl bg-background hover:bg-surface-hover disabled:opacity-30">Next</button>
                     </div>
                 </div>
             </div>
@@ -373,23 +373,23 @@ function PlansTab({ plans, loading, onEdit, onDelete, onCreate }) {
     return (
         <div className="space-y-8 animate-fadeIn">
             <div className="flex justify-end">
-                <button onClick={onCreate} className="px-6 py-3 bg-accent text-background rounded-card font-bold shadow-lg hover:bg-accent-hover active:scale-95 transition-all flex items-center gap-2">
+                <button onClick={onCreate} className="px-6 py-3 bg-primary text-white rounded-card font-bold shadow-lg hover:bg-primary-hover active:bg-primary-active active:scale-95 transition-all flex items-center gap-2">
                     <Plus size={18} /> Create New Plan
                 </button>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                 {plans.map((plan) => (
-                    <div key={plan.id} className="bg-white dark:bg-surface p-8 rounded-card shadow-sm border border-gray-100 dark:border-border relative overflow-hidden group hover:shadow-lg dark:hover:shadow-none transition-all duration-500 border-b-8 border-b-accent">
+                    <div key={plan.id} className="bg-surface p-8 rounded-card shadow-sm border border-border relative overflow-hidden group hover:shadow-lg dark:hover:shadow-none transition-all duration-500 border-b-8 border-b-accent">
                         <div className="absolute top-6 right-6">
                             {plan.isActive ? (
-                                <span className="bg-success text-success-ink dark:text-success dark:bg-success/30 px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest">Active</span>
+                                <span className="bg-success-soft text-success-ink px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest">Active</span>
                             ) : (
-                                <span className="bg-gray-100 text-gray-500 dark:text-muted dark:bg-surface-elevated px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest">Inactive</span>
+                                <span className="bg-surface-elevated text-muted px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest">Inactive</span>
                             )}
                         </div>
-                        <h3 className="text-2xl font-bold text-gray-900 dark:text-foreground mb-2">{plan.name}</h3>
-                        <div className="text-4xl font-bold text-primary-700 dark:text-info mb-8 flex items-baseline gap-1">
-                            ${plan.priceMonthly}<span className="text-sm font-bold text-gray-500 dark:text-muted uppercase tracking-tighter">/ monthly</span>
+                        <h3 className="text-2xl font-bold text-foreground mb-2">{plan.name}</h3>
+                        <div className="text-4xl font-bold text-primary mb-8 flex items-baseline gap-1">
+                            ${plan.priceMonthly}<span className="text-sm font-bold text-muted uppercase tracking-tighter">/ monthly</span>
                         </div>
 
                         <div className="space-y-4 mb-10 overflow-hidden">
@@ -401,8 +401,8 @@ function PlansTab({ plans, loading, onEdit, onDelete, onCreate }) {
                         </div>
 
                         <div className="flex gap-4">
-                            <button onClick={() => onEdit(plan)} className="flex-1 py-3 rounded-card bg-gray-100 dark:bg-surface-elevated text-gray-900 dark:text-foreground font-bold hover:bg-accent hover:text-background transition-all transform active:scale-95">Edit Plan</button>
-                            <button onClick={() => onDelete(plan.id)} className="w-12 h-12 rounded-card bg-danger/10 dark:bg-danger/20 text-danger-ink dark:text-danger flex items-center justify-center hover:bg-red-500 hover:text-white transition-all active:scale-90"><Trash2 size={18} /></button>
+                            <button onClick={() => onEdit(plan)} className="flex-1 py-3 rounded-card bg-surface-elevated text-foreground font-bold hover:bg-primary hover:text-background transition-all transform active:scale-95">Edit Plan</button>
+                            <button onClick={() => onDelete(plan.id)} className="w-12 h-12 rounded-card bg-danger/10 text-danger flex items-center justify-center hover:bg-danger-soft0 hover:text-white transition-all active:scale-90"><Trash2 size={18} /></button>
                         </div>
                     </div>
                 ))}
@@ -415,47 +415,47 @@ function CouponsTab({ coupons, loading, onEdit, onDelete, onCreate }) {
     return (
         <div className="space-y-8 animate-fadeIn">
             <div className="flex justify-end">
-                <button onClick={onCreate} className="px-6 py-3 bg-pink-600 text-white rounded-card font-bold shadow-lg hover:bg-pink-700 active:scale-95 transition-all flex items-center gap-2">
+                <button onClick={onCreate} className="px-6 py-3 bg-primary text-primary-foreground rounded-card font-bold shadow-lg hover:bg-primary-hover active:scale-95 transition-all flex items-center gap-2">
                     <Plus size={18} /> New Coupon
                 </button>
             </div>
-            <div className="bg-white dark:bg-surface rounded-card shadow-sm border border-gray-100 dark:border-border overflow-hidden">
+            <div className="bg-surface rounded-card shadow-sm border border-border overflow-hidden">
                 <table className="w-full text-left">
-                    <thead className="bg-gray-50/50 dark:bg-background border-b border-gray-100 dark:border-border">
+                    <thead className="bg-surface-elevated/50 border-b border-border">
                         <tr>
-                            <th className="px-8 py-5 text-xs font-bold text-gray-500 dark:text-muted uppercase tracking-widest">Coupon Code</th>
-                            <th className="px-8 py-5 text-xs font-bold text-gray-500 dark:text-muted uppercase tracking-widest">Discount</th>
-                            <th className="px-8 py-5 text-xs font-bold text-gray-500 dark:text-muted uppercase tracking-widest">Activity</th>
-                            <th className="px-8 py-5 text-xs font-bold text-gray-500 dark:text-muted uppercase tracking-widest">Status</th>
-                            <th className="px-8 py-5 text-xs font-bold text-gray-500 dark:text-muted uppercase tracking-widest text-right">Actions</th>
+                            <th className="px-8 py-5 text-xs font-bold text-muted uppercase tracking-widest">Coupon Code</th>
+                            <th className="px-8 py-5 text-xs font-bold text-muted uppercase tracking-widest">Discount</th>
+                            <th className="px-8 py-5 text-xs font-bold text-muted uppercase tracking-widest">Activity</th>
+                            <th className="px-8 py-5 text-xs font-bold text-muted uppercase tracking-widest">Status</th>
+                            <th className="px-8 py-5 text-xs font-bold text-muted uppercase tracking-widest text-right">Actions</th>
                         </tr>
                     </thead>
-                    <tbody className="divide-y divide-gray-100 dark:divide-gray-700">
+                    <tbody className="divide-y divide-border">
                         {coupons.map((c) => (
-                            <tr key={c.id} className="hover:bg-gray-50/50 dark:hover:bg-surface-hover/30 transition-colors group">
+                            <tr key={c.id} className="hover:bg-surface-hover/50 dark:hover:bg-surface-hover/30 transition-colors group">
                                 <td className="px-8 py-5">
                                     <div className="flex items-center gap-4">
-                                        <div className="p-3 bg-pink-50 dark:bg-pink-900/20 text-pink-500 rounded-card"><Tag size={18} /></div>
+                                        <div className="p-3 bg-accent-soft text-accent rounded-card"><Tag size={18} /></div>
                                         <div>
-                                            <div className="text-lg font-bold text-gray-900 dark:text-foreground font-mono">{c.code}</div>
-                                            <div className="text-xs text-gray-500 font-medium">{c.description}</div>
+                                            <div className="text-lg font-bold text-foreground font-mono">{c.code}</div>
+                                            <div className="text-xs text-muted font-medium">{c.description}</div>
                                         </div>
                                     </div>
                                 </td>
                                 <td className="px-8 py-5">
-                                    <span className="text-sm font-bold text-success-ink dark:text-success flex items-center gap-1">
+                                    <span className="text-sm font-bold text-success flex items-center gap-1">
                                         <Percent size={16} /> {c.discountType === 'percentage' ? `${c.discountValue}%` : `$${c.discountValue}`}
                                     </span>
                                 </td>
-                                <td className="px-8 py-5 text-sm font-bold text-gray-500">
-                                    <span className="text-gray-900 dark:text-foreground">{c.timesRedeemed}</span> / {c.maxRedemptions || '∞'} redemptions
+                                <td className="px-8 py-5 text-sm font-bold text-muted">
+                                    <span className="text-foreground">{c.timesRedeemed}</span> / {c.maxRedemptions || '∞'} redemptions
                                 </td>
                                 <td className="px-8 py-5">
-                                    {c.isActive ? <span className="text-success-ink flex items-center gap-1 text-[10px] font-bold uppercase"><CheckCircle size={16} /> Active</span> : <span className="text-gray-500 dark:text-muted flex items-center gap-1 text-[10px] font-bold uppercase"><XCircle size={16} /> Expired</span>}
+                                    {c.isActive ? <span className="text-success-ink flex items-center gap-1 text-[10px] font-bold uppercase"><CheckCircle size={16} /> Active</span> : <span className="text-muted flex items-center gap-1 text-[10px] font-bold uppercase"><XCircle size={16} /> Expired</span>}
                                 </td>
                                 <td className="px-8 py-5 text-right flex justify-end gap-2">
-                                    <button onClick={() => onEdit(c)} className="p-2.5 rounded-xl bg-gray-100 dark:bg-surface-elevated hover:bg-accent-hover hover:text-background transition-all"><Edit2 size={18} /></button>
-                                    <button onClick={() => onDelete(c.id)} className="p-2.5 rounded-xl bg-danger/10 dark:bg-danger/20 text-danger-ink dark:text-danger hover:bg-red-500 hover:text-white transition-all"><Trash2 size={18} /></button>
+                                    <button onClick={() => onEdit(c)} className="p-2.5 rounded-xl bg-surface-elevated hover:bg-primary-hover active:bg-primary-active hover:text-background transition-all"><Edit2 size={18} /></button>
+                                    <button onClick={() => onDelete(c.id)} className="p-2.5 rounded-xl bg-danger/10 text-danger hover:bg-danger-soft0 hover:text-white transition-all"><Trash2 size={18} /></button>
                                 </td>
                             </tr>
                         ))}
@@ -470,7 +470,7 @@ function LogsTab({ logs, loading, logSearch, setLogSearch, logGateway, setLogGat
     if (loading && (!logs || logs.length === 0)) {
         return (
             <div className="flex justify-center py-20">
-                <div className="w-12 h-12 border-4 border-accent border-t-transparent rounded-full animate-spin"></div>
+                <div className="w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
             </div>
         );
     }
@@ -484,13 +484,13 @@ function LogsTab({ logs, loading, logSearch, setLogSearch, logGateway, setLogGat
 
     return (
         <div className="space-y-8 animate-fadeIn">
-            <div className="flex flex-col md:flex-row gap-4 justify-between bg-white dark:bg-surface p-6 rounded-card shadow-sm border border-gray-100 dark:border-border">
+            <div className="flex flex-col md:flex-row gap-4 justify-between bg-surface p-6 rounded-card shadow-sm border border-border">
                 <div className="relative flex-1">
                     <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5" />
-                    <input type="text" placeholder="Search audit trail..." className="w-full pl-12 pr-4 py-3 bg-gray-50 dark:bg-background rounded-card border-none focus:ring-2 focus:ring-accent/60 outline-none text-sm font-bold" value={logSearch} onChange={e => setLogSearch(e.target.value)} />
+                    <input type="text" placeholder="Search audit trail..." className="w-full pl-12 pr-4 py-3 bg-background rounded-card border-none focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none text-sm font-bold" value={logSearch} onChange={e => setLogSearch(e.target.value)} />
                 </div>
                 <div className="flex gap-4">
-                    <select value={logGateway} onChange={e => setLogGateway(e.target.value)} className="px-6 py-3 bg-gray-50 dark:bg-background rounded-card border-none text-sm font-bold outline-none cursor-pointer">
+                    <select value={logGateway} onChange={e => setLogGateway(e.target.value)} className="px-6 py-3 bg-background rounded-card border-none text-sm font-bold outline-none cursor-pointer">
                         <option value="all">All Gateways</option>
                         <option value="stripe">Stripe Only</option>
                         <option value="paypal">PayPal Only</option>
@@ -499,41 +499,41 @@ function LogsTab({ logs, loading, logSearch, setLogSearch, logGateway, setLogGat
                 </div>
             </div>
 
-            <div className="bg-white dark:bg-surface rounded-card shadow-sm border border-gray-100 dark:border-border overflow-hidden">
+            <div className="bg-surface rounded-card shadow-sm border border-border overflow-hidden">
                 <table className="w-full text-left">
-                    <thead className="bg-gray-50 dark:bg-background border-b border-gray-100 dark:border-border">
+                    <thead className="bg-background border-b border-border">
                         <tr>
-                            <th className="px-8 py-4 text-xs font-bold text-gray-500 dark:text-muted uppercase tracking-widest">Timestamp</th>
-                            <th className="px-8 py-4 text-xs font-bold text-gray-500 dark:text-muted uppercase tracking-widest">Event Source</th>
-                            <th className="px-8 py-4 text-xs font-bold text-gray-500 dark:text-muted uppercase tracking-widest">Action</th>
-                            <th className="px-8 py-4 text-xs font-bold text-gray-500 dark:text-muted uppercase tracking-widest">Status</th>
-                            <th className="px-8 py-4 text-xs font-bold text-gray-500 dark:text-muted uppercase tracking-widest text-right">Details</th>
+                            <th className="px-8 py-4 text-xs font-bold text-muted uppercase tracking-widest">Timestamp</th>
+                            <th className="px-8 py-4 text-xs font-bold text-muted uppercase tracking-widest">Event Source</th>
+                            <th className="px-8 py-4 text-xs font-bold text-muted uppercase tracking-widest">Action</th>
+                            <th className="px-8 py-4 text-xs font-bold text-muted uppercase tracking-widest">Status</th>
+                            <th className="px-8 py-4 text-xs font-bold text-muted uppercase tracking-widest text-right">Details</th>
                         </tr>
                     </thead>
-                    <tbody className="divide-y divide-gray-100 dark:divide-gray-700">
+                    <tbody className="divide-y divide-border">
                         {filtered.map(l => (
-                            <tr key={l.id} className="hover:bg-gray-50/50 transition-colors">
-                                <td className="px-8 py-5 text-xs font-bold text-gray-500">{new Date(l.created_at).toLocaleString()}</td>
-                                <td className="px-8 py-5 font-bold text-sm text-gray-900 dark:text-foreground">
+                            <tr key={l.id} className="hover:bg-surface-hover/50 transition-colors">
+                                <td className="px-8 py-5 text-xs font-bold text-muted">{new Date(l.created_at).toLocaleString()}</td>
+                                <td className="px-8 py-5 font-bold text-sm text-foreground">
                                     <div className="flex items-center gap-2">
-                                        <div className={`w-2 h-2 rounded-full ${l.gateway === 'stripe' ? 'bg-accent' : l.gateway === 'paypal' ? 'bg-info' : 'bg-gray-400'}`}></div>
+                                        <div className={`w-2 h-2 rounded-full ${l.gateway === 'stripe' ? 'bg-primary' : l.gateway === 'paypal' ? 'bg-info' : 'bg-border-strong'}`}></div>
                                         {l.gateway.toUpperCase()}
                                     </div>
                                 </td>
                                 <td className="px-8 py-5">
-                                    <div className="text-sm font-bold text-gray-900 dark:text-foreground uppercase">{l.eventType}</div>
-                                    <div className="text-[10px] text-gray-500 dark:text-muted font-mono tracking-tighter truncate max-w-[150px]">{l.externalId}</div>
+                                    <div className="text-sm font-bold text-foreground uppercase">{l.eventType}</div>
+                                    <div className="text-[10px] text-muted font-mono tracking-tighter truncate max-w-[150px]">{l.externalId}</div>
                                 </td>
                                 <td className="px-8 py-5">
                                     {l.status === 'success' ? (
-                                        <span className="text-success-ink dark:text-success flex items-center gap-1 text-[10px] font-bold uppercase"><CheckCircle size={16} /> Success</span>
+                                        <span className="text-success flex items-center gap-1 text-[10px] font-bold uppercase"><CheckCircle size={16} /> Success</span>
                                     ) : (
-                                        <span className="text-danger-ink dark:text-danger flex items-center gap-1 text-[10px] font-bold uppercase"><AlertCircle size={16} /> {l.status || 'failed'}</span>
+                                        <span className="text-danger flex items-center gap-1 text-[10px] font-bold uppercase"><AlertCircle size={16} /> {l.status || 'failed'}</span>
                                     )}
                                 </td>
                                 <td className="px-8 py-5 text-right">
                                     <button
-                                        className="p-2 hover:bg-gray-100 dark:hover:bg-surface-hover rounded-xl transition-all"
+                                        className="p-2 hover:bg-surface-hover rounded-xl transition-all"
                                         onClick={() => setSelectedLog(l)}
                                     >
                                         <Eye size={18} />
@@ -552,29 +552,29 @@ function LogsTab({ logs, loading, logSearch, setLogSearch, logGateway, setLogGat
 
 function StatCard({ label, value, icon: Icon, color, highlight, highlightColor }) {
     const colorMap = {
-        blue: 'text-primary-700 dark:text-accent bg-accent/10 dark:bg-accent/20',
-        emerald: 'text-success-ink dark:text-success bg-success dark:bg-success/20',
-        purple: 'text-purple-600 bg-purple-50 dark:bg-purple-900/20',
-        red: 'text-danger-ink dark:text-danger bg-danger/10 dark:bg-danger/20',
+        blue: 'text-primary bg-primary/10',
+        emerald: 'text-success bg-success/10',
+        purple: 'text-accent bg-accent/10',
+        red: 'text-danger bg-danger/10',
     };
     return (
-        <div className={`p-8 rounded-card shadow-sm border border-gray-100 dark:border-border flex flex-col justify-between ${highlight ? 'bg-success text-white border-none  shadow-lg' : 'bg-white dark:bg-surface'}`}>
+        <div className={`p-8 rounded-card shadow-sm border border-border flex flex-col justify-between ${highlight ? 'bg-success text-success-foreground border-none shadow-lg' : 'bg-surface'}`}>
             <div className="flex items-center justify-between mb-4">
-                <span className={`text-xs font-bold uppercase tracking-widest ${highlight ? 'text-white/80' : 'text-gray-500 dark:text-muted'}`}>{label}</span>
-                <div className={`p-2.5 rounded-card ${highlight ? 'bg-white/20 text-white' : colorMap[color]}`}><Icon size={18} /></div>
+                <span className={`text-xs font-bold uppercase tracking-widest ${highlight ? 'text-success-foreground/90' : 'text-muted'}`}>{label}</span>
+                <div className={`p-2.5 rounded-card ${highlight ? 'bg-success-foreground/20 text-success-foreground' : colorMap[color]}`}><Icon size={18} /></div>
             </div>
-            <div className={`text-3xl font-bold ${highlight ? 'text-white' : 'text-gray-900 dark:text-foreground'}`}>{value}</div>
+            <div className={`text-3xl font-bold ${highlight ? 'text-success-foreground' : 'text-foreground'}`}>{value}</div>
         </div>
     );
 }
 
 function FeatureRow({ icon: Icon, label, value, success }) {
     return (
-        <div className="flex justify-between items-center py-2.5 border-b border-gray-50 dark:border-border last:border-0 hover:translate-x-1 transition-transform cursor-default group">
-            <span className="flex items-center gap-3 text-sm font-bold text-gray-500 dark:text-muted group-hover:text-accent transition-colors">
+        <div className="flex justify-between items-center py-2.5 border-b border-border last:border-0 hover:translate-x-1 transition-transform cursor-default group">
+            <span className="flex items-center gap-3 text-sm font-bold text-muted group-hover:text-primary transition-colors">
                 <Icon size={18} /> {label}
             </span>
-            <span className={`text-sm font-bold ${success === true || (typeof value === 'number' && value === -1) ? 'text-success-ink' : 'text-gray-900 dark:text-foreground'}`}>
+            <span className={`text-sm font-bold ${success === true || (typeof value === 'number' && value === -1) ? 'text-success-ink' : 'text-foreground'}`}>
                 {value === -1 ? 'Unlimited' : value}
             </span>
         </div>

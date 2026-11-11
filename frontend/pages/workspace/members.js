@@ -26,7 +26,6 @@ export default function WorkspaceMembersPage() {
                 return;
             }
 
-            // Get current workspace from localStorage or URL
             const workspaceId = router.query.id || localStorage.getItem('current_workspace_id');
 
             if (!workspaceId) {
@@ -35,7 +34,6 @@ export default function WorkspaceMembersPage() {
                 return;
             }
 
-            // Load workspace details
             const workspaceResp = await fetch(`${API}/api/workspaces/${workspaceId}`, {
                 headers: { Authorization: `Bearer ${token}` }
             });
@@ -45,7 +43,6 @@ export default function WorkspaceMembersPage() {
                 setWorkspace(workspaceData.workspace);
             }
 
-            // Load members
             const membersResp = await fetch(`${API}/api/workspaces/${workspaceId}/members`, {
                 headers: { Authorization: `Bearer ${token}` }
             });
@@ -128,38 +125,38 @@ export default function WorkspaceMembersPage() {
 
     if (loading) {
         return (
-            <div className="min-h-screen bg-gray-50 dark:bg-background flex items-center justify-center">
-                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-accent"></div>
+            <div className="min-h-screen bg-background flex items-center justify-center">
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
             </div>
         );
     }
 
     return (
-        <div className="min-h-screen bg-gray-50 dark:bg-background">
+        <div className="min-h-screen bg-background">
             {/* Header */}
-            <header className="bg-white dark:bg-surface border-b border-gray-200 dark:border-border">
+            <header className="bg-surface border-b border-border">
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
                     <div className="flex items-center justify-between">
                         <div>
                             <button
                                 onClick={() => router.back()}
-                                className="text-gray-600 dark:text-muted hover:text-gray-900 dark:hover:text-foreground mb-2 flex items-center gap-2"
+                                className="text-muted hover:text-foreground mb-2 flex items-center gap-2 text-sm font-medium transition-colors"
                             >
                                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 19l-7-7 7-7" />
                                 </svg>
                                 Back to Chat
                             </button>
-                            <h1 className="text-3xl font-bold text-gray-900 dark:text-foreground">
+                            <h1 className="text-3xl font-bold text-foreground">
                                 {workspace?.name} - Team Members
                             </h1>
-                            <p className="text-gray-600 dark:text-muted mt-1">
+                            <p className="text-muted mt-1 text-sm">
                                 Manage your workspace members and permissions
                             </p>
                         </div>
                         <button
                             onClick={() => setShowInviteModal(true)}
-                            className="px-6 py-3 bg-accent text-background rounded-xl font-medium transition-all shadow-lg"
+                            className="px-5 py-2.5 bg-primary hover:bg-primary-hover active:bg-primary-active text-white rounded-button font-semibold text-sm shadow-xs transition-colors"
                         >
                             + Invite Member
                         </button>
@@ -169,23 +166,23 @@ export default function WorkspaceMembersPage() {
 
             {/* Members List */}
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-                <div className="bg-white dark:bg-surface rounded-card shadow-lg overflow-hidden">
-                    <div className="divide-y divide-gray-200 dark:divide-border">
+                <div className="bg-surface rounded-card shadow-xs border border-border overflow-hidden">
+                    <div className="divide-y divide-border">
                         {members.map((member) => (
-                            <div key={member.id} className="p-6 hover:bg-gray-50 dark:hover:bg-surface-hover/50 transition-colors">
+                            <div key={member.id} className="p-6 hover:bg-surface-hover transition-colors">
                                 <div className="flex items-center justify-between">
                                     <div className="flex items-center gap-4">
                                         {/* Avatar */}
-                                        <div className="w-12 h-12 rounded-full bg-accent flex items-center justify-center text-background font-bold text-lg">
+                                        <div className="w-12 h-12 rounded-full bg-primary-soft border border-primary/20 flex items-center justify-center text-primary font-bold text-lg">
                                             {member.user?.name?.charAt(0)?.toUpperCase() || 'U'}
                                         </div>
 
                                         {/* Info */}
                                         <div>
-                                            <h3 className="font-semibold text-gray-900 dark:text-foreground">
+                                            <h3 className="font-semibold text-foreground">
                                                 {member.user?.name || 'Unknown'}
                                             </h3>
-                                            <p className="text-sm text-gray-600 dark:text-muted">
+                                            <p className="text-sm text-muted">
                                                 {member.user?.email}
                                             </p>
                                         </div>
@@ -193,11 +190,11 @@ export default function WorkspaceMembersPage() {
 
                                     <div className="flex items-center gap-4">
                                         {/* Role Badge */}
-                                        <span className={`px-4 py-2 rounded-full text-sm font-medium ${member.role === 'owner'
-                                                ? 'bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300'
+                                        <span className={`px-3 py-1 rounded-full text-xs font-semibold ${member.role === 'owner'
+                                                ? 'bg-primary-soft text-primary border border-primary/20'
                                                 : member.role === 'manager'
-                                                    ? 'bg-accent/10 dark:bg-accent/20 text-info-ink dark:text-info'
-                                                    : 'bg-gray-100 dark:bg-surface-elevated text-gray-700 dark:text-secondary'
+                                                    ? 'bg-info-soft text-info border border-info/20'
+                                                    : 'bg-surface-elevated text-muted border border-border'
                                             }`}>
                                             {member.role.charAt(0).toUpperCase() + member.role.slice(1)}
                                         </span>
@@ -206,7 +203,7 @@ export default function WorkspaceMembersPage() {
                                         {member.role !== 'owner' && (
                                             <button
                                                 onClick={() => handleRemoveMember(member.user_id)}
-                                                className="p-2 text-danger-ink dark:text-danger hover:bg-danger/10 dark:hover:bg-red-900/20 rounded-lg transition-colors"
+                                                className="p-2 text-muted hover:text-danger hover:bg-danger-soft rounded-lg transition-colors"
                                                 title="Remove member"
                                             >
                                                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -224,15 +221,15 @@ export default function WorkspaceMembersPage() {
 
             {/* Invite Modal */}
             {showInviteModal && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
-                    <div className="bg-white dark:bg-surface rounded-card shadow-lg max-w-md w-full p-6">
-                        <h2 className="text-2xl font-bold text-gray-900 dark:text-foreground mb-6">
+                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs">
+                    <div className="bg-surface rounded-card shadow-xl border border-border max-w-md w-full p-6">
+                        <h2 className="text-xl font-bold text-foreground mb-5">
                             Invite Team Member
                         </h2>
 
                         <form onSubmit={handleInvite} className="space-y-4">
                             <div>
-                                <label className="block text-sm font-medium text-gray-700 dark:text-secondary mb-2">
+                                <label className="block text-sm font-medium text-secondary mb-2">
                                     Email Address
                                 </label>
                                 <input
@@ -240,19 +237,19 @@ export default function WorkspaceMembersPage() {
                                     value={inviteEmail}
                                     onChange={(e) => setInviteEmail(e.target.value)}
                                     placeholder="colleague@company.com"
-                                    className="w-full px-4 py-3 rounded-xl border border-gray-300 dark:border-strong bg-white dark:bg-surface-elevated text-gray-900 dark:text-foreground focus:ring-2 focus:ring-accent/60 focus:border-transparent"
+                                    className="w-full px-4 py-2.5 rounded-xl border border-border bg-surface-elevated text-foreground focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none"
                                     required
                                 />
                             </div>
 
                             <div>
-                                <label className="block text-sm font-medium text-gray-700 dark:text-secondary mb-2">
+                                <label className="block text-sm font-medium text-secondary mb-2">
                                     Role
                                 </label>
                                 <select
                                     value={inviteRole}
                                     onChange={(e) => setInviteRole(e.target.value)}
-                                    className="w-full px-4 py-3 rounded-xl border border-gray-300 dark:border-strong bg-white dark:bg-surface-elevated text-gray-900 dark:text-foreground focus:ring-2 focus:ring-accent/60 focus:border-transparent"
+                                    className="w-full px-4 py-2.5 rounded-xl border border-border bg-surface-elevated text-foreground focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none"
                                 >
                                     <option value="member">Member</option>
                                     <option value="manager">Manager</option>
@@ -263,14 +260,14 @@ export default function WorkspaceMembersPage() {
                                 <button
                                     type="button"
                                     onClick={() => setShowInviteModal(false)}
-                                    className="flex-1 px-4 py-3 rounded-xl border border-gray-300 dark:border-strong text-gray-700 dark:text-secondary font-medium hover:bg-gray-50 dark:hover:bg-surface-hover"
+                                    className="flex-1 px-4 py-2.5 rounded-button border border-border text-secondary hover:text-foreground font-semibold hover:bg-surface-hover transition-colors"
                                 >
                                     Cancel
                                 </button>
                                 <button
                                     type="submit"
                                     disabled={inviting}
-                                    className="flex-1 px-4 py-3 rounded-xl bg-accent text-background font-medium disabled:opacity-50 shadow-lg"
+                                    className="flex-1 px-4 py-2.5 rounded-button bg-primary hover:bg-primary-hover active:bg-primary-active text-white font-semibold disabled:opacity-50 shadow-xs transition-colors"
                                 >
                                     {inviting ? 'Sending...' : 'Send Invite'}
                                 </button>

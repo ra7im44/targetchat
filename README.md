@@ -96,3 +96,105 @@ The web application starts on `http://localhost:3000`.
 - Detailed Architecture & Agent Guide: [`AGENTS.md`](./AGENTS.md)
 - Production Deployment Guide: [`.u-axis-docs/DEPLOYMENT.md`](../.u-axis-docs/DEPLOYMENT.md)
 - Daily Implementation Log: [`../daily_changes.md`](../daily_changes.md)
+
+---
+
+## Local development (verified on this machine)
+
+### 1. AI backend — Ollama
+
+TargetChat talks to a **real local model**; no paid API key is needed.
+
+```bash
+ollama serve            # http://127.0.0.1:11434
+ollama list             # see installed models
+```
+
+`backend/.env`:
+
+```env
+AI_PROVIDER=ollama
+OLLAMA_BASE_URL=http://127.0.0.1:11434
+OLLAMA_MODEL=qwen2.5:3b
+AI_STREAMING_ENABLED=true
+AI_REQUEST_TIMEOUT_MS=120000
+AI_ALLOW_FALLBACK=false
+```
+
+The configured model is a *preference*. If it is not installed, the closest
+installed Qwen build is selected and the mismatch is reported by
+`GET /api/ai/status` (`model` vs `requestedModel`). Canned replies are disabled
+unless `AI_ALLOW_FALLBACK=true`, and any such reply is tagged `fallback: true`.
+
+### 2. Backend (Express, port 3001)
+
+```bash
+cd backend
+npm install
+npm run db:migrate      # additive only: creates missing tables/indexes
+npm run dev             # or: node src/index.js
+```
+
+Health: `curl http://localhost:3001/health`
+
+### 3. Frontend (Next.js, port 3000)
+
+```bash
+cd frontend
+cp .env.example .env.local     # NEXT_PUBLIC_API_URL=http://localhost:3001
+npm install
+npm run dev
+```
+
+### 4. Tests
+
+```bash
+cd backend
+npm test        # 14 tests: auth, isolation, billing gate, KB, live Ollama
+npm run db:drift
+```
+
+The live tests skip (not pass) when Ollama is unreachable.
+
+### 5. Docker (optional)
+
+```bash
+cp .env.example .env           # replace every placeholder
+docker compose up --build
+```
+
+Ollama stays on the host; the backend reaches it through
+`host.docker.internal` (`extra_hosts: host-gateway`). By default Ollama binds
+127.0.0.1 only, which a container cannot reach — start it on an address the
+docker bridge can reach:
+
+```bash
+# docker0 gateway (reachable from containers, not from the LAN)
+OLLAMA_HOST=172.17.0.1:11434 ollama serve
+# or, accepting LAN exposure:
+OLLAMA_HOST=0.0.0.0:11434 ollama serve
+```
+
+> **Verified limitation on this host:** the backend container could not reach
+> Ollama on the default bridge gateway (`172.17.0.1`) or the Compose gateway
+> (`172.20.0.1`) — the host firewall drops bridge → host traffic. Two supported
+> fixes, neither applied here:
+> 1. Allow TCP `11434` from the docker bridge in the host firewall, or
+> 2. run the backend with `network_mode: host` (Linux) and use
+>    `OLLAMA_BASE_URL=http://127.0.0.1:11434`.
+>
+> Host-based local development (`npm run dev` + Ollama on 127.0.0.1) is
+> unaffected and fully verified.
+
+For local mail capture:
+
+```bash
+docker compose --profile email up mailpit   # UI on :8025
+```
+
+### 6. Knowledge base (RAG)
+
+`POST /api/knowledge/documents` (multipart) indexes text-like files per
+workspace. Set `AI_EMBED_MODEL=nomic-embed-text` **after** pulling that model to
+use vector retrieval; without it, retrieval uses deterministic lexical ranking.
+Chat models such as `qwen2.5:3b` are never used as embedding models.

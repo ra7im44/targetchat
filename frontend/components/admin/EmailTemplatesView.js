@@ -78,11 +78,11 @@ export default function EmailTemplatesPage() {
 
     const getCategoryBadge = (category) => {
         const colors = {
-            auth: 'bg-blue-100 text-info-ink dark:bg-surface-elevated dark:text-info',
-            billing: 'bg-green-100 text-success-ink dark:bg-green-900/30 dark:text-success',
-            workflow: 'bg-purple-100 text-info-ink dark:bg-purple-900/30 dark:text-info',
-            system: 'bg-gray-100 text-gray-700 dark:bg-surface-elevated dark:text-secondary',
-            admin: 'bg-red-100 text-danger-ink dark:bg-red-900/30 dark:text-danger'
+            auth: 'bg-info-soft text-info border border-info/20',
+            billing: 'bg-success-soft text-success border border-success/20',
+            workflow: 'bg-primary-soft text-primary border border-primary/20',
+            system: 'bg-surface-elevated text-secondary border border-border',
+            admin: 'bg-danger-soft text-danger border border-danger/20'
         };
         return colors[category] || colors.system;
     };
@@ -103,10 +103,10 @@ export default function EmailTemplatesPage() {
                 {/* Header */}
                 <div className="flex justify-between items-center mb-8">
                     <div>
-                        <h1 className="text-3xl font-bold text-gray-900 dark:text-foreground mb-2 flex items-center gap-3">
+                        <h1 className="text-3xl font-bold text-foreground mb-2 flex items-center gap-3">
                             <Mail size={18} /> Email Templates
                         </h1>
-                        <p className="text-gray-500 dark:text-muted">
+                        <p className="text-muted">
                             Manage email templates with live preview and testing
                         </p>
                     </div>
@@ -121,20 +121,20 @@ export default function EmailTemplatesPage() {
 
                 {/* Message */}
                 {message.text && (
-                    <div className={`p-4 rounded-lg mb-6 ${message.type === 'success' ? 'bg-green-50 text-success-ink dark:text-success dark:bg-green-900/30' : 'bg-red-50 text-danger-ink dark:bg-red-900/30'}`}>
+                    <div className={`p-4 rounded-lg mb-6 ${message.type === 'success' ? 'bg-success-soft text-success-ink' : 'bg-danger-soft text-danger-ink'}`}>
                         {message.text}
                     </div>
                 )}
 
                 {/* Filters */}
-                <div className="bg-white dark:bg-surface rounded-xl p-4 mb-6 shadow-sm border border-gray-100 dark:border-border">
+                <div className="bg-surface rounded-xl p-4 mb-6 shadow-sm border border-border">
                     <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
                         <div>
-                            <label className="block text-sm font-medium text-gray-700 dark:text-secondary mb-2">Category</label>
+                            <label className="block text-sm font-medium text-secondary mb-2">Category</label>
                             <select
                                 value={filter.category}
                                 onChange={(e) => setFilter({ ...filter, category: e.target.value })}
-                                className="w-full px-4 py-2 rounded-lg border border-gray-200 dark:border-border bg-white dark:bg-background text-gray-900 dark:text-foreground"
+                                className="w-full px-4 py-2 rounded-lg border border-border bg-background text-foreground"
                             >
                                 <option value="">All Categories</option>
                                 <option value="auth">Auth</option>
@@ -145,11 +145,11 @@ export default function EmailTemplatesPage() {
                             </select>
                         </div>
                         <div>
-                            <label className="block text-sm font-medium text-gray-700 dark:text-secondary mb-2">Language</label>
+                            <label className="block text-sm font-medium text-secondary mb-2">Language</label>
                             <select
                                 value={filter.language}
                                 onChange={(e) => setFilter({ ...filter, language: e.target.value })}
-                                className="w-full px-4 py-2 rounded-lg border border-gray-200 dark:border-border bg-white dark:bg-background text-gray-900 dark:text-foreground"
+                                className="w-full px-4 py-2 rounded-lg border border-border bg-background text-foreground"
                             >
                                 <option value="">All Languages</option>
                                 <option value="en">English</option>
@@ -157,11 +157,11 @@ export default function EmailTemplatesPage() {
                             </select>
                         </div>
                         <div>
-                            <label className="block text-sm font-medium text-gray-700 dark:text-secondary mb-2">Status</label>
+                            <label className="block text-sm font-medium text-secondary mb-2">Status</label>
                             <select
                                 value={filter.active}
                                 onChange={(e) => setFilter({ ...filter, active: e.target.value })}
-                                className="w-full px-4 py-2 rounded-lg border border-gray-200 dark:border-border bg-white dark:bg-background text-gray-900 dark:text-foreground"
+                                className="w-full px-4 py-2 rounded-lg border border-border bg-background text-foreground"
                             >
                                 <option value="">All Status</option>
                                 <option value="true">Active</option>
@@ -171,7 +171,7 @@ export default function EmailTemplatesPage() {
                         <div className="flex items-end">
                             <button
                                 onClick={() => setFilter({ category: '', language: 'en', active: '' })}
-                                className="w-full px-4 py-2 bg-gray-100 hover:bg-gray-200 dark:bg-surface-elevated dark:hover:bg-surface-hover text-gray-700 dark:text-secondary rounded-lg font-medium transition-colors"
+                                className="w-full px-4 py-2 bg-surface-elevated hover:bg-surface-hover text-secondary border border-border rounded-button font-medium transition-colors"
                             >
                                 Clear Filters
                             </button>
@@ -184,14 +184,14 @@ export default function EmailTemplatesPage() {
                     {templates.map((template) => (
                         <div
                             key={template.id}
-                            className="bg-white dark:bg-surface rounded-xl p-6 shadow-sm border border-gray-100 dark:border-border transition-all"
+                            className="bg-surface rounded-xl p-6 shadow-sm border border-border transition-all"
                         >
                             <div className="flex justify-between items-start mb-4">
                                 <div className="flex-1">
-                                    <h3 className="text-lg font-bold text-gray-900 dark:text-foreground mb-1">
+                                    <h3 className="text-lg font-bold text-foreground mb-1">
                                         {template.name}
                                     </h3>
-                                    <code className="text-xs text-gray-500 dark:text-muted bg-gray-100 dark:bg-surface-elevated px-2 py-1 rounded">
+                                    <code className="text-xs text-muted bg-surface-elevated px-2 py-1 rounded">
                                         {template.slug}
                                     </code>
                                 </div>
@@ -200,44 +200,44 @@ export default function EmailTemplatesPage() {
                                 </span>
                             </div>
 
-                            <p className="text-sm text-gray-600 dark:text-muted mb-4 line-clamp-2">
+                            <p className="text-sm text-muted mb-4 line-clamp-2">
                                 {template.subject}
                             </p>
 
-                            <div className="flex items-center gap-2 mb-4 text-xs text-gray-500 dark:text-muted">
+                            <div className="flex items-center gap-2 mb-4 text-xs text-muted">
                                 <span className="flex items-center gap-1">
                                     <Globe size={16} /> {template.language.toUpperCase()}
                                 </span>
-                                <span>â€¢</span>
+                                <span>•</span>
                                 <span className="flex items-center gap-1">
                                     {template.isActive ? (<><CircleCheck size={16} /> Active</>) : (<><CirclePause size={16} /> Inactive</>)}
                                 </span>
-                                <span>â€¢</span>
+                                <span>•</span>
                                 <span>{template.variables?.length || 0} vars</span>
                             </div>
 
                             <div className="flex gap-2">
                                 <button
                                     onClick={() => openModal('preview', template)}
-                                    className="flex-1 px-3 py-2 bg-gray-100 hover:bg-gray-200 dark:bg-surface-elevated dark:hover:bg-surface-hover text-gray-700 dark:text-secondary rounded-lg text-sm font-medium transition-colors flex items-center justify-center gap-1.5"
+                                    className="flex-1 px-3 py-2 bg-surface-elevated hover:bg-surface-hover text-secondary border border-border rounded-button text-sm font-medium transition-colors flex items-center justify-center gap-1.5"
                                 >
                                     <Eye size={16} /> Preview
                                 </button>
                                 <button
                                     onClick={() => openModal('test', template)}
-                                    className="flex-1 px-3 py-2 bg-blue-50 hover:bg-surface-hover dark:bg-surface-elevated dark:hover:bg-surface-hover text-primary-700 dark:text-accent rounded-lg text-sm font-medium transition-colors flex items-center justify-center gap-1.5"
+                                    className="flex-1 px-3 py-2 bg-primary-soft hover:bg-primary/20 text-primary border border-primary/20 rounded-button text-sm font-medium transition-colors flex items-center justify-center gap-1.5"
                                 >
                                     <Send size={16} /> Test
                                 </button>
                                 <button
                                     onClick={() => openModal('edit', template)}
-                                    className="px-3 py-2 bg-green-50 hover:bg-green-100 dark:bg-green-900/30 dark:hover:bg-green-900/50 text-success-ink dark:text-success rounded-lg text-sm font-medium transition-colors flex items-center justify-center"
+                                    className="px-3 py-2 bg-success-soft hover:bg-success-soft text-success-ink rounded-lg text-sm font-medium transition-colors flex items-center justify-center"
                                 >
                                     <Pencil size={16} />
                                 </button>
                                 <button
                                     onClick={() => handleDelete(template.id)}
-                                    className="px-3 py-2 bg-red-50 hover:bg-red-100 dark:bg-red-900/30 dark:hover:bg-red-900/50 text-danger-ink dark:text-danger rounded-lg text-sm font-medium transition-colors flex items-center justify-center"
+                                    className="px-3 py-2 bg-danger-soft hover:bg-danger-soft text-danger-ink rounded-lg text-sm font-medium transition-colors flex items-center justify-center"
                                 >
                                     <Trash2 size={16} />
                                 </button>
@@ -247,9 +247,9 @@ export default function EmailTemplatesPage() {
                 </div>
 
                 {templates.length === 0 && (
-                    <div className="text-center py-20 bg-gray-50 dark:bg-surface/50 rounded-xl border-2 border-dashed border-gray-200 dark:border-border">
+                    <div className="text-center py-20 bg-surface-elevated rounded-xl border-2 border-dashed border-border">
                         <div className="mb-4 opacity-50 flex justify-center"><Mail size={48} /></div>
-                        <p className="text-gray-500 dark:text-muted text-lg">No templates found</p>
+                        <p className="text-muted text-lg">No templates found</p>
                         <button
                             onClick={() => openModal('create')}
                             className="mt-4 px-6 py-2 bg-accent hover:bg-accent-hover text-background rounded-lg font-medium"
@@ -379,19 +379,19 @@ function TemplateModal({ mode, template, onClose, onSuccess }) {
 
         return (
             <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm" onClick={onClose}>
-                <div className="bg-white dark:bg-background w-full max-w-4xl max-h-[90vh] rounded-card shadow-lg flex flex-col overflow-hidden" onClick={(e) => e.stopPropagation()}>
-                    <div className="px-6 py-4 border-b border-gray-200 dark:border-border flex justify-between items-center">
-                        <h2 className="text-xl font-bold text-gray-900 dark:text-foreground flex items-center gap-2"><Eye size={18} /> Preview: {template.name}</h2>
-                        <button onClick={onClose} className="p-2 hover:bg-gray-100 dark:hover:bg-surface-hover rounded-lg"><X size={18} /></button>
+                <div className="bg-background w-full max-w-4xl max-h-[90vh] rounded-card shadow-lg flex flex-col overflow-hidden" onClick={(e) => e.stopPropagation()}>
+                    <div className="px-6 py-4 border-b border-border flex justify-between items-center">
+                        <h2 className="text-xl font-bold text-foreground flex items-center gap-2"><Eye size={18} /> Preview: {template.name}</h2>
+                        <button onClick={onClose} className="p-2 hover:bg-surface-hover text-muted hover:text-foreground rounded-lg transition-colors"><X size={18} /></button>
                     </div>
                     <div className="flex-1 overflow-y-auto p-6">
                         {preview && (
                             <div>
                                 <div className="mb-4">
-                                    <strong className="text-gray-700 dark:text-secondary">Subject:</strong>
-                                    <p className="text-gray-900 dark:text-foreground">{preview.subject}</p>
+                                    <strong className="text-secondary">Subject:</strong>
+                                    <p className="text-foreground">{preview.subject}</p>
                                 </div>
-                                <div className="border border-gray-200 dark:border-border rounded-lg p-4">
+                                <div className="border border-border rounded-lg p-4">
                                     <iframe srcDoc={preview.html} className="w-full h-[500px] border-0" title="Email Preview" />
                                 </div>
                             </div>
@@ -405,21 +405,21 @@ function TemplateModal({ mode, template, onClose, onSuccess }) {
     if (mode === 'test') {
         return (
             <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm" onClick={onClose}>
-                <div className="bg-white dark:bg-background w-full max-w-lg rounded-card shadow-lg p-6" onClick={(e) => e.stopPropagation()}>
-                    <h2 className="text-xl font-bold text-gray-900 dark:text-foreground mb-4 flex items-center gap-2"><Mail size={18} /> Send Test Email</h2>
+                <div className="bg-background w-full max-w-lg rounded-card shadow-lg p-6" onClick={(e) => e.stopPropagation()}>
+                    <h2 className="text-xl font-bold text-foreground mb-4 flex items-center gap-2"><Mail size={18} /> Send Test Email</h2>
                     <div className="space-y-4">
                         <div>
-                            <label className="block text-sm font-medium text-gray-700 dark:text-secondary mb-2">Test Email Address</label>
+                            <label className="block text-sm font-medium text-secondary mb-2">Test Email Address</label>
                             <input
                                 type="email"
                                 value={testEmail}
                                 onChange={(e) => setTestEmail(e.target.value)}
-                                className="w-full px-4 py-2 rounded-lg border border-gray-200 dark:border-border bg-white dark:bg-surface text-gray-900 dark:text-foreground"
+                                className="w-full px-4 py-2 rounded-lg border border-border bg-surface text-foreground"
                                 placeholder="test@example.com"
                             />
                         </div>
                         <div className="flex gap-2">
-                            <button onClick={onClose} className="flex-1 px-4 py-2 bg-gray-100 dark:bg-surface-elevated text-gray-700 dark:text-secondary rounded-lg font-medium">
+                            <button onClick={onClose} className="flex-1 px-4 py-2 bg-surface-elevated text-secondary rounded-lg font-medium">
                                 Cancel
                             </button>
                             <button onClick={handleSendTest} className="flex-1 px-4 py-2 bg-accent hover:bg-accent-hover text-background rounded-lg font-medium">
@@ -435,42 +435,42 @@ function TemplateModal({ mode, template, onClose, onSuccess }) {
     // Create/Edit Form
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm" onClick={onClose}>
-            <div className="bg-white dark:bg-background w-full max-w-4xl max-h-[90vh] rounded-card shadow-lg flex flex-col overflow-hidden" onClick={(e) => e.stopPropagation()}>
-                <div className="px-6 py-4 border-b border-gray-200 dark:border-border">
-                    <h2 className="text-xl font-bold text-gray-900 dark:text-foreground">
+            <div className="bg-background w-full max-w-4xl max-h-[90vh] rounded-card shadow-lg flex flex-col overflow-hidden" onClick={(e) => e.stopPropagation()}>
+                <div className="px-6 py-4 border-b border-border">
+                    <h2 className="text-xl font-bold text-foreground">
                         {mode === 'create' ? (<span className="flex items-center gap-2"><Plus size={18} /> Create Template</span>) : (<span className="flex items-center gap-2"><Pencil size={18} /> Edit Template</span>)}
                     </h2>
                 </div>
                 <form onSubmit={handleSubmit} className="flex-1 overflow-y-auto p-6 space-y-4">
                     <div className="grid grid-cols-2 gap-4">
                         <div>
-                            <label className="block text-sm font-medium text-gray-700 dark:text-secondary mb-2">Template Name *</label>
+                            <label className="block text-sm font-medium text-secondary mb-2">Template Name *</label>
                             <input
                                 type="text"
                                 value={formData.name}
                                 onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                                className="w-full px-4 py-2 rounded-lg border border-gray-200 dark:border-border bg-white dark:bg-surface text-gray-900 dark:text-foreground"
+                                className="w-full px-4 py-2 rounded-lg border border-border bg-surface text-foreground"
                                 required
                             />
                         </div>
                         <div>
-                            <label className="block text-sm font-medium text-gray-700 dark:text-secondary mb-2">Slug *</label>
+                            <label className="block text-sm font-medium text-secondary mb-2">Slug *</label>
                             <input
                                 type="text"
                                 value={formData.slug}
                                 onChange={(e) => setFormData({ ...formData, slug: e.target.value })}
-                                className="w-full px-4 py-2 rounded-lg border border-gray-200 dark:border-border bg-white dark:bg-surface text-gray-900 dark:text-foreground font-mono text-sm"
+                                className="w-full px-4 py-2 rounded-lg border border-border bg-surface text-foreground font-mono text-sm"
                                 required
                             />
                         </div>
                     </div>
                     <div className="grid grid-cols-3 gap-4">
                         <div>
-                            <label className="block text-sm font-medium text-gray-700 dark:text-secondary mb-2">Category *</label>
+                            <label className="block text-sm font-medium text-secondary mb-2">Category *</label>
                             <select
                                 value={formData.category}
                                 onChange={(e) => setFormData({ ...formData, category: e.target.value })}
-                                className="w-full px-4 py-2 rounded-lg border border-gray-200 dark:border-border bg-white dark:bg-surface text-gray-900 dark:text-foreground"
+                                className="w-full px-4 py-2 rounded-lg border border-border bg-surface text-foreground"
                                 required
                             >
                                 <option value="auth">Auth</option>
@@ -481,18 +481,18 @@ function TemplateModal({ mode, template, onClose, onSuccess }) {
                             </select>
                         </div>
                         <div>
-                            <label className="block text-sm font-medium text-gray-700 dark:text-secondary mb-2">Language</label>
+                            <label className="block text-sm font-medium text-secondary mb-2">Language</label>
                             <select
                                 value={formData.language}
                                 onChange={(e) => setFormData({ ...formData, language: e.target.value })}
-                                className="w-full px-4 py-2 rounded-lg border border-gray-200 dark:border-border bg-white dark:bg-surface text-gray-900 dark:text-foreground"
+                                className="w-full px-4 py-2 rounded-lg border border-border bg-surface text-foreground"
                             >
                                 <option value="en">English</option>
                                 <option value="ar">Arabic</option>
                             </select>
                         </div>
                         <div>
-                            <label className="block text-sm font-medium text-gray-700 dark:text-secondary mb-2">Status</label>
+                            <label className="block text-sm font-medium text-secondary mb-2">Status</label>
                             <label className="flex items-center gap-2 mt-2">
                                 <input
                                     type="checkbox"
@@ -500,33 +500,33 @@ function TemplateModal({ mode, template, onClose, onSuccess }) {
                                     onChange={(e) => setFormData({ ...formData, isActive: e.target.checked })}
                                     className="w-5 h-5 rounded"
                                 />
-                                <span className="text-sm text-gray-700 dark:text-secondary">Active</span>
+                                <span className="text-sm text-secondary">Active</span>
                             </label>
                         </div>
                     </div>
                     <div>
-                        <label className="block text-sm font-medium text-gray-700 dark:text-secondary mb-2">Subject *</label>
+                        <label className="block text-sm font-medium text-secondary mb-2">Subject *</label>
                         <input
                             type="text"
                             value={formData.subject}
                             onChange={(e) => setFormData({ ...formData, subject: e.target.value })}
-                            className="w-full px-4 py-2 rounded-lg border border-gray-200 dark:border-border bg-white dark:bg-surface text-gray-900 dark:text-foreground"
+                            className="w-full px-4 py-2 rounded-lg border border-border bg-surface text-foreground"
                             placeholder="Use {{variables}} for dynamic content"
                             required
                         />
                     </div>
                     <div>
-                        <label className="block text-sm font-medium text-gray-700 dark:text-secondary mb-2">HTML Body *</label>
+                        <label className="block text-sm font-medium text-secondary mb-2">HTML Body *</label>
                         <textarea
                             value={formData.htmlBody}
                             onChange={(e) => setFormData({ ...formData, htmlBody: e.target.value })}
-                            className="w-full px-4 py-2 rounded-lg border border-gray-200 dark:border-border bg-white dark:bg-surface text-gray-900 dark:text-foreground font-mono text-sm"
+                            className="w-full px-4 py-2 rounded-lg border border-border bg-surface text-foreground font-mono text-sm"
                             rows="10"
                             required
                         />
                     </div>
-                    <div className="flex gap-2 pt-4 border-t border-gray-200 dark:border-border">
-                        <button type="button" onClick={onClose} className="flex-1 px-4 py-2 bg-gray-100 dark:bg-surface-elevated text-gray-700 dark:text-secondary rounded-lg font-medium">
+                    <div className="flex gap-2 pt-4 border-t border-border">
+                        <button type="button" onClick={onClose} className="flex-1 px-4 py-2 bg-surface-elevated text-secondary rounded-lg font-medium">
                             Cancel
                         </button>
                         <button type="submit" disabled={saving} className="flex-1 px-4 py-2 bg-accent hover:bg-accent-hover text-background rounded-lg font-medium disabled:opacity-50">

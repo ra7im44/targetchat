@@ -126,22 +126,22 @@ export default function AdminSecurity() {
                 {/* Header */}
                 <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                     <div>
-                        <h1 className="text-3xl font-bold text-gray-900 dark:text-foreground mb-2 flex items-center gap-3">
-                            <Shield className="text-danger-ink dark:text-danger" size={18} />
+                        <h1 className="text-3xl font-bold text-foreground mb-2 flex items-center gap-3">
+                            <Shield className="text-danger" size={18} />
                             Security Control Room
                         </h1>
-                        <p className="text-gray-600 dark:text-muted">
+                        <p className="text-muted">
                             Monitor user patterns, detect multi-accounting, and manage access rules.
                         </p>
                     </div>
 
                     {/* Tabs Navigation */}
-                    <div className="flex p-1 bg-gray-100 dark:bg-surface rounded-xl w-fit">
+                    <div className="flex p-1 bg-surface-elevated rounded-xl w-fit">
                         <button
                             onClick={() => setActiveTab('blocking')}
                             className={`px-6 py-2.5 text-sm font-bold rounded-lg transition-all ${activeTab === 'blocking'
-                                ? 'bg-white dark:bg-surface-elevated text-primary-700 dark:text-info shadow-sm'
-                                : 'text-gray-500 hover:text-gray-700 dark:hover:text-gray-300'
+                                ? 'bg-surface-elevated text-primary shadow-sm'
+                                : 'text-muted hover:text-secondary dark:hover:text-muted'
                                 }`}
                         >
                             Access Blocking
@@ -149,8 +149,8 @@ export default function AdminSecurity() {
                         <button
                             onClick={() => setActiveTab('intelligence')}
                             className={`px-6 py-2.5 text-sm font-bold rounded-lg transition-all ${activeTab === 'intelligence'
-                                ? 'bg-white dark:bg-surface-elevated text-primary-700 dark:text-info shadow-sm'
-                                : 'text-gray-500 hover:text-gray-700 dark:hover:text-gray-300'
+                                ? 'bg-surface-elevated text-primary shadow-sm'
+                                : 'text-muted hover:text-secondary dark:hover:text-muted'
                                 }`}
                         >
                             IP Intelligence
@@ -162,7 +162,7 @@ export default function AdminSecurity() {
                     <div className="space-y-8">
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
                             {/* Stats Card */}
-                            <div className="bg-danger rounded-card p-6 text-white shadow-lg  relative overflow-hidden group">
+                            <div className="bg-danger rounded-card p-6 text-white shadow-lg relative overflow-hidden group">
                                 <div className="absolute top-0 right-0 -mt-10 -mr-10 w-40 h-40 bg-white/10 rounded-full blur-3xl group-hover:scale-110 transition-transform"></div>
                                 <div className="absolute bottom-0 left-0 -mb-10 -ml-10 w-40 h-40 bg-black/10 rounded-full blur-3xl"></div>
 
@@ -171,7 +171,7 @@ export default function AdminSecurity() {
                                         <p className="font-semibold opacity-90 text-sm uppercase tracking-wide">Total Blocked IPs</p>
                                         <h3 className="text-5xl font-bold mt-3">{stats.totalBlocked}</h3>
                                     </div>
-                                    <div className="p-3 bg-white/20 rounded-xl backdrop-blur-sm shadow-inner">
+                                    <div className="p-3 bg-surface-secondary border border-border rounded-lg">
                                         <Lock size={18} />
                                     </div>
                                 </div>
@@ -181,37 +181,37 @@ export default function AdminSecurity() {
                             </div>
 
                             {/* Block Form */}
-                            <div className="md:col-span-2 bg-white dark:bg-surface p-8 rounded-card shadow-sm border border-gray-100 dark:border-border">
-                                <h3 className="text-xl font-bold text-gray-900 dark:text-foreground mb-6 flex items-center gap-2">
+                            <div className="md:col-span-2 bg-surface p-8 rounded-card shadow-sm border border-border">
+                                <h3 className="text-xl font-bold text-foreground mb-6 flex items-center gap-2">
                                     <AlertTriangle size={18} />
                                     Block New IP Address
                                 </h3>
                                 <form onSubmit={handleBlock} className="flex flex-col md:flex-row gap-4 items-end">
                                     <div className="flex-1 w-full">
-                                        <label className="block text-sm font-bold text-gray-700 dark:text-secondary mb-2">IP Address</label>
+                                        <label className="block text-sm font-bold text-secondary mb-2">IP Address</label>
                                         <div className="relative">
                                             <Globe size={18} className="absolute left-4 top-4" />
                                             <input
                                                 type="text"
                                                 required
                                                 placeholder="e.g. 192.168.1.1"
-                                                className="w-full pl-11 p-3.5 bg-gray-50 dark:bg-background border border-gray-200 dark:border-border rounded-xl focus:ring-2 focus:ring-red-500 outline-none dark:text-foreground"
+                                                className="w-full pl-11 p-3.5 bg-background border border-border rounded-xl focus:ring-2 focus:ring-danger outline-none text-foreground"
                                                 value={newBlock.ipAddress}
                                                 onChange={e => setNewBlock({ ...newBlock, ipAddress: e.target.value })}
                                             />
                                         </div>
                                     </div>
                                     <div className="flex-1 w-full">
-                                        <label className="block text-sm font-bold text-gray-700 dark:text-secondary mb-2">Reason (Internal)</label>
+                                        <label className="block text-sm font-bold text-secondary mb-2">Reason (Internal)</label>
                                         <input
                                             type="text"
                                             placeholder="e.g. Repeated failed logins"
-                                            className="w-full p-3.5 bg-gray-50 dark:bg-background border border-gray-200 dark:border-border rounded-xl focus:ring-2 focus:ring-red-500 outline-none dark:text-foreground"
+                                            className="w-full p-3.5 bg-background border border-border rounded-xl focus:ring-2 focus:ring-danger outline-none text-foreground"
                                             value={newBlock.reason}
                                             onChange={e => setNewBlock({ ...newBlock, reason: e.target.value })}
                                         />
                                     </div>
-                                    <button type="submit" className="px-8 py-3.5 bg-red-600 hover:bg-red-700 text-white font-bold rounded-xl transition-all shadow-lg  flex items-center gap-2">
+                                    <button type="submit" className="px-8 py-3.5 bg-danger hover:bg-danger/90 text-danger-foreground font-bold rounded-xl transition-all shadow-lg flex items-center gap-2">
                                         <Lock size={18} /> Block
                                     </button>
                                 </form>
@@ -219,30 +219,30 @@ export default function AdminSecurity() {
                         </div>
 
                         {/* List */}
-                        <div className="bg-white dark:bg-surface rounded-card shadow-sm border border-gray-100 dark:border-border overflow-hidden">
-                            <div className="p-6 border-b border-gray-100 dark:border-border bg-gray-50/50 dark:bg-surface-elevated">
-                                <h3 className="text-lg font-bold text-gray-900 dark:text-foreground flex items-center gap-2">
+                        <div className="bg-surface rounded-card shadow-sm border border-border overflow-hidden">
+                            <div className="p-6 border-b border-border bg-surface-elevated">
+                                <h3 className="text-lg font-bold text-foreground flex items-center gap-2">
                                     <Lock size={18} /> Active Block Rules
                                 </h3>
                             </div>
                             <div className="overflow-x-auto">
                                 <table className="w-full">
-                                    <thead className="bg-gray-50 dark:bg-surface">
+                                    <thead className="bg-surface">
                                         <tr>
-                                            <th className="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase">IP Address</th>
-                                            <th className="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase">Reason</th>
-                                            <th className="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase">Blocked On</th>
-                                            <th className="px-6 py-4 text-right text-xs font-bold text-gray-500 uppercase">Actions</th>
+                                            <th className="px-6 py-4 text-left text-xs font-bold text-muted uppercase">IP Address</th>
+                                            <th className="px-6 py-4 text-left text-xs font-bold text-muted uppercase">Reason</th>
+                                            <th className="px-6 py-4 text-left text-xs font-bold text-muted uppercase">Blocked On</th>
+                                            <th className="px-6 py-4 text-right text-xs font-bold text-muted uppercase">Actions</th>
                                         </tr>
                                     </thead>
-                                    <tbody className="divide-y divide-gray-100 dark:divide-gray-700">
+                                    <tbody className="divide-y divide-border">
                                         {blockedIps.map(block => (
-                                            <tr key={block.id} className="hover:bg-gray-50 dark:hover:bg-surface-hover transition-colors">
-                                                <td className="px-6 py-4 font-mono font-bold text-gray-900 dark:text-foreground">{block.ipAddress}</td>
-                                                <td className="px-6 py-4 text-sm text-gray-600 dark:text-muted">{block.reason || 'N/A'}</td>
-                                                <td className="px-6 py-4 text-sm text-gray-500">{new Date(block.createdAt).toLocaleDateString()}</td>
+                                            <tr key={block.id} className="hover:bg-surface-hover transition-colors">
+                                                <td className="px-6 py-4 font-mono font-bold text-foreground">{block.ipAddress}</td>
+                                                <td className="px-6 py-4 text-sm text-muted">{block.reason || 'N/A'}</td>
+                                                <td className="px-6 py-4 text-sm text-muted">{new Date(block.createdAt).toLocaleDateString()}</td>
                                                 <td className="px-6 py-4 text-right">
-                                                    <button onClick={() => handleUnblock(block.id)} className="text-red-500 hover:text-red-700 p-2 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20">
+                                                    <button onClick={() => handleUnblock(block.id)} className="text-danger hover:text-danger p-2 rounded-lg hover:bg-danger-soft">
                                                         <Unlock size={18} />
                                                     </button>
                                                 </td>
@@ -257,13 +257,13 @@ export default function AdminSecurity() {
                     <div className="space-y-8">
                         <div className="grid grid-cols-1 xl:grid-cols-2 gap-8">
                             {/* IP Overlap Cards */}
-                            <div className="bg-white dark:bg-surface p-8 rounded-card shadow-sm border border-gray-100 dark:border-border">
+                            <div className="bg-surface p-8 rounded-card shadow-sm border border-border">
                                 <div className="flex justify-between items-center mb-6">
-                                    <h3 className="text-xl font-bold text-gray-900 dark:text-foreground flex items-center gap-2">
+                                    <h3 className="text-xl font-bold text-foreground flex items-center gap-2">
                                         <Activity size={18} />
                                         Multiple Accounts Per IP
                                     </h3>
-                                    <span className="text-xs bg-emerald-50 text-emerald-600 px-3 py-1 rounded-full font-bold">TOP 100</span>
+                                    <span className="text-xs bg-success-soft text-success px-3 py-1 rounded-full font-bold">TOP 100</span>
                                 </div>
 
                                 <div className="space-y-4 max-h-[500px] overflow-y-auto pr-2">
@@ -271,34 +271,34 @@ export default function AdminSecurity() {
                                         <button
                                             key={ip.ip}
                                             onClick={() => handleIpLookup(ip.ip)}
-                                            className="w-full flex items-center justify-between p-4 rounded-xl border border-gray-100 dark:border-border hover:border-accent dark:hover:border-accent hover:shadow-md transition-all group text-left"
+                                            className="w-full flex items-center justify-between p-4 rounded-xl border border-border hover:border-primary dark:hover:border-primary hover:shadow-md transition-all group text-left"
                                         >
                                             <div className="flex items-center gap-4">
-                                                <div className="w-10 h-10 rounded-lg bg-gray-50 dark:bg-background flex items-center justify-center font-mono text-sm text-gray-500">
+                                                <div className="w-10 h-10 rounded-lg bg-background flex items-center justify-center font-mono text-sm text-muted">
                                                     IP
                                                 </div>
                                                 <div>
-                                                    <p className="font-bold text-gray-900 dark:text-foreground font-mono">{ip.ip}</p>
-                                                    <p className="text-sm text-gray-500">{ip.user_count} accounts found</p>
+                                                    <p className="font-bold text-foreground font-mono">{ip.ip}</p>
+                                                    <p className="text-sm text-muted">{ip.user_count} accounts found</p>
                                                 </div>
                                             </div>
                                             <div className="flex items-center gap-3">
-                                                <div className="px-3 py-1 bg-red-50 dark:bg-red-900/20 text-red-600 text-xs font-bold rounded-lg">
+                                                <div className="px-3 py-1 bg-danger-soft text-danger text-xs font-bold rounded-lg">
                                                     OVERLAP
                                                 </div>
-                                                <Activity size={18} className="group-hover:text-accent" />
+                                                <Activity size={18} className="group-hover:text-primary" />
                                             </div>
                                         </button>
                                     ))}
                                     {ipStats.filter(i => i.user_count > 1).length === 0 && (
-                                        <div className="text-center py-10 text-gray-500 italic">No IP overlap detected.</div>
+                                        <div className="text-center py-10 text-muted italic">No IP overlap detected.</div>
                                     )}
                                 </div>
                             </div>
 
                             {/* User Lookup */}
-                            <div className="bg-white dark:bg-surface p-8 rounded-card shadow-sm border border-gray-100 dark:border-border">
-                                <h3 className="text-xl font-bold text-gray-900 dark:text-foreground mb-6 flex items-center gap-2">
+                            <div className="bg-surface p-8 rounded-card shadow-sm border border-border">
+                                <h3 className="text-xl font-bold text-foreground mb-6 flex items-center gap-2">
                                     <Globe size={18} />
                                     IP User Lookup
                                 </h3>
@@ -307,7 +307,7 @@ export default function AdminSecurity() {
                                     <input
                                         type="text"
                                         placeholder="Enter IP to search..."
-                                        className="flex-1 p-3.5 bg-gray-50 dark:bg-background border border-gray-200 dark:border-border rounded-xl outline-none focus:ring-2 focus:ring-accent/60 dark:text-foreground"
+                                        className="flex-1 p-3.5 bg-background border border-border rounded-xl outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary text-foreground"
                                         value={lookupIp}
                                         onChange={e => setLookupIp(e.target.value)}
                                         onKeyDown={e => e.key === 'Enter' && handleIpLookup()}
@@ -315,7 +315,7 @@ export default function AdminSecurity() {
                                     <button
                                         onClick={() => handleIpLookup()}
                                         disabled={searching}
-                                        className="px-6 py-3.5 bg-accent text-background font-bold rounded-xl hover:bg-accent-hover transition-all disabled:opacity-50"
+                                        className="px-6 py-3.5 bg-primary text-white font-bold rounded-xl hover:bg-primary-hover active:bg-primary-active transition-all disabled:opacity-50"
                                     >
                                         Search
                                     </button>
@@ -323,30 +323,30 @@ export default function AdminSecurity() {
 
                                 {selectedIpData ? (
                                     <div className="space-y-4 animate-fadeIn">
-                                        <div className="p-4 bg-blue-50 dark:bg-blue-900/20 rounded-xl border border-blue-100 dark:border-blue-800 flex justify-between items-center">
-                                            <span className="font-bold text-info-ink dark:text-info font-mono">{selectedIpData.ip}</span>
-                                            <span className="text-xs font-bold text-primary-700 dark:text-accent">{selectedIpData.users.length} Users</span>
+                                        <div className="p-4 bg-info-soft rounded-xl border border-info/25 flex justify-between items-center">
+                                            <span className="font-bold text-info font-mono">{selectedIpData.ip}</span>
+                                            <span className="text-xs font-bold text-primary">{selectedIpData.users.length} Users</span>
                                         </div>
 
                                         <div className="space-y-3">
                                             {selectedIpData.users.map(u => (
-                                                <div key={u.id} className="p-4 rounded-xl border border-gray-100 dark:border-border bg-gray-50/30 dark:bg-surface/30 flex justify-between items-center">
+                                                <div key={u.id} className="p-4 rounded-xl border border-border bg-surface-elevated/30 flex justify-between items-center">
                                                     <div>
-                                                        <p className="font-bold text-gray-900 dark:text-foreground leading-tight">{u.name}</p>
-                                                        <p className="text-xs text-gray-500 dark:text-muted mt-0.5">{u.email}</p>
+                                                        <p className="font-bold text-foreground leading-tight">{u.name}</p>
+                                                        <p className="text-xs text-muted mt-0.5">{u.email}</p>
                                                     </div>
                                                     <div className="text-right">
-                                                        <span className="text-[10px] uppercase font-bold tracking-widest text-gray-500 dark:text-muted">{u.role}</span>
-                                                        <p className="text-[10px] text-gray-500 mt-1">Reg: {u.registrationIp === selectedIpData.ip ? 'MATCH' : 'DIFF'}</p>
+                                                        <span className="text-[10px] uppercase font-bold tracking-widest text-muted">{u.role}</span>
+                                                        <p className="text-[10px] text-muted mt-1">Reg: {u.registrationIp === selectedIpData.ip ? 'MATCH' : 'DIFF'}</p>
                                                     </div>
                                                 </div>
                                             ))}
                                         </div>
                                     </div>
                                 ) : (
-                                    <div className="text-center py-20 bg-gray-50/50 dark:bg-background rounded-card border border-dashed border-gray-200 dark:border-border">
+                                    <div className="text-center py-20 bg-surface-elevated/50 rounded-card border border-dashed border-border">
                                         <Globe size={18} className="mx-auto mb-4" />
-                                        <p className="text-gray-500 dark:text-muted">Search an IP to see who has accessed the system from it.</p>
+                                        <p className="text-muted">Search an IP to see who has accessed the system from it.</p>
                                     </div>
                                 )}
                             </div>

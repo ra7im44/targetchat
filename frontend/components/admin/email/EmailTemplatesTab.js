@@ -65,11 +65,11 @@ export default function EmailTemplatesTab() {
 
     const getCategoryBadge = (category) => {
         const colors = {
-            auth: 'bg-blue-100 text-info-ink dark:bg-surface-elevated dark:text-info',
-            billing: 'bg-green-100 text-success-ink dark:bg-green-900/30 dark:text-success',
-            workflow: 'bg-purple-100 text-info-ink dark:bg-purple-900/30 dark:text-info',
-            system: 'bg-gray-100 text-gray-700 dark:bg-surface-elevated dark:text-secondary',
-            admin: 'bg-red-100 text-danger-ink dark:bg-red-900/30 dark:text-danger'
+            auth: 'bg-info-soft text-info border border-info/20',
+            billing: 'bg-success-soft text-success border border-success/20',
+            workflow: 'bg-primary-soft text-primary border border-primary/20',
+            system: 'bg-surface-elevated text-secondary border border-border',
+            admin: 'bg-danger-soft text-danger border border-danger/20'
         };
         return colors[category] || colors.system;
     };
@@ -131,18 +131,18 @@ export default function EmailTemplatesTab() {
         }
     };
 
-    if (loading) return <div className="flex justify-center py-20"><div className="w-12 h-12 border-4 border-accent border-t-transparent rounded-full animate-spin"></div></div>;
+    if (loading) return <div className="flex justify-center py-20"><div className="w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin"></div></div>;
 
     return (
         <div className="space-y-6">
             <div className="flex justify-between items-center">
                 <div>
-                    <h2 className="text-xl font-bold text-gray-900 dark:text-foreground">Email Templates</h2>
-                    <p className="text-sm text-gray-500">Manage and preview global email templates</p>
+                    <h2 className="text-xl font-bold text-foreground">Email Templates</h2>
+                    <p className="text-sm text-muted">Manage and preview global email templates</p>
                 </div>
                 <button
                     onClick={() => openModal('create')}
-                    className="flex items-center gap-2 px-4 py-2 bg-accent hover:bg-accent-hover text-background rounded-lg font-semibold transition-all shadow-md"
+                    className="flex items-center gap-2 px-4 py-2 bg-primary hover:bg-primary-hover active:bg-primary-active text-white rounded-xl font-semibold transition-all shadow-xs"
                 >
                     <Plus size={18} />
                     New Template
@@ -150,12 +150,12 @@ export default function EmailTemplatesTab() {
             </div>
 
             {/* Filters */}
-            <div className="bg-white dark:bg-surface rounded-xl p-4 border border-gray-100 dark:border-border">
+            <div className="bg-surface rounded-xl p-4 border border-border shadow-xs">
                 <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
                     <select
                         value={filter.category}
                         onChange={(e) => setFilter({ ...filter, category: e.target.value })}
-                        className="px-4 py-2 rounded-lg border border-gray-200 dark:border-border bg-white dark:bg-background"
+                        className="px-4 py-2 rounded-xl border border-border bg-surface-elevated text-foreground focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none"
                     >
                         <option value="">All Categories</option>
                         <option value="auth">Auth</option>
@@ -167,7 +167,7 @@ export default function EmailTemplatesTab() {
                     <select
                         value={filter.language}
                         onChange={(e) => setFilter({ ...filter, language: e.target.value })}
-                        className="px-4 py-2 rounded-lg border border-gray-200 dark:border-border bg-white dark:bg-background"
+                        className="px-4 py-2 rounded-xl border border-border bg-surface-elevated text-foreground focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none"
                     >
                         <option value="">All Languages</option>
                         <option value="en">English</option>
@@ -176,7 +176,7 @@ export default function EmailTemplatesTab() {
                     <select
                         value={filter.active}
                         onChange={(e) => setFilter({ ...filter, active: e.target.value })}
-                        className="px-4 py-2 rounded-lg border border-gray-200 dark:border-border bg-white dark:bg-background"
+                        className="px-4 py-2 rounded-xl border border-border bg-surface-elevated text-foreground focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none"
                     >
                         <option value="">All Status</option>
                         <option value="true">Active</option>
@@ -184,7 +184,7 @@ export default function EmailTemplatesTab() {
                     </select>
                     <button
                         onClick={() => setFilter({ category: '', language: '', active: '' })}
-                        className="px-4 py-2 bg-gray-100 dark:bg-surface-elevated text-gray-600 dark:text-secondary rounded-lg font-medium"
+                        className="px-4 py-2 bg-surface-elevated hover:bg-surface-hover text-secondary hover:text-foreground border border-border rounded-xl font-semibold transition-colors"
                     >
                         Reset
                     </button>
@@ -194,40 +194,40 @@ export default function EmailTemplatesTab() {
             {/* Grid */}
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 {templates.map((template) => (
-                    <div key={template.id} className="bg-white dark:bg-surface rounded-xl p-5 border border-gray-100 dark:border-border transition-all">
+                    <div key={template.id} className="bg-surface rounded-card p-5 border border-border shadow-xs hover:border-primary/40 transition-all">
                         <div className="flex justify-between mb-4">
                             <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider ${getCategoryBadge(template.category)}`}>
                                 {template.category}
                             </span>
-                            <span className="text-xs text-gray-500 dark:text-muted font-mono">{template.slug}</span>
+                            <span className="text-xs text-muted font-mono">{template.slug}</span>
                         </div>
-                        <h4 className="font-bold text-gray-900 dark:text-foreground mb-2">{template.name}</h4>
-                        <p className="text-sm text-gray-600 dark:text-muted mb-6 line-clamp-2">{template.subject}</p>
+                        <h4 className="font-semibold text-foreground mb-1">{template.name}</h4>
+                        <p className="text-sm text-secondary mb-5 line-clamp-2">{template.subject}</p>
                         <div className="flex gap-2">
                             <button
                                 onClick={() => openModal('preview', template)}
-                                className="flex-1 p-2 bg-gray-50 dark:bg-background text-gray-600 dark:text-muted rounded-lg hover:bg-gray-100 transition-all flex items-center justify-center"
+                                className="flex-1 p-2 bg-surface-elevated text-secondary hover:text-foreground hover:bg-surface-hover rounded-xl transition-all flex items-center justify-center border border-border"
                                 title="Preview"
                             >
                                 <Eye size={18} />
                             </button>
                             <button
                                 onClick={() => openModal('test', template)}
-                                className="flex-1 p-2 bg-blue-50 dark:bg-blue-900/20 text-primary-700 dark:text-accent rounded-lg hover:bg-surface-hover transition-all flex items-center justify-center"
+                                className="flex-1 p-2 bg-info-soft text-primary rounded-lg hover:bg-surface-hover transition-all flex items-center justify-center"
                                 title="Send Test"
                             >
                                 <Send size={18} />
                             </button>
                             <button
                                 onClick={() => openModal('edit', template)}
-                                className="flex-1 p-2 bg-green-50 dark:bg-green-900/20 text-success-ink dark:text-success rounded-lg hover:bg-green-100 transition-all flex items-center justify-center"
+                                className="flex-1 p-2 bg-success-soft text-success-ink rounded-lg hover:bg-success-soft transition-all flex items-center justify-center"
                                 title="Edit"
                             >
                                 <Edit size={18} />
                             </button>
                             <button
                                 onClick={() => handleDelete(template.id)}
-                                className="flex-1 p-2 bg-red-50 dark:bg-red-900/20 text-danger-ink dark:text-danger rounded-lg hover:bg-red-100 transition-all flex items-center justify-center"
+                                className="flex-1 p-2 bg-danger-soft text-danger-ink rounded-lg hover:bg-danger-soft transition-all flex items-center justify-center"
                                 title="Delete"
                             >
                                 <Trash2 size={18} />
@@ -266,28 +266,28 @@ function TemplateModal({ mode, template, onClose, onSave, onTest, saving }) {
     const isTest = mode === 'test';
 
     return (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-background/60 backdrop-blur-sm animate-fadeIn">
-            <div className="bg-white dark:bg-surface w-full max-w-4xl rounded-modal shadow-lg border border-gray-100 dark:border-border overflow-hidden flex flex-col max-h-[90vh]">
-                <div className="p-6 border-b border-gray-100 dark:border-border flex justify-between items-center bg-gray-50/50 dark:bg-background/50">
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fadeIn">
+            <div className="bg-surface w-full max-w-4xl rounded-card shadow-lg border border-border overflow-hidden flex flex-col max-h-[90vh]">
+                <div className="p-6 border-b border-border flex justify-between items-center bg-surface-elevated">
                     <div>
-                        <h2 className="text-xl font-bold text-gray-900 dark:text-foreground uppercase tracking-tight">
+                        <h2 className="text-xl font-semibold text-foreground">
                             {mode === 'create' ? 'Create Template' : mode === 'edit' ? 'Edit Template' : mode === 'preview' ? 'Preview Template' : 'Send Test Email'}
                         </h2>
-                        {template && <p className="text-xs text-gray-500 dark:text-muted font-mono mt-1">{template.slug}</p>}
+                        {template && <p className="text-xs text-muted font-mono mt-1">{template.slug}</p>}
                     </div>
-                    <button onClick={onClose} className="p-2 hover:bg-gray-200 dark:hover:bg-surface-hover rounded-xl transition-all">
-                        <X size={24} className="text-gray-500 dark:text-muted" />
+                    <button onClick={onClose} className="p-2 hover:bg-surface-hover text-muted hover:text-foreground rounded-xl transition-all">
+                        <X size={20} />
                     </button>
                 </div>
 
-                <div className="flex-1 overflow-y-auto p-8">
+                <div className="flex-1 overflow-y-auto p-6 sm:p-8 bg-surface">
                     {isPreview ? (
                         <div className="space-y-6">
-                            <div className="p-4 bg-gray-50 dark:bg-background rounded-card border border-gray-100 dark:border-border">
-                                <label className="text-[10px] font-bold text-gray-500 dark:text-muted uppercase tracking-widest block mb-1">Subject Line</label>
-                                <p className="text-sm font-bold text-gray-900 dark:text-foreground">{template.subject}</p>
+                            <div className="p-4 bg-surface-elevated rounded-card border border-border">
+                                <label className="text-[10px] font-bold text-muted uppercase tracking-widest block mb-1">Subject Line</label>
+                                <p className="text-sm font-semibold text-foreground">{template.subject}</p>
                             </div>
-                            <div className="border border-gray-100 dark:border-border rounded-card overflow-hidden bg-white">
+                            <div className="border border-border rounded-card overflow-hidden bg-white">
                                 <iframe
                                     srcDoc={template.htmlBody}
                                     title="Preview"
@@ -297,16 +297,16 @@ function TemplateModal({ mode, template, onClose, onSave, onTest, saving }) {
                         </div>
                     ) : isTest ? (
                         <div className="space-y-6">
-                            <div className="p-6 bg-blue-50 dark:bg-blue-900/20 rounded-card border border-blue-100 dark:border-blue-900/50">
-                                <h4 className="font-bold text-blue-900 dark:text-info mb-2">Send a test for "{template.name}"</h4>
-                                <p className="text-sm text-info/70 dark:text-info/70">This will send a live email to the address below using mock data for any variables.</p>
+                            <div className="p-6 bg-info-soft rounded-card border border-info/20">
+                                <h4 className="font-semibold text-info mb-2">Send a test for "{template.name}"</h4>
+                                <p className="text-sm text-secondary">This will send a live email to the address below using mock data for any variables.</p>
                             </div>
                             <div className="space-y-2">
-                                <label className="text-xs font-bold text-gray-700 dark:text-secondary">Recipient Email Address</label>
+                                <label className="text-xs font-semibold text-secondary">Recipient Email Address</label>
                                 <input
                                     type="email"
                                     placeholder="your@email.com"
-                                    className="w-full px-4 py-3 bg-gray-50 dark:bg-background rounded-xl border border-gray-200 dark:border-border focus:ring-2 focus:ring-accent outline-none"
+                                    className="w-full px-4 py-2.5 bg-surface-elevated rounded-xl border border-border text-foreground focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none placeholder:text-muted"
                                     value={testEmail}
                                     onChange={(e) => setTestEmail(e.target.value)}
                                 />
@@ -315,24 +315,24 @@ function TemplateModal({ mode, template, onClose, onSave, onTest, saving }) {
                     ) : (
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div className="space-y-2">
-                                <label className="text-xs font-bold text-gray-700 dark:text-secondary">Template Name</label>
-                                <input type="text" className="w-full px-4 py-3 bg-gray-50 dark:bg-background rounded-xl border border-gray-200 dark:border-border" value={formData.name} onChange={e => setFormData({ ...formData, name: e.target.value })} />
+                                <label className="text-xs font-semibold text-secondary">Template Name</label>
+                                <input type="text" className="w-full px-4 py-2.5 bg-surface-elevated rounded-xl border border-border text-foreground focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none placeholder:text-muted" value={formData.name} onChange={e => setFormData({ ...formData, name: e.target.value })} />
                             </div>
                             <div className="space-y-2">
-                                <label className="text-xs font-bold text-gray-700 dark:text-secondary">Slug (Unique ID)</label>
-                                <input type="text" className="w-full px-4 py-3 bg-gray-50 dark:bg-background rounded-xl border border-gray-200 dark:border-border font-mono" value={formData.slug} onChange={e => setFormData({ ...formData, slug: e.target.value })} disabled={mode === 'edit'} />
+                                <label className="text-xs font-semibold text-secondary">Slug (Unique ID)</label>
+                                <input type="text" className="w-full px-4 py-2.5 bg-surface-elevated rounded-xl border border-border text-foreground focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none font-mono placeholder:text-muted" value={formData.slug} onChange={e => setFormData({ ...formData, slug: e.target.value })} disabled={mode === 'edit'} />
                             </div>
                             <div className="md:col-span-2 space-y-2">
-                                <label className="text-xs font-bold text-gray-700 dark:text-secondary">Email Subject</label>
-                                <input type="text" className="w-full px-4 py-3 bg-gray-50 dark:bg-background rounded-xl border border-gray-200 dark:border-border" value={formData.subject} onChange={e => setFormData({ ...formData, subject: e.target.value })} />
+                                <label className="text-xs font-semibold text-secondary">Email Subject</label>
+                                <input type="text" className="w-full px-4 py-2.5 bg-surface-elevated rounded-xl border border-border text-foreground focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none placeholder:text-muted" value={formData.subject} onChange={e => setFormData({ ...formData, subject: e.target.value })} />
                             </div>
                             <div className="md:col-span-2 space-y-2">
-                                <label className="text-xs font-bold text-gray-700 dark:text-secondary">HTML Content</label>
-                                <textarea className="w-full px-4 py-3 bg-gray-50 dark:bg-background rounded-xl border border-gray-200 dark:border-border font-mono text-sm h-64" value={formData.htmlBody} onChange={e => setFormData({ ...formData, htmlBody: e.target.value })} />
+                                <label className="text-xs font-semibold text-secondary">HTML Content</label>
+                                <textarea className="w-full px-4 py-2.5 bg-surface-elevated rounded-xl border border-border text-foreground focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none font-mono text-sm h-64 placeholder:text-muted" value={formData.htmlBody} onChange={e => setFormData({ ...formData, htmlBody: e.target.value })} />
                             </div>
                             <div className="space-y-2">
-                                <label className="text-xs font-bold text-gray-700 dark:text-secondary">Category</label>
-                                <select className="w-full px-4 py-3 bg-gray-50 dark:bg-background rounded-xl border border-gray-200 dark:border-border" value={formData.category} onChange={e => setFormData({ ...formData, category: e.target.value })}>
+                                <label className="text-xs font-semibold text-secondary">Category</label>
+                                <select className="w-full px-4 py-2.5 bg-surface-elevated rounded-xl border border-border text-foreground focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none" value={formData.category} onChange={e => setFormData({ ...formData, category: e.target.value })}>
                                     <option value="auth">Auth</option>
                                     <option value="billing">Billing</option>
                                     <option value="workflow">Workflow</option>
@@ -341,8 +341,8 @@ function TemplateModal({ mode, template, onClose, onSave, onTest, saving }) {
                                 </select>
                             </div>
                             <div className="space-y-2">
-                                <label className="text-xs font-bold text-gray-700 dark:text-secondary">Language</label>
-                                <select className="w-full px-4 py-3 bg-gray-50 dark:bg-background rounded-xl border border-gray-200 dark:border-border" value={formData.language} onChange={e => setFormData({ ...formData, language: e.target.value })}>
+                                <label className="text-xs font-semibold text-secondary">Language</label>
+                                <select className="w-full px-4 py-2.5 bg-surface-elevated rounded-xl border border-border text-foreground focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none" value={formData.language} onChange={e => setFormData({ ...formData, language: e.target.value })}>
                                     <option value="en">English</option>
                                     <option value="ar">Arabic</option>
                                 </select>
@@ -351,16 +351,16 @@ function TemplateModal({ mode, template, onClose, onSave, onTest, saving }) {
                     )}
                 </div>
 
-                <div className="p-6 bg-gray-50 dark:bg-background/50 border-t border-gray-100 dark:border-border flex justify-end gap-3">
-                    <button onClick={onClose} className="px-6 py-2.5 text-gray-600 dark:text-muted font-bold text-sm">Cancel</button>
+                <div className="p-6 bg-surface-elevated border-t border-border flex justify-end gap-3">
+                    <button onClick={onClose} className="px-5 py-2.5 text-secondary hover:text-foreground font-semibold text-sm border border-border rounded-xl hover:bg-surface-hover transition-colors">Cancel</button>
                     {isPreview ? (
-                        <button onClick={() => { onClose(); onTest(template.id); }} className="px-6 py-2.5 bg-accent text-background rounded-xl font-bold text-sm hover:bg-accent-hover shadow-lg transition-all">Send Test</button>
+                        <button onClick={() => { onClose(); onTest(template.id); }} className="px-6 py-2.5 bg-primary text-white rounded-xl font-semibold text-sm hover:bg-primary-hover active:bg-primary-active shadow-xs transition-all">Send Test</button>
                     ) : isTest ? (
-                        <button onClick={() => onTest(template.id, testEmail)} disabled={saving || !testEmail} className="px-6 py-2.5 bg-accent text-background rounded-xl font-bold text-sm hover:bg-accent-hover shadow-lg transition-all disabled:opacity-50">
+                        <button onClick={() => onTest(template.id, testEmail)} disabled={saving || !testEmail} className="px-6 py-2.5 bg-primary text-white rounded-xl font-semibold text-sm hover:bg-primary-hover active:bg-primary-active shadow-xs transition-all disabled:opacity-50">
                             {saving ? 'Sending...' : 'Send Now'}
                         </button>
                     ) : (
-                        <button onClick={() => onSave(formData)} disabled={saving} className="px-6 py-2.5 bg-accent text-background rounded-xl font-bold text-sm hover:bg-accent-hover shadow-lg transition-all">
+                        <button onClick={() => onSave(formData)} disabled={saving} className="px-6 py-2.5 bg-primary text-white rounded-xl font-semibold text-sm hover:bg-primary-hover active:bg-primary-active shadow-xs transition-all">
                             {saving ? 'Saving...' : 'Save Template'}
                         </button>
                     )}
