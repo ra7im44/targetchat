@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/router';
 import AdminLayout from '../../components/admin/AdminLayout';
 import EditUserModal from '../../components/admin/EditUserModal';
@@ -23,23 +23,44 @@ export default function UsersPage() {
     const [deletingUser, setDeletingUser] = useState(null);
     const [selectedUsers, setSelectedUsers] = useState([]);
     const [page, setPage] = useState(1);
+    const [pagination, setPagination] = useState(null);
+    const [appliedSearch, setAppliedSearch] = useState('');
+    const [error, setError] = useState(null);
+    const [refreshing, setRefreshing] = useState(false);
+    const requestIdRef = useRef(0);
+    const hasLoadedRef = useRef(false);
+
+    useEffect(() => {
+        const t = setTimeout(() => {
+            setAppliedSearch(search);
+            setPage(1);
+        }, 300);
+        return () => clearTimeout(t);
+    }, [search]);
 
     useEffect(() => {
         if (!router.isReady) return;
         checkAdminAndLoadUsers();
-    }, [router.isReady, page, filter, search]);
+    }, [router.isReady, page, filter, appliedSearch]);
 
     async function checkAdminAndLoadUsers() {
         const token = localStorage.getItem('tc_token');
         if (!token) return router.replace('/login');
 
+        const reqId = ++requestIdRef.current;
+
         try {
-            setLoading(true);
+            if (hasLoadedRef.current) {
+                setRefreshing(true);
+            } else {
+                setLoading(true);
+            }
+            setError(null);
 
             const queryParams = new URLSearchParams({
                 page,
                 limit: 10,
-                search,
+                search: appliedSearch,
                 filter
             });
 
@@ -50,6 +71,13 @@ export default function UsersPage() {
             ]);
 
             if (mainRes.status === 401 || mainRes.status === 403) return router.replace('/admin');
+
+            if (!mainRes.ok) {
+                if (reqId === requestIdRef.current) {
+                    setError('User list could not be loaded.');
+                }
+                return;
+            }
 
             const mainData = await mainRes.json();
             let adminCount = 0;
@@ -65,17 +93,26 @@ export default function UsersPage() {
                 activeCount = activeData.pagination.total;
             }
 
+            if (reqId !== requestIdRef.current) return;
+
             setUsers(mainData.users);
+            setPagination(mainData.pagination);
             setStats({
                 total: mainData.pagination.total,
                 admins: adminCount,
                 active: activeCount
             });
-
-            setLoading(false);
+            hasLoadedRef.current = true;
         } catch (err) {
             console.error('Error loading users:', err);
-            setLoading(false);
+            if (reqId === requestIdRef.current) {
+                setError('User list could not be loaded.');
+            }
+        } finally {
+            if (reqId === requestIdRef.current) {
+                setLoading(false);
+                setRefreshing(false);
+            }
         }
     }
 
@@ -177,7 +214,6 @@ export default function UsersPage() {
         if (!confirm(`Are you sure you want to ${action} ${selectedUsers.length} users?`)) return;
 
         const token = localStorage.getItem('tc_token');
-        setLoading(true);
 
         try {
             const promises = selectedUsers.map(id => {
@@ -208,19 +244,7 @@ export default function UsersPage() {
         } catch (err) {
             console.error('Bulk action error:', err);
             alert('Some actions failed. Check console.');
-        } finally {
-            setLoading(false);
         }
-    }
-
-    if (loading) {
-        return (
-            <AdminLayout>
-                <div className="flex items-center justify-center h-full">
-                    <div className="w-16 h-16 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
-                </div>
-            </AdminLayout>
-        );
     }
 
     return (
@@ -333,20 +357,43 @@ export default function UsersPage() {
                 {/* Search & Filter */}
                 <div className="bg-surface p-4 rounded-card flex flex-col md:flex-row gap-4 items-center shadow-sm border border-border">
                     <div className="flex-1 w-full relative">
-                        <Search className="absolute left-4 top-1/2 -translate-y-1/2" size={18} />
+                        <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-muted" size={18} />
                         <input
                             type="text"
+                            autoComplete="off"
                             placeholder="Search by name, email, country, IP, or device..."
                             aria-label="Search users by name, email, country, IP, or device"
                             value={search}
                             onChange={(e) => setSearch(e.target.value)}
-                            className="w-full pl-11 pr-4 py-3 rounded-xl bg-background border border-border focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all placeholder:text-muted"
+                            onKeyDown={(e) => {
+                                if (e.key === 'Escape' && search) {
+                                    setSearch('');
+                                }
+                            }}
+                            className="w-full pl-11 pr-10 py-3 rounded-xl bg-background border border-border focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all placeholder:text-muted"
                         />
+                        {search ? (
+                            <button
+                                type="button"
+                                onClick={() => setSearch('')}
+                                aria-label="Clear search"
+                                title="Clear search"
+                                className="absolute right-3 top-1/2 -translate-y-1/2
+                                    p-1.5 rounded-md text-muted hover:text-foreground
+                                    hover:bg-surface-hover transition-colors
+                                    focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
+                            >
+                                <X size={16} />
+                            </button>
+                        ) : null}
                     </div>
                     <select
                         value={filter}
                         aria-label="Filter users"
-                        onChange={(e) => setFilter(e.target.value)}
+                        onChange={(e) => {
+                            setFilter(e.target.value);
+                            setPage(1);
+                        }}
                         className="w-full md:w-auto px-6 py-3 rounded-xl bg-background border border-border focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none cursor-pointer"
                     >
                         <option value="all">All Users</option>
@@ -380,7 +427,14 @@ export default function UsersPage() {
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-border">
-                                {users.map((user) => (
+                                {loading && users.length === 0 ? (
+                                    <tr>
+                                        <td colSpan={6} className="py-16 text-center">
+                                            <Spinner label="Loading users…" />
+                                        </td>
+                                    </tr>
+                                ) : (
+                                    users.map((user) => (
                                     <tr
                                         key={user.id}
                                         className={`group transition-colors duration-150 ${selectedUsers.includes(user.id)
@@ -490,12 +544,36 @@ export default function UsersPage() {
                                             </div>
                                         </td>
                                     </tr>
-                                ))}
+                                    ))
+                                )}
                             </tbody>
                         </table>
                     </div>
 
-                    {users.length === 0 && (
+                    {loading && users.length > 0 && (
+                        <div className="h-0.5 bg-primary/20 overflow-hidden" aria-hidden="true">
+                            <div className="h-full w-1/3 bg-primary animate-pulse" />
+                        </div>
+                    )}
+
+                    {!loading && error && (
+                        <div className="text-center py-16">
+                            <div className="w-20 h-20 bg-danger-soft rounded-full flex items-center justify-center mx-auto mb-4 text-danger">
+                                <X size={20} />
+                            </div>
+                            <h3 className="text-xl font-bold text-foreground mb-2">Could not load users</h3>
+                            <p className="text-muted mb-4">{error}</p>
+                            <button
+                                type="button"
+                                onClick={() => checkAdminAndLoadUsers()}
+                                className="px-4 py-2 rounded-lg bg-primary text-background font-semibold text-sm hover:bg-primary/90 transition-colors"
+                            >
+                                Try again
+                            </button>
+                        </div>
+                    )}
+
+                    {!loading && !error && users.length === 0 && (
                         <div className="text-center py-16">
                             <div className="w-20 h-20 bg-surface-elevated rounded-full flex items-center justify-center mx-auto mb-4 text-muted">
                                 <Users size={18} />
@@ -504,13 +582,66 @@ export default function UsersPage() {
                             <p className="text-muted">
                                 {search || filter !== 'all' ? 'Try adjusting your filters' : 'Get started by inviting users'}
                             </p>
+                            {(search || filter !== 'all') && (
+                                <button
+                                    type="button"
+                                    onClick={() => {
+                                        setSearch('');
+                                        setFilter('all');
+                                        setPage(1);
+                                    }}
+                                    className="mt-4 px-4 py-2 rounded-lg border border-border bg-surface text-sm font-semibold text-secondary hover:bg-surface-hover transition-colors"
+                                >
+                                    Clear search &amp; filters
+                                </button>
+                            )}
                         </div>
                     )}
                 </div>
 
-                <div className="mt-6 text-sm text-muted text-center">
-                    Showing {users.length} user{users.length !== 1 ? 's' : ''}
-                </div>
+                {pagination && (
+                    <div className="flex flex-wrap items-center justify-between gap-3 mt-2">
+                        <p className="text-xs text-muted">
+                            Showing{' '}
+                            <span className="font-semibold tabular-nums text-foreground">
+                                {pagination.total === 0 ? 0 : (pagination.page - 1) * pagination.limit + 1}–{Math.min(pagination.page * pagination.limit, pagination.total)}
+                            </span>
+                            {' '}of{' '}
+                            <span className="font-semibold tabular-nums text-foreground">{pagination.total}</span>
+                            {' '}users · Page {pagination.page} of {pagination.pages}
+                        </p>
+                        {pagination.pages > 1 && (
+                            <nav aria-label="Users table pagination" className="flex gap-2">
+                                <button
+                                    type="button"
+                                    onClick={() => setPage((p) => Math.max(1, p - 1))}
+                                    disabled={pagination.page <= 1}
+                                    aria-label="Previous page of users"
+                                    className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg border border-border bg-surface
+                                        text-sm font-semibold text-secondary
+                                        hover:bg-surface-hover transition-colors
+                                        focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40
+                                        disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-surface"
+                                >
+                                    <ChevronLeft size={14} aria-hidden="true" /> Previous
+                                </button>
+                                <button
+                                    type="button"
+                                    onClick={() => setPage((p) => Math.min(pagination.pages, p + 1))}
+                                    disabled={pagination.page >= pagination.pages}
+                                    aria-label="Next page of users"
+                                    className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg border border-border bg-surface
+                                        text-sm font-semibold text-secondary
+                                        hover:bg-surface-hover transition-colors
+                                        focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40
+                                        disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-surface"
+                                >
+                                    Next <ChevronRight size={14} aria-hidden="true" />
+                                </button>
+                            </nav>
+                        )}
+                    </div>
+                )}
 
                 {/* Modals */}
                 {editingUser && (
@@ -532,6 +663,13 @@ export default function UsersPage() {
         </AdminLayout>
     );
 }
+
+const Spinner = ({ label = 'Loading…' }) => (
+    <div className="flex flex-col items-center justify-center gap-2 py-4" role="status">
+        <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin" aria-hidden="true" />
+        <span className="text-xs text-muted font-medium">{label}</span>
+    </div>
+);
 
 function getRelativeTime(dateString) {
     if (!dateString) return 'Never';
