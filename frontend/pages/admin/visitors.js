@@ -12,29 +12,6 @@ import { API_URL as API, getToken } from '../../utils/apiConfig';
 
 const MAX_DETAIL_LENGTH = 96;
 
-function flagEmojiFor(countryCode, fallback = '🌐') {
-    if (!countryCode) return fallback;
-    try {
-        const upper = String(countryCode).toUpperCase().trim();
-        if (upper.length !== 2) return fallback;
-        return String.fromCodePoint(
-            ...upper.split('').map((c) => 0x1F1E6 - 65 + c.charCodeAt(0))
-        );
-    } catch {
-        return fallback;
-    }
-}
-
-function locationLabelFor(countryCode, withEmoji = false) {
-    const label =
-        countryCode
-            ? countryName(countryCode) ?? 'Unknown location'
-            : 'Unknown location';
-    if (!withEmoji) return label;
-    const flag = flagEmojiFor(countryCode);
-    return flag ? `${flag} ${label}` : label;
-}
-
 function deviceIconFor(deviceInfo) {
     if (!deviceInfo) return null;
     const lower = deviceInfo.toLowerCase();
@@ -74,55 +51,6 @@ function formatRelativeTime(dateStr) {
     const days = Math.floor(hours / 24);
     return `${days}d ago`;
 }
-
-const PresenceBadge = ({ presence, isInline = false }) => {
-    const tone =
-        presence === 'Online'
-            ? 'success'
-            : presence === 'RecentlyActive'
-                ? 'warning'
-                : 'neutral';
-
-    const label =
-        presence === 'Online'
-            ? 'Online'
-            : presence === 'RecentlyActive'
-                ? 'Recently Active'
-                : 'Idle';
-
-    if (isInline) {
-        return (
-            <span className={`
-                inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[11px]
-                font-semibold tracking-tight border leading-none
-                ${tone === 'neutral'
-                    ? 'bg-surface-elevated text-muted border-border'
-                    : `bg-${tone}-soft text-${tone} border-${tone}/20`}
-            `}>
-                {presence === 'Online' && (
-                    <span className="inline-block h-1.5 w-1.5 rounded-full bg-success animate-pulse" />
-                )}
-                {label}
-            </span>
-        );
-    }
-
-    return (
-        <span className={`
-            inline-flex items-center gap-1.5 px-3 py-1 rounded-lg text-xs
-            font-semibold tracking-tight border leading-none
-            ${tone === 'neutral'
-                ? 'bg-surface-elevated text-muted border-border'
-                : `bg-${tone}-soft text-${tone} border-${tone}/20`}
-        `}>
-            <span className={`
-                inline-block h-2 w-2 rounded-full
-                ${tone === 'neutral' ? 'bg-border-strong' : `bg-${tone} ${presence === 'Online' ? 'animate-pulse' : ''}`}
-            `} />
-            {label}
-        </span>
-    );
-};
 
 export default function VisitorsTrackingPage() {
     const router = useRouter();
@@ -234,7 +162,6 @@ export default function VisitorsTrackingPage() {
                             <h1 className="text-2xl font-semibold text-foreground tracking-tight">
                                 Session Tracking & User Intelligence
                             </h1>
-                            <PresenceBadge presence="Online" isInline />
                         </header>
                         <p className="text-sm text-muted mt-1 leading-relaxed">
                             Live user location, IP addresses, device analytics, and active presence sessions.
@@ -310,10 +237,7 @@ export default function VisitorsTrackingPage() {
                                 topCountries.map((item) => (
                                     <ListItem key={item.country}>
                                         <ListItemLabel>
-                                            <span className="inline-flex items-center gap-1.5">
-                                                <span aria-hidden="true">{flagEmojiFor(item.country, '🌐')}</span>
-                                                <span>{countryName(item.country)}</span>
-                                            </span>
+                                            <span>{countryName(item.country)}</span>
                                         </ListItemLabel>
                                         <ListItemValue count={item.count} percentage={item.percentage} />
                                         <BarTrack percentage={item.percentage} fill="primary" minPercent={5} />
@@ -430,21 +354,27 @@ export default function VisitorsTrackingPage() {
                         className={`overflow-x-auto rounded-xl border border-border bg-surface shadow-xs transition-opacity ${loading && currentVisitors.length > 0 ? 'opacity-60' : ''}`}
                         aria-busy={loading}
                     >
-                        <table className="w-full min-w-[860px] border-separate">
+                        <table className="w-full min-w-[960px] table-fixed border-separate">
+                            <colgroup>
+                                <col className="w-[26%]" />
+                                <col className="w-[17%]" />
+                                <col className="w-[15%]" />
+                                <col className="w-[27%]" />
+                                <col className="w-[15%]" />
+                            </colgroup>
                             <thead>
                                 <tr className="bg-surface-elevated">
                                     <TableHeader>User</TableHeader>
-                                    <TableHeader>Account</TableHeader>
-                                    <TableHeader>Presence</TableHeader>
+                                    <TableHeader>Status</TableHeader>
                                     <TableHeader>Location</TableHeader>
                                     <TableHeader>Network / Device</TableHeader>
-                                    <TableHeader>Session Timing</TableHeader>
+                                    <TableHeader>Session</TableHeader>
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-border">
                                 {loading && currentVisitors.length === 0 ? (
                                     <tr>
-                                        <td colSpan={6} className="py-16 text-center">
+                                        <td colSpan={5} className="py-16 text-center">
                                             <Spinner label="Loading visitor tracking records…" />
                                         </td>
                                     </tr>
@@ -474,14 +404,10 @@ export default function VisitorsTrackingPage() {
                                                 </TableCell>
                                                 <TableCell>
                                                     <StatusCell
-                                                        active={row.isUserActive}
-                                                        sessionActive={row.isSessionActive}
-                                                    />
-                                                </TableCell>
-                                                <TableCell>
-                                                    <PresenceCell
                                                         presence={row.presence}
                                                         lastActivity={row.lastActivity}
+                                                        active={row.isUserActive}
+                                                        sessionActive={row.isSessionActive}
                                                     />
                                                 </TableCell>
                                                 <TableCell>
@@ -501,9 +427,8 @@ export default function VisitorsTrackingPage() {
                                                     />
                                                 </TableCell>
                                                 <TableCell>
-                                                    <TimingCell
+                                                    <SessionCell
                                                         createdAt={row.createdAt}
-                                                        lastActivity={row.lastActivity}
                                                         expiresAt={row.expiresAt}
                                                         isInactive={isInactiveRow}
                                                     />
@@ -513,7 +438,7 @@ export default function VisitorsTrackingPage() {
                                     })
                                 ) : (
                                     <tr>
-                                        <td colSpan={6} className="py-16">
+                                        <td colSpan={5} className="py-16">
                                             {currentVisitors.length === 0 && !loading && !error ? (
                                                 <EmptyState
                                                     icon={<Users size={22} />}
@@ -783,14 +708,14 @@ const Spinner = ({ label = 'Loading…' }) => (
 const TableHeader = ({ children }) => (
     <th
         scope="col"
-        className="px-5 py-3.5 text-left text-[11px] font-semibold uppercase tracking-[0.12em] text-muted"
+        className="px-4 py-3 text-left text-[11px] font-semibold uppercase tracking-[0.12em] text-muted"
     >
         {children}
     </th>
 );
 
 const TableCell = ({ children, className = '' }) => (
-    <td className={`px-5 py-3.5 text-sm ${className}`}>{children}</td>
+    <td className={`px-4 py-3 text-sm align-top ${className}`}>{children}</td>
 );
 
 const UserCell = ({ name, email, userId, avatar, isInactive }) => (
@@ -833,26 +758,28 @@ const UserCell = ({ name, email, userId, avatar, isInactive }) => (
     </div>
 );
 
-const StatusCell = ({ active, sessionActive }) => {
-    const accountTone = active ? 'success' : 'danger';
-    const accountLabel = active ? 'Active' : 'Inactive';
-    const sessionTone = sessionActive ? 'success' : 'neutral';
-    const sessionLabel = sessionActive ? 'Active' : 'Ended';
+const TONE_BADGE = Object.freeze({
+    success: 'bg-success-soft text-success border-success/20',
+    warning: 'bg-warning-soft text-warning border-warning/20',
+    danger: 'bg-danger-soft text-danger border-danger/20',
+    neutral: 'bg-surface-elevated text-muted border-border',
+});
 
-    return (
-        <div>
-            {badgeFor(accountTone, accountLabel)}
-            <div className="text-xs text-muted mt-1">
-                Session:{' '}
-                <span className={sessionTone === 'neutral' ? 'text-muted' : `text-${sessionTone}`}>
-                    {sessionLabel}
-                </span>
-            </div>
-        </div>
-    );
-};
+const TONE_DOT = Object.freeze({
+    success: 'bg-success animate-pulse',
+    warning: 'bg-warning',
+    danger: 'bg-danger',
+    neutral: 'bg-border-strong',
+});
 
-const PresenceCell = ({ presence, lastActivity }) => {
+const TONE_TEXT = Object.freeze({
+    success: 'text-success',
+    warning: 'text-warning',
+    danger: 'text-danger',
+    neutral: 'text-muted',
+});
+
+const StatusCell = ({ presence, lastActivity, active, sessionActive }) => {
     const tone =
         presence === 'Online'
             ? 'success'
@@ -867,18 +794,28 @@ const PresenceCell = ({ presence, lastActivity }) => {
                 : 'Idle';
 
     return (
-        <div className="mt-1">
-            {badgeFor(tone, label)}
-            <div className="text-xs text-muted mt-1">Last activity {formatRelativeTime(lastActivity)}</div>
+        <div>
+            <span className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-md text-[11px] font-semibold border ${TONE_BADGE[tone]}`}>
+                <span className={`inline-block h-1.5 w-1.5 rounded-full ${TONE_DOT[tone]}`} aria-hidden="true" />
+                {label}
+            </span>
+            <div className="text-xs text-muted mt-1 space-y-0.5">
+                <div>
+                    Account <span className={TONE_TEXT[active ? 'success' : 'neutral']}>{active ? 'active' : 'ended'}</span>
+                </div>
+                <div>
+                    Session <span className={TONE_TEXT[sessionActive ? 'success' : 'neutral']}>{sessionActive ? 'active' : 'ended'}</span>
+                </div>
+            </div>
+            <div className="text-xs text-muted mt-0.5">Last activity {formatRelativeTime(lastActivity)}</div>
         </div>
     );
 };
 
 const LocationCell = ({ countryCode, city, isInactive }) => (
     <div className={isInactive ? 'opacity-70' : ''}>
-        <div className="flex items-center gap-1.5 text-sm font-semibold text-foreground">
-            <span aria-hidden="true">{flagEmojiFor(countryCode, '🌐')}</span>
-            <span>{locationLabelFor(countryCode)}</span>
+        <div className="text-sm font-semibold text-foreground">
+            {countryName(countryCode)}
         </div>
         {city && (
             <div className="text-xs text-muted mt-0.5 truncate" title={city}>{city}</div>
@@ -887,13 +824,13 @@ const LocationCell = ({ countryCode, city, isInactive }) => (
 );
 
 const NetworkCell = ({ ipAddress, deviceInfo, copiedIp, onCopyIp, isInactive }) => (
-    <div>
-        <div className="flex items-center gap-2">
+    <div className={isInactive ? 'opacity-70' : ''}>
+        <div className="flex items-center gap-1.5">
             <span
-                className="inline-flex items-center gap-1.5
+                className="inline-flex items-center gap-1.5 min-w-0
                     text-xs font-mono bg-info-soft text-info px-2 py-0.5 rounded-md border border-info/20"
             >
-                {ipAddress || '—'}
+                <span className="truncate" title={ipAddress || ''}>{ipAddress || '—'}</span>
             </span>
             <button
                 type="button"
@@ -902,16 +839,15 @@ const NetworkCell = ({ ipAddress, deviceInfo, copiedIp, onCopyIp, isInactive }) 
                 aria-label={`Copy IP address ${ipAddress || ''}`}
                 aria-pressed={copiedIp === ipAddress}
                 title={copiedIp === ipAddress ? 'Copied' : 'Copy IP address'}
-                className="inline-flex items-center gap-1
-                    text-xs font-medium text-muted
+                className="inline-flex items-center justify-center shrink-0
+                    text-muted
                     hover:text-primary
                     hover:bg-surface-hover active:bg-surface-elevated
-                    rounded-md px-1.5 py-0.5 transition-colors
+                    rounded-md w-6 h-6 transition-colors
                     focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40
                     disabled:opacity-50 disabled:cursor-not-allowed"
             >
                 {copiedIp === ipAddress ? <Check size={13} /> : <Copy size={13} aria-hidden="true" />}
-                {copiedIp === ipAddress ? 'Copied' : 'Copy'}
             </button>
         </div>
         <div className="flex items-center gap-1.5 mt-1.5 text-xs text-secondary flex-wrap">
@@ -929,29 +865,21 @@ const NetworkCell = ({ ipAddress, deviceInfo, copiedIp, onCopyIp, isInactive }) 
     </div>
 );
 
-const TimingCell = ({ createdAt, lastActivity, expiresAt, isInactive }) => (
-    <div className={isInactive ? 'opacity-70' : ''}>
-        <div className="space-y-0.5">
-            <div className="flex items-center gap-1.5 text-xs">
-                <span className="text-secondary font-medium" aria-label="Last activity">Last:</span>
-                <span className="text-foreground tabular-nums">
-                    {lastActivity ? new Date(lastActivity).toLocaleTimeString() : '—'}
-                </span>
-            </div>
-            <div className="flex items-center gap-1.5 text-xs">
-                <span className="text-secondary font-medium" aria-hidden="true">Started:</span>
-                <span className="text-foreground">
-                    {new Date(createdAt).toLocaleDateString()}
-                </span>
-            </div>
-            {expiresAt && (
-                <div className="flex items-center gap-1.5 text-xs">
-                    <span className="text-secondary font-medium" aria-hidden="true">Expires:</span>
-                    <span className="text-foreground">
-                        {new Date(expiresAt).toLocaleDateString()}
-                    </span>
-                </div>
-            )}
+const SessionCell = ({ createdAt, expiresAt, isInactive }) => (
+    <div className={`space-y-0.5 ${isInactive ? 'opacity-70' : ''}`}>
+        <div className="flex items-center gap-1.5 text-xs">
+            <span className="text-secondary font-medium" aria-hidden="true">Started:</span>
+            <span className="text-foreground">
+                {new Date(createdAt).toLocaleDateString()}
+            </span>
         </div>
+        {expiresAt && (
+            <div className="flex items-center gap-1.5 text-xs">
+                <span className="text-secondary font-medium" aria-hidden="true">Expires:</span>
+                <span className="text-foreground">
+                    {new Date(expiresAt).toLocaleDateString()}
+                </span>
+            </div>
+        )}
     </div>
 );
